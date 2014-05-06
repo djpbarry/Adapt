@@ -16,9 +16,9 @@
  */
 package ui;
 
-import adapt.Analyse_Movie;
-import adapt.StaticVariables;
-import adapt.UserVariables;
+import Adapt.Analyse_Movie;
+import Adapt.StaticVariables;
+import Adapt.UserVariables;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
