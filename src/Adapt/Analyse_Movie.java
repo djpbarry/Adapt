@@ -1574,6 +1574,6 @@ public class Analyse_Movie implements PlugIn {
     }
 
     int getThreshold(ImageProcessor image) {
-        return (new AutoThresholder()).getThreshold(AutoThresholder.Method.Default, image.getStatistics().histogram);
+        return (new AutoThresholder()).getThreshold(AutoThresholder.Method.Huang, image.getStatistics().histogram);
     }
 }
