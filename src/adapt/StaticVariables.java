@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ADBC;
+package adapt;
 
 import UtilClasses.GenUtils;
 import java.text.DecimalFormat;
@@ -117,7 +117,7 @@ public class StaticVariables {
     /**
      * Software Name
      */
-    public static final String TITLE = "AD_BC";
+    public static final String TITLE = "Adapt";
     /**
      * Formatting of integer results
      */

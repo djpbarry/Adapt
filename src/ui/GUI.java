@@ -16,9 +16,9 @@
  */
 package ui;
 
-import ADBC.Analyse_Movie;
-import ADBC.StaticVariables;
-import ADBC.UserVariables;
+import adapt.Analyse_Movie;
+import adapt.StaticVariables;
+import adapt.UserVariables;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
