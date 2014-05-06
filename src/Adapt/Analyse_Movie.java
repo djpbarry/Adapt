@@ -219,13 +219,14 @@ public class Analyse_Movie implements PlugIn {
         int width = cytoStack.getWidth();
         int height = cytoStack.getHeight();
         /*
-        Convert cyto channel to 8-bit for faster segmentation
-        */
+         Convert cyto channel to 8-bit for faster segmentation
+         */
         ImagePlus tempCytoImp = new ImagePlus("", stacks[0]);
         StackConverter sc = new StackConverter(tempCytoImp);
         sc.convertToGray8();
         stacks[0] = tempCytoImp.getImageStack();
-        
+        cytoStack = stacks[0];
+
         GUI gui = new GUI(null, true, TITLE, stacks, this);
         gui.setVisible(true);
         if (!gui.isWasOKed()) {
@@ -529,7 +530,7 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.CURVE_THRESH + ", " + String.valueOf(UserVariables.getCurveThresh()));
         paramStream.println(StaticVariables.CUT_OFF + ", " + String.valueOf(UserVariables.getCutOffTime()));
         paramStream.println(StaticVariables.CORTEX_DEPTH + ", " + String.valueOf(UserVariables.getCortexDepth()));
-        paramStream.println(StaticVariables.GET_MORPH + ", " + String.valueOf(UserVariables.isUseSigThresh()));
+        paramStream.println(StaticVariables.USE_SIG_THRESH + ", " + String.valueOf(UserVariables.isUseSigThresh()));
         paramStream.println(StaticVariables.SIG_THRESH_FACT + ", " + String.valueOf(UserVariables.getSigThreshFact()));
         paramStream.println(StaticVariables.SIG_REC_THRESH + ", " + String.valueOf(UserVariables.getSigRecoveryThresh()));
         return true;
