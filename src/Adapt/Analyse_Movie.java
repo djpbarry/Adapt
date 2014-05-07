@@ -691,6 +691,7 @@ public class Analyse_Movie implements PlugIn {
             ColorProcessor velOutput = new ColorProcessor(width, height);
             velOutput.setColor(Color.black);
             velOutput.fill();
+            velOutput.setLineWidth(3);
             ColorProcessor curveOutput = new ColorProcessor(width, height);
             curveOutput.setColor(Color.black);
             curveOutput.fill();
@@ -698,7 +699,7 @@ public class Analyse_Movie implements PlugIn {
                 int x = (int) Math.round(xCoords[i][j]);
                 int y = (int) Math.round(yCoords[i][j]);
                 velOutput.setColor(getColor(smoothVelocities[i][j], maxvel, minvel));
-                velOutput.drawPixel(x, y);
+                velOutput.drawDot(x, y);
                 curveOutput.setColor(getColor(curvatures[i][j], maxcurve, mincurve));
                 curveOutput.drawPixel(x, y);
             }
