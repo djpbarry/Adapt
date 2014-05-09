@@ -695,6 +695,7 @@ public class Analyse_Movie implements PlugIn {
             ColorProcessor curveOutput = new ColorProcessor(width, height);
             curveOutput.setColor(Color.black);
             curveOutput.fill();
+            curveOutput.setLineWidth(3);
             for (int j = 0; j < upLength; j++) {
                 int x = (int) Math.round(xCoords[i][j]);
                 int y = (int) Math.round(yCoords[i][j]);
