@@ -1467,31 +1467,33 @@ public class Analyse_Movie implements PlugIn {
                     Utils.drawCross(regionsOutput[i], current.getX(), current.getY(), 6);
                 }
             }
-            ArrayList<Pixel> centroids = region.getCentroids();
-            Pixel centre = centroids.get(centroids.size() - 1);
-            ImageProcessor origMask = region.getMask(stacks[0].getWidth(), stacks[0].getHeight(), centre.getX(), centre.getY());
-            ImageProcessor shrunkMask = origMask.duplicate();
-            ImageProcessor enlargedMask = origMask.duplicate();
-            int erosions = (int) Math.round(UserVariables.getCortexDepth() / UserVariables.getSpatialRes());
-            for (int e = 0; e < erosions; e++) {
-                shrunkMask.erode();
-                enlargedMask.dilate();
-            }
-            Region shrunkRegion = new Region(shrunkMask, region.getIndex(),
-                    region.getCentroids().get(0).getX(), region.getCentroids().get(0).getY());
-            LinkedList<Pixel> shrunkBorder = shrunkRegion.getBorderPix();
-            Region enlargedRegion = new Region(enlargedMask, region.getIndex(),
-                    region.getCentroids().get(0).getX(), region.getCentroids().get(0).getY());
-            LinkedList<Pixel> enlargedBorder = enlargedRegion.getBorderPix();
-            for (int i = 0; i < channels; i++) {
-                regionsOutput[i].setColor(Color.green);
-                for (Pixel sCurrent : shrunkBorder) {
-                    regionsOutput[i].drawDot(sCurrent.getX(), sCurrent.getY());
+            if (channels > 1) {
+                ArrayList<Pixel> centroids = region.getCentroids();
+                Pixel centre = centroids.get(centroids.size() - 1);
+                ImageProcessor origMask = region.getMask(stacks[0].getWidth(), stacks[0].getHeight(), centre.getX(), centre.getY());
+                ImageProcessor shrunkMask = origMask.duplicate();
+                ImageProcessor enlargedMask = origMask.duplicate();
+                int erosions = (int) Math.round(UserVariables.getCortexDepth() / UserVariables.getSpatialRes());
+                for (int e = 0; e < erosions; e++) {
+                    shrunkMask.erode();
+                    enlargedMask.dilate();
                 }
-            }
-            for (Pixel eCurrent : enlargedBorder) {
+                Region shrunkRegion = new Region(shrunkMask, region.getIndex(),
+                        region.getCentroids().get(0).getX(), region.getCentroids().get(0).getY());
+                LinkedList<Pixel> shrunkBorder = shrunkRegion.getBorderPix();
+                Region enlargedRegion = new Region(enlargedMask, region.getIndex(),
+                        region.getCentroids().get(0).getX(), region.getCentroids().get(0).getY());
+                LinkedList<Pixel> enlargedBorder = enlargedRegion.getBorderPix();
                 for (int i = 0; i < channels; i++) {
-                    regionsOutput[i].drawDot(eCurrent.getX(), eCurrent.getY());
+                    regionsOutput[i].setColor(Color.green);
+                    for (Pixel sCurrent : shrunkBorder) {
+                        regionsOutput[i].drawDot(sCurrent.getX(), sCurrent.getY());
+                    }
+                }
+                for (Pixel eCurrent : enlargedBorder) {
+                    for (int i = 0; i < channels; i++) {
+                        regionsOutput[i].drawDot(eCurrent.getX(), eCurrent.getY());
+                    }
                 }
             }
             if (UserVariables.isAnalyseProtrusions()) {

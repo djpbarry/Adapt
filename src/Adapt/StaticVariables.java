@@ -17,6 +17,7 @@
 package Adapt;
 
 import UtilClasses.GenUtils;
+import ij.IJ;
 import java.text.DecimalFormat;
 
 /**
@@ -31,7 +32,7 @@ public class StaticVariables {
     /**
      * GUI label for Spatial Resolution
      */
-    public static final String SPAT_RES = "Spatial Resolution";
+    public static final String SPAT_RES = "Spatial Resolution (" + IJ.micronSymbol + "m/pixel)";
     /**
      * GUI label for Time Resolution
      */
@@ -51,7 +52,7 @@ public class StaticVariables {
     /**
      * GUI label for Segmentation Step Back
      */
-    public static final String EROSION = "Segmentation Step Back";
+    public static final String EROSION = "Erosion Iterations";
     /**
      * GUI label for Curvature Window
      */
@@ -71,7 +72,7 @@ public class StaticVariables {
     /**
      * GUI label for Cut-off time
      */
-    public static final String CUT_OFF = "Cut-off time";
+    public static final String CUT_OFF = "Cut-Off Time (s)";
     /**
      * GUI label for Generate Visualisations
      */
@@ -87,11 +88,11 @@ public class StaticVariables {
     /**
      * GUI label for Temporal Filter Radius
      */
-    public static final String TEMP_FILT_RAD = "Temporal Filter Radius";
+    public static final String TEMP_FILT_RAD = "Temporal Filter Radius (s)";
     /**
      * GUI label for Spatial Filter Radius
      */
-    public static final String SPAT_FILT_RAD = "Spatial Filter Radius";
+    public static final String SPAT_FILT_RAD = "Spatial Filter Radius (" + IJ.micronSymbol + "m)";
     /**
      * GUI label for Gaussian Filter Radius
      */
@@ -99,11 +100,11 @@ public class StaticVariables {
     /**
      * GUI label for Signal map threshold
      */
-    public static final String SIG_REC_THRESH = "Signal map threshold";
+    public static final String SIG_REC_THRESH = "Signal Map Threshold";
     /**
      * GUI label for Cortex Depth
      */
-    public static final String CORTEX_DEPTH = "Cortex Depth";
+    public static final String CORTEX_DEPTH = "Cortex Depth (" + IJ.micronSymbol + "m)";
     /**
      * GUI label for Auto Threshold
      */
