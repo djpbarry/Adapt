@@ -100,12 +100,12 @@ public class Analyse_Movie implements PlugIn {
     private final ImageStack stacks[] = new ImageStack[2];
     private double morphSizeMin = 0.1;
 
-    public static void main(String args[]) {
-        Analyse_Movie am = new Analyse_Movie();
-        am.initialise();
-        am.run(null);
-        System.exit(0);
-    }
+//    public static void main(String args[]) {
+//        Analyse_Movie am = new Analyse_Movie();
+//        am.initialise();
+//        am.run(null);
+//        System.exit(0);
+//    }
 
     /**
      * Default constructor
@@ -1462,7 +1462,7 @@ public class Analyse_Movie implements PlugIn {
                 }
             }
             for (int i = 0; i < channels; i++) {
-                regionsOutput[i].setColor(Color.green);
+                regionsOutput[i].setColor(Color.blue);
                 for (Pixel current : seed) {
                     Utils.drawCross(regionsOutput[i], current.getX(), current.getY(), 6);
                 }
@@ -1484,7 +1484,7 @@ public class Analyse_Movie implements PlugIn {
                     region.getCentroids().get(0).getX(), region.getCentroids().get(0).getY());
             LinkedList<Pixel> enlargedBorder = enlargedRegion.getBorderPix();
             for (int i = 0; i < channels; i++) {
-                regionsOutput[i].setColor(Color.blue);
+                regionsOutput[i].setColor(Color.green);
                 for (Pixel sCurrent : shrunkBorder) {
                     regionsOutput[i].drawDot(sCurrent.getX(), sCurrent.getY());
                 }

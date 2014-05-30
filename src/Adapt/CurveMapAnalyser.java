@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 /**
  * Class consisting of static methods for the analysis of cell curvature maps
- * 
+ *
  * @author David Barry <david.barry at cancer.org.uk>
  */
 public class CurveMapAnalyser {
@@ -39,7 +39,7 @@ public class CurveMapAnalyser {
     /**
      * Determines whether the coordinate (pos, timePoint) represents a local
      * minima within curveVals
-     * 
+     *
      * @param pos y-coordinate of coordinate to be tested, representing position
      * on cell boundary
      * @param range the size of the window within curveVals that will be searched
@@ -49,7 +49,7 @@ public class CurveMapAnalyser {
      * be considered a minima
      * @param curveVals array of curvature values to be searched
      * @return 0 if this is a local curvature minima, non-zero otherwise
-     * 
+     *
      */
     private static int isLocalCurvatureMinima(int pos, int range, int timePoint, double[][] curveVals, double threshold) {
         double C0 = curveVals[timePoint][pos];
@@ -86,7 +86,7 @@ public class CurveMapAnalyser {
     /**
      * Finds all curvature minima in the cellData's curveMap. Minima can be retrieved
      * by calling {@link CellData#getCurvatureMinima() CellData.getCurvatureMinima()}
-     * 
+     *
      * @param cellData contains the curvature map to be analysed
      * @param startFrame the first movie frame to be analysed
      * @param endFrame the last movie frame to be analysed
@@ -112,7 +112,7 @@ public class CurveMapAnalyser {
                                     new IsoGaussian(xvals[currentIndex][pos]
                                             * UserVariables.getSpatialRes(),
                                             yvals[currentIndex][pos]
-                                                    * UserVariables.getSpatialRes(),
+                                            * UserVariables.getSpatialRes(),
                                             -1.0 * curveVals[currentIndex][pos],
                                             1.0, 1.0, 1.0),
                                     null, null, pos));
@@ -219,7 +219,7 @@ public class CurveMapAnalyser {
 
     /**
      * Updates the location of the specified bleb anchor point
-     * 
+     *
      * @param time the frame number at which the update is applied
      * @param anchor the anchor point to be updated, specified as {position on cell
      * boundary, curvature minimum trajectory index}

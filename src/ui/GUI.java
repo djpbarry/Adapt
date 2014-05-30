@@ -23,6 +23,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.ImageCanvas;
+import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -54,7 +55,7 @@ public class GUI extends javax.swing.JDialog {
         cytoImp = new ImagePlus("", stacks[0].getProcessor(1));
         if (stacks[1] != null) {
             sigImp = new ImagePlus("", stacks[1].getProcessor(1));
-        } else sigImp = cytoImp;
+        } else sigImp = new ImagePlus("", new ByteProcessor(cytoImp.getWidth(), cytoImp.getHeight()));
         initComponents();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width / 2 - this.getWidth() / 2, dim.height / 2 - this.getHeight() / 2);
