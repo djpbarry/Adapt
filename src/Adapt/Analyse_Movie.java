@@ -100,13 +100,12 @@ public class Analyse_Movie implements PlugIn {
     private final ImageStack stacks[] = new ImageStack[2];
     private double morphSizeMin = 0.1;
 
-//    public static void main(String args[]) {
-//        Analyse_Movie am = new Analyse_Movie();
-//        am.initialise();
-//        am.run(null);
-//        System.exit(0);
-//    }
-
+    public static void main(String args[]) {
+        Analyse_Movie am = new Analyse_Movie();
+        am.initialise();
+        am.run(null);
+        System.exit(0);
+    }
     /**
      * Default constructor
      */
@@ -277,7 +276,7 @@ public class Analyse_Movie implements PlugIn {
                     init = centHist[j][centIndex];
                 }
                 Region temp = new Region(mask, current.getIndex(), init.getX(), init.getY());
-                cellData[j].setInitialPix(temp.getPixels());
+//                cellData[j].setInitialPix(temp.getPixels());
                 cellData[j].setInitialBorder(temp.getBorderPix());
             }
         }
@@ -876,10 +875,10 @@ public class Analyse_Movie implements PlugIn {
             Region region = new Region(outVal);
             for (int j = 0; j < m; j++) {
                 Pixel current = initialPix.get(j);
-                region.addPoint(current);
+//                region.addPoint(current);
                 indexedRegions.putPixel(current.getX(), current.getY(), outVal);
             }
-            region.loadPixels(initialPix, initialBorder);
+            region.loadPixels(initialBorder);
             region.calcCentroid();
 //            region.setSeedPix();
             singleImageRegions.add(region);
@@ -961,7 +960,7 @@ public class Analyse_Movie implements PlugIn {
         }
         for (i = 0; i < cellNum; i++) {
             Region cell = singleImageRegions.get(i);
-            cell.clearPixels();
+//            cell.clearPixels();
         }
         return regionImage;
     }
@@ -991,21 +990,23 @@ public class Analyse_Movie implements PlugIn {
                 Arrays.fill(distancemaps[n][x], Float.MAX_VALUE);
             }
             Region cell = singleImageRegions.get(n);
-            ArrayList<Pixel> pixels = cell.getPixels();
+//            ArrayList<Pixel> pixels = cell.getPixels();
+            ImageProcessor mask = cell.getMask(regionImage.getWidth(), regionImage.getHeight(), cell.getInitX(), cell.getInitY());
             LinkedList<Pixel> borderPix = cell.getBorderPix();
             Region cellcopy = new Region(n + 1);
-            int pixsize = pixels.size();
+//            int pixsize = pixels.size();
             /*
              * Copy initial pixels and border pixels to cell copy for distance
              * map construction. This can probably be replaced with a clone
              * method.
              */
-            for (int s = 0; s < pixsize; s++) {
-                Pixel pix = pixels.get(s);
-                int sx = pix.getX();
-                int sy = pix.getY();
-                distancemaps[n][sx][sy] = 0.0f;
-                cellcopy.addPoint(pix);
+            for (int i = 0; i < mask.getWidth(); i++) {
+                for (int j = 0; j < mask.getWidth(); j++) {
+                    if (mask.getPixel(i, j) == 0) {
+                        distancemaps[n][i][j] = 0.0f;
+                    }
+//                cellcopy.addPoint(pix);
+                }
             }
             int bordersize = borderPix.size();
             for (int s = 0; s < bordersize; s++) {
@@ -1114,9 +1115,10 @@ public class Analyse_Movie implements PlugIn {
             if (x < 1 || y < 1 || x >= regionImage.getWidth() - 1 || y >= regionImage.getHeight() - 1) {
                 cell.setEdge(true);
             }
-        } else {
-            cell.addPoint(point);
         }
+//        } else {
+//            cell.addPoint(point);
+//        }
         return dilate;
     }
 
@@ -1177,9 +1179,10 @@ public class Analyse_Movie implements PlugIn {
             if (x < 1 || y < 1 || x >= regionImage.getWidth() - 1 || y >= regionImage.getHeight() - 1) {
                 region.setEdge(true);
             }
-        } else {
-            region.addPoint(point);
         }
+//        } else {
+//            region.addPoint(point);
+//        }
         return dilate;
     }
 
@@ -1237,9 +1240,10 @@ public class Analyse_Movie implements PlugIn {
             if (x < 1 || y < 1 || x >= regionImage.getWidth() - 1 || y >= regionImage.getHeight() - 1) {
                 region.setEdge(true);
             }
-        } else {
-            region.addPoint(point);
         }
+//        } else {
+//            region.addPoint(point);
+//        }
         return dilate;
     }
 
