@@ -46,7 +46,7 @@ public class CellData {
     int greyThresholds[];
     File velDirName, curvDirName;
     Region[] cellRegions;
-    ArrayList<Pixel> initialPix;
+//    ArrayList<Pixel> initialPix;
     LinkedList<Pixel> initialBorder;
 
     /**
@@ -284,13 +284,13 @@ public class CellData {
         this.greyThresholds = greyThresholds;
     }
 
-    public ArrayList<Pixel> getInitialPix() {
-        return initialPix;
-    }
-
-    public void setInitialPix(ArrayList<Pixel> initialPix) {
-        this.initialPix = initialPix;
-    }
+//    public ArrayList<Pixel> getInitialPix() {
+//        return initialPix;
+//    }
+//
+//    public void setInitialPix(ArrayList<Pixel> initialPix) {
+//        this.initialPix = initialPix;
+//    }
 
     public LinkedList<Pixel> getInitialBorder() {
         return initialBorder;

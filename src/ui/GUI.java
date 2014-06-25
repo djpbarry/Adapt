@@ -24,7 +24,9 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.ImageCanvas;
 import ij.process.ByteProcessor;
+import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
+import ij.process.TypeConverter;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import javax.swing.DefaultBoundedRangeModel;
@@ -40,9 +42,11 @@ public class GUI extends javax.swing.JDialog {
 
     private Analyse_Movie analyser;
     private ImagePlus cytoImp, sigImp;
+    private ImageProcessor cytoProc, sigProc;
     private ImageStack[] stacks;
     private String title;
     private boolean wasOKed = false;
+    private final int MAX_DIM = 512;
 
     /**
      * Creates new form GUI
@@ -52,10 +56,16 @@ public class GUI extends javax.swing.JDialog {
         this.stacks = stacks;
         this.title = title;
         this.analyser = analyser;
-        cytoImp = new ImagePlus("", stacks[0].getProcessor(1));
+        cytoProc = stacks[0].getProcessor(1).duplicate();
+        cytoProc = checkImageDimensions(cytoProc);
+        cytoImp = new ImagePlus("", cytoProc);
         if (stacks[1] != null) {
-            sigImp = new ImagePlus("", stacks[1].getProcessor(1));
-        } else sigImp = new ImagePlus("", new ByteProcessor(cytoImp.getWidth(), cytoImp.getHeight()));
+            sigProc = stacks[1].getProcessor(1).duplicate();
+            sigProc = checkImageDimensions(sigProc);
+            sigImp = new ImagePlus("", sigProc);
+        } else {
+            sigImp = new ImagePlus("", new ByteProcessor(cytoProc.getWidth(), cytoProc.getHeight()));
+        }
         initComponents();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width / 2 - this.getWidth() / 2, dim.height / 2 - this.getHeight() / 2);
@@ -632,10 +642,12 @@ public class GUI extends javax.swing.JDialog {
             return;
         }
         ImageProcessor updates[] = analyser.generatePreview(previewScrollBar.getValue());
-        cytoImp.setProcessor(updates[0]);
+        ImageProcessor cytoUpdate = checkImageDimensions(updates[0]);
+        cytoImp.setProcessor(cytoUpdate);
         cytoCanvas.repaint();
         if (stacks[1] != null) {
-            sigImp.setProcessor(updates[1]);
+            ImageProcessor sigUpdate = checkImageDimensions(updates[1]);
+            sigImp.setProcessor(sigUpdate);
             sigCanvas.repaint();
         }
         previewField.setText(String.valueOf(previewScrollBar.getValue()));
@@ -686,6 +698,29 @@ public class GUI extends javax.swing.JDialog {
         return wasOKed;
     }
 
+    private ImageProcessor checkImageDimensions(ImageProcessor inputImage) {
+        ColorProcessor colorImage = (ColorProcessor) (new TypeConverter(inputImage, false)).convertToRGB();
+        int width = inputImage.getWidth();
+        int height = inputImage.getHeight();
+        int pixsize = width * height;
+        double widthscale = ((double) width) / MAX_DIM;
+        double heightscale = ((double) height) / MAX_DIM;
+        if (widthscale > 1.0 || heightscale > 1.0) {
+            double scale = 1.0 / Math.max(widthscale, heightscale);
+            int scaledwidth = (int) Math.round(scale * colorImage.getWidth());
+            byte redPix[] = new byte[pixsize], greenPix[] = new byte[pixsize],
+                    bluePix[] = new byte[pixsize];
+            colorImage.getRGB(redPix, greenPix, bluePix);
+            ImageProcessor red = (new ByteProcessor(width, height, redPix)).resize(scaledwidth);
+            ImageProcessor green = (new ByteProcessor(width, height, greenPix)).resize(scaledwidth);
+            ImageProcessor blue = (new ByteProcessor(width, height, bluePix)).resize(scaledwidth);
+            ColorProcessor output = new ColorProcessor(red.getWidth(), red.getHeight());
+            output.setRGB((byte[]) red.getPixels(), (byte[]) green.getPixels(), (byte[]) blue.getPixels());
+            return output;
+        } else {
+            return colorImage;
+        }
+    }
 //    public static void main(String args[]) {
 //        /* Set the Nimbus look and feel */
 //        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
