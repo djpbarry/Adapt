@@ -42,6 +42,7 @@ public class CellData {
     Roi[] velRois;
     ArrayList<BoundaryPixel> curvatureMinima[];
     double noisyVelocities[][];
+    double[][] smoothVelocities;
     double scaleFactors[];
     int greyThresholds[];
     File velDirName, curvDirName;
@@ -314,6 +315,14 @@ public class CellData {
 
     public void setNoisyVelocities(double[][] noisyVelocities) {
         this.noisyVelocities = noisyVelocities;
+    }
+
+    public double[][] getSmoothVelocities() {
+        return smoothVelocities;
+    }
+
+    public void setSmoothVelocities(double[][] smoothVelocities) {
+        this.smoothVelocities = smoothVelocities;
     }
 
 }

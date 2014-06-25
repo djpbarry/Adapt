@@ -301,6 +301,9 @@ public class Analyse_Movie implements PlugIn {
                 findProtrusions(cellData[index]);
                 correlativePlot(cellData[index]);
             }
+            if (UserVariables.isGenVis()) {
+                generateVisualisations(cellData);
+            }
         }
     }
 
@@ -372,8 +375,8 @@ public class Analyse_Movie implements PlugIn {
         buildCurveMap(allRegions, cellData[index]);
 
         if (!preview) {
-            velDirName = GenUtils.createDirectory(childDir + delimiter + "Velocity_Visualisation");
-            curvDirName = GenUtils.createDirectory(childDir + delimiter + "Curvature_Visualisation");
+            velDirName = GenUtils.createDirectory(parDir + delimiter + "Velocity_Visualisation");
+            curvDirName = GenUtils.createDirectory(parDir + delimiter + "Curvature_Visualisation");
 
             /*
              * To obain a uniform map, all boundary lengths (from each frame) are
@@ -441,9 +444,7 @@ public class Analyse_Movie implements PlugIn {
             cellData[index].setCurvDirName(curvDirName);
             cellData[index].setGreySigMap(greySigMap);
             cellData[index].setColorVelMap(colorVelMap);
-            if (UserVariables.isGenVis()) {
-                generateVisualisations(cellData[index], smoothVelocities, allRegions, index);
-            }
+            cellData[index].setSmoothVelocities(smoothVelocities);
             generateMaps(smoothVelocities, cellData[index]);
 //            File parentDirectory = new File(directory.getParent());
             IJ.saveAs(new ImagePlus("", greyVelMap), "TIF", childDir + delimiter + "VelocityMap.tif");
@@ -669,28 +670,22 @@ public class Analyse_Movie implements PlugIn {
         dialog.dispose();
     }
 
-    void generateVisualisations(CellData cellData, double[][] smoothVelocities, Region[] allRegions, int index) {
+    void generateVisualisations(CellData cellDatas[]) {
+        int N = cellDatas.length;
         ImageStack cytoStack = stacks[0];
         ProgressDialog dialog = new ProgressDialog(null, "Building Visualisations...", false, true, TITLE);
         dialog.setVisible(true);
         /*
          * Generate various visualisations for output
          */
-        MorphMap curveMap = cellData.getCurveMap();
         int width = cytoStack.getWidth();
         int height = cytoStack.getHeight();
-        int l = smoothVelocities.length;
-        int upLength = curveMap.getHeight();
-        double maxvel = cellData.getMaxVel();
-        double minvel = cellData.getMinVel();
+        int length = cytoStack.getSize();
         double mincurve = -50.0, maxcurve = 50.0;
-        double xCoords[][] = curveMap.getxCoords();
-        double yCoords[][] = curveMap.getyCoords();
-        double curvatures[][] = curveMap.getzVals();
-        File velDirName = cellData.getVelDirName();
-        File curvDirName = cellData.getCurvDirName();
-        for (int i = 0; i < l; i++) {
-            dialog.updateProgress(i, l);
+        File velDirName = cellData[0].getVelDirName();
+        File curvDirName = cellData[0].getCurvDirName();
+        for (int t = 0; t < length; t++) {
+            dialog.updateProgress(t, length);
             ColorProcessor velOutput = new ColorProcessor(width, height);
             velOutput.setColor(Color.black);
             velOutput.fill();
@@ -699,23 +694,34 @@ public class Analyse_Movie implements PlugIn {
             curveOutput.setColor(Color.black);
             curveOutput.fill();
             curveOutput.setLineWidth(3);
-            for (int j = 0; j < upLength; j++) {
-                int x = (int) Math.round(xCoords[i][j]);
-                int y = (int) Math.round(yCoords[i][j]);
-                velOutput.setColor(getColor(smoothVelocities[i][j], maxvel, minvel));
-                velOutput.drawDot(x, y);
-                curveOutput.setColor(getColor(curvatures[i][j], maxcurve, mincurve));
-                curveOutput.drawDot(x, y);
+            for (int n = 0; n < N; n++) {
+                double[][] smoothVelocities = cellData[n].getSmoothVelocities();
+                Region[] allRegions = cellData[n].getCellRegions();
+                MorphMap curveMap = cellData[n].getCurveMap();
+                int upLength = curveMap.getHeight();
+                double maxvel = cellData[n].getMaxVel();
+                double minvel = cellData[n].getMinVel();
+                double xCoords[][] = curveMap.getxCoords();
+                double yCoords[][] = curveMap.getyCoords();
+                double curvatures[][] = curveMap.getzVals();
+                for (int j = 0; j < upLength; j++) {
+                    int x = (int) Math.round(xCoords[t][j]);
+                    int y = (int) Math.round(yCoords[t][j]);
+                    velOutput.setColor(getColor(smoothVelocities[t][j], maxvel, minvel));
+                    velOutput.drawDot(x, y);
+                    curveOutput.setColor(getColor(curvatures[t][j], maxcurve, mincurve));
+                    curveOutput.drawDot(x, y);
+                }
+                velOutput.setColor(Color.white);
+                Region current = allRegions[t];
+                ArrayList<Pixel> centroids = current.getCentroids();
+                int cl = centroids.size();
+                double xc = centroids.get(cl - 1).getPrecX();
+                double yc = centroids.get(cl - 1).getPrecY();
+                velOutput.fillOval((int) Math.round(xc - 1.0), (int) Math.round(yc - 1.0), 3, 3);
             }
-            velOutput.setColor(Color.white);
-            Region current = allRegions[i];
-            ArrayList<Pixel> centroids = current.getCentroids();
-            int cl = centroids.size();
-            double xc = centroids.get(cl - 1).getPrecX();
-            double yc = centroids.get(cl - 1).getPrecY();
-            velOutput.fillOval((int) Math.round(xc - 1.0), (int) Math.round(yc - 1.0), 3, 3);
-            IJ.saveAs((new ImagePlus("", velOutput)), "PNG", velDirName.getAbsolutePath() + delimiter + numFormat.format(i));
-            IJ.saveAs((new ImagePlus("", curveOutput)), "PNG", curvDirName.getAbsolutePath() + delimiter + numFormat.format(i));
+            IJ.saveAs((new ImagePlus("", velOutput)), "PNG", velDirName.getAbsolutePath() + delimiter + numFormat.format(t));
+            IJ.saveAs((new ImagePlus("", curveOutput)), "PNG", curvDirName.getAbsolutePath() + delimiter + numFormat.format(t));
         }
         dialog.dispose();
     }
