@@ -100,12 +100,12 @@ public class Analyse_Movie implements PlugIn {
     private final ImageStack stacks[] = new ImageStack[2];
     private double morphSizeMin = 0.1;
 
-    public static void main(String args[]) {
-        Analyse_Movie am = new Analyse_Movie();
-        am.initialise();
-        am.run(null);
-        System.exit(0);
-    }
+//    public static void main(String args[]) {
+//        Analyse_Movie am = new Analyse_Movie();
+//        am.initialise();
+//        am.run(null);
+//        System.exit(0);
+//    }
 
     /**
      * Default constructor
@@ -309,8 +309,8 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList();
-        initP.add(new Pixel(169, 193));
-        initP.add(new Pixel(336, 135));
+//        initP.add(new Pixel(169, 193));
+//        initP.add(new Pixel(336, 135));
         int n;
         int threshold = UserVariables.isAutoThreshold() ? getThreshold(stacks[0].getProcessor(slice)) : UserVariables.getGreyThresh();
         if (roi != null) {
@@ -321,9 +321,9 @@ public class Analyse_Movie implements PlugIn {
                 return -1;
             }
         } else {
-//            getInitialSeedPoints((ByteProcessor) stacks[0].getProcessor(slice), initP, threshold);
-//            n = initP.size();
-            n = 2;
+            getInitialSeedPoints((ByteProcessor) stacks[0].getProcessor(slice), initP, threshold);
+            n = initP.size();
+//            n = 2;
         }
         cellData = new CellData[n];
         for (int i = 0; i < n; i++) {
