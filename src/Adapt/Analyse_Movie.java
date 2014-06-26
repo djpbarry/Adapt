@@ -301,16 +301,16 @@ public class Analyse_Movie implements PlugIn {
                 findProtrusions(cellData[index]);
                 correlativePlot(cellData[index]);
             }
-            if (UserVariables.isGenVis()) {
-                generateVisualisations(cellData);
-            }
+        }
+        if (UserVariables.isGenVis()) {
+            generateVisualisations(cellData);
         }
     }
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList();
-//        initP.add(new Pixel(169, 193));
-//        initP.add(new Pixel(336, 135));
+        initP.add(new Pixel(169, 193));
+        initP.add(new Pixel(336, 135));
         int n;
         int threshold = UserVariables.isAutoThreshold() ? getThreshold(stacks[0].getProcessor(slice)) : UserVariables.getGreyThresh();
         if (roi != null) {
@@ -321,9 +321,9 @@ public class Analyse_Movie implements PlugIn {
                 return -1;
             }
         } else {
-            getInitialSeedPoints((ByteProcessor) stacks[0].getProcessor(slice), initP, threshold);
-            n = initP.size();
-//            n = 2;
+//            getInitialSeedPoints((ByteProcessor) stacks[0].getProcessor(slice), initP, threshold);
+//            n = initP.size();
+            n = 2;
         }
         cellData = new CellData[n];
         for (int i = 0; i < n; i++) {
@@ -941,34 +941,40 @@ public class Analyse_Movie implements PlugIn {
         /*
          * Grow regions according to texture, grey levels and distance maps
          */
-        ImageStack regionImageStack = new ImageStack(regionImage.getWidth(), regionImage.getHeight());
+//        ImageStack regionImageStack = new ImageStack(regionImage.getWidth(), regionImage.getHeight());
         while (totChange) {
             totChange = false;
             for (i = 0; i < cellNum; i++) {
 //                ByteProcessor ref = (ByteProcessor) regionImages[i].duplicate();
                 Region cell = singleImageRegions.get(i);
-                if (cell.isActive()) {
+//                if (cell.isActive()) {
 //                    cell.savePixels(width, height);
-                    LinkedList<Pixel> borderPi = cell.getBorderPix();
-                    int borderLength = borderPi.size();
-                    thisChange = false;
-                    for (j = 0; j < borderLength; j++) {
-                        Pixel thispix = borderPi.get(j);
-                        if (!simple) {
+                LinkedList<Pixel> borderPi = cell.getBorderPix();
+                int borderLength = borderPi.size();
+                thisChange = false;
+                for (j = 0; j < borderLength; j++) {
+                    Pixel thispix = borderPi.get(j);
+                    if (!simple) {
 //                            thisChange = dijkstraDilate(ref, cell, thispix,
 //                                    distancemaps) || thisChange;
-                        } else {
-                            thisChange = simpleDilate(regionImage,
-                                    inputImage, cell, thispix, intermediate, threshold)
-                                    || thisChange;
-                        }
+                    } else {
+                        thisChange = simpleDilate(regionImage,
+                                inputImage, cell, thispix, intermediate, threshold)
+                                || thisChange;
                     }
-                    cell.setActive(thisChange);
-                    totChange = thisChange || totChange;
                 }
+                cell.setActive(thisChange);
+                totChange = thisChange || totChange;
+//                }
             }
+//            if (regionImageStack.getSize() == 222) {
+//                IJ.wait(0);
+//            }
+//            regionImageStack.addSlice(regionImage.duplicate());
+//            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\regions.tif");
             expandRegions(singleImageRegions, regionImage, cellNum);
-            regionImageStack.addSlice(regionImage.duplicate());
+//            regionImageStack.addSlice(regionImage.duplicate());
+//            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\regions.tif");
         }
 //        for (i = 0; i < cellNum; i++) {
 //            Region cell = singleImageRegions.get(i);
@@ -1107,17 +1113,19 @@ public class Analyse_Movie implements PlugIn {
         int region = cell.getIndex();
         int width = regionImage.getWidth();
         int height = regionImage.getHeight();
-        regionImage.setValue(cell.getIndex());
-        for (int i = x - 1; i <= x + 2; i++) {
+        regionImage.setValue(intermediate);
+        for (int i = x - 1; i <= x + 1; i++) {
             for (int j = y - 1; j <= y + 1; j++) {
                 if (!Utils.isEdgePixel(i, j, width, height)) {
                     int r = regionImage.getPixel(i, j);
                     double g = greys.getPixelValue(i, j);
-                    if (r == StaticVariables.BACKGROUND && (g > greyThresh)) {
+                    if ((r == StaticVariables.BACKGROUND || r == intermediate) && (g > greyThresh)) {
                         Pixel p = new Pixel(i, j, region, 1);
                         regionImage.drawPixel(i, j);
                         dilate = true;
-                        cell.addExpandedBorderPix(p);
+                        if (!cell.getExpandedBorder().contains(p)) {
+                            cell.addExpandedBorderPix(p);
+                        }
                     }
                     r = regionImage.getPixel(i, j);
                     remove = (r == intermediate || r == region) && remove;
@@ -1280,6 +1288,9 @@ public class Analyse_Movie implements PlugIn {
      * borders are set to null.
      */
     void expandRegions(ArrayList<Region> regions, ByteProcessor regionImage, int N) {
+        ByteProcessor tempRegionImage = new ByteProcessor(regionImage.getWidth(), regionImage.getHeight());
+        tempRegionImage.setValue(StaticVariables.BACKGROUND);
+        tempRegionImage.fill();
         for (int i = 0; i < N; i++) {
             Region cell = regions.get(i);
             LinkedList<Pixel> pixels = cell.getExpandedBorder();
@@ -1288,7 +1299,23 @@ public class Analyse_Movie implements PlugIn {
                 Pixel current = pixels.get(j);
                 int x = current.getX();
                 int y = current.getY();
-                regionImage.putPixelValue(x, y, i + 1);
+                tempRegionImage.putPixelValue(x, y, tempRegionImage.getPixel(x, y) + 1);
+            }
+        }
+//        IJ.saveAs((new ImagePlus("", tempRegionImage)), "PNG", "c:\\users\\barry05\\desktop\\tempregions.pmg");
+        for (int i = 0; i < N; i++) {
+            Region cell = regions.get(i);
+            LinkedList<Pixel> pixels = cell.getExpandedBorder();
+            int borderLength = pixels.size();
+            for (int j = 0; j < borderLength; j++) {
+                Pixel current = pixels.get(j);
+                int x = current.getX();
+                int y = current.getY();
+                if (tempRegionImage.getPixel(x, y) > 1) {
+                    regionImage.putPixelValue(x, y, N + 2);
+                } else {
+                    regionImage.putPixelValue(x, y, i + 1);
+                }
             }
             cell.expandBorder();
         }
