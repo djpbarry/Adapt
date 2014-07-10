@@ -372,7 +372,7 @@ public class Analyse_Movie implements PlugIn {
         MorphMap curveMap = new MorphMap(size, upLength);
         cellData[index].setCurveMap(curveMap);
         cellData[index].setScaleFactors(scaleFactors);
-        buildCurveMap(allRegions, cellData[index]);
+        buildCurveMap(allRegions, cellData[index], index, cellData.length);
 
         if (!preview) {
             velDirName = GenUtils.createDirectory(parDir + delimiter + "Velocity_Visualisation");
@@ -412,7 +412,7 @@ public class Analyse_Movie implements PlugIn {
             cellData[index].setVelMap(velMap);
             cellData[index].setSigMap(sigMap);
             cellData[index].setScaleFactors(scaleFactors);
-            buildVelSigMaps(index, allRegions, trajStream, segStream, cellData[index]);
+            buildVelSigMaps(index, allRegions, trajStream, segStream, cellData[index], cellData.length);
             trajStream.close();
             paramStream.close();
             segStream.close();
@@ -445,7 +445,7 @@ public class Analyse_Movie implements PlugIn {
             cellData[index].setGreySigMap(greySigMap);
             cellData[index].setColorVelMap(colorVelMap);
             cellData[index].setSmoothVelocities(smoothVelocities);
-            generateMaps(smoothVelocities, cellData[index]);
+            generateMaps(smoothVelocities, cellData[index], index, cellData.length);
 //            File parentDirectory = new File(directory.getParent());
             IJ.saveAs(new ImagePlus("", greyVelMap), "TIF", childDir + delimiter + "VelocityMap.tif");
             IJ.saveAs(new ImagePlus("", greyCurvMap), "TIF", childDir + delimiter + "CurvatureMap.tif");
@@ -540,11 +540,12 @@ public class Analyse_Movie implements PlugIn {
         return true;
     }
 
-    void buildVelSigMaps(int index, Region[] allRegions, PrintWriter trajStream,
-            PrintWriter segStream, CellData cellData) {
+    void buildVelSigMaps(int index, Region[] allRegions, PrintWriter trajStream, PrintWriter segStream, CellData cellData, int total) {
         ImageStack cytoStack = stacks[0];
         ImageStack sigStack = stacks[1];
-        ProgressDialog dialog = new ProgressDialog(null, "Building Maps 1 of 2...", false, true, TITLE);
+        ProgressDialog dialog = new ProgressDialog(null,
+                "Initialising velocity map for cell " + String.valueOf(index) + " of " + String.valueOf(total) + "...",
+                false, true, TITLE);
         dialog.setVisible(true);
         MorphMap velMap = cellData.getVelMap();
         MorphMap sigMap = cellData.getSigMap();
@@ -600,8 +601,10 @@ public class Analyse_Movie implements PlugIn {
         dialog.dispose();
     }
 
-    private void buildCurveMap(Region[] allRegions, CellData cellData) {
-        ProgressDialog dialog = new ProgressDialog(null, "Building Curve Map...", false, true, TITLE);
+    private void buildCurveMap(Region[] allRegions, CellData cellData, int index, int total) {
+        ProgressDialog dialog = new ProgressDialog(null,
+                "Building curve map for cell " + String.valueOf(index) + " of " + String.valueOf(total) + "...",
+                false, true, TITLE);
         dialog.setVisible(true);
         MorphMap curveMap = cellData.getCurveMap();
         int width = curveMap.getWidth();
@@ -616,7 +619,8 @@ public class Analyse_Movie implements PlugIn {
             /*
              * Get points for one column (time-point) of map
              */
-            Pixel vmPoints[] = current.buildVelMapCol(xc, yc, stacks[0], i + 1, UserVariables.getTimeRes(), UserVariables.getSpatialRes(), cellData.getGreyThresholds());
+            Pixel vmPoints[] = current.buildVelMapCol(xc, yc, stacks[0], i + 1,
+                    UserVariables.getTimeRes(), UserVariables.getSpatialRes(), cellData.getGreyThresholds());
             double x[] = new double[vmPoints.length];
             double y[] = new double[vmPoints.length];
             /*
@@ -632,14 +636,17 @@ public class Analyse_Movie implements PlugIn {
              */
             double upX[] = DSPProcessor.upScale(x, height, false);
             double upY[] = DSPProcessor.upScale(y, height, false);
-            curveMap.addColumn(upX, upY, DSPProcessor.upScale(Region.calcCurvature(vmPoints, UserVariables.getCurveRange()), height, false), i);
+            curveMap.addColumn(upX, upY, DSPProcessor.upScale(Region.calcCurvature(vmPoints,
+                    UserVariables.getCurveRange()), height, false), i);
             cellData.getScaleFactors()[i] = ((double) height) / vmPoints.length;
         }
         dialog.dispose();
     }
 
-    void generateMaps(double[][] smoothVelocities, CellData cellData) {
-        ProgressDialog dialog = new ProgressDialog(null, "Building Maps 2 of 2...", false, true, TITLE);
+    void generateMaps(double[][] smoothVelocities, CellData cellData, int index, int total) {
+        ProgressDialog dialog = new ProgressDialog(null,
+                "Generating maps for cell " + String.valueOf(index) + " of " + String.valueOf(total) + "...",
+                false, true, TITLE);
         dialog.setVisible(true);
         boolean sigNull = (cellData.getSigMap() == null);
         int l = smoothVelocities.length;
@@ -1116,7 +1123,7 @@ public class Analyse_Movie implements PlugIn {
         regionImage.setValue(intermediate);
         for (int i = x - 1; i <= x + 1; i++) {
             for (int j = y - 1; j <= y + 1; j++) {
-                if (!Utils.isEdgePixel(i, j, width, height)) {
+                if (!Utils.isEdgePixel(i, j, width, height, 0)) {
                     int r = regionImage.getPixel(i, j);
                     double g = greys.getPixelValue(i, j);
                     if ((r == StaticVariables.BACKGROUND || r == intermediate) && (g > greyThresh)) {
@@ -1137,6 +1144,8 @@ public class Analyse_Movie implements PlugIn {
             if (x < 1 || y < 1 || x >= regionImage.getWidth() - 1 || y >= regionImage.getHeight() - 1) {
                 cell.setEdge(true);
             }
+        } else if (Utils.isEdgePixel(x, y, width, height, 1)) {
+            cell.addExpandedBorderPix(point);
         }
 //        } else {
 //            cell.addPoint(point);
