@@ -106,7 +106,6 @@ public class Analyse_Movie implements PlugIn {
 //        am.run(null);
 //        System.exit(0);
 //    }
-
     /**
      * Default constructor
      */
@@ -544,7 +543,7 @@ public class Analyse_Movie implements PlugIn {
         ImageStack cytoStack = stacks[0];
         ImageStack sigStack = stacks[1];
         ProgressDialog dialog = new ProgressDialog(null,
-                "Initialising velocity map for cell " + String.valueOf(index) + " of " + String.valueOf(total) + "...",
+                "Initialising velocity map for cell " + String.valueOf(index + 1) + " of " + String.valueOf(total) + "...",
                 false, true, TITLE);
         dialog.setVisible(true);
         MorphMap velMap = cellData.getVelMap();
@@ -603,7 +602,7 @@ public class Analyse_Movie implements PlugIn {
 
     private void buildCurveMap(Region[] allRegions, CellData cellData, int index, int total) {
         ProgressDialog dialog = new ProgressDialog(null,
-                "Building curve map for cell " + String.valueOf(index) + " of " + String.valueOf(total) + "...",
+                "Building curve map for cell " + String.valueOf(index + 1) + " of " + String.valueOf(total) + "...",
                 false, true, TITLE);
         dialog.setVisible(true);
         MorphMap curveMap = cellData.getCurveMap();
@@ -645,7 +644,7 @@ public class Analyse_Movie implements PlugIn {
 
     void generateMaps(double[][] smoothVelocities, CellData cellData, int index, int total) {
         ProgressDialog dialog = new ProgressDialog(null,
-                "Generating maps for cell " + String.valueOf(index) + " of " + String.valueOf(total) + "...",
+                "Generating maps for cell " + String.valueOf(index + 1) + " of " + String.valueOf(total) + "...",
                 false, true, TITLE);
         dialog.setVisible(true);
         boolean sigNull = (cellData.getSigMap() == null);
