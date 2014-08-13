@@ -67,7 +67,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import ui.GUI;
-import ui.SpecifyInputsDialog;
+import UIClasses.SpecifyInputsDialog;
 
 /**
  * Analyse_Movie is designed to quantify cell membrane dynamics and correlate
@@ -90,6 +90,7 @@ public class Analyse_Movie implements PlugIn {
     private int intermediate;
     private String TITLE = StaticVariables.TITLE;
     private final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
+    private String channelLabels[] = {"Cytoplasmic channel", "Signal to be correlated"};
     /**
      * Determines the format of printed results
      */
@@ -176,7 +177,7 @@ public class Analyse_Movie implements PlugIn {
             cytoStack = stacks[0];
             cytoSize = cytoStack.getSize();
         } else {
-            ImagePlus images[] = specifyInputs();
+            ImagePlus images[] = GenUtils.specifyInputs(channelLabels);
             if (images == null) {
                 return;
             }
@@ -1579,32 +1580,6 @@ public class Analyse_Movie implements PlugIn {
 //            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 //        }
 //    }
-    ImagePlus[] specifyInputs() {
-        ImagePlus outputs[] = new ImagePlus[2];
-        int windIDs[] = WindowManager.getIDList();
-        String winTitles[] = new String[windIDs.length + 1];
-        for (int i = 0; i < windIDs.length; i++) {
-            winTitles[i] = WindowManager.getImage(windIDs[i]).getTitle();
-        }
-        winTitles[windIDs.length] = "None";
-        SpecifyInputsDialog sid = new SpecifyInputsDialog(null, true, winTitles);
-        sid.setVisible(true);
-        if (!(sid.getReturnStatus() == SpecifyInputsDialog.RET_OK)) {
-            return null;
-        }
-        if (!(sid.getCytoIndex() > -1 && sid.getCytoIndex() < windIDs.length)) {
-            Toolkit.getDefaultToolkit().beep();
-            IJ.error("No cytosolic channel specified!");
-            return null;
-        }
-        outputs[0] = WindowManager.getImage(windIDs[sid.getCytoIndex()]);
-        if (sid.getSigIndex() > -1 && sid.getSigIndex() < windIDs.length) {
-            outputs[1] = WindowManager.getImage(windIDs[sid.getSigIndex()]);
-        } else {
-            outputs[1] = null;
-        }
-        return outputs;
-    }
 
     void getInitialSeedPoints(ByteProcessor image, ArrayList<Pixel> pixels, int threshold) {
         ByteProcessor binary = (ByteProcessor) image.duplicate();
