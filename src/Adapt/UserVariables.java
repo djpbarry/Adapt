@@ -22,21 +22,21 @@ package Adapt;
  */
 public class UserVariables {
 
-    private static int greyThresh = 20; // user-specified grey-level threshold used in conditional region dilation
-    private static boolean genVis = false;
+    private static int greyThresh = 25; // user-specified grey-level threshold used in conditional region dilation
+    private static boolean genVis = true;
     private static final double blebDurThresh = 5.0; // minimum duration (in frames) of bleb to be considered in analysis
     private static int curveRange = 10;
     private static boolean useSigThresh = false;
-    private static double spatialRes = 0.212; //timeRes in frames/minute, spatialRes in microns/pixel;
+    private static double spatialRes = 1.0; //timeRes in frames/minute, spatialRes in microns/pixel;
     private static double cutOffTime = 120.0;
     private static double cortexDepth = 0.6;
-    private static boolean autoThreshold = true; // User-specifed threshold is used if set to false
-    private static double tempFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
+    private static boolean autoThreshold = false; // User-specifed threshold is used if set to false
+    private static double tempFiltRad = 240.0; // radius of Gaussian filters used to smooth velocity and signal maps
     private static double sigThreshFact = 0.0;
     private static double spatFiltRad = 1.0; // radius of Gaussian filters used to smooth velocity and signal maps
     private static int erosion = 2;
     private static boolean getMorph = false;
-    private static double timeRes = 216.0; // temporal resolution in frames per minute
+    private static double timeRes = 0.25; // temporal resolution in frames per minute
     private static final double blebLenThresh = 0.05; // minimum normalised length of bleb to be considered in analysis
     private static double curveThresh = -20.0;
     private static boolean analyseProtrusions = false;

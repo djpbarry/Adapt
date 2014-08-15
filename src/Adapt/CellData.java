@@ -45,6 +45,7 @@ public class CellData {
     double[][] smoothVelocities;
     double scaleFactors[];
     int greyThresholds[];
+    int length;
     File velDirName, curvDirName;
     Region[] cellRegions;
 //    ArrayList<Pixel> initialPix;
@@ -325,4 +326,11 @@ public class CellData {
         this.smoothVelocities = smoothVelocities;
     }
 
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
 }
