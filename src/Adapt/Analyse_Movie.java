@@ -98,15 +98,14 @@ public class Analyse_Movie implements PlugIn {
     private static final boolean simple = true;
     private CellData cellData[];
     private final ImageStack stacks[] = new ImageStack[2];
-    private double morphSizeMin = 0.1;
+    private double morphSizeMin = 5.0;
 
-    public static void main(String args[]) {
-        Analyse_Movie am = new Analyse_Movie();
-        am.initialise();
-        am.run(null);
-        System.exit(0);
-    }
-
+//    public static void main(String args[]) {
+//        Analyse_Movie am = new Analyse_Movie();
+//        am.initialise();
+//        am.run(null);
+//        System.exit(0);
+//    }
     /**
      * Default constructor
      */
@@ -267,8 +266,6 @@ public class Analyse_Movie implements PlugIn {
 //                    int sx = current.getMaskSeed().getX();
 //                    int sy = current.getMaskSeed().getY();
                     ImageProcessor mask = current.getMask(width, height);
-                    ArrayList<Pixel> medians = current.getGeoMedians();
-                    Pixel centre = medians.get(medians.size() - 1);
 //                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/mask_" + i + "_" + j + ".png");
                     for (int k = 0; k < UserVariables.getErosion(); k++) {
                         mask.erode();
@@ -284,8 +281,8 @@ public class Analyse_Movie implements PlugIn {
 //                                StaticVariables.FOREGROUND, tempMask);
 //                        radius++;
 //                    }
-                    if (!(mask.getPixel(centre.getX(), centre.getY()) > Region.FOREGROUND)) {
-                        Region temp = new Region(mask, current.getIndex());
+                    Region temp = new Region(mask, current.getIndex());
+                    if (temp.getGeoMedians().size() > 0) {
 //                        IJ.saveAs((new ImagePlus("", temp.getMask(mask.getWidth(), mask.getHeight()))), "PNG", "C:/users/barry05/desktop/mask_" + i + "_" + j + "_updated.png");
                         cellData[j].setInitialBorder(temp.getBorderPix());
 //                        cellData[j].setMaskSeed(new Pixel(cPoints[0][0], cPoints[0][1], j));
@@ -326,16 +323,6 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList();
-        initP.add(new Pixel(66, 246));
-        initP.add(new Pixel(608, 172));
-        initP.add(new Pixel(370, 351));
-        initP.add(new Pixel(475, 338));
-        initP.add(new Pixel(492, 363));
-        initP.add(new Pixel(425, 402));
-        initP.add(new Pixel(173, 399));
-        initP.add(new Pixel(100, 31));
-        initP.add(new Pixel(120, 60));
-        initP.add(new Pixel(556, 435));
 //        initP.add(new Pixel(9, 40));
 //        initP.add(new Pixel(40, 40));
         int n;
@@ -349,8 +336,7 @@ public class Analyse_Movie implements PlugIn {
             }
         } else {
             getInitialSeedPoints((ByteProcessor) stacks[0].getProcessor(slice), initP, threshold);
-//            n = initP.size();
-            n = 10;
+            n = initP.size();
 //            n = 2;
         }
         cellData = new CellData[n];
@@ -508,7 +494,7 @@ public class Analyse_Movie implements PlugIn {
                 maxBoundary = lengths[h];
             }
             if (!preview) {
-                double minArea = stacks[0].getWidth() * stacks[0].getHeight() * morphSizeMin;
+                double minArea = morphSizeMin / (Math.pow(UserVariables.getSpatialRes(), 2.0));
                 ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.SHOW_RESULTS,
                         measures, rt, minArea, Double.POSITIVE_INFINITY);
 //                ArrayList<Pixel> centroids = current.getCentroids();
@@ -725,11 +711,11 @@ public class Analyse_Movie implements PlugIn {
             ColorProcessor velOutput = new ColorProcessor(width, height);
             velOutput.setColor(Color.black);
             velOutput.fill();
-            velOutput.setLineWidth(3);
+//            velOutput.setLineWidth(3);
             ColorProcessor curveOutput = new ColorProcessor(width, height);
             curveOutput.setColor(Color.black);
             curveOutput.fill();
-            curveOutput.setLineWidth(3);
+//            curveOutput.setLineWidth(3);
             for (int n = 0; n < N; n++) {
                 if (cellData[n].length > t) {
                     double[][] smoothVelocities = cellData[n].getSmoothVelocities();
@@ -936,7 +922,7 @@ public class Analyse_Movie implements PlugIn {
             singleImageRegions.add(region);
             outVal++;
         }
-        IJ.saveAs(new ImagePlus("", indexedRegions), "PNG", "C:/users/barry05/desktop/indexedRegions.png");
+//        IJ.saveAs(new ImagePlus("", indexedRegions), "PNG", "C:/users/barry05/desktop/indexedRegions.png");
         intermediate = singleImageRegions.size() + 1;
         terminal = intermediate + 1;
         /*
@@ -1026,7 +1012,8 @@ public class Analyse_Movie implements PlugIn {
 //            Region cell = singleImageRegions.get(i);
 //            cell.clearPixels();
 //        }
-        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\regions.tif");
+//        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\regions.tif");
+//        IJ.saveAs(new ImagePlus("", inputImage), "TIF", "C:/users/barry05/desktop/inputImage.tif");
         return regionImage;
     }
 
