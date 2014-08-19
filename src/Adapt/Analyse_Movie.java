@@ -107,6 +107,7 @@ public class Analyse_Movie implements PlugIn {
         am.run(null);
         System.exit(0);
     }
+
     /**
      * Default constructor
      */
@@ -319,6 +320,7 @@ public class Analyse_Movie implements PlugIn {
         }
         if (UserVariables.isGenVis()) {
             generateVisualisations(cellData);
+            generateCellTrajectories(cellData);
         }
     }
 
@@ -373,7 +375,7 @@ public class Analyse_Movie implements PlugIn {
         int size = frames;
         File trajFile, paramFile, segPointsFile;
         PrintWriter trajStream, paramStream, segStream;
-        File velDirName, curvDirName;
+        File velDirName, curvDirName, trajDirName;
         double scaleFactors[] = new double[size];
 
         /*
@@ -394,6 +396,7 @@ public class Analyse_Movie implements PlugIn {
         if (!preview) {
             velDirName = GenUtils.createDirectory(parDir + delimiter + "Velocity_Visualisation");
             curvDirName = GenUtils.createDirectory(parDir + delimiter + "Curvature_Visualisation");
+            trajDirName = GenUtils.createDirectory(parDir + delimiter + "Trajectories_Visualisation");
 
             /*
              * To obain a uniform map, all boundary lengths (from each frame) are
@@ -459,6 +462,7 @@ public class Analyse_Movie implements PlugIn {
             cellData[index].setMinVel(minvel);
             cellData[index].setVelDirName(velDirName);
             cellData[index].setCurvDirName(curvDirName);
+            cellData[index].setTrajDirName(trajDirName);
             cellData[index].setGreySigMap(greySigMap);
             cellData[index].setColorVelMap(colorVelMap);
             cellData[index].setSmoothVelocities(smoothVelocities);
@@ -748,6 +752,52 @@ public class Analyse_Movie implements PlugIn {
             }
             IJ.saveAs((new ImagePlus("", velOutput)), "PNG", velDirName.getAbsolutePath() + delimiter + numFormat.format(t));
             IJ.saveAs((new ImagePlus("", curveOutput)), "PNG", curvDirName.getAbsolutePath() + delimiter + numFormat.format(t));
+        }
+        dialog.dispose();
+    }
+
+    void generateCellTrajectories(CellData cellDatas[]) {
+        int N = cellDatas.length;
+        ImageStack cytoStack = stacks[0];
+        ProgressDialog dialog = new ProgressDialog(null, "Building Cell Trajectories...", false, true, TITLE);
+        dialog.setVisible(true);
+        /*
+         * Generate various visualisations for output
+         */
+        int width = cytoStack.getWidth();
+        int height = cytoStack.getHeight();
+        int length = cytoStack.getSize();
+        File trajDirName = cellData[0].getTrajDirName();
+        int origins[][] = new int[N][2];
+        int xc = width / 2;
+        int yc = height / 2;
+        for (int n = 0; n < N; n++) {
+            Region[] allRegions = cellData[n].getCellRegions();
+            Region current = allRegions[0];
+            ArrayList<Pixel> centroids = current.getGeoMedians();
+            int cl = centroids.size();
+            origins[n][0] = (int) Math.round(centroids.get(cl - 1).getX());
+            origins[n][1] = (int) Math.round(centroids.get(cl - 1).getY());
+        }
+        for (int t = 0; t < length; t++) {
+            dialog.updateProgress(t, length);
+            ByteProcessor trajOutput = new ByteProcessor(width, height);
+            trajOutput.setColor(StaticVariables.BACKGROUND);
+            trajOutput.fill();
+            trajOutput.setColor(Color.white);
+            trajOutput.setLineWidth(3);
+            for (int n = 0; n < N; n++) {
+                if (cellData[n].length > t) {
+                    Region[] allRegions = cellData[n].getCellRegions();
+                    Region current = allRegions[t];
+                    ArrayList<Pixel> centroids = current.getGeoMedians();
+                    int cl = centroids.size();
+                    int x = (int) Math.round(xc + centroids.get(cl - 1).getX() - origins[n][0]);
+                    int y = (int) Math.round(yc + centroids.get(cl - 1).getY() - origins[n][1]);
+                    trajOutput.fillOval(x - 1, y - 1, 3, 3);
+                }
+            }
+            IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + numFormat.format(t));
         }
         dialog.dispose();
     }

@@ -46,7 +46,7 @@ public class CellData {
     double scaleFactors[];
     int greyThresholds[];
     int length;
-    File velDirName, curvDirName;
+    File velDirName, curvDirName, trajDirName;
     Region[] cellRegions;
 //    ArrayList<Pixel> initialPix;
     LinkedList<Pixel> initialBorder;
@@ -103,6 +103,14 @@ public class CellData {
 
     public void setVelDirName(File velDirName) {
         this.velDirName = velDirName;
+    }
+
+    public File getTrajDirName() {
+        return trajDirName;
+    }
+
+    public void setTrajDirName(File trajDirName) {
+        this.trajDirName = trajDirName;
     }
 
     /**
