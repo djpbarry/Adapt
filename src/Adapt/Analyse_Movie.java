@@ -106,7 +106,6 @@ public class Analyse_Movie implements PlugIn {
 //        am.run(null);
 //        System.exit(0);
 //    }
-
     /**
      * Default constructor
      */
@@ -809,7 +808,9 @@ public class Analyse_Movie implements PlugIn {
                     int y = (int) Math.round(yc + centroids.get(cl - 1).getY() - origins[n][1]);
                     trajOutput.fillOval(x - 1, y - 1, 3, 3);
                     trajStream.print(String.valueOf(x) + "," + String.valueOf(y) + ",");
-                } else trajStream.print(",,");
+                } else {
+                    trajStream.print(",,");
+                }
             }
             IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + numFormat.format(t));
             trajStream.println();
@@ -853,12 +854,16 @@ public class Analyse_Movie implements PlugIn {
             r = 255 - (int) Math.round(255 * val / promax);
             if (r < 0) {
                 r = 0;
+            } else if (r > 255) {
+                r = 255;
             }
             colour = new Color(r, 255, 0);
         } else if (val < 0.0) {
             g = 255 - (int) Math.round(255 * val / retmax);
             if (g < 0) {
                 g = 0;
+            } else if (g > 255) {
+                g = 255;
             }
             colour = new Color(255, g, 0);
         }
