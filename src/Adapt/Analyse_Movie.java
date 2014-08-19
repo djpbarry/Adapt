@@ -66,6 +66,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Random;
 import ui.GUI;
 
 /**
@@ -95,7 +96,7 @@ public class Analyse_Movie implements PlugIn {
      */
     protected DecimalFormat numFormat = StaticVariables.numFormat; // For formatting results
     private PointRoi roi = null; // Points used as seeds for cell detection
-    private static final boolean simple = true;
+    private static final boolean simple = false;
     private CellData cellData[];
     private final ImageStack stacks[] = new ImageStack[2];
     private double morphSizeMin = 5.0;
@@ -943,8 +944,8 @@ public class Analyse_Movie implements PlugIn {
      */
     private ByteProcessor growRegions(ByteProcessor regionImage, ImageProcessor inputImage, ArrayList<Region> singleImageRegions, boolean simple, double threshold) {
         int i, j;
-//        int width = regionImage.getWidth();
-//        int height = regionImage.getHeight();
+        int width = regionImage.getWidth();
+        int height = regionImage.getHeight();
         boolean totChange = true;
         boolean thisChange;
         /*
@@ -953,29 +954,40 @@ public class Analyse_Movie implements PlugIn {
          * texture.
          */
         int cellNum = singleImageRegions.size();
-//        float distancemaps[][][] = null;
-//        if (!simple) {
-//            distancemaps = new float[cellNum][width][height];
-//        }
-//        ByteProcessor regionImages[] = new ByteProcessor[cellNum];
-//        if (!simple) {
-//            fillDistanceMaps(inputImage, regionImage, singleImageRegions, distancemaps,
-//                    regionImages, width, 1.0);
-//        }
+        float distancemaps[][][] = null;
+        if (!simple) {
+            distancemaps = new float[cellNum][width][height];
+        }
+        ByteProcessor regionImages[] = new ByteProcessor[cellNum];
+        if (!simple) {
+            initDistanceMaps(inputImage, regionImage, singleImageRegions, distancemaps,
+                    regionImages, width, 1.0, threshold);
+        }
         /*
          * Reset regionImages
          */
-//        for (int n = 0; n < cellNum; n++) {
-//            regionImages[n] = (ByteProcessor) regionImage.duplicate();
-//        }
+        for (int n = 0; n < cellNum; n++) {
+            regionImages[n] = (ByteProcessor) regionImage.duplicate();
+        }
         /*
          * Grow regions according to texture, grey levels and distance maps
          */
-        ImageStack regionImageStack = new ImageStack(regionImage.getWidth(), regionImage.getHeight());
+//        ImageStack regionImageStack = new ImageStack(regionImage.getWidth(), regionImage.getHeight());
         while (totChange) {
             totChange = false;
             for (i = 0; i < cellNum; i++) {
-//                ByteProcessor ref = (ByteProcessor) regionImages[i].duplicate();
+                //                                ImageStack distancemapStack = new ImageStack(distancemaps[0].length, distancemaps[0][0].length);
+//        for(int n=0;n<distancemaps.length;n++){
+//                FloatProcessor distanceMapImage = new FloatProcessor(distancemaps[i].length, distancemaps[i][0].length);
+//                for (int x = 0; x < distancemaps[i].length; x++) {
+//                    for (int y = 0; y < distancemaps[i][x].length; y++) {
+//                        distanceMapImage.putPixelValue(x, y, distancemaps[i][x][y]);
+//                    }
+//                }
+//            distancemapStack.addSlice(slice);
+//        }
+//                IJ.saveAs(new ImagePlus("", distanceMapImage), "TIF", "C:/users/barry05/desktop/distanceMapImage_" + i + ".tif");
+                ByteProcessor ref = (ByteProcessor) regionImages[i].duplicate();
                 Region cell = singleImageRegions.get(i);
 //                if (cell.isActive()) {
 //                    cell.savePixels(width, height);
@@ -986,8 +998,8 @@ public class Analyse_Movie implements PlugIn {
                     for (j = 0; j < borderLength; j++) {
                         Pixel thispix = borderPix.get(j);
                         if (!simple) {
-//                            thisChange = dijkstraDilate(ref, cell, thispix,
-//                                    distancemaps) || thisChange;
+                            thisChange = dijkstraDilate(ref, cell, thispix,
+                                    distancemaps, intermediate) || thisChange;
                         } else {
                             thisChange = simpleDilate(regionImage,
                                     inputImage, cell, thispix, intermediate, threshold)
@@ -997,15 +1009,20 @@ public class Analyse_Movie implements PlugIn {
                     cell.setActive(thisChange);
                     totChange = thisChange || totChange;
                 }
+//                regionImageStack.addSlice(ref.duplicate());
 //                }
             }
 //            if (regionImageStack.getSize() == 222) {
 //                IJ.wait(0);
 //            }
-            regionImageStack.addSlice(regionImage.duplicate());
+//            regionImageStack.addSlice(regionImage.duplicate());
 //            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\regions.tif");
-            expandRegions(singleImageRegions, regionImage, cellNum, terminal);
-            regionImageStack.addSlice(regionImage.duplicate());
+            if (simple) {
+                expandRegions(singleImageRegions, regionImage, cellNum, terminal);
+            } else {
+                expandRegions(singleImageRegions, regionImages, cellNum);
+            }
+//            regionImageStack.addSlice(regionImage.duplicate());
 //            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\regions.tif");
         }
 //        for (i = 0; i < cellNum; i++) {
@@ -1017,92 +1034,105 @@ public class Analyse_Movie implements PlugIn {
         return regionImage;
     }
 
-//    void fillDistanceMaps(ImageProcessor inputImage, ByteProcessor regionImage,
-//            ArrayList<Region> singleImageRegions, float distancemaps[][][],
-//            ByteProcessor regionImages[], int width, double filtRad) {
-//        GaussianBlur blurrer = new GaussianBlur();
-//        /*
-//         * Image texture (and grey levels) used to control region growth.
-//         * Standard deviation of grey levels is used as a simple measure of
-//         * texture.
-//         */
-//        ImageProcessor texture = sdImage(inputImage.duplicate(), 1);
-//        blurrer.blurGaussian(texture, filtRad, filtRad, 0.01);
-//        ImageProcessor grad = inputImage.duplicate();
-//        grad.findEdges();
-//        int cellNum = singleImageRegions.size();
-//        ArrayList<Region> tempRegions = new ArrayList();
-//        for (int n = 0; n < cellNum; n++) {
-//            /*
-//             * Initialise distance maps. Any non-seed pixels are set to
-//             * MAX_VALUE. Seed pixels are set to zero distance. Using these seed
-//             * pixels, temporary regions are added to a temporary ArrayList.
-//             */
-//            for (int x = 0; x < width; x++) {
-//                Arrays.fill(distancemaps[n][x], Float.MAX_VALUE);
-//            }
-//            Region cell = singleImageRegions.get(n);
+    void initDistanceMaps(ImageProcessor inputImage, ByteProcessor regionImage, ArrayList<Region> singleImageRegions, float[][][] distancemaps, ByteProcessor[] regionImages, int width, double filtRad, double thresh) {
+        GaussianBlur blurrer = new GaussianBlur();
+        /*
+         * Image texture (and grey levels) used to control region growth.
+         * Standard deviation of grey levels is used as a simple measure of
+         * texture.
+         */
+        ImageProcessor texture = sdImage(inputImage.duplicate(), 1);
+        blurrer.blurGaussian(texture, filtRad, filtRad, 0.01);
+        ImageProcessor grad = inputImage.duplicate();
+        grad.findEdges();
+        int cellNum = singleImageRegions.size();
+        ArrayList<Region> tempRegions = new ArrayList();
+        for (int n = 0; n < cellNum; n++) {
+            /*
+             * Initialise distance maps. Any non-seed pixels are set to
+             * MAX_VALUE. Seed pixels are set to zero distance. Using these seed
+             * pixels, temporary regions are added to a temporary ArrayList.
+             */
+            for (int x = 0; x < width; x++) {
+                Arrays.fill(distancemaps[n][x], Float.MAX_VALUE);
+            }
+            Region cell = singleImageRegions.get(n);
+            if (cell != null) {
 //            Pixel centre = cell.getCentroids().get(0);
-////            ArrayList<Pixel> pixels = cell.getPixels();
-//            ImageProcessor mask = cell.getMask(regionImage.getWidth(), regionImage.getHeight(), centre.getX(), centre.getY());
-//            LinkedList<Pixel> borderPix = cell.getBorderPix();
-//            Region cellcopy = new Region(n + 1);
-////            int pixsize = pixels.size();
-//            /*
-//             * Copy initial pixels and border pixels to cell copy for distance
-//             * map construction. This can probably be replaced with a clone
-//             * method.
-//             */
-//            for (int i = 0; i < mask.getWidth(); i++) {
-//                for (int j = 0; j < mask.getWidth(); j++) {
-//                    if (mask.getPixel(i, j) == 0) {
-//                        distancemaps[n][i][j] = 0.0f;
-//                    }
-////                cellcopy.addPoint(pix);
-//                }
-//            }
-//            int bordersize = borderPix.size();
-//            for (int s = 0; s < bordersize; s++) {
-//                Pixel pix = borderPix.get(s);
-//                int sx = pix.getX();
-//                int sy = pix.getY();
-//                distancemaps[n][sx][sy] = 0.0f;
-//                cellcopy.addBorderPoint(pix);
-//            }
-//            tempRegions.add(cellcopy);
-//            regionImages[n] = (ByteProcessor) regionImage.duplicate();
-//        }
-//        boolean totChange = true, thisChange;
-//        while (totChange) {
-//            totChange = false;
-//            for (int i = 0; i < cellNum; i++) {
-//                ByteProcessor tempRef = (ByteProcessor) regionImages[i].duplicate(); // Temporary reference to ensure each pixel is only considered once.
-//                Region cell = tempRegions.get(i);
-//                if (cell.isActive()) {
-//                    LinkedList<Pixel> borderPix = cell.getBorderPix();
-//                    int borderLength = borderPix.size();
-//                    thisChange = false;
-//                    for (int j = 0; j < borderLength; j++) {
-//                        Pixel thispix = borderPix.get(j);
-//                        /*
-//                         * thisChange is set to true if dilation occurs at any
-//                         * border pixel.
-//                         */
-//                        thisChange = buildDistanceMaps(tempRef, inputImage, grad, cell,
-//                                thispix, distancemaps[i]) || thisChange;
-//                    }
-//                    cell.setActive(thisChange);
-//                    totChange = thisChange || totChange; // if all regions cease growing, while loop will exit
-//                }
-//            }
-//            /*
-//             * Update each region to new dilated size and update regionImages to
-//             * assign index to scanned pixels
-//             */
-//            expandRegions(tempRegions, regionImages, cellNum);
-//        }
-//    }
+//            ArrayList<Pixel> pixels = cell.getPixels();
 
+                ImageProcessor mask = cell.getMask(regionImage.getWidth(), regionImage.getHeight());
+                LinkedList<Pixel> borderPix = cell.getBorderPix();
+                Region cellcopy = new Region(n + 1);
+//            int pixsize = pixels.size();
+            /*
+                 * Copy initial pixels and border pixels to cell copy for distance
+                 * map construction. This can probably be replaced with a clone
+                 * method.
+                 */
+                ArrayList<Pixel> medians = cell.getGeoMedians();
+                Pixel median = medians.get(medians.size() - 1);
+                for (int i = 0; i < mask.getWidth(); i++) {
+                    for (int j = 0; j < mask.getHeight(); j++) {
+                        if (mask.getPixel(i, j) == 0) {
+                            distancemaps[n][i][j] = calcDistance(median, i, j);
+                        }
+//                cellcopy.addPoint(pix);
+                    }
+                }
+                int bordersize = borderPix.size();
+                for (int s = 0; s < bordersize; s++) {
+                    Pixel pix = borderPix.get(s);
+                    int sx = pix.getX();
+                    int sy = pix.getY();
+                    distancemaps[n][sx][sy] = calcDistance(median, sx, sy);
+                    cellcopy.addBorderPoint(pix);
+                }
+                cellcopy.calcGeoMedian(borderPix);
+                tempRegions.add(cellcopy);
+                regionImages[n] = (ByteProcessor) regionImage.duplicate();
+            } else {
+                tempRegions.add(new Region(n + 1));
+                regionImages[n] = (ByteProcessor) regionImage.duplicate();
+            }
+        }
+        boolean totChange = true, thisChange;
+        while (totChange) {
+            totChange = false;
+            for (int i = 0; i < cellNum; i++) {
+                if (singleImageRegions.get(i) != null) {
+                    ByteProcessor tempRef = (ByteProcessor) regionImages[i].duplicate(); // Temporary reference to ensure each pixel is only considered once.
+                    Region cell = tempRegions.get(i);
+                    if (cell.isActive()) {
+                        LinkedList<Pixel> borderPix = cell.getBorderPix();
+                        int borderLength = borderPix.size();
+                        thisChange = false;
+                        for (int j = 0; j < borderLength; j++) {
+                            Pixel thispix = borderPix.get(j);
+                            /*
+                             * thisChange is set to true if dilation occurs at any
+                             * border pixel.
+                             */
+                            thisChange = buildDistanceMaps(tempRef, inputImage, cell,
+                                    thispix, distancemaps[i], thresh, grad) || thisChange;
+                        }
+                        cell.setActive(thisChange);
+                        totChange = thisChange || totChange; // if all regions cease growing, while loop will exit
+                    }
+                }
+            }
+            /*
+             * Update each region to new dilated size and update regionImages to
+             * assign index to scanned pixels
+             */
+            expandRegions(tempRegions, regionImages, cellNum);
+        }
+    }
+
+    float calcDistance(Pixel point, int x, int y) {
+        return (float) Utils.calcDistance(point.getX(), point.getY(), x, y);
+//        return Math.abs(point.getX() - x) + Math.abs(point.getY() - y);
+    }
     /*
      * Returns an image which illustrates the standard deviation at each point
      * in image. The standard deviation is evaluated in a square neighbourhood
@@ -1186,8 +1216,7 @@ public class Analyse_Movie implements PlugIn {
      * Dilate region at current point according to grey levels, texture,
      * gradient and Dijkstra distance map.
      */
-    boolean dijkstraDilate(ByteProcessor regionImage, Region region, Pixel point,
-            float[][][] distanceMaps) {
+    boolean dijkstraDilate(ByteProcessor regionImage, Region region, Pixel point, float[][][] distanceMaps, int intermediate) {
         int width = regionImage.getWidth();
         int height = regionImage.getHeight();
         int x = point.getX();
@@ -1199,7 +1228,7 @@ public class Analyse_Movie implements PlugIn {
         regionImage.setValue(intermediate); // No region in regionImage should have the index value INTERMEDIATE
         for (int i = x - 1; i <= x + 1; i++) {
             for (int j = y - 1; j <= y + 1; j++) {
-                if (i >= 0 && i < width && j >= 0 && j < height) {
+                if (!(Utils.isEdgePixel(i, j, width, height, 0))) {
                     if (regionImage.getPixel(i, j) == StaticVariables.BACKGROUND && distanceMaps[index - 1][i][j] < Float.MAX_VALUE) {
                         boolean thisdilate = true;
                         for (int k = 0; k < N; k++) {
@@ -1239,6 +1268,10 @@ public class Analyse_Movie implements PlugIn {
             if (x < 1 || y < 1 || x >= regionImage.getWidth() - 1 || y >= regionImage.getHeight() - 1) {
                 region.setEdge(true);
             }
+        } else if (Utils.isEdgePixel(x, y, width, height, 1)) {
+            region.addExpandedBorderPix(point);
+//        } else {
+//            cell.setMaskSeed(point);
         }
 //        } else {
 //            region.addPoint(point);
@@ -1250,11 +1283,12 @@ public class Analyse_Movie implements PlugIn {
      * Values are added to distanceMaps in the neighbourhood of the specified
      * point. Returns false if no values added, true otherwise.
      */
-    boolean buildDistanceMaps(ByteProcessor regionImage, ImageProcessor greys,
-            ImageProcessor gradient, Region region, Pixel point, float[][] distancemap) {
+    boolean buildDistanceMaps(ByteProcessor regionImage, ImageProcessor greys, Region region, Pixel point, float[][] distancemap, double thresh, ImageProcessor gradient) {
         int x = point.getX();
         int y = point.getY();
         int index = region.getIndex();
+        ArrayList<Pixel> centres = region.getGeoMedians();
+        Pixel centre = centres.get(centres.size() - 1);
         boolean dilate = false;
         boolean remove = true;
         float minDist = Float.MAX_VALUE;
@@ -1264,13 +1298,15 @@ public class Analyse_Movie implements PlugIn {
             for (int j = y - 1; j <= y + 1; j++) {
                 int r = regionImage.getPixel(i, j);
                 float g = greys.getPixelValue(i, j);
-                float h = gradient.getPixelValue(i, j);
                 /*
                  * Dilation considered if grey-level threshold exceeded
                  */
-                if (r == StaticVariables.BACKGROUND && (g > UserVariables.getGreyThresh()) && (h < gradThresh)) {
-                    float dist = (float) ((Math.pow(gradient.getPixelValue(i, j)
-                            - gradient.getPixelValue(x, y), 2.0) + lambda) / (1.0 + lambda)); // See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
+                if (r == StaticVariables.BACKGROUND && (g > UserVariables.getGreyThresh())) {
+                    float dist = calcDistance(centre, i, j);
+//                    float dist = calcDistance(centre, i, j);
+//                    System.out.println(" x: " + centre.getX() + " y: " + centre.getY() + " i: " + i + " j: " + j + " dist: " + dist);
+//                    float dist = (float) ((Math.pow(gradient.getPixelValue(i, j)
+//                            - gradient.getPixelValue(x, y), 2.0) + lambda) / (1.0 + lambda)); // See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
                     /*
                      * Dilation will only occur at point minimally distant from
                      * seed
@@ -1293,7 +1329,8 @@ public class Analyse_Movie implements PlugIn {
             regionImage.drawPixel(p.getX(), p.getY());
             dilate = true;
             region.addExpandedBorderPix(p);
-            distancemap[p.getX()][p.getY()] = distancemap[x][y] + minDist;
+//            distancemap[p.getX()][p.getY()] = distancemap[x][y] + minDist;
+            distancemap[p.getX()][p.getY()] = minDist;
         }
         if (!remove) {
             region.addExpandedBorderPix(point);
@@ -1368,6 +1405,23 @@ public class Analyse_Movie implements PlugIn {
                     } else {
                         regionImage.putPixelValue(x, y, i + 1);
                     }
+                }
+                cell.expandBorder();
+            }
+        }
+    }
+
+    void expandRegions(ArrayList<Region> regions, ByteProcessor[] regionImage, int N) {
+        for (int i = 0; i < N; i++) {
+            Region cell = regions.get(i);
+            if (cell != null) {
+                LinkedList<Pixel> pixels = cell.getExpandedBorder();
+                int borderLength = pixels.size();
+                for (int j = 0; j < borderLength; j++) {
+                    Pixel current = pixels.get(j);
+                    int x = current.getX();
+                    int y = current.getY();
+                    regionImage[i].putPixelValue(x, y, i + 1);
                 }
                 cell.expandBorder();
             }
