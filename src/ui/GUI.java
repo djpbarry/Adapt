@@ -669,7 +669,7 @@ public class GUI extends javax.swing.JDialog {
 
     boolean setVariables() {
         try {
-            UserVariables.setGreyThresh(Integer.parseInt(greyThreshField.getText()));
+            UserVariables.setGreyThresh(Double.parseDouble(greyThreshField.getText()));
             UserVariables.setGenVis(genVisToggleButton.isSelected());
             UserVariables.setCurveRange(Integer.parseInt(curveRangeField.getText()));
             UserVariables.setUseSigThresh(useSigThreshToggleButton.isSelected());

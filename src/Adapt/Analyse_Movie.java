@@ -101,12 +101,12 @@ public class Analyse_Movie implements PlugIn {
     private final ImageStack stacks[] = new ImageStack[2];
     private double morphSizeMin = 5.0;
 
-//    public static void main(String args[]) {
-//        Analyse_Movie am = new Analyse_Movie();
-//        am.initialise();
-//        am.run(null);
-//        System.exit(0);
-//    }
+    public static void main(String args[]) {
+        Analyse_Movie am = new Analyse_Movie();
+        am.initialise();
+        am.run(null);
+        System.exit(0);
+    }
     /**
      * Default constructor
      */
@@ -249,7 +249,7 @@ public class Analyse_Movie implements PlugIn {
         for (int i = 0; i < cytoSize; i++) {
             dialog.updateProgress(i, cytoSize);
             ImageProcessor cytoImage = cytoStack.getProcessor(i + 1).duplicate();
-            thresholds[i] = UserVariables.isAutoThreshold() ? getThreshold(cytoImage) : UserVariables.getGreyThresh();
+            thresholds[i] = getThreshold(cytoImage, UserVariables.isAutoThreshold());
             if (cytoImage != null) {
                 ArrayList<Region> theseRegions = findCellRegions(cytoImage, thresholds[i], cellData);
                 for (int k = 0; k < n; k++) {
@@ -327,7 +327,7 @@ public class Analyse_Movie implements PlugIn {
 //        initP.add(new Pixel(9, 40));
 //        initP.add(new Pixel(40, 40));
         int n;
-        int threshold = UserVariables.isAutoThreshold() ? getThreshold(stacks[0].getProcessor(slice)) : UserVariables.getGreyThresh();
+        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
         if (roi != null) {
             if (roi.getType() == Roi.POINT) {
                 n = roi.getNCoordinates();
@@ -1138,6 +1138,7 @@ public class Analyse_Movie implements PlugIn {
      * in image. The standard deviation is evaluated in a square neighbourhood
      * of size 2 * window + 1 about each point.
      */
+
     ImageProcessor sdImage(ImageProcessor image, int window) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -1580,7 +1581,7 @@ public class Analyse_Movie implements PlugIn {
         int nCell = initialiseROIs(sliceIndex);
         ImageProcessor cytoProc = stacks[0].getProcessor(sliceIndex);
         Region[][] allRegions = new Region[nCell][1];
-        int threshold = UserVariables.isAutoThreshold() ? getThreshold(cytoProc) : UserVariables.getGreyThresh();
+        int threshold = getThreshold(cytoProc, UserVariables.isAutoThreshold());
         ArrayList<Region> detectedRegions = findCellRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
             allRegions[k][0] = detectedRegions.get(k);
@@ -1700,7 +1701,11 @@ public class Analyse_Movie implements PlugIn {
         }
     }
 
-    int getThreshold(ImageProcessor image) {
-        return (new AutoThresholder()).getThreshold(AutoThresholder.Method.Huang, image.getStatistics().histogram);
+    int getThreshold(ImageProcessor image, boolean auto) {
+        if (UserVariables.isAutoThreshold()) {
+            return (new AutoThresholder()).getThreshold(AutoThresholder.Method.Huang, image.getStatistics().histogram);
+        } else {
+            return (int) Math.round(Utils.getPercentileThresh(image, UserVariables.getGreyThresh()));
+        }
     }
 }

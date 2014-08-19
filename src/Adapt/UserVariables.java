@@ -22,7 +22,7 @@ package Adapt;
  */
 public class UserVariables {
 
-    private static int greyThresh = 25; // user-specified grey-level threshold used in conditional region dilation
+    private static double greyThresh = 0.95; // user-specified grey-level threshold used in conditional region dilation
     private static boolean genVis = true;
     private static final double blebDurThresh = 5.0; // minimum duration (in frames) of bleb to be considered in analysis
     private static int curveRange = 10;
@@ -86,7 +86,7 @@ public class UserVariables {
      * 
      * @return grey level segmentation threshold
      */
-    public static int getGreyThresh() {
+    public static double getGreyThresh() {
         return greyThresh;
     }
 
@@ -95,7 +95,7 @@ public class UserVariables {
      * 
      * @param greyThresh value of threshold to be used
      */
-    public static void setGreyThresh(int greyThresh) {
+    public static void setGreyThresh(double greyThresh) {
         UserVariables.greyThresh = greyThresh;
     }
 
