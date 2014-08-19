@@ -66,7 +66,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.Random;
 import ui.GUI;
 
 /**
@@ -101,12 +100,12 @@ public class Analyse_Movie implements PlugIn {
     private final ImageStack stacks[] = new ImageStack[2];
     private double morphSizeMin = 5.0;
 
-    public static void main(String args[]) {
-        Analyse_Movie am = new Analyse_Movie();
-        am.initialise();
-        am.run(null);
-        System.exit(0);
-    }
+//    public static void main(String args[]) {
+//        Analyse_Movie am = new Analyse_Movie();
+//        am.initialise();
+//        am.run(null);
+//        System.exit(0);
+//    }
 
     /**
      * Default constructor
@@ -747,7 +746,7 @@ public class Analyse_Movie implements PlugIn {
                     int xc = (int) Math.round(centroids.get(cl - 1).getX());
                     int yc = (int) Math.round(centroids.get(cl - 1).getY());
                     velOutput.fillOval(xc - 1, yc - 1, 3, 3);
-                    velOutput.drawString(String.valueOf(n), xc + 2, yc + 2);
+                    velOutput.drawString(String.valueOf(current.getIndex()), xc + 2, yc + 2);
                 }
             }
             IJ.saveAs((new ImagePlus("", velOutput)), "PNG", velDirName.getAbsolutePath() + delimiter + numFormat.format(t));
@@ -771,6 +770,17 @@ public class Analyse_Movie implements PlugIn {
         int origins[][] = new int[N][2];
         int xc = width / 2;
         int yc = height / 2;
+        File trajFile;
+        PrintWriter trajStream;
+        try {
+            trajFile = new File(trajDirName + delimiter + "trajectory.csv");
+            trajStream = new PrintWriter(new FileOutputStream(trajFile));
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: Failed to create cell trajectories file.\n");
+            System.out.println(e.toString());
+            return;
+        }
+        trajStream.print("Frame,");
         for (int n = 0; n < N; n++) {
             Region[] allRegions = cellData[n].getCellRegions();
             Region current = allRegions[0];
@@ -778,14 +788,17 @@ public class Analyse_Movie implements PlugIn {
             int cl = centroids.size();
             origins[n][0] = (int) Math.round(centroids.get(cl - 1).getX());
             origins[n][1] = (int) Math.round(centroids.get(cl - 1).getY());
+            trajStream.print("Cell_" + String.valueOf(current.getIndex()) + "_X,");
+            trajStream.print("Cell_" + String.valueOf(current.getIndex()) + "_Y,");
         }
+        trajStream.println();
         for (int t = 0; t < length; t++) {
+            trajStream.print(String.valueOf(t) + ",");
             dialog.updateProgress(t, length);
             ByteProcessor trajOutput = new ByteProcessor(width, height);
             trajOutput.setColor(StaticVariables.BACKGROUND);
             trajOutput.fill();
             trajOutput.setColor(Color.white);
-            trajOutput.setLineWidth(3);
             for (int n = 0; n < N; n++) {
                 if (cellData[n].length > t) {
                     Region[] allRegions = cellData[n].getCellRegions();
@@ -795,11 +808,14 @@ public class Analyse_Movie implements PlugIn {
                     int x = (int) Math.round(xc + centroids.get(cl - 1).getX() - origins[n][0]);
                     int y = (int) Math.round(yc + centroids.get(cl - 1).getY() - origins[n][1]);
                     trajOutput.fillOval(x - 1, y - 1, 3, 3);
-                }
+                    trajStream.print(String.valueOf(x) + "," + String.valueOf(y) + ",");
+                } else trajStream.print(",,");
             }
             IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + numFormat.format(t));
+            trajStream.println();
         }
         dialog.dispose();
+        trajStream.close();
     }
 
     /*
