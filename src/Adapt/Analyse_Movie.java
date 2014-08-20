@@ -783,6 +783,8 @@ public class Analyse_Movie implements PlugIn {
         int length = cytoStack.getSize();
         File trajDirName = cellData[0].getTrajDirName();
         int origins[][] = new int[N][2];
+        double distances[] = new double[N];
+        Arrays.fill(distances, 0.0);
         int xc = width / 2;
         int yc = height / 2;
         File trajFile;
@@ -819,17 +821,30 @@ public class Analyse_Movie implements PlugIn {
                     Region[] allRegions = cellData[n].getCellRegions();
                     Region current = allRegions[t];
                     ArrayList<Pixel> centroids = current.getGeoMedians();
-                    int cl = centroids.size();
-                    int x = (int) Math.round(xc + centroids.get(cl - 1).getX() - origins[n][0]);
-                    int y = (int) Math.round(yc + centroids.get(cl - 1).getY() - origins[n][1]);
-                    trajOutput.fillOval(x - 1, y - 1, 3, 3);
+                    int c = centroids.size();
+                    double x = centroids.get(c - 1).getX();
+                    double y = centroids.get(c - 1).getY();
+                    trajOutput.fillOval((int) Math.round(x + xc - origins[n][0]) - 1,
+                            (int) Math.round(yc - origins[n][1]) - 1, 3, 3);
                     trajStream.print(String.valueOf(x) + "," + String.valueOf(y) + ",");
+                    if (t > 0) {
+                        Region last = allRegions[t - 1];
+                        ArrayList<Pixel> lastcentroids = last.getGeoMedians();
+                        int lc = lastcentroids.size();
+                        double lx = lastcentroids.get(lc - 1).getX();
+                        double ly = lastcentroids.get(lc - 1).getY();
+                        distances[n] += Utils.calcDistance(x, y, lx, ly) * UserVariables.getSpatialRes();
+                    }
                 } else {
                     trajStream.print(",,");
                 }
             }
             IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + numFormat.format(t));
             trajStream.println();
+        }
+        trajStream.print("\nMean Velocity (" + IJ.micronSymbol + "m/min):,");
+        for (int n = 0; n < N; n++) {
+            trajStream.print(String.valueOf(distances[n] / cellData[n].getLength()) + ",,");
         }
         dialog.dispose();
         trajStream.close();
