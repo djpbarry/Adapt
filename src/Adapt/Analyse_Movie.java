@@ -324,7 +324,7 @@ public class Analyse_Movie implements PlugIn {
         File paramFile;
         PrintWriter paramStream;
         try {
-            paramFile = new File(childDir + delimiter + "params.csv");
+            paramFile = new File(parDir + delimiter + "params.csv");
             paramStream = new PrintWriter(new FileOutputStream(paramFile));
         } catch (FileNotFoundException e) {
             System.out.println("Error: Failed to create parameter file.\n");
