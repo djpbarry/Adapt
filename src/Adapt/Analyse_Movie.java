@@ -167,6 +167,7 @@ public class Analyse_Movie implements PlugIn {
             return;
         }
         analyse();
+        IJ.showStatus(TITLE + " done.");
     }
 
     private void analyse() {
@@ -320,6 +321,20 @@ public class Analyse_Movie implements PlugIn {
             generateVisualisations(cellData);
             generateCellTrajectories(cellData);
         }
+        File paramFile;
+        PrintWriter paramStream;
+        try {
+            paramFile = new File(childDir + delimiter + "params.csv");
+            paramStream = new PrintWriter(new FileOutputStream(paramFile));
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: Failed to create parameter file.\n");
+            System.out.println(e.toString());
+            return;
+        }
+        if (!printParamFile(paramStream)) {
+            return;
+        }
+        paramStream.close();
     }
 
     int initialiseROIs(int slice) {
@@ -371,8 +386,8 @@ public class Analyse_Movie implements PlugIn {
 //        ImageStack cytoStack = stacks[0];
         ImageStack sigStack = stacks[1];
         int size = frames;
-        File trajFile, paramFile, segPointsFile;
-        PrintWriter trajStream, paramStream, segStream;
+        File trajFile, segPointsFile;
+        PrintWriter trajStream, segStream;
         File velDirName, curvDirName, trajDirName;
         double scaleFactors[] = new double[size];
 
@@ -414,17 +429,15 @@ public class Analyse_Movie implements PlugIn {
              */
             try {
                 trajFile = new File(childDir + delimiter + "trajectory.csv");
-                paramFile = new File(childDir + delimiter + "params.csv");
                 segPointsFile = new File(childDir + delimiter + "cell_boundary_points.csv");
                 trajStream = new PrintWriter(new FileOutputStream(trajFile));
-                paramStream = new PrintWriter(new FileOutputStream(paramFile));
                 segStream = new PrintWriter(new FileOutputStream(segPointsFile));
             } catch (FileNotFoundException e) {
                 System.out.println("Error: Failed to create parameter files.\n");
                 System.out.println(e.toString());
                 return;
             }
-            if (!prepareOutputFiles(trajStream, paramStream, segStream, size, 3)) {
+            if (!prepareOutputFiles(trajStream, segStream, size, 3)) {
                 return;
             }
             cellData[index].setVelMap(velMap);
@@ -432,7 +445,6 @@ public class Analyse_Movie implements PlugIn {
             cellData[index].setScaleFactors(scaleFactors);
             buildVelSigMaps(index, allRegions, trajStream, segStream, cellData[index], cellData.length);
             trajStream.close();
-            paramStream.close();
             segStream.close();
             double smoothVelocities[][] = velMap.smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes()); // Gaussian smoothing in time and space
             double curvatures[][] = curveMap.smoothMap(0.0, 0.0);
@@ -530,10 +542,14 @@ public class Analyse_Movie implements PlugIn {
         return maxBoundary;
     }
 
-    boolean prepareOutputFiles(PrintWriter trajStream, PrintWriter paramStream, PrintWriter segStream, int size, int dim) {
+    boolean prepareOutputFiles(PrintWriter trajStream, PrintWriter segStream, int size, int dim) {
         segStream.println("FRAMES " + String.valueOf(size));
         segStream.println("DIM " + String.valueOf(dim));
         trajStream.println("Time(s), X (" + String.valueOf(GenUtils.mu) + "m), Y (" + String.valueOf(GenUtils.mu) + "m)");
+        return true;
+    }
+
+    boolean printParamFile(PrintWriter paramStream) {
         paramStream.println(TITLE);
         paramStream.println(Utilities.getDate("dd/MM/yyyy HH:mm:ss"));
         paramStream.println();
