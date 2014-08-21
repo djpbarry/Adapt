@@ -48,8 +48,7 @@ public class CellData {
     int length;
     File velDirName, curvDirName, trajDirName;
     Region[] cellRegions;
-//    ArrayList<Pixel> initialPix;
-    LinkedList<Pixel> initialBorder;
+    Region initialRegion;
 
     /**
      * Get segmented cell regions derived from all input movie frames
@@ -302,14 +301,6 @@ public class CellData {
 //        this.initialPix = initialPix;
 //    }
 
-    public LinkedList<Pixel> getInitialBorder() {
-        return initialBorder;
-    }
-
-    public void setInitialBorder(LinkedList<Pixel> initialBorder) {
-        this.initialBorder = initialBorder;
-    }
-
     public ColorProcessor getColorVelMap() {
         return colorVelMap;
     }
@@ -341,4 +332,13 @@ public class CellData {
     public void setLength(int length) {
         this.length = length;
     }
+
+    public Region getInitialRegion() {
+        return initialRegion;
+    }
+
+    public void setInitialRegion(Region initialRegion) {
+        this.initialRegion = initialRegion;
+    }
+    
 }
