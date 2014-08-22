@@ -17,15 +17,12 @@
 package Adapt;
 
 import IAClasses.BoundaryPixel;
-import IAClasses.Pixel;
 import IAClasses.Region;
 import ij.gui.Roi;
 import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 /**
  * Container class for data pertaining to cellular analysis

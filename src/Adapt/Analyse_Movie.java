@@ -382,14 +382,19 @@ public class Analyse_Movie implements PlugIn {
                 init = initP.get(i);
             }
 //            initialPix.add(init);
-            ByteProcessor mask = new ByteProcessor(stacks[0].getWidth(), stacks[0].getHeight());
-            mask.setColor(Region.BACKGROUND);
-            mask.fill();
-            mask.setColor(Region.FOREGROUND);
-            mask.drawPixel(init.getX(), init.getY());
+            if (!Utils.isEdgePixel(init.getX(), init.getY(), stacks[0].getWidth(), stacks[0].getHeight(), 1)) {
+                ByteProcessor mask = new ByteProcessor(stacks[0].getWidth(), stacks[0].getHeight());
+                mask.setColor(Region.BACKGROUND);
+                mask.fill();
+                mask.setColor(Region.FOREGROUND);
+                mask.drawPixel(init.getX(), init.getY());
 //            cellData[i].setInitialPix(initialPix);
-            cellData[i].setInitialRegion(new Region(mask, init));
-            cellData[i].setLength(stacks[0].getSize());
+                cellData[i].setInitialRegion(new Region(mask, init));
+                cellData[i].setLength(stacks[0].getSize());
+            } else {
+                cellData[i].setInitialRegion(null);
+                cellData[i].setLength(0);
+            }
 //            cellData[i].setMaskSeed(init);
         }
         return n;
@@ -806,14 +811,16 @@ public class Analyse_Movie implements PlugIn {
         }
         trajStream.print("Frame,");
         for (int n = 0; n < N; n++) {
-            Region[] allRegions = cellData[n].getCellRegions();
-            Region current = allRegions[0];
-            ArrayList<Pixel> centroids = current.getGeoMedians();
-            int cl = centroids.size();
-            origins[n][0] = (int) Math.round(centroids.get(cl - 1).getX());
-            origins[n][1] = (int) Math.round(centroids.get(cl - 1).getY());
-            trajStream.print("Cell_" + String.valueOf(n + 1) + "_X,");
-            trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y,");
+            if (cellData[n].getLength() > 0) {
+                Region[] allRegions = cellData[n].getCellRegions();
+                Region current = allRegions[0];
+                ArrayList<Pixel> centroids = current.getGeoMedians();
+                int cl = centroids.size();
+                origins[n][0] = (int) Math.round(centroids.get(cl - 1).getX());
+                origins[n][1] = (int) Math.round(centroids.get(cl - 1).getY());
+                trajStream.print("Cell_" + String.valueOf(n + 1) + "_X,");
+                trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y,");
+            }
         }
         trajStream.println();
         for (int t = 0; t < length; t++) {
@@ -1025,7 +1032,7 @@ public class Analyse_Movie implements PlugIn {
                 ImageProcessor mask = region.getMask(width, height);
 //            region.setSeedPix();
                 mask.invert();
-                mask.multiply((n + 1) / 255.0);
+                mask.multiply((i + 1) / 255.0);
                 bb.copyBits(mask, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
             }
             singleImageRegions.add(region);
@@ -1709,63 +1716,65 @@ public class Analyse_Movie implements PlugIn {
         }
         for (int r = 0; r < nCell; r++) {
             Region region = detectedRegions.get(r);
-            if (region.getGeoMedians().size() < 1) {
-                region.calcGeoMedian(region.getMask(stacks[0].getWidth(), stacks[0].getHeight()));
-            }
-            LinkedList<Pixel> border = region.getBorderPix();
-//            ArrayList<Pixel> seed = region.getSeedPix();
-            for (int i = 0; i < channels; i++) {
-                regionsOutput[i].setColor(Color.red);
-                for (Pixel current : border) {
-                    regionsOutput[i].drawDot(current.getX(), current.getY());
+            if (region != null) {
+                if (region.getGeoMedians().size() < 1) {
+                    region.calcGeoMedian(region.getMask(stacks[0].getWidth(), stacks[0].getHeight()));
                 }
-            }
-            for (int i = 0; i < channels; i++) {
-                regionsOutput[i].setColor(Color.blue);
-                ArrayList<Pixel> centroids = region.getGeoMedians();
-                Pixel centre = centroids.get(centroids.size() - 1);
-                Utils.drawCross(regionsOutput[i], centre.getX(), centre.getY(), 6);
-            }
-            if (channels > 1) {
+                LinkedList<Pixel> border = region.getBorderPix();
+//            ArrayList<Pixel> seed = region.getSeedPix();
+                for (int i = 0; i < channels; i++) {
+                    regionsOutput[i].setColor(Color.red);
+                    for (Pixel current : border) {
+                        regionsOutput[i].drawDot(current.getX(), current.getY());
+                    }
+                }
+                for (int i = 0; i < channels; i++) {
+                    regionsOutput[i].setColor(Color.blue);
+                    ArrayList<Pixel> centroids = region.getGeoMedians();
+                    Pixel centre = centroids.get(centroids.size() - 1);
+                    Utils.drawCross(regionsOutput[i], centre.getX(), centre.getY(), 6);
+                }
+                if (channels > 1) {
 //                ArrayList<Pixel> centroids = region.getCentroids();
 //                Pixel centre = centroids.get(centroids.size() - 1);
-                ImageProcessor origMask = region.getMask(stacks[0].getWidth(), stacks[0].getHeight());
-                ImageProcessor shrunkMask = origMask.duplicate();
-                ImageProcessor enlargedMask = origMask.duplicate();
-                int erosions = (int) Math.round(UserVariables.getCortexDepth() / UserVariables.getSpatialRes());
-                for (int e = 0; e < erosions; e++) {
-                    shrunkMask.erode();
-                    enlargedMask.dilate();
-                }
-                ArrayList<Pixel> centroids = region.getGeoMedians();
-                Pixel centre = centroids.get(centroids.size() - 1);
-                Region shrunkRegion = new Region(shrunkMask, centre);
-                LinkedList<Pixel> shrunkBorder = shrunkRegion.getBorderPix();
-                Region enlargedRegion = new Region(enlargedMask, centre);
-                LinkedList<Pixel> enlargedBorder = enlargedRegion.getBorderPix();
-                for (int i = 0; i < channels; i++) {
-                    regionsOutput[i].setColor(Color.green);
-                    for (Pixel sCurrent : shrunkBorder) {
-                        regionsOutput[i].drawDot(sCurrent.getX(), sCurrent.getY());
+                    ImageProcessor origMask = region.getMask(stacks[0].getWidth(), stacks[0].getHeight());
+                    ImageProcessor shrunkMask = origMask.duplicate();
+                    ImageProcessor enlargedMask = origMask.duplicate();
+                    int erosions = (int) Math.round(UserVariables.getCortexDepth() / UserVariables.getSpatialRes());
+                    for (int e = 0; e < erosions; e++) {
+                        shrunkMask.erode();
+                        enlargedMask.dilate();
                     }
-                }
-                for (Pixel eCurrent : enlargedBorder) {
+                    ArrayList<Pixel> centroids = region.getGeoMedians();
+                    Pixel centre = centroids.get(centroids.size() - 1);
+                    Region shrunkRegion = new Region(shrunkMask, centre);
+                    LinkedList<Pixel> shrunkBorder = shrunkRegion.getBorderPix();
+                    Region enlargedRegion = new Region(enlargedMask, centre);
+                    LinkedList<Pixel> enlargedBorder = enlargedRegion.getBorderPix();
                     for (int i = 0; i < channels; i++) {
-                        regionsOutput[i].drawDot(eCurrent.getX(), eCurrent.getY());
+                        regionsOutput[i].setColor(Color.green);
+                        for (Pixel sCurrent : shrunkBorder) {
+                            regionsOutput[i].drawDot(sCurrent.getX(), sCurrent.getY());
+                        }
+                    }
+                    for (Pixel eCurrent : enlargedBorder) {
+                        for (int i = 0; i < channels; i++) {
+                            regionsOutput[i].drawDot(eCurrent.getX(), eCurrent.getY());
+                        }
                     }
                 }
-            }
-            if (UserVariables.isAnalyseProtrusions()) {
-                ArrayList<BoundaryPixel> minPos[] = cellData[r].getCurvatureMinima();
-                for (int i = 0; i < channels; i++) {
-                    regionsOutput[i].setColor(Color.yellow);
-                    if (minPos[0] != null) {
-                        int mpSize = minPos[0].size();
-                        for (int j = 0; j < mpSize; j++) {
-                            BoundaryPixel currentMin = minPos[0].get(j);
-                            int x = (int) Math.round(currentMin.getPrecX() / UserVariables.getSpatialRes());
-                            int y = (int) Math.round(currentMin.getPrecY() / UserVariables.getSpatialRes());
-                            regionsOutput[i].drawOval(x - 2, y - 2, 5, 5);
+                if (UserVariables.isAnalyseProtrusions()) {
+                    ArrayList<BoundaryPixel> minPos[] = cellData[r].getCurvatureMinima();
+                    for (int i = 0; i < channels; i++) {
+                        regionsOutput[i].setColor(Color.yellow);
+                        if (minPos[0] != null) {
+                            int mpSize = minPos[0].size();
+                            for (int j = 0; j < mpSize; j++) {
+                                BoundaryPixel currentMin = minPos[0].get(j);
+                                int x = (int) Math.round(currentMin.getPrecX() / UserVariables.getSpatialRes());
+                                int y = (int) Math.round(currentMin.getPrecY() / UserVariables.getSpatialRes());
+                                regionsOutput[i].drawOval(x - 2, y - 2, 5, 5);
+                            }
                         }
                     }
                 }
