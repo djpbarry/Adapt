@@ -33,15 +33,15 @@ public class UserVariables {
     private static boolean autoThreshold = false; // User-specifed threshold is used if set to false
     private static double tempFiltRad = 240.0; // radius of Gaussian filters used to smooth velocity and signal maps
     private static double sigThreshFact = 0.0;
-    private static double spatFiltRad = 1.0; // radius of Gaussian filters used to smooth velocity and signal maps
-    private static int erosion = 2;
+    private static double spatFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
+    private static int erosion = 4;
     private static boolean getMorph = false;
     private static double timeRes = 0.25; // temporal resolution in frames per minute
     private static final double blebLenThresh = 0.05; // minimum normalised length of bleb to be considered in analysis
     private static double curveThresh = -20.0;
     private static boolean analyseProtrusions = false;
     private static double sigRecoveryThresh = 0.25;
-    private static double gaussRad = 2.0;
+    private static double gaussRad = 1.0;
     private static final boolean usedSmoothedVels = true;
     private static final int ovalRadius = 2;
 

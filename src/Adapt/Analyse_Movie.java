@@ -82,7 +82,8 @@ public class Analyse_Movie implements PlugIn {
     private final double scaleFactor = 60.0 / 216.0;
     private static File directory, // root directory
             childDir, // root output directory
-            parDir; // output directory for each cell
+            parDir, // output directory for each cell
+            velDirName, curvDirName, trajDirName;
     private static final double texThresh = 10000.0, // texture threshold used in conditional region dilation
             gradThresh = 1000.0, // minimum duration (in frames) of bleb to be considered in analysis
             lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
@@ -95,17 +96,18 @@ public class Analyse_Movie implements PlugIn {
      */
     protected DecimalFormat numFormat = StaticVariables.numFormat; // For formatting results
     private PointRoi roi = null; // Points used as seeds for cell detection
-    private static final boolean simple = true;
+    private static final boolean simple = false;
     private CellData cellData[];
     private final ImageStack stacks[] = new ImageStack[2];
     private double morphSizeMin = 5.0;
 
-//    public static void main(String args[]) {
-//        Analyse_Movie am = new Analyse_Movie();
-//        am.initialise();
-//        am.run(null);
-//        System.exit(0);
-//    }
+    public static void main(String args[]) {
+        Analyse_Movie am = new Analyse_Movie();
+        am.initialise();
+        am.run(null);
+        System.exit(0);
+    }
+
     /**
      * Default constructor
      */
@@ -318,7 +320,7 @@ public class Analyse_Movie implements PlugIn {
              * Create child directory for current cell
              */
             String childDirName = GenUtils.openResultsDirectory(parDir + delimiter + index, delimiter);
-            if (cellData[index].length > 0) {
+            if (cellData[index].getLength() > 0) {
                 childDir = new File(childDirName);
                 buildOutput(index, cellData[index].getLength(), false);
                 if (UserVariables.isAnalyseProtrusions()) {
@@ -328,6 +330,9 @@ public class Analyse_Movie implements PlugIn {
             }
         }
         if (UserVariables.isGenVis()) {
+            velDirName = GenUtils.createDirectory(parDir + delimiter + "Velocity_Visualisation");
+            curvDirName = GenUtils.createDirectory(parDir + delimiter + "Curvature_Visualisation");
+            trajDirName = GenUtils.createDirectory(parDir + delimiter + "Trajectories_Visualisation");
             generateVisualisations(cellData);
             generateCellTrajectories(cellData);
         }
@@ -401,7 +406,6 @@ public class Analyse_Movie implements PlugIn {
         int size = frames;
         File trajFile, segPointsFile;
         PrintWriter trajStream, segStream;
-        File velDirName, curvDirName, trajDirName;
         double scaleFactors[] = new double[size];
 
         /*
@@ -420,10 +424,6 @@ public class Analyse_Movie implements PlugIn {
         buildCurveMap(allRegions, cellData[index], index, cellData.length);
 
         if (!preview) {
-            velDirName = GenUtils.createDirectory(parDir + delimiter + "Velocity_Visualisation");
-            curvDirName = GenUtils.createDirectory(parDir + delimiter + "Curvature_Visualisation");
-            trajDirName = GenUtils.createDirectory(parDir + delimiter + "Trajectories_Visualisation");
-
             /*
              * To obain a uniform map, all boundary lengths (from each frame) are
              * scaled up to the same length. For signal processing convenience, this
@@ -483,9 +483,6 @@ public class Analyse_Movie implements PlugIn {
             cellData[index].setGreyCurveMap(greyCurvMap);
             cellData[index].setMaxVel(maxvel);
             cellData[index].setMinVel(minvel);
-            cellData[index].setVelDirName(velDirName);
-            cellData[index].setCurvDirName(curvDirName);
-            cellData[index].setTrajDirName(trajDirName);
             cellData[index].setGreySigMap(greySigMap);
             cellData[index].setColorVelMap(colorVelMap);
             cellData[index].setSmoothVelocities(smoothVelocities);
@@ -736,8 +733,6 @@ public class Analyse_Movie implements PlugIn {
         int height = cytoStack.getHeight();
         int length = cytoStack.getSize();
         double mincurve = -50.0, maxcurve = 50.0;
-        File velDirName = cellData[0].getVelDirName();
-        File curvDirName = cellData[0].getCurvDirName();
         for (int t = 0; t < length; t++) {
             dialog.updateProgress(t, length);
             ColorProcessor velOutput = new ColorProcessor(width, height);
@@ -749,7 +744,7 @@ public class Analyse_Movie implements PlugIn {
             curveOutput.fill();
 //            curveOutput.setLineWidth(3);
             for (int n = 0; n < N; n++) {
-                if (cellData[n].length > t) {
+                if (cellData[n].getLength() > t) {
                     double[][] smoothVelocities = cellData[n].getSmoothVelocities();
                     Region[] allRegions = cellData[n].getCellRegions();
                     MorphMap curveMap = cellData[n].getCurveMap();
@@ -794,7 +789,6 @@ public class Analyse_Movie implements PlugIn {
         int width = cytoStack.getWidth();
         int height = cytoStack.getHeight();
         int length = cytoStack.getSize();
-        File trajDirName = cellData[0].getTrajDirName();
         int origins[][] = new int[N][2];
         double distances[] = new double[N];
         Arrays.fill(distances, 0.0);
@@ -830,7 +824,7 @@ public class Analyse_Movie implements PlugIn {
             trajOutput.fill();
             trajOutput.setColor(Color.white);
             for (int n = 0; n < N; n++) {
-                if (cellData[n].length > t) {
+                if (cellData[n].getLength() > t) {
                     Region[] allRegions = cellData[n].getCellRegions();
                     Region current = allRegions[t];
                     ArrayList<Pixel> centroids = current.getGeoMedians();

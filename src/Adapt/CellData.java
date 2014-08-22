@@ -34,21 +34,20 @@ import java.util.LinkedList;
  */
 public class CellData {
 
-    MorphMap velMap, curveMap, sigMap;
-    ImageProcessor velMapWithDetections;
-    ColorProcessor colorVelMap;
-    double sigThresh, minVel, maxVel;
-    FloatProcessor greyVelMap, greySigMap, greyCurveMap;
-    Roi[] velRois;
-    ArrayList<BoundaryPixel> curvatureMinima[];
-    double noisyVelocities[][];
-    double[][] smoothVelocities;
-    double scaleFactors[];
-    int greyThresholds[];
-    int length;
-    File velDirName, curvDirName, trajDirName;
-    Region[] cellRegions;
-    Region initialRegion;
+    private MorphMap velMap, curveMap, sigMap;
+    private ImageProcessor velMapWithDetections;
+    private ColorProcessor colorVelMap;
+    private double sigThresh, minVel, maxVel;
+    private FloatProcessor greyVelMap, greySigMap, greyCurveMap;
+    private Roi[] velRois;
+    private ArrayList<BoundaryPixel> curvatureMinima[];
+    private double noisyVelocities[][];
+    private double[][] smoothVelocities;
+    private double scaleFactors[];
+    private int greyThresholds[];
+    private int length;
+    private Region[] cellRegions;
+    private Region initialRegion;
 
     /**
      * Get segmented cell regions derived from all input movie frames
@@ -76,40 +75,6 @@ public class CellData {
 
     public void setGreyCurveMap(FloatProcessor greyCurveMap) {
         this.greyCurveMap = greyCurveMap;
-    }
-
-    /**
-     * Get the directory where curvature visualisations will be stored
-     *
-     * @return curvature visualisation directory as a {@link java.io.File File}
-     */
-    public File getCurvDirName() {
-        return curvDirName;
-    }
-
-    public void setCurvDirName(File curvDirName) {
-        this.curvDirName = curvDirName;
-    }
-
-    /**
-     * Get the directory where velocity visualisations will be stored
-     *
-     * @return velocity visualisation directory as a {@link java.io.File File}
-     */
-    public File getVelDirName() {
-        return velDirName;
-    }
-
-    public void setVelDirName(File velDirName) {
-        this.velDirName = velDirName;
-    }
-
-    public File getTrajDirName() {
-        return trajDirName;
-    }
-
-    public void setTrajDirName(File trajDirName) {
-        this.trajDirName = trajDirName;
     }
 
     /**
