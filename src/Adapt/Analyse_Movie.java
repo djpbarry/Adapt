@@ -1712,6 +1712,8 @@ public class Analyse_Movie implements PlugIn {
                 if (region.getCentres().size() < 1) {
                     region.calcCentre(region.getMask(stacks[0].getWidth(), stacks[0].getHeight()));
                 }
+                ArrayList<Pixel> centres = region.getCentres();
+                Pixel centre = centres.get(centres.size() - 1);
                 LinkedList<Pixel> border = region.getBorderPix();
 //            ArrayList<Pixel> seed = region.getSeedPix();
                 for (int i = 0; i < channels; i++) {
@@ -1722,8 +1724,6 @@ public class Analyse_Movie implements PlugIn {
                 }
                 for (int i = 0; i < channels; i++) {
                     regionsOutput[i].setColor(Color.blue);
-                    ArrayList<Pixel> centres = region.getCentres();
-                    Pixel centre = centres.get(centres.size() - 1);
                     Utils.drawCross(regionsOutput[i], centre.getX(), centre.getY(), 6);
                 }
                 if (channels > 1) {
@@ -1737,8 +1737,6 @@ public class Analyse_Movie implements PlugIn {
                         shrunkMask.erode();
                         enlargedMask.dilate();
                     }
-                    ArrayList<Pixel> centres = region.getCentres();
-                    Pixel centre = centres.get(centres.size() - 1);
                     Region shrunkRegion = new Region(shrunkMask, centre);
                     LinkedList<Pixel> shrunkBorder = shrunkRegion.getBorderPix();
                     Region enlargedRegion = new Region(enlargedMask, centre);
