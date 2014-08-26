@@ -100,12 +100,12 @@ public class Analyse_Movie implements PlugIn {
     private final ImageStack stacks[] = new ImageStack[2];
     private double morphSizeMin = 5.0;
 
-    public static void main(String args[]) {
-        Analyse_Movie am = new Analyse_Movie();
-        am.initialise();
-        am.run(null);
-        System.exit(0);
-    }
+//    public static void main(String args[]) {
+//        Analyse_Movie am = new Analyse_Movie();
+//        am.initialise();
+//        am.run(null);
+//        System.exit(0);
+//    }
 
     /**
      * Default constructor
