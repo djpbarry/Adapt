@@ -269,8 +269,7 @@ public class Analyse_Movie implements PlugIn {
 //                    int sx = current.getMaskSeed().getX();
 //                    int sy = current.getMaskSeed().getY();
                     ImageProcessor mask = current.getMask(width, height);
-                    ArrayList<Pixel> centres = current.getGeoMedians();
-                    Pixel seed = centres.get(centres.size() - 1);
+                    ArrayList<Pixel> centres = current.getCentres();
 //                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/mask_" + i + "_" + j + ".png");
                     for (int k = 0; k < UserVariables.getErosion(); k++) {
                         mask.erode();
@@ -286,16 +285,9 @@ public class Analyse_Movie implements PlugIn {
 //                                StaticVariables.FOREGROUND, tempMask);
 //                        radius++;
 //                    }
-                    long maskSize = mask.getStatistics().getHistogram()[Region.FOREGROUND];
-                    if (maskSize > 0) {
-                        Region temp;
-                        int xc = seed.getX();
-                        int yc = seed.getY();
-                        if (mask.getPixel(xc, yc) > Region.FOREGROUND) {
-                            temp = new Region(mask, null);
-                        } else {
-                            temp = new Region(mask, seed);
-                        }
+                    if (current.calcCentre(mask)) {
+                        Pixel centre = centres.get(centres.size() - 1);
+                        Region temp = new Region(mask, centre);
 //                        IJ.saveAs((new ImagePlus("", temp.getMask(mask.getWidth(), mask.getHeight()))), "PNG", "C:/users/barry05/desktop/mask_" + i + "_" + j + "_updated.png");
                         cellData[j].setInitialRegion(temp);
 //                        cellData[j].setMaskSeed(new Pixel(cPoints[0][0], cPoints[0][1], j));
@@ -603,10 +595,10 @@ public class Analyse_Movie implements PlugIn {
         for (int i = 0; i < width; i++) {
             dialog.updateProgress(i, width);
             Region current = allRegions[i];
-            ArrayList<Pixel> centroids = current.getGeoMedians();
-            int cl = centroids.size();
-            double xc = centroids.get(cl - 1).getPrecX();
-            double yc = centroids.get(cl - 1).getPrecY();
+            ArrayList<Pixel> centres = current.getCentres();
+            int cl = centres.size();
+            double xc = centres.get(cl - 1).getPrecX();
+            double yc = centres.get(cl - 1).getPrecY();
             trajStream.println(String.valueOf(i * 60.0 / UserVariables.getTimeRes())
                     + ", " + String.valueOf(xc * UserVariables.getSpatialRes())
                     + ", " + String.valueOf(yc * UserVariables.getSpatialRes()));
@@ -661,10 +653,10 @@ public class Analyse_Movie implements PlugIn {
         for (int i = 0; i < width; i++) {
             dialog.updateProgress(i, width);
             Region current = allRegions[i];
-            ArrayList<Pixel> centroids = current.getGeoMedians();
-            int cl = centroids.size();
-            double xc = centroids.get(cl - 1).getPrecX();
-            double yc = centroids.get(cl - 1).getPrecY();
+            ArrayList<Pixel> centres = current.getCentres();
+            int cl = centres.size();
+            double xc = centres.get(cl - 1).getPrecX();
+            double yc = centres.get(cl - 1).getPrecY();
             /*
              * Get points for one column (time-point) of map
              */
@@ -769,10 +761,10 @@ public class Analyse_Movie implements PlugIn {
                     }
                     velOutput.setColor(Color.white);
                     Region current = allRegions[t];
-                    ArrayList<Pixel> centroids = current.getGeoMedians();
-                    int cl = centroids.size();
-                    int xc = (int) Math.round(centroids.get(cl - 1).getX());
-                    int yc = (int) Math.round(centroids.get(cl - 1).getY());
+                    ArrayList<Pixel> centres = current.getCentres();
+                    int cl = centres.size();
+                    int xc = (int) Math.round(centres.get(cl - 1).getX());
+                    int yc = (int) Math.round(centres.get(cl - 1).getY());
                     velOutput.fillOval(xc - 1, yc - 1, 3, 3);
                     velOutput.drawString(String.valueOf(n + 1), xc + 2, yc + 2);
                 }
@@ -814,10 +806,10 @@ public class Analyse_Movie implements PlugIn {
             if (cellData[n].getLength() > 0) {
                 Region[] allRegions = cellData[n].getCellRegions();
                 Region current = allRegions[0];
-                ArrayList<Pixel> centroids = current.getGeoMedians();
-                int cl = centroids.size();
-                origins[n][0] = (int) Math.round(centroids.get(cl - 1).getX());
-                origins[n][1] = (int) Math.round(centroids.get(cl - 1).getY());
+                ArrayList<Pixel> centres = current.getCentres();
+                int cl = centres.size();
+                origins[n][0] = (int) Math.round(centres.get(cl - 1).getX());
+                origins[n][1] = (int) Math.round(centres.get(cl - 1).getY());
                 trajStream.print("Cell_" + String.valueOf(n + 1) + "_X,");
                 trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y,");
             }
@@ -834,19 +826,19 @@ public class Analyse_Movie implements PlugIn {
                 if (cellData[n].getLength() > t) {
                     Region[] allRegions = cellData[n].getCellRegions();
                     Region current = allRegions[t];
-                    ArrayList<Pixel> centroids = current.getGeoMedians();
-                    int c = centroids.size();
-                    double x = centroids.get(c - 1).getX();
-                    double y = centroids.get(c - 1).getY();
+                    ArrayList<Pixel> centres = current.getCentres();
+                    int c = centres.size();
+                    double x = centres.get(c - 1).getX();
+                    double y = centres.get(c - 1).getY();
                     trajOutput.fillOval((int) Math.round(x + xc - origins[n][0]) - 1,
                             (int) Math.round(yc - origins[n][1]) - 1, 3, 3);
                     trajStream.print(String.valueOf(x) + "," + String.valueOf(y) + ",");
                     if (t > 0) {
                         Region last = allRegions[t - 1];
-                        ArrayList<Pixel> lastcentroids = last.getGeoMedians();
-                        int lc = lastcentroids.size();
-                        double lx = lastcentroids.get(lc - 1).getX();
-                        double ly = lastcentroids.get(lc - 1).getY();
+                        ArrayList<Pixel> lastCentres = last.getCentres();
+                        int lc = lastCentres.size();
+                        double lx = lastCentres.get(lc - 1).getX();
+                        double ly = lastCentres.get(lc - 1).getY();
                         distances[n] += Utils.calcDistance(x, y, lx, ly) * UserVariables.getSpatialRes();
                     }
                 } else {
@@ -1025,8 +1017,8 @@ public class Analyse_Movie implements PlugIn {
 //            ArrayList<Pixel> initialPix = cellData[i].getInitialPix();
             Region region = cellData[i].getInitialRegion();
             if (region != null) {
-                if (region.getGeoMedians().size() < 1) {
-                    region.calcGeoMedian(region.getBorderPix());
+                if (region.getCentres().size() < 1) {
+                    region.calcCentre(region.getBorderPix());
                 }
 //                region.setMaskSeed(cellData[i].getMaskSeed());
                 ImageProcessor mask = region.getMask(width, height);
@@ -1185,8 +1177,8 @@ public class Analyse_Movie implements PlugIn {
                  * map construction. This can probably be replaced with a clone
                  * method.
                  */
-                ArrayList<Pixel> medians = cell.getGeoMedians();
-                Pixel median = medians.get(medians.size() - 1);
+                ArrayList<Pixel> centres = cell.getCentres();
+                Pixel median = centres.get(centres.size() - 1);
                 for (int i = 0; i < mask.getWidth(); i++) {
                     for (int j = 0; j < mask.getHeight(); j++) {
                         if (mask.getPixel(i, j) == 0) {
@@ -1203,7 +1195,7 @@ public class Analyse_Movie implements PlugIn {
                     distancemaps[n][sx][sy] = calcDistance(median, sx, sy);
                     cellcopy.addBorderPoint(pix);
                 }
-                cellcopy.calcGeoMedian(borderPix);
+                cellcopy.calcCentre(borderPix);
                 tempRegions.add(cellcopy);
                 regionImages[n] = (ByteProcessor) regionImage.duplicate();
             } else {
@@ -1399,7 +1391,7 @@ public class Analyse_Movie implements PlugIn {
     boolean buildDistanceMaps(ByteProcessor regionImage, ImageProcessor greys, Region region, Pixel point, float[][] distancemap, double thresh, ImageProcessor gradient, int index) {
         int x = point.getX();
         int y = point.getY();
-        ArrayList<Pixel> centres = region.getGeoMedians();
+        ArrayList<Pixel> centres = region.getCentres();
         Pixel centre = centres.get(centres.size() - 1);
         boolean dilate = false;
         boolean remove = true;
@@ -1717,8 +1709,8 @@ public class Analyse_Movie implements PlugIn {
         for (int r = 0; r < nCell; r++) {
             Region region = detectedRegions.get(r);
             if (region != null) {
-                if (region.getGeoMedians().size() < 1) {
-                    region.calcGeoMedian(region.getMask(stacks[0].getWidth(), stacks[0].getHeight()));
+                if (region.getCentres().size() < 1) {
+                    region.calcCentre(region.getMask(stacks[0].getWidth(), stacks[0].getHeight()));
                 }
                 LinkedList<Pixel> border = region.getBorderPix();
 //            ArrayList<Pixel> seed = region.getSeedPix();
@@ -1730,8 +1722,8 @@ public class Analyse_Movie implements PlugIn {
                 }
                 for (int i = 0; i < channels; i++) {
                     regionsOutput[i].setColor(Color.blue);
-                    ArrayList<Pixel> centroids = region.getGeoMedians();
-                    Pixel centre = centroids.get(centroids.size() - 1);
+                    ArrayList<Pixel> centres = region.getCentres();
+                    Pixel centre = centres.get(centres.size() - 1);
                     Utils.drawCross(regionsOutput[i], centre.getX(), centre.getY(), 6);
                 }
                 if (channels > 1) {
@@ -1745,8 +1737,8 @@ public class Analyse_Movie implements PlugIn {
                         shrunkMask.erode();
                         enlargedMask.dilate();
                     }
-                    ArrayList<Pixel> centroids = region.getGeoMedians();
-                    Pixel centre = centroids.get(centroids.size() - 1);
+                    ArrayList<Pixel> centres = region.getCentres();
+                    Pixel centre = centres.get(centres.size() - 1);
                     Region shrunkRegion = new Region(shrunkMask, centre);
                     LinkedList<Pixel> shrunkBorder = shrunkRegion.getBorderPix();
                     Region enlargedRegion = new Region(enlargedMask, centre);
