@@ -96,7 +96,7 @@ public class StaticVariables {
     /**
      * GUI label for Gaussian Filter Radius
      */
-    public static final String GAUSS_RAD = "Gaussian Filter Radius";
+    public static final String GAUSS_RAD = "Smoothing Filter Radius";
     /**
      * GUI label for Signal map threshold
      */
@@ -109,9 +109,13 @@ public class StaticVariables {
      * GUI label for Auto Threshold
      */
     public static final String AUTO_THRESH = "Auto Threshold";
-    /**
-     * GUI label for Auto Threshold
-     */
+
+    public static final String SIMP_SEG = "Simple Segmentation";
+
+    public static final String ADV_SEG = "Advanced Segmentation";
+
+    public static final String INIT_FILT_RAD = "Pre-Initilialisation Smoothing Radius";
+
     public static final String DATA_STREAM_HEADINGS = "Time_(s), Zeroed_Time_(s), "
             + "V_(" + GenUtils.mu + "m/s), Total_Signal_(AU), Length_(" + GenUtils.mu + "m), "
             + "Total_Signal/L0, Mean_Signal, Normalised_Length";

@@ -42,8 +42,10 @@ public class UserVariables {
     private static boolean analyseProtrusions = false;
     private static double sigRecoveryThresh = 0.25;
     private static double gaussRad = 1.0;
+    private static double initGaussRad = 2.0;
     private static final boolean usedSmoothedVels = true;
     private static final int ovalRadius = 2;
+    private static boolean simple = false;
 
     /**
      * Get the radius of circles drawn on bleb detection output movies
@@ -425,6 +427,22 @@ public class UserVariables {
      */
     public static void setGaussRad(double gaussRad) {
         UserVariables.gaussRad = gaussRad;
+    }
+
+    public static double getInitGaussRad() {
+        return initGaussRad;
+    }
+
+    public static void setInitGaussRad(double initGaussRad) {
+        UserVariables.initGaussRad = initGaussRad;
+    }
+
+    public static boolean isSimple() {
+        return simple;
+    }
+
+    public static void setSimple(boolean simple) {
+        UserVariables.simple = simple;
     }
 
 }

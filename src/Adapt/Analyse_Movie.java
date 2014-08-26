@@ -96,7 +96,6 @@ public class Analyse_Movie implements PlugIn {
      */
     protected DecimalFormat numFormat = StaticVariables.numFormat; // For formatting results
     private PointRoi roi = null; // Points used as seeds for cell detection
-    private static final boolean simple = false;
     private CellData cellData[];
     private final ImageStack stacks[] = new ImageStack[2];
     private double morphSizeMin = 5.0;
@@ -349,7 +348,7 @@ public class Analyse_Movie implements PlugIn {
 //        initP.add(new Pixel(9, 40));
 //        initP.add(new Pixel(40, 40));
         int n;
-        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
+//        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
         if (roi != null) {
             if (roi.getType() == Roi.POINT) {
                 n = roi.getNCoordinates();
@@ -358,7 +357,7 @@ public class Analyse_Movie implements PlugIn {
                 return -1;
             }
         } else {
-            getInitialSeedPoints((ByteProcessor) stacks[0].getProcessor(slice), initP, threshold);
+            getInitialSeedPoints((ByteProcessor) stacks[0].getProcessor(slice), initP);
             n = initP.size();
 //            n = 2;
         }
@@ -1041,7 +1040,7 @@ public class Analyse_Movie implements PlugIn {
 //        psf.calcPSF();
 //        double gaussRad = psf.getSigEst();
         (new GaussianBlur()).blurGaussian(inputDup, UserVariables.getGaussRad(), UserVariables.getGaussRad(), 0.01);
-        growRegions(indexedRegions, inputDup, singleImageRegions, simple, threshold);
+        growRegions(indexedRegions, inputDup, singleImageRegions, UserVariables.isSimple(), threshold);
         return singleImageRegions;
     }
 
@@ -1785,10 +1784,10 @@ public class Analyse_Movie implements PlugIn {
 //            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 //        }
 //    }
-    void getInitialSeedPoints(ByteProcessor image, ArrayList<Pixel> pixels, int threshold) {
+    void getInitialSeedPoints(ByteProcessor image, ArrayList<Pixel> pixels) {
         ByteProcessor binary = (ByteProcessor) image.duplicate();
-        (new GaussianBlur()).blurGaussian(binary, UserVariables.getGaussRad(), UserVariables.getGaussRad(), 0.01);
-        binary.threshold(threshold);
+        (new GaussianBlur()).blurGaussian(binary, UserVariables.getInitGaussRad(), UserVariables.getInitGaussRad(), 0.01);
+        binary.threshold((int) Math.round(Utils.getPercentileThresh(image, UserVariables.getGreyThresh())));
         binary.invert();
         if (binary.isInvertedLut()) {
             binary.invertLut();
