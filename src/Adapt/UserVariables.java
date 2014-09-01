@@ -45,7 +45,7 @@ public class UserVariables {
     private static double initGaussRad = 2.0;
     private static final boolean usedSmoothedVels = true;
     private static final int ovalRadius = 2;
-    private static boolean simple = false;
+    private static boolean simple = true;
 
     /**
      * Get the radius of circles drawn on bleb detection output movies
