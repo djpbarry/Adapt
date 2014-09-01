@@ -135,7 +135,7 @@ public class CurveMapAnalyser {
                     for (int k = lastFrame; k >= frame; k--) {
                         int currentIndex = k - startFrame;
                         if (minPos[currentIndex] == null) {
-                            minPos[currentIndex] = new ArrayList();
+                            minPos[currentIndex] = new ArrayList<>();
                         }
                         BoundaryPixel currentPos = new BoundaryPixel((int) currentParticle.getX(),
                                 (int) currentParticle.getY(), currentParticle.getiD(), j, k);

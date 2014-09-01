@@ -351,7 +351,7 @@ public class Analyse_Movie implements PlugIn {
     }
 
     int initialiseROIs(int slice) {
-        ArrayList<Pixel> initP = new ArrayList();
+        ArrayList<Pixel> initP = new ArrayList<>();
 //        initP.add(new Pixel(9, 40));
 //        initP.add(new Pixel(40, 40));
         int n;
@@ -1009,7 +1009,7 @@ public class Analyse_Movie implements PlugIn {
         int width = inputDup.getWidth();
         int height = inputDup.getHeight();
         int n = cellData.length;
-        ArrayList<Region> singleImageRegions = new ArrayList();
+        ArrayList<Region> singleImageRegions = new ArrayList<>();
         /*
          * Create image depicting regions to be "grown". Regions initialised
          * using centroids.
@@ -1161,7 +1161,7 @@ public class Analyse_Movie implements PlugIn {
 //        ImageProcessor grad = inputImage.duplicate();
 //        grad.findEdges();
         int cellNum = singleImageRegions.size();
-        ArrayList<Region> tempRegions = new ArrayList();
+        ArrayList<Region> tempRegions = new ArrayList<>();
         for (int n = 0; n < cellNum; n++) {
             /*
              * Initialise distance maps. Any non-seed pixels are set to
@@ -1585,16 +1585,16 @@ public class Analyse_Movie implements PlugIn {
                         && bounds.width > UserVariables.getBlebDurThresh()) {
                     Bleb currentBleb = new Bleb();
                     dialog.updateProgress(i, cellData.getVelRois().length);
-                    ArrayList<Double> meanVel = new ArrayList();
-                    ArrayList<Double> sumSig = new ArrayList();
-                    ArrayList<Double> protrusionLength = new ArrayList();
+                    ArrayList<Double> meanVel = new ArrayList<>();
+                    ArrayList<Double> sumSig = new ArrayList<>();
+                    ArrayList<Double> protrusionLength = new ArrayList<>();
                     currentBleb.setBounds(bounds);
                     currentBleb.setDetectionStack(detectionStack);
                     currentBleb.setMeanVel(meanVel);
                     currentBleb.setProtrusionLength(protrusionLength);
                     currentBleb.setSumSig(sumSig);
-                    currentBleb.setPolys(new ArrayList());
-                    currentBleb.setBlebPerimSigs(new ArrayList());
+                    currentBleb.setPolys(new ArrayList<>());
+                    currentBleb.setBlebPerimSigs(new ArrayList<>());
                     if (BlebAnalyser.extractAreaSignalData(currentBleb, cellData,
                             count, stacks)) {
                         generateDetectionStack(currentBleb, count);
