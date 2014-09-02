@@ -108,6 +108,8 @@ public class GUI extends javax.swing.JDialog {
         advSegRadioButton = new javax.swing.JRadioButton();
         initFiltRadLabel = new javax.swing.JLabel();
         initFiltRadTextField = new javax.swing.JTextField();
+        lambdaLabel = new javax.swing.JLabel();
+        lambdaTextField = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         curveRangeLabel = new javax.swing.JLabel();
         curveRangeField = new javax.swing.JTextField();
@@ -288,7 +290,7 @@ public class GUI extends javax.swing.JDialog {
         erosionField.setText(String.valueOf(UserVariables.getErosion()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -298,7 +300,7 @@ public class GUI extends javax.swing.JDialog {
         erosionLabel.setText(StaticVariables.EROSION);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -307,7 +309,7 @@ public class GUI extends javax.swing.JDialog {
         spatFiltRadLabel.setText(StaticVariables.SPAT_FILT_RAD);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -316,7 +318,7 @@ public class GUI extends javax.swing.JDialog {
         spatFiltRadField.setText(String.valueOf(UserVariables.getSpatFiltRad()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -326,7 +328,7 @@ public class GUI extends javax.swing.JDialog {
         tempFiltRadLabel.setText(StaticVariables.TEMP_FILT_RAD);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -335,7 +337,7 @@ public class GUI extends javax.swing.JDialog {
         tempFiltRadField.setText(String.valueOf(UserVariables.getTempFiltRad()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -374,7 +376,7 @@ public class GUI extends javax.swing.JDialog {
         initFiltRadLabel.setText(StaticVariables.INIT_FILT_RAD);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -383,12 +385,32 @@ public class GUI extends javax.swing.JDialog {
         initFiltRadTextField.setText(String.valueOf(UserVariables.getInitGaussRad()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         advancedTab.add(initFiltRadTextField, gridBagConstraints);
+
+        lambdaLabel.setText(StaticVariables.LAMBDA);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        advancedTab.add(lambdaLabel, gridBagConstraints);
+
+        lambdaTextField.setText(String.valueOf(UserVariables.getLambda()));
+        lambdaTextField.setEnabled(advSegRadioButton.isSelected());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        advancedTab.add(lambdaTextField, gridBagConstraints);
 
         jTabbedPane1.addTab("Advanced", advancedTab);
 
@@ -711,12 +733,18 @@ public class GUI extends javax.swing.JDialog {
 
     private void simpSegRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simpSegRadioButtonActionPerformed
         advSegRadioButton.setSelected(!simpSegRadioButton.isSelected());
+        updateLambdaTextField();
     }//GEN-LAST:event_simpSegRadioButtonActionPerformed
 
     private void advSegRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advSegRadioButtonActionPerformed
         simpSegRadioButton.setSelected(!advSegRadioButton.isSelected());
+        updateLambdaTextField();
     }//GEN-LAST:event_advSegRadioButtonActionPerformed
 
+    private void updateLambdaTextField(){
+        lambdaTextField.setEnabled(advSegRadioButton.isSelected());
+    }
+    
     private void disableFieldOnSelect(JLabel label, JTextField field, JToggleButton button) {
         field.setEnabled(!(button.isSelected() && button.isEnabled()));
         if (label != null) {
@@ -753,6 +781,7 @@ public class GUI extends javax.swing.JDialog {
             UserVariables.setGaussRad(Double.parseDouble(gaussRadField.getText()));
             UserVariables.setSimple(simpSegRadioButton.isSelected());
             UserVariables.setInitGaussRad(Double.parseDouble(initFiltRadTextField.getText()));
+            UserVariables.setLambda(Double.parseDouble(lambdaTextField.getText()));
         } catch (NumberFormatException e) {
             IJ.error("Number formatting error " + e.toString());
             return false;
@@ -857,6 +886,8 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JLabel lambdaLabel;
+    private javax.swing.JTextField lambdaTextField;
     private javax.swing.JTextField previewField;
     private javax.swing.JScrollBar previewScrollBar;
     private javax.swing.JToggleButton previewToggleButton;

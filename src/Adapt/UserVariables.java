@@ -46,10 +46,11 @@ public class UserVariables {
     private static final boolean usedSmoothedVels = true;
     private static final int ovalRadius = 2;
     private static boolean simple = true;
+    private static double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
 
     /**
      * Get the radius of circles drawn on bleb detection output movies
-     * 
+     *
      * @return radius of circles
      */
     public static int getOvalRadius() {
@@ -58,7 +59,7 @@ public class UserVariables {
 
     /**
      * Returns true if velocity values are smoothed prior to being output
-     * 
+     *
      * @return true if velocity values are filtered
      */
     public static boolean isUsedSmoothedVels() {
@@ -67,7 +68,7 @@ public class UserVariables {
 
     /**
      * Get the minimum duration of a bleb to be considered in the analysis
-     * 
+     *
      * @return minimum bleb duration in frames
      */
     public static double getBlebDurThresh() {
@@ -76,8 +77,9 @@ public class UserVariables {
 
     /**
      * Get the minimum length of a bleb to be considered in the analysis
-     * 
-     * @return minimum bleb length, expressed as (min length)/(total cell length)
+     *
+     * @return minimum bleb length, expressed as (min length)/(total cell
+     * length)
      */
     public static double getBlebLenThresh() {
         return blebLenThresh;
@@ -85,7 +87,7 @@ public class UserVariables {
 
     /**
      * Get grey level threshold used for manual image thresholding
-     * 
+     *
      * @return grey level segmentation threshold
      */
     public static double getGreyThresh() {
@@ -94,7 +96,7 @@ public class UserVariables {
 
     /**
      * Set grey level threshold used for manual image thresholding
-     * 
+     *
      * @param greyThresh value of threshold to be used
      */
     public static void setGreyThresh(double greyThresh) {
@@ -103,7 +105,7 @@ public class UserVariables {
 
     /**
      * Returns true if visualisations are to be generated
-     * 
+     *
      * @return true if visualisations are to be generated
      */
     public static boolean isGenVis() {
@@ -112,7 +114,7 @@ public class UserVariables {
 
     /**
      * Set to true if visualisations are to be generated
-     * 
+     *
      * @param genVis true to generate visualisations
      */
     public static void setGenVis(boolean genVis) {
@@ -122,7 +124,7 @@ public class UserVariables {
     /**
      * Get the pixel window over which curvature minima are searched for in cell
      * curvature maps
-     * 
+     *
      * @return the width of the window in pixels
      */
     public static int getCurveRange() {
@@ -132,7 +134,7 @@ public class UserVariables {
     /**
      * Set the pixel window over which curvature minima are searched for in cell
      * curvature maps
-     * 
+     *
      * @param curveRange the width of the window in pixels
      */
     public static void setCurveRange(int curveRange) {
@@ -140,9 +142,9 @@ public class UserVariables {
     }
 
     /**
-     * Returns true if a signal pixel values must be above a threshold to be 
+     * Returns true if a signal pixel values must be above a threshold to be
      * included in analysis
-     * 
+     *
      * @return true if signal threshold is used
      */
     public static boolean isUseSigThresh() {
@@ -150,9 +152,9 @@ public class UserVariables {
     }
 
     /**
-     * Set to true if a signal pixel values must be above a threshold to be 
+     * Set to true if a signal pixel values must be above a threshold to be
      * included in analysis
-     * 
+     *
      * @param useSigThresh true if signal threshold is used
      */
     public static void setUseSigThresh(boolean useSigThresh) {
@@ -161,7 +163,7 @@ public class UserVariables {
 
     /**
      * Get spatial resolution
-     * 
+     *
      * @return spatial resolution in microns/pixel
      */
     public static double getSpatialRes() {
@@ -170,7 +172,7 @@ public class UserVariables {
 
     /**
      * Set spatial resolution
-     * 
+     *
      * @param spatialRes spatial resolution in microns/pixel
      */
     public static void setSpatialRes(double spatialRes) {
@@ -179,7 +181,7 @@ public class UserVariables {
 
     /**
      * Get the maximum length of time a bleb will be tracked
-     * 
+     *
      * @return maximum tracking duration in seconds
      */
     public static double getCutOffTime() {
@@ -188,7 +190,7 @@ public class UserVariables {
 
     /**
      * Set the maximum length of time a bleb will be tracked
-     * 
+     *
      * @param cutOffTime maximum tracking duration in seconds
      */
     public static void setCutOffTime(double cutOffTime) {
@@ -197,7 +199,7 @@ public class UserVariables {
 
     /**
      * Get the depth below cell surface that signal pixels will be summed over
-     * 
+     *
      * @return cortex depth in microns
      */
     public static double getCortexDepth() {
@@ -206,7 +208,7 @@ public class UserVariables {
 
     /**
      * Set the depth below cell surface that signal pixels will be summed over
-     * 
+     *
      * @param cortexDepth cortex depth in microns
      */
     public static void setCortexDepth(double cortexDepth) {
@@ -215,7 +217,7 @@ public class UserVariables {
 
     /**
      * Returns true if images are to be auto-thresholded
-     * 
+     *
      * @return true if auto-thresholding is used
      */
     public static boolean isAutoThreshold() {
@@ -224,7 +226,7 @@ public class UserVariables {
 
     /**
      * Set to true if auto-thresholding of images is to be used
-     * 
+     *
      * @param autoThreshold true if auto-thresholding is to be used
      */
     public static void setAutoThreshold(boolean autoThreshold) {
@@ -232,9 +234,9 @@ public class UserVariables {
     }
 
     /**
-     * Get the radius of the smoothing filter applied to {@link MorphMap MorphMaps}
-     * in the temporal dimension
-     * 
+     * Get the radius of the smoothing filter applied to
+     * {@link MorphMap MorphMaps} in the temporal dimension
+     *
      * @return temporal radius of smoothing filter in seconds
      */
     public static double getTempFiltRad() {
@@ -242,9 +244,9 @@ public class UserVariables {
     }
 
     /**
-     * Set the radius of the smoothing filter applied to {@link MorphMap MorphMaps}
-     * in the temporal dimension
-     * 
+     * Set the radius of the smoothing filter applied to
+     * {@link MorphMap MorphMaps} in the temporal dimension
+     *
      * @param tempFiltRad temporal radius of smoothing filter in seconds
      */
     public static void setTempFiltRad(double tempFiltRad) {
@@ -255,7 +257,7 @@ public class UserVariables {
      * Get the signal threshold factor. The signal threshold is calculated as
      * (mean signal value in signal map) + (signal threshold factor) x (standard
      * deviation of values in signal map)
-     * 
+     *
      * @return signal threshold factor
      */
     public static double getSigThreshFact() {
@@ -266,7 +268,7 @@ public class UserVariables {
      * Set the signal threshold factor. The signal threshold is calculated as
      * (mean signal value in signal map) + (signal threshold factor) x (standard
      * deviation of values in signal map)
-     * 
+     *
      * @param sigThreshFact signal threshold factor
      */
     public static void setSigThreshFact(double sigThreshFact) {
@@ -274,9 +276,9 @@ public class UserVariables {
     }
 
     /**
-     * Get the radius of the smoothing filter applied to {@link MorphMap MorphMaps}
-     * in the spatial dimension
-     * 
+     * Get the radius of the smoothing filter applied to
+     * {@link MorphMap MorphMaps} in the spatial dimension
+     *
      * @return spatial radius of smoothing filter in seconds
      */
     public static double getSpatFiltRad() {
@@ -284,9 +286,9 @@ public class UserVariables {
     }
 
     /**
-     * Get the radius of the smoothing filter applied to {@link MorphMap MorphMaps}
-     * in the spatial dimension
-     * 
+     * Get the radius of the smoothing filter applied to
+     * {@link MorphMap MorphMaps} in the spatial dimension
+     *
      * @param spatFiltRad spatial radius of smoothing filter in seconds
      */
     public static void setSpatFiltRad(double spatFiltRad) {
@@ -294,9 +296,10 @@ public class UserVariables {
     }
 
     /**
-     * Get the number of erosion operations applied to a segmented cell in a given
-     * frame before it is used as the seed for segmentation in the next frame
-     * 
+     * Get the number of erosion operations applied to a segmented cell in a
+     * given frame before it is used as the seed for segmentation in the next
+     * frame
+     *
      * @return number of erosion operations
      */
     public static int getErosion() {
@@ -304,9 +307,10 @@ public class UserVariables {
     }
 
     /**
-     * Set the number of erosion operations applied to a segmented cell in a given
-     * frame before it is used as the seed for segmentation in the next frame
-     * 
+     * Set the number of erosion operations applied to a segmented cell in a
+     * given frame before it is used as the seed for segmentation in the next
+     * frame
+     *
      * @param erosion number of erosion operations
      */
     public static void setErosion(int erosion) {
@@ -315,7 +319,7 @@ public class UserVariables {
 
     /**
      * Returns true if morphological data is to be generated
-     * 
+     *
      * @return true if morphological data is to be generated
      */
     public static boolean isGetMorph() {
@@ -324,7 +328,7 @@ public class UserVariables {
 
     /**
      * Set to true if morphological data is to be generated
-     * 
+     *
      * @param getMorph true if morphological data is to be generated
      */
     public static void setGetMorph(boolean getMorph) {
@@ -333,7 +337,7 @@ public class UserVariables {
 
     /**
      * Get time resolution
-     * 
+     *
      * @return time resolution in frames per minute
      */
     public static double getTimeRes() {
@@ -342,7 +346,7 @@ public class UserVariables {
 
     /**
      * Set the time resolution
-     * 
+     *
      * @param timeRes time resolution in frames per minute
      */
     public static void setTimeRes(double timeRes) {
@@ -350,8 +354,9 @@ public class UserVariables {
     }
 
     /**
-     * Get the threshold value used to locate curvature extrema in curvature maps
-     * 
+     * Get the threshold value used to locate curvature extrema in curvature
+     * maps
+     *
      * @return curvature threshold - extrema must be lower than this value to be
      * considered candidates for bleb anchor points
      */
@@ -360,10 +365,11 @@ public class UserVariables {
     }
 
     /**
-     * Set the threshold value used to locate curvature extrema in curvature maps
-     * 
-     * @param curveThresh curvature threshold - extrema must be lower than this value to be
-     * considered candidates for bleb anchor points
+     * Set the threshold value used to locate curvature extrema in curvature
+     * maps
+     *
+     * @param curveThresh curvature threshold - extrema must be lower than this
+     * value to be considered candidates for bleb anchor points
      */
     public static void setCurveThresh(double curveThresh) {
         UserVariables.curveThresh = curveThresh;
@@ -371,7 +377,7 @@ public class UserVariables {
 
     /**
      * Returns true if individual blebs are to be analysed
-     * 
+     *
      * @return true if individual blebs are to be analysed
      */
     public static boolean isAnalyseProtrusions() {
@@ -380,7 +386,7 @@ public class UserVariables {
 
     /**
      * Set to true if individual blebs are to be analysed
-     * 
+     *
      * @param analyseProtrusions true if individual blebs are to be analysed
      */
     public static void setAnalyseProtrusions(boolean analyseProtrusions) {
@@ -389,10 +395,11 @@ public class UserVariables {
 
     /**
      * Get the minimum fraction of pixels within a cortical signal region that
-     * must be above the signal threshold for the bleb to be included in the analysis
-     * 
-     * @return recovery threshold, defined as (number of frames where at least one
-     * pixel is above threshold) / (total number of frames)
+     * must be above the signal threshold for the bleb to be included in the
+     * analysis
+     *
+     * @return recovery threshold, defined as (number of frames where at least
+     * one pixel is above threshold) / (total number of frames)
      */
     public static double getSigRecoveryThresh() {
         return sigRecoveryThresh;
@@ -400,10 +407,11 @@ public class UserVariables {
 
     /**
      * Set the minimum fraction of pixels within a cortical signal region that
-     * must be above the signal threshold for the bleb to be included in the analysis
-     * 
-     * @param sigRecoveryThresh recovery threshold, defined as (number of frames where at least one
-     * pixel is above threshold) / (total number of frames)
+     * must be above the signal threshold for the bleb to be included in the
+     * analysis
+     *
+     * @param sigRecoveryThresh recovery threshold, defined as (number of frames
+     * where at least one pixel is above threshold) / (total number of frames)
      */
     public static void setSigRecoveryThresh(double sigRecoveryThresh) {
         UserVariables.sigRecoveryThresh = sigRecoveryThresh;
@@ -412,7 +420,7 @@ public class UserVariables {
     /**
      * Get the radius of the Gaussian filter used to denoise individual cyto
      * frames
-     * 
+     *
      * @return standard deviation of Gaussian filter in pixels
      */
     public static double getGaussRad() {
@@ -422,8 +430,8 @@ public class UserVariables {
     /**
      * Set the radius of the Gaussian filter used to denoise individual cyto
      * frames
-     * 
-     * @param gaussRad  standard deviation of Gaussian filter in pixels
+     *
+     * @param gaussRad standard deviation of Gaussian filter in pixels
      */
     public static void setGaussRad(double gaussRad) {
         UserVariables.gaussRad = gaussRad;
@@ -443,6 +451,14 @@ public class UserVariables {
 
     public static void setSimple(boolean simple) {
         UserVariables.simple = simple;
+    }
+
+    public static double getLambda() {
+        return lambda;
+    }
+
+    public static void setLambda(double lambda) {
+        UserVariables.lambda = lambda;
     }
 
 }

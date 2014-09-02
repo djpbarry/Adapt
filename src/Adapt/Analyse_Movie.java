@@ -84,9 +84,6 @@ public class Analyse_Movie implements PlugIn {
             childDir, // root output directory
             parDir, // output directory for each cell
             velDirName, curvDirName, trajDirName;
-    private static final double texThresh = 10000.0, // texture threshold used in conditional region dilation
-            gradThresh = 1000.0, // minimum duration (in frames) of bleb to be considered in analysis
-            lambda = 100.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
     private int intermediate, terminal;
     private String TITLE = StaticVariables.TITLE;
     private final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
@@ -270,7 +267,7 @@ public class Analyse_Movie implements PlugIn {
                     current.calcCentre(current.getBorderPix());
                     ImageProcessor mask = current.getMask(width, height);
 //                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/mask_" + i + "_" + j + ".png");
-//                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/maskb_" + i + "_" + j + ".png");
+//                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/adapt_test_data/masks/maskb_" + j + "_" + i + ".png");
                     for (int k = 0; k < UserVariables.getErosion(); k++) {
                         mask.erode();
                     }
@@ -285,7 +282,7 @@ public class Analyse_Movie implements PlugIn {
 //                                StaticVariables.FOREGROUND, tempMask);
 //                        radius++;
 //                    }
-//                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/maska_" + i + "_" + j + ".png");
+//                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/adapt_test_data/masks/maska_" + j + "_" + i + ".png");
                     if (current.calcCentre(mask)) {
                         ArrayList<Pixel> centres = current.getCentres();
                         Pixel centre = centres.get(centres.size() - 1);
@@ -1178,7 +1175,7 @@ public class Analyse_Movie implements PlugIn {
 
                 ImageProcessor mask = cell.getMask(regionImage.getWidth(), regionImage.getHeight());
                 LinkedList<Pixel> borderPix = cell.getBorderPix();
-                Region cellcopy = new Region(inputImage.getWidth(),inputImage.getHeight());
+                Region cellcopy = new Region(inputImage.getWidth(), inputImage.getHeight());
 //            int pixsize = pixels.size();
             /*
                  * Copy initial pixels and border pixels to cell copy for distance
@@ -1207,7 +1204,7 @@ public class Analyse_Movie implements PlugIn {
                 tempRegions.add(cellcopy);
                 regionImages[n] = (ByteProcessor) regionImage.duplicate();
             } else {
-                tempRegions.add(new Region(inputImage.getWidth(),inputImage.getHeight()));
+                tempRegions.add(new Region(inputImage.getWidth(), inputImage.getHeight()));
                 regionImages[n] = (ByteProcessor) regionImage.duplicate();
             }
         }
@@ -1246,7 +1243,7 @@ public class Analyse_Movie implements PlugIn {
 
     float calcDistance(Pixel point, int x, int y, ImageProcessor gradient) {
         return (float) ((Math.pow(gradient.getPixelValue(point.getX(), point.getY())
-                - gradient.getPixelValue(x, y), 2.0) + lambda) / (1.0 + lambda));
+                - gradient.getPixelValue(x, y), 2.0) + UserVariables.getLambda()) / (1.0 + UserVariables.getLambda()));
 //        return (float) Utils.calcDistance(point.getX(), point.getY(), x, y);
 //        return Math.abs(point.getX() - x) + Math.abs(point.getY() - y);
     }
