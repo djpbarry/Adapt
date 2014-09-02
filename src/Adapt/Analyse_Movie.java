@@ -66,6 +66,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Random;
 import ui.GUI;
 
 /**
@@ -348,7 +349,7 @@ public class Analyse_Movie implements PlugIn {
     }
 
     int initialiseROIs(int slice) {
-        ArrayList<Pixel> initP = new ArrayList<>();
+        ArrayList<Pixel> initP = new ArrayList<Pixel>();
 //        initP.add(new Pixel(9, 40));
 //        initP.add(new Pixel(40, 40));
         int n;
@@ -791,6 +792,8 @@ public class Analyse_Movie implements PlugIn {
         int length = cytoStack.getSize();
         int origins[][] = new int[N][2];
         double distances[] = new double[N];
+        Color colors[] = new Color[N];
+        Random rand = new Random();
         Arrays.fill(distances, 0.0);
         int xc = width / 2;
         int yc = height / 2;
@@ -806,6 +809,9 @@ public class Analyse_Movie implements PlugIn {
         }
         trajStream.print("Frame,");
         for (int n = 0; n < N; n++) {
+            colors[n] = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
+            trajStream.print("Cell_" + String.valueOf(n + 1) + "_X,");
+            trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y,");
             if (cellData[n].getLength() > 0) {
                 Region[] allRegions = cellData[n].getCellRegions();
                 Region current = allRegions[0];
@@ -813,19 +819,17 @@ public class Analyse_Movie implements PlugIn {
                 int cl = centres.size();
                 origins[n][0] = (int) Math.round(centres.get(cl - 1).getX());
                 origins[n][1] = (int) Math.round(centres.get(cl - 1).getY());
-                trajStream.print("Cell_" + String.valueOf(n + 1) + "_X,");
-                trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y,");
             }
         }
         trajStream.println();
         for (int t = 0; t < length; t++) {
             trajStream.print(String.valueOf(t) + ",");
             dialog.updateProgress(t, length);
-            ByteProcessor trajOutput = new ByteProcessor(width, height);
+            ColorProcessor trajOutput = new ColorProcessor(width, height);
             trajOutput.setColor(StaticVariables.BACKGROUND);
             trajOutput.fill();
-            trajOutput.setColor(Color.white);
             for (int n = 0; n < N; n++) {
+                trajOutput.setColor(colors[n]);
                 if (cellData[n].getLength() > t) {
                     Region[] allRegions = cellData[n].getCellRegions();
                     Region current = allRegions[t];
@@ -834,7 +838,7 @@ public class Analyse_Movie implements PlugIn {
                     double x = centres.get(c - 1).getX();
                     double y = centres.get(c - 1).getY();
                     trajOutput.fillOval((int) Math.round(x + xc - origins[n][0]) - 1,
-                            (int) Math.round(yc - origins[n][1]) - 1, 3, 3);
+                            (int) Math.round(y + yc - origins[n][1]) - 1, 3, 3);
                     trajStream.print(String.valueOf(x) + "," + String.valueOf(y) + ",");
                     if (t > 0) {
                         Region last = allRegions[t - 1];
@@ -853,7 +857,25 @@ public class Analyse_Movie implements PlugIn {
         }
         trajStream.print("\nMean Velocity (" + IJ.micronSymbol + "m/min):,");
         for (int n = 0; n < N; n++) {
-            trajStream.print(String.valueOf(distances[n] / cellData[n].getLength()) + ",,");
+            int l = cellData[n].getLength();
+            if (l > 0) {
+                trajStream.print(String.valueOf(distances[n] / cellData[n].getLength()) + ",,");
+            } else {
+                trajStream.print("0.0,,");
+            }
+
+        }
+        trajStream.print("\nDirectionality:,");
+        for (int n = 0; n < N; n++) {
+            int l = cellData[n].getLength();
+            if (l > 1) {
+                Region current = cellData[n].getCellRegions()[l - 1];
+                ArrayList<Pixel> centres = current.getCentres();
+                Pixel centre = centres.get(centres.size() - 1);
+                trajStream.print(String.valueOf(Utils.calcDistance(origins[n][0], origins[n][1], centre.getX(), centre.getY()) / distances[n]) + ",,");
+            } else {
+                trajStream.print("0.0,,");
+            }
         }
         dialog.dispose();
         trajStream.close();
@@ -1006,7 +1028,7 @@ public class Analyse_Movie implements PlugIn {
         int width = inputDup.getWidth();
         int height = inputDup.getHeight();
         int n = cellData.length;
-        ArrayList<Region> singleImageRegions = new ArrayList<>();
+        ArrayList<Region> singleImageRegions = new ArrayList<Region>();
         /*
          * Create image depicting regions to be "grown". Regions initialised
          * using centroids.
@@ -1158,7 +1180,7 @@ public class Analyse_Movie implements PlugIn {
 //        ImageProcessor grad = inputImage.duplicate();
 //        grad.findEdges();
         int cellNum = singleImageRegions.size();
-        ArrayList<Region> tempRegions = new ArrayList<>();
+        ArrayList<Region> tempRegions = new ArrayList<Region>();
         for (int n = 0; n < cellNum; n++) {
             /*
              * Initialise distance maps. Any non-seed pixels are set to
@@ -1582,16 +1604,16 @@ public class Analyse_Movie implements PlugIn {
                         && bounds.width > UserVariables.getBlebDurThresh()) {
                     Bleb currentBleb = new Bleb();
                     dialog.updateProgress(i, cellData.getVelRois().length);
-                    ArrayList<Double> meanVel = new ArrayList<>();
-                    ArrayList<Double> sumSig = new ArrayList<>();
-                    ArrayList<Double> protrusionLength = new ArrayList<>();
+                    ArrayList<Double> meanVel = new ArrayList<Double>();
+                    ArrayList<Double> sumSig = new ArrayList<Double>();
+                    ArrayList<Double> protrusionLength = new ArrayList<Double>();
                     currentBleb.setBounds(bounds);
                     currentBleb.setDetectionStack(detectionStack);
                     currentBleb.setMeanVel(meanVel);
                     currentBleb.setProtrusionLength(protrusionLength);
                     currentBleb.setSumSig(sumSig);
-                    currentBleb.setPolys(new ArrayList<>());
-                    currentBleb.setBlebPerimSigs(new ArrayList<>());
+                    currentBleb.setPolys(new ArrayList<Polygon>());
+                    currentBleb.setBlebPerimSigs(new ArrayList<ArrayList<Double>>());
                     if (BlebAnalyser.extractAreaSignalData(currentBleb, cellData,
                             count, stacks)) {
                         generateDetectionStack(currentBleb, count);

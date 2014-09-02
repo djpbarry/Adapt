@@ -96,7 +96,7 @@ public class BlebAnalyser {
                 if (y2 < y1) {
                     y2 += velMapHeight;
                 }
-                ArrayList<Double> thisBlebPerimSig = new ArrayList<>();
+                ArrayList<Double> thisBlebPerimSig = new ArrayList<Double>();
                 if (y2 - y1 > maxExtent) {
                     maxExtent = y2 - y1;
                 }

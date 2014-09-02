@@ -66,7 +66,7 @@ public class Bleb extends Protrusion {
      */
     public boolean addStartPos(int[] startpos) {
         if (this.startpos == null) {
-            this.startpos = new ArrayList<>();
+            this.startpos = new ArrayList<int[]>();
         }
         return this.startpos.add(startpos);
     }
@@ -82,7 +82,7 @@ public class Bleb extends Protrusion {
      */
     public boolean addEndPos(int[] endpos) {
         if (this.endpos == null) {
-            this.endpos = new ArrayList<>();
+            this.endpos = new ArrayList<int[]>();
         }
         return this.endpos.add(endpos);
     }
