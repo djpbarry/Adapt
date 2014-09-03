@@ -316,9 +316,10 @@ public class Analyse_Movie implements PlugIn {
              * Create child directory for current cell
              */
             String childDirName = GenUtils.openResultsDirectory(parDir + delimiter + index, delimiter);
-            if (cellData[index].getLength() > 0) {
+            int length = cellData[index].getLength();
+            if (length > UserVariables.getMinLength()) {
                 childDir = new File(childDirName);
-                buildOutput(index, cellData[index].getLength(), false);
+                buildOutput(index, length, false);
                 if (UserVariables.isAnalyseProtrusions()) {
                     findProtrusions(cellData[index]);
                     correlativePlot(cellData[index]);
@@ -732,10 +733,10 @@ public class Analyse_Movie implements PlugIn {
          */
         int width = cytoStack.getWidth();
         int height = cytoStack.getHeight();
-        int length = cytoStack.getSize();
+        int stackSize = cytoStack.getSize();
         double mincurve = -50.0, maxcurve = 50.0;
-        for (int t = 0; t < length; t++) {
-            dialog.updateProgress(t, length);
+        for (int t = 0; t < stackSize; t++) {
+            dialog.updateProgress(t, stackSize);
             ColorProcessor velOutput = new ColorProcessor(width, height);
             velOutput.setColor(Color.black);
             velOutput.fill();
@@ -745,7 +746,8 @@ public class Analyse_Movie implements PlugIn {
             curveOutput.fill();
 //            curveOutput.setLineWidth(3);
             for (int n = 0; n < N; n++) {
-                if (cellData[n].getLength() > t) {
+                int length = cellData[n].getLength();
+                if (length > t && length > UserVariables.getMinLength()) {
                     double[][] smoothVelocities = cellData[n].getSmoothVelocities();
                     Region[] allRegions = cellData[n].getCellRegions();
                     MorphMap curveMap = cellData[n].getCurveMap();
@@ -789,7 +791,7 @@ public class Analyse_Movie implements PlugIn {
          */
         int width = cytoStack.getWidth();
         int height = cytoStack.getHeight();
-        int length = cytoStack.getSize();
+        int stackSize = cytoStack.getSize();
         int origins[][] = new int[N][2];
         double distances[] = new double[N];
         Color colors[] = new Color[N];
@@ -810,9 +812,9 @@ public class Analyse_Movie implements PlugIn {
         trajStream.print("Frame,");
         for (int n = 0; n < N; n++) {
             colors[n] = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
-            trajStream.print("Cell_" + String.valueOf(n + 1) + "_X,");
-            trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y,");
-            if (cellData[n].getLength() > 0) {
+            if (cellData[n].getLength() > UserVariables.getMinLength()) {
+                trajStream.print("Cell_" + String.valueOf(n + 1) + "_X,");
+                trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y,");
                 Region[] allRegions = cellData[n].getCellRegions();
                 Region current = allRegions[0];
                 ArrayList<Pixel> centres = current.getCentres();
@@ -822,15 +824,16 @@ public class Analyse_Movie implements PlugIn {
             }
         }
         trajStream.println();
-        for (int t = 0; t < length; t++) {
+        for (int t = 0; t < stackSize; t++) {
             trajStream.print(String.valueOf(t) + ",");
-            dialog.updateProgress(t, length);
+            dialog.updateProgress(t, stackSize);
             ColorProcessor trajOutput = new ColorProcessor(width, height);
             trajOutput.setColor(StaticVariables.BACKGROUND);
             trajOutput.fill();
             for (int n = 0; n < N; n++) {
                 trajOutput.setColor(colors[n]);
-                if (cellData[n].getLength() > t) {
+                int length = cellData[n].getLength();
+                if (length > t && length > UserVariables.getMinLength()) {
                     Region[] allRegions = cellData[n].getCellRegions();
                     Region current = allRegions[t];
                     ArrayList<Pixel> centres = current.getCentres();
@@ -848,8 +851,6 @@ public class Analyse_Movie implements PlugIn {
                         double ly = lastCentres.get(lc - 1).getY();
                         distances[n] += Utils.calcDistance(x, y, lx, ly) * UserVariables.getSpatialRes();
                     }
-                } else {
-                    trajStream.print(",,");
                 }
             }
             IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + numFormat.format(t));
@@ -858,23 +859,19 @@ public class Analyse_Movie implements PlugIn {
         trajStream.print("\nMean Velocity (" + IJ.micronSymbol + "m/min):,");
         for (int n = 0; n < N; n++) {
             int l = cellData[n].getLength();
-            if (l > 0) {
-                trajStream.print(String.valueOf(distances[n] / cellData[n].getLength()) + ",,");
-            } else {
-                trajStream.print("0.0,,");
+            if (l > UserVariables.getMinLength()) {
+                trajStream.print(String.valueOf(distances[n] * UserVariables.getSpatialRes()
+                        / (l * UserVariables.getTimeRes())) + ",,");
             }
-
         }
         trajStream.print("\nDirectionality:,");
         for (int n = 0; n < N; n++) {
             int l = cellData[n].getLength();
-            if (l > 1) {
+            if (l > UserVariables.getMinLength()) {
                 Region current = cellData[n].getCellRegions()[l - 1];
                 ArrayList<Pixel> centres = current.getCentres();
                 Pixel centre = centres.get(centres.size() - 1);
                 trajStream.print(String.valueOf(Utils.calcDistance(origins[n][0], origins[n][1], centre.getX(), centre.getY()) / distances[n]) + ",,");
-            } else {
-                trajStream.print("0.0,,");
             }
         }
         dialog.dispose();

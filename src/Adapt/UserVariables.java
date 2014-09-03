@@ -47,7 +47,8 @@ public class UserVariables {
     private static final int ovalRadius = 2;
     private static boolean simple = true;
     private static double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
-
+    private static int minLength = 10;
+    
     /**
      * Get the radius of circles drawn on bleb detection output movies
      *
@@ -459,6 +460,14 @@ public class UserVariables {
 
     public static void setLambda(double lambda) {
         UserVariables.lambda = lambda;
+    }
+
+    public static int getMinLength() {
+        return minLength;
+    }
+
+    public static void setMinLength(int minLength) {
+        UserVariables.minLength = minLength;
     }
 
 }
