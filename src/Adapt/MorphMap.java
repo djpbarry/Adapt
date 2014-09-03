@@ -396,8 +396,8 @@ public class MorphMap {
         FloatProcessor output = new FloatProcessor(w, h);
         output.setValue(0.0);
         output.fill();
-        for (int y = 1; y < h; y++) {
-            for (int x = 1; x < w; x++) {
+        for (int y = 1; y < h-1; y++) {
+            for (int x = 1; x < w-1; x++) {
                 double sum = 0.0;
                 for (int j = y - 1; j <= y + 1; j++) {
                     for (int i = x - 1; i <= x + 1; i++) {
