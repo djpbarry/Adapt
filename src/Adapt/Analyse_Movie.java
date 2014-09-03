@@ -705,7 +705,7 @@ public class Analyse_Movie implements PlugIn {
         double curvatures[][] = curveMap.getzVals();
         double sigchanges[][] = null;
         if (!sigNull) {
-            sigchanges = cellData.getSigMap().getzVals();
+            sigchanges = cellData.getSigMap().smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes()); ;
             greySigMap = cellData.getGreySigMap();
         }
         for (int i = 0; i < l; i++) {
