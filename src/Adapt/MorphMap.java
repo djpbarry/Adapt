@@ -24,7 +24,7 @@ import ij.process.ImageProcessor;
 /**
  * Two dimensional map for representing cell velocities, fluorescence signals at
  * cell boundaries and curvature of cell boundaries
- * 
+ *
  * @author David Barry <david.barry at cancer.org.uk>
  */
 public class MorphMap {
@@ -48,7 +48,7 @@ public class MorphMap {
 
     /**
      * Returns the height of the map
-     * 
+     *
      * @return the height of the map
      */
     public int getHeight() {
@@ -57,7 +57,7 @@ public class MorphMap {
 
     /**
      * Returns the width of the map
-     * 
+     *
      * @return the width of the map
      */
     public int getWidth() {
@@ -66,11 +66,11 @@ public class MorphMap {
 
     /**
      * Create a new MorphMap with the specified width and height
-     * 
-     * @param width should correspond to the number of frames in the original movie
-     * analysed
-     * @param height should correspond to the maximum length of the cell perimeter
-     * in the original movie sequence
+     *
+     * @param width should correspond to the number of frames in the original
+     * movie analysed
+     * @param height should correspond to the maximum length of the cell
+     * perimeter in the original movie sequence
      */
     public MorphMap(int width, int height) {
         this.width = width;
@@ -104,15 +104,14 @@ public class MorphMap {
 //        }
 //        return deltaMap;
 //    }
-
     /**
      * Apply a Gaussian smoothing filter to the MorphMap, with the specified
      * radii in the temporal and spatial dimensions
-     * 
-     * @param tempFiltRad standard deviation of Gaussian to be applied in temporal
-     * (y) dimension
-     * @param spatFiltRad standard deviation of Gaussian to be applied in temporal
-     * (x) dimension
+     *
+     * @param tempFiltRad standard deviation of Gaussian to be applied in
+     * temporal (y) dimension
+     * @param spatFiltRad standard deviation of Gaussian to be applied in
+     * temporal (x) dimension
      * @return the smoothed map as a two-dimensional array
      */
     public double[][] smoothMap(double tempFiltRad, double spatFiltRad) {
@@ -120,7 +119,7 @@ public class MorphMap {
     }
 
     private double[][] smoothMap(double[][] map, double tempFiltRad, double spatFiltRad) {
-        if(!(tempFiltRad > 0.0 && spatFiltRad > 0.0)){
+        if (!(tempFiltRad > 0.0 && spatFiltRad > 0.0)) {
             return map;
         }
         FloatProcessor fp = new FloatProcessor(width, height);
@@ -141,11 +140,11 @@ public class MorphMap {
 
     /**
      * Add a column to this MorphMap
-     * 
+     *
      * @param x x-coordinates
      * @param y y-coordinates
-     * @param z z-coordinates, corresponding to the property of interest that the
-     * map represents (e.g. cell boundary velocity).
+     * @param z z-coordinates, corresponding to the property of interest that
+     * the map represents (e.g. cell boundary velocity).
      * @param t the time index that this column represents
      */
     public void addColumn(double x[], double y[], double z[], int t) {
@@ -158,7 +157,7 @@ public class MorphMap {
             zVals[t][i] = 0.0;
         }
     }
-    
+
 //    public Plot periodicity(double[][] map, String directory) {
 //        PrintWriter outputStream = null;
 //        File results = null;
@@ -193,7 +192,6 @@ public class MorphMap {
 //        }
 //        return new Plot("Correlation Function", dT, "c(" + dT + ")", deltaT, crossCorrelation);
 //    }
-
 //    public double correlation(double[][] map, int t, double mean) {
 //        double sum = 0.0;
 //        for (int i = 0; i + t < map.length; i++) {
@@ -203,7 +201,6 @@ public class MorphMap {
 //        }
 //        return sum;
 //    }
-
     private double correlation2D(ImageProcessor map1, ImageProcessor map2, int t, int s, double mean1, double mean2) {
         double sum = 0.0;
         int count = 0;
@@ -219,11 +216,15 @@ public class MorphMap {
 
     /**
      * Computes the cross-correlation of two maps
-     * 
-     * @param mapa MorphMap in the form of an {@link ij.process.ImageProcessor ImageProcessor}
-     * @param mapb MorphMap in the form of an {@link ij.process.ImageProcessor ImageProcessor}
-     * @param newsize maps are resized to this square dimension to speed calculation
-     * @return an {@link ij.ImagePlus ImagePlus} representing the cross-correlation of the two maps
+     *
+     * @param mapa MorphMap in the form of an
+     * {@link ij.process.ImageProcessor ImageProcessor}
+     * @param mapb MorphMap in the form of an
+     * {@link ij.process.ImageProcessor ImageProcessor}
+     * @param newsize maps are resized to this square dimension to speed
+     * calculation
+     * @return an {@link ij.ImagePlus ImagePlus} representing the
+     * cross-correlation of the two maps
      */
     public ImagePlus periodicity2D(ImageProcessor mapa, ImageProcessor mapb, int newsize) {
         ImageProcessor map1 = mapa.resize(newsize, newsize, true);
@@ -260,7 +261,6 @@ public class MorphMap {
 //        }
 //        return offset;
 //    }
-
 //    public double getMean(double[][] map) {
 //        double sum = 0.0;
 //        for (int i = 0; i < map.length; i++) {
@@ -270,10 +270,9 @@ public class MorphMap {
 //        }
 //        return sum / (width * height);
 //    }
-
     /**
      * Get the x-coordinates of this map
-     * 
+     *
      * @return x-coordinates as a two-dimensional array
      */
     public double[][] getxCoords() {
@@ -282,7 +281,7 @@ public class MorphMap {
 
     /**
      * Get the y-coordinates of this map
-     * 
+     *
      * @return y-coordinates as a two-dimensional array
      */
     public double[][] getyCoords() {
@@ -305,7 +304,6 @@ public class MorphMap {
 //        yCoords = allignedY;
 //        return allignedMap;
 //    }
-
 //    private double[][] shiftColumn(double[][] map, int colIndex, int offset) {
 //        double[] column = new double[map[0].length];
 //        System.arraycopy(map[colIndex], 0, column, 0, column.length);
@@ -321,7 +319,6 @@ public class MorphMap {
 //        }
 //        return map;
 //    }
-
 //    private void calcTMin(double[] correlation, int startIndex) {
 //        int l = correlation.length;
 //        for (int i = startIndex; i < l - 2; i++) {
@@ -333,7 +330,6 @@ public class MorphMap {
 //        }
 //        return;
 //    }
-
 //    private void calcTMax(double[] correlation, int startIndex) {
 //        int l = correlation.length;
 //        for (int i = startIndex; i < l - 2; i++) {
@@ -345,26 +341,21 @@ public class MorphMap {
 //        }
 //        return;
 //    }
-
 //    public int getTmax() {
 //        return tmax;
 //    }
-
 //    public int getTmin() {
 //        return tmin;
 //    }
-
 //    public double getMagTmax() {
 //        return magTmax;
 //    }
-
 //    public double getMagTmin() {
 //        return magTmin;
 //    }
-
     /**
      * Return the z-values of this MorphMap
-     * 
+     *
      * @return two-dimensional array of z-values
      */
     public double[][] getzVals() {
@@ -389,4 +380,33 @@ public class MorphMap {
 //        }
 //        return colour;
 //    }
+    ImageProcessor calcRateOfChange(ImageProcessor input) {
+        int sobel[][] = new int[3][3];
+        sobel[0][0] = -1;
+        sobel[1][0] = 0;
+        sobel[2][0] = 1;
+        sobel[0][1] = -2;
+        sobel[1][1] = 0;
+        sobel[2][1] = 2;
+        sobel[0][2] = -1;
+        sobel[1][2] = 0;
+        sobel[2][2] = 1;
+        int w = input.getWidth();
+        int h = input.getHeight();
+        FloatProcessor output = new FloatProcessor(w, h);
+        output.setValue(0.0);
+        output.fill();
+        for (int y = 1; y < h; y++) {
+            for (int x = 1; x < w; x++) {
+                double sum = 0.0;
+                for (int j = y - 1; j <= y + 1; j++) {
+                    for (int i = x - 1; i <= x + 1; i++) {
+                        sum += input.getPixelValue(i, j) * sobel[i][j];
+                    }
+                }
+                output.putPixelValue(x, y, sum);
+            }
+        }
+        return output;
+    }
 }

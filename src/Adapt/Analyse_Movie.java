@@ -503,6 +503,11 @@ public class Analyse_Movie implements PlugIn {
                         + "SignalMap.tif");
                 IJ.saveAs(velMap.periodicity2D(greySigMap, greyVelMap, 100), "TIF",
                         childDir + delimiter + "VelMap_SigMap_CrossCorrelation.tif");
+                ImageProcessor rateOfSigChange = sigMap.calcRateOfChange(greySigMap);
+                IJ.saveAs(new ImagePlus("", rateOfSigChange), "TIF", childDir + delimiter
+                        + "ChangeInSignalMap.tif");
+                IJ.saveAs(velMap.periodicity2D(rateOfSigChange, greyVelMap, 100), "TIF",
+                        childDir + delimiter + "VelMap_ChangeInSigMap_CrossCorrelation.tif");
             }
         }
     }
