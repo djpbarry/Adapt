@@ -1063,7 +1063,7 @@ public class Analyse_Movie implements PlugIn {
         /*
          * Filter image to be used as basis for region growing.
          */
-        sigmoidFilter(inputDup, threshold);
+//        sigmoidFilter(inputDup, threshold);
 //        PSF psf = new PSF(spatialRes, gaussRad);
 //        psf.calcPSF();
 //        double gaussRad = psf.getSigEst();
@@ -1840,7 +1840,7 @@ public class Analyse_Movie implements PlugIn {
 
     int getThreshold(ImageProcessor image, boolean auto) {
         if (UserVariables.isAutoThreshold()) {
-            return (new AutoThresholder()).getThreshold(AutoThresholder.Method.Huang, image.getStatistics().histogram);
+            return (new AutoThresholder()).getThreshold(AutoThresholder.Method.Yen, image.getStatistics().histogram);
         } else {
             return (int) Math.round(Utils.getPercentileThresh(image, UserVariables.getGreyThresh()));
         }
