@@ -401,7 +401,7 @@ public class MorphMap {
                 double sum = 0.0;
                 for (int j = y - 1; j <= y + 1; j++) {
                     for (int i = x - 1; i <= x + 1; i++) {
-                        sum += input.getPixelValue(i, j) * sobel[i][j];
+                        sum += input.getPixelValue(i, j) * sobel[i - x + 1][j - y + 1];
                     }
                 }
                 output.putPixelValue(x, y, sum);
