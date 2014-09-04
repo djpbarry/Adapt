@@ -104,7 +104,6 @@ public class Analyse_Movie implements PlugIn {
 //        am.run(null);
 //        System.exit(0);
 //    }
-
     /**
      * Default constructor
      */
@@ -287,8 +286,13 @@ public class Analyse_Movie implements PlugIn {
                     if (current.calcCentre(mask)) {
                         ArrayList<Pixel> centres = current.getCentres();
                         Pixel centre = centres.get(centres.size() - 1);
-                        Region temp = new Region(width, height);
-                        temp.addBorderPoint(centre);
+                        Region temp;
+                        if (cellData.length > 1) {
+                            temp = new Region(width, height);
+                            temp.addBorderPoint(centre);
+                        } else {
+                            temp = new Region(mask, centre);
+                        }
                         cellData[j].setInitialRegion(temp);
 //                        System.out.println("t: " + i + " cell: " + j + " x: " + centre.getX() + " y: " + centre.getY());
 //                        cellData[j].setMaskSeed(new Pixel(cPoints[0][0], cPoints[0][1], j));
@@ -615,10 +619,13 @@ public class Analyse_Movie implements PlugIn {
             /*
              * Get points for one column (time-point) of map
              */
-            Pixel vmPoints[] = current.buildVelMapCol(xc, yc, cytoStack, i + 1, UserVariables.getTimeRes(), UserVariables.getSpatialRes(), cellData.getGreyThresholds());
+            Pixel vmPoints[] = current.buildMapCol(current.buildVelImage(cytoStack, i + 1,
+                    UserVariables.getTimeRes(), UserVariables.getSpatialRes(), cellData.getGreyThresholds()), height,
+                    (int) Math.round(UserVariables.getCortexDepth() / UserVariables.getSpatialRes()));
             Pixel smPoints[] = null;
             if (sigStack != null) {
-                smPoints = current.buildStandMapCol(xc, yc, sigStack, i + 1, height, (int) Math.round(UserVariables.getCortexDepth() / UserVariables.getSpatialRes()));
+                smPoints = current.buildMapCol(sigStack.getProcessor(i + 1), height,
+                        (int) Math.round(UserVariables.getCortexDepth() / UserVariables.getSpatialRes()));
             }
             double x[] = new double[vmPoints.length];
             double y[] = new double[vmPoints.length];
@@ -710,7 +717,7 @@ public class Analyse_Movie implements PlugIn {
         double curvatures[][] = curveMap.getzVals();
         double sigchanges[][] = null;
         if (!sigNull) {
-            sigchanges = cellData.getSigMap().smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes()); ;
+            sigchanges = cellData.getSigMap().smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());;
             greySigMap = cellData.getGreySigMap();
         }
         for (int i = 0; i < l; i++) {
