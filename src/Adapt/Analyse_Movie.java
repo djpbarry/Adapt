@@ -104,6 +104,7 @@ public class Analyse_Movie implements PlugIn {
 //        am.run(null);
 //        System.exit(0);
 //    }
+
     /**
      * Default constructor
      */
@@ -535,14 +536,21 @@ public class Analyse_Movie implements PlugIn {
                         measures, rt, minArea, Double.POSITIVE_INFINITY);
 //                ArrayList<Pixel> centroids = current.getCentroids();
 //                Pixel centre = centroids.get(centroids.size() - 1);
-                ImagePlus maskImp = new ImagePlus(StaticVariables.floatFormat.format(h / (UserVariables.getTimeRes() / 60.0)),
+                ImagePlus maskImp = new ImagePlus(String.valueOf(index) + "_" + String.valueOf(h),
                         current.getMask(stacks[0].getWidth(), stacks[0].getHeight()));
                 analyzer.analyze(maskImp);
             }
         }
         if (childDir != null && !preview) {
             try {
-                Analyzer.getResultsTable().saveAs(childDir.getAbsolutePath() + delimiter + "morphology.csv");
+                File morph = new File(parDir.getAbsolutePath() + delimiter + "morphology.csv");
+                PrintWriter morphStream = new PrintWriter(new FileOutputStream(morph,true));
+                int N = rt.getCounter();
+                morphStream.println(rt.getColumnHeadings());
+                for (int i = 0; i < N; i++) {
+                    morphStream.println(rt.getRowAsString(i));
+                }
+                morphStream.close();
             } catch (IOException e) {
                 IJ.error("Could not save morphological data file.");
             }
