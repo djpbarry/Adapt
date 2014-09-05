@@ -1583,7 +1583,7 @@ public class Analyse_Movie implements PlugIn {
      */
     void correlativePlot(CellData cellData) {
         double minBlebDuration = UserVariables.getCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
-        CurveMapAnalyser.findAllCurvatureMinima(cellData, 0, stacks[0].getSize() - 1, minBlebDuration);
+        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, minBlebDuration, true));
 //        ArrayList<Bleb> blebs = new ArrayList();
 //        CurveMapAnalyser.findAllBlebs(blebs, cellData);
 //        IJ.saveAs(new ImagePlus("", CurveMapAnalyser.drawAllBlebs(cellData, blebs, stacks[0])), "TIF", "c:\\users\\barry05\\desktop\\allblebs.tif");
@@ -1738,7 +1738,7 @@ public class Analyse_Movie implements PlugIn {
         if (UserVariables.isAnalyseProtrusions()) {
             for (int i = 0; i < nCell; i++) {
                 buildOutput(i, 1, true);
-                CurveMapAnalyser.findAllCurvatureMinima(cellData[i], sliceIndex, sliceIndex, 0.0);
+                cellData[i].setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i], sliceIndex, sliceIndex, 0.0, true));
             }
         }
 

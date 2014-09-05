@@ -33,7 +33,7 @@ import java.util.ArrayList;
  */
 public class CurveMapAnalyser {
 
-    private final static int curveMinSearchRangeFactor = 4;
+    private final static int curveSearchRangeFactor = 4;
     private final static double maxTrajScore = 5.0;
 
     /**
@@ -42,23 +42,25 @@ public class CurveMapAnalyser {
      *
      * @param pos y-coordinate of coordinate to be tested, representing position
      * on cell boundary
-     * @param range the size of the window within curveVals that will be searched
-     * @param timePoint the x-coordinate of coordinate to be tested, representing
-     * frame number of original movie sequence
-     * @param threshold curvature at a point must be below this value in order to
-     * be considered a minima
+     * @param range the size of the window within curveVals that will be
+     * searched
+     * @param timePoint the x-coordinate of coordinate to be tested,
+     * representing frame number of original movie sequence
+     * @param threshold curvature at a point must be below this value in order
+     * to be considered a minima
      * @param curveVals array of curvature values to be searched
      * @return 0 if this is a local curvature minima, non-zero otherwise
      *
      */
-    private static int isLocalCurvatureMinima(int pos, int range, int timePoint, double[][] curveVals, double threshold) {
-        double C0 = curveVals[timePoint][pos];
+    private static int isLocalCurvatureExtreme(int pos, int range, double[] curveVals, double threshold, boolean minima) {
+        int factor = minima ? 1 : -1;
+        double C0 = factor * curveVals[pos];
         double C1 = 0.0, C2 = 0.0;
-        int length = curveVals[timePoint].length;
+        int length = curveVals.length;
         double min = Double.MAX_VALUE;
         for (int i = pos - range; i < pos; i++) {
             int a = Utilities.checkRange(i, 0, length);
-            double c = curveVals[timePoint][a];
+            double c = factor * curveVals[a];
             C1 += c;
             if (c < min) {
                 min = c;
@@ -67,7 +69,7 @@ public class CurveMapAnalyser {
         C1 /= range;
         for (int j = pos + 1; j <= pos + range; j++) {
             int b = Utilities.checkRange(j, 0, length);
-            double c = curveVals[timePoint][b];
+            double c = factor * curveVals[b];
             C2 += c;
             if (c < min) {
                 min = c;
@@ -84,8 +86,9 @@ public class CurveMapAnalyser {
     }
 
     /**
-     * Finds all curvature minima in the cellData's curveMap. Minima can be retrieved
-     * by calling {@link CellData#getCurvatureMinima() CellData.getCurvatureMinima()}
+     * Finds all curvature minima in the cellData's curveMap. Minima can be
+     * retrieved by calling
+     * {@link CellData#getCurvatureMinima() CellData.getCurvatureMinima()}
      *
      * @param cellData contains the curvature map to be analysed
      * @param startFrame the first movie frame to be analysed
@@ -93,21 +96,22 @@ public class CurveMapAnalyser {
      * @param minDuration the minimum duration (in seconds) for which a minima
      * must exist in order to be stored
      */
-    public static void findAllCurvatureMinima(CellData cellData, int startFrame, int endFrame, double minDuration) {
+    public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData,
+            int startFrame, int endFrame, double minDuration, boolean min) {
         MorphMap curveMap = cellData.getCurveMap();
         double[][] curveVals = curveMap.smoothMap(1.0, 1.0);
         double[][] xvals = curveMap.getxCoords();
         double[][] yvals = curveMap.getyCoords();
         int posLength = curveVals[0].length;
         int tLength = 1 + endFrame - startFrame;
-        ParticleArray minima = new ParticleArray(tLength);
+        ParticleArray extrema = new ParticleArray(tLength);
         for (int t = startFrame; t <= endFrame; t++) {
             int currentIndex = t - startFrame;
             int range = (int) Math.round(UserVariables.getCurveRange() * cellData.getScaleFactors()[currentIndex]
-                    * curveMinSearchRangeFactor);
+                    * curveSearchRangeFactor);
             for (int pos = 0; pos < posLength; pos++) {
-                if (CurveMapAnalyser.isLocalCurvatureMinima(pos, range, currentIndex, curveVals, UserVariables.getCurveThresh()) == 0) {
-                    minima.addDetection(currentIndex,
+                if (CurveMapAnalyser.isLocalCurvatureExtreme(pos, range, curveVals[currentIndex], UserVariables.getCurveThresh(), min) == 0) {
+                    extrema.addDetection(currentIndex,
                             new Particle(t,
                                     new IsoGaussian(xvals[currentIndex][pos]
                                             * UserVariables.getSpatialRes(),
@@ -120,9 +124,9 @@ public class CurveMapAnalyser {
             }
         }
         Timelapse_Analysis ta = new Timelapse_Analysis();
-        ta.updateTrajectories(minima, UserVariables.getTimeRes(), maxTrajScore, UserVariables.getSpatialRes(), false);
+        ta.updateTrajectories(extrema, UserVariables.getTimeRes(), maxTrajScore, UserVariables.getSpatialRes(), false);
         ArrayList<ParticleTrajectory> trajectories = ta.getTrajectories();
-        ArrayList<BoundaryPixel> minPos[] = new ArrayList[tLength];
+        ArrayList<BoundaryPixel> extPos[] = new ArrayList[tLength];
         int tSize = trajectories.size();
         for (int j = 0; j < tSize; j++) {
             ParticleTrajectory currentTraj = trajectories.get(j);
@@ -134,19 +138,20 @@ public class CurveMapAnalyser {
                     int frame = currentParticle.getTimePoint();
                     for (int k = lastFrame; k >= frame; k--) {
                         int currentIndex = k - startFrame;
-                        if (minPos[currentIndex] == null) {
-                            minPos[currentIndex] = new ArrayList<BoundaryPixel>();
+                        if (extPos[currentIndex] == null) {
+                            extPos[currentIndex] = new ArrayList<BoundaryPixel>();
                         }
                         BoundaryPixel currentPos = new BoundaryPixel((int) currentParticle.getX(),
                                 (int) currentParticle.getY(), currentParticle.getiD(), j, k);
-                        minPos[currentIndex].add(currentPos);
+                        extPos[currentIndex].add(currentPos);
                     }
                     currentParticle = currentParticle.getLink();
                     lastFrame = frame;
                 }
             }
         }
-        cellData.setCurvatureMinima(minPos);
+//        cellData.setCurvatureMinima(minPos);
+        return extPos;
     }
 
 //    public static void drawAllMinima(CellData cellData, double timeRes, double spatialRes, ImageStack cytoStack, int startFrame, int endFrame, double minDuration) {
@@ -174,7 +179,6 @@ public class CurveMapAnalyser {
 //        }
 //        IJ.saveAs(new ImagePlus("", detectionStack), "TIF", "C:/users/barry05/desktop/AllDetections.tif");
 //    }
-
     private static void findNearestMinTraj(int time, int anchor[], int maxRange, CellData cellData) {
         ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
         MorphMap curveMap = cellData.getCurveMap();
@@ -221,11 +225,12 @@ public class CurveMapAnalyser {
      * Updates the location of the specified bleb anchor point
      *
      * @param time the frame number at which the update is applied
-     * @param anchor the anchor point to be updated, specified as {position on cell
-     * boundary, curvature minimum trajectory index}
-     * @param maxRange the maximum range, in pixels, over which the search for 
-     * a curvature minima should be conducted
-     * @param cellData contains relevant curvature map and curvature minima locations
+     * @param anchor the anchor point to be updated, specified as {position on
+     * cell boundary, curvature minimum trajectory index}
+     * @param maxRange the maximum range, in pixels, over which the search for a
+     * curvature minima should be conducted
+     * @param cellData contains relevant curvature map and curvature minima
+     * locations
      */
     public static void updateAnchorPoint(int time, int anchor[], int maxRange, CellData cellData) {
         ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
@@ -268,7 +273,6 @@ public class CurveMapAnalyser {
 //            return pos2 + mapLength - pos1;
 //        }
 //    }
-
 //    public static void findAllBlebs(ArrayList<Bleb> blebs, CellData cellData) {
 //        ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
 //        int frames = minPos.length;
@@ -305,7 +309,6 @@ public class CurveMapAnalyser {
 //            }
 //        }
 //    }
-
 //    public static ImageStack drawAllBlebs(CellData cellData, ArrayList<Bleb> blebs, ImageStack cytoStack) {
 //        ImageStack detectionStack = new ImageStack(cytoStack.getWidth(),
 //                cytoStack.getHeight());
