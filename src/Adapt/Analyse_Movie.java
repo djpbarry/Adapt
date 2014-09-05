@@ -544,7 +544,7 @@ public class Analyse_Movie implements PlugIn {
         if (childDir != null && !preview) {
             try {
                 File morph = new File(parDir.getAbsolutePath() + delimiter + "morphology.csv");
-                PrintWriter morphStream = new PrintWriter(new FileOutputStream(morph,true));
+                PrintWriter morphStream = new PrintWriter(new FileOutputStream(morph, true));
                 int N = rt.getCounter();
                 morphStream.println(rt.getColumnHeadings());
                 for (int i = 0; i < N; i++) {
@@ -1739,6 +1739,7 @@ public class Analyse_Movie implements PlugIn {
             for (int i = 0; i < nCell; i++) {
                 buildOutput(i, 1, true);
                 cellData[i].setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i], sliceIndex, sliceIndex, 0.0, true));
+                cellData[i].setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i], sliceIndex, sliceIndex, 0.0, false));
             }
         }
 
@@ -1800,15 +1801,26 @@ public class Analyse_Movie implements PlugIn {
                 }
                 if (UserVariables.isAnalyseProtrusions()) {
                     ArrayList<BoundaryPixel> minPos[] = cellData[r].getCurvatureMinima();
+                    ArrayList<BoundaryPixel> maxPos[] = cellData[r].getCurvatureMaxima();
                     for (int i = 0; i < channels; i++) {
-                        regionsOutput[i].setColor(Color.yellow);
                         if (minPos[0] != null) {
-                            int mpSize = minPos[0].size();
-                            for (int j = 0; j < mpSize; j++) {
+                            regionsOutput[i].setColor(Color.yellow);
+                            int minpSize = minPos[0].size();
+                            for (int j = 0; j < minpSize; j++) {
                                 BoundaryPixel currentMin = minPos[0].get(j);
                                 int x = (int) Math.round(currentMin.getPrecX() / UserVariables.getSpatialRes());
                                 int y = (int) Math.round(currentMin.getPrecY() / UserVariables.getSpatialRes());
-                                regionsOutput[i].drawOval(x - 2, y - 2, 5, 5);
+                                regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
+                            }
+                            if (maxPos[0] != null) {
+                                regionsOutput[i].setColor(Color.MAGENTA);
+                                int maxpSize = maxPos[0].size();
+                                for (int j = 0; j < maxpSize; j++) {
+                                    BoundaryPixel currentMax = maxPos[0].get(j);
+                                    int x = (int) Math.round(currentMax.getPrecX() / UserVariables.getSpatialRes());
+                                    int y = (int) Math.round(currentMax.getPrecY() / UserVariables.getSpatialRes());
+                                    regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
+                                }
                             }
                         }
                     }

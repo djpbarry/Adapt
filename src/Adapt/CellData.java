@@ -37,7 +37,7 @@ public class CellData {
     private double sigThresh, minVel, maxVel;
     private FloatProcessor greyVelMap, greySigMap, greyCurveMap;
     private Roi[] velRois;
-    private ArrayList<BoundaryPixel> curvatureMinima[];
+    private ArrayList<BoundaryPixel> curvatureMinima[], curvatureMaxima[];
     private double noisyVelocities[][];
     private double[][] smoothVelocities;
     private double scaleFactors[];
@@ -301,6 +301,14 @@ public class CellData {
 
     public void setInitialRegion(Region initialRegion) {
         this.initialRegion = initialRegion;
+    }
+
+    public ArrayList<BoundaryPixel>[] getCurvatureMaxima() {
+        return curvatureMaxima;
+    }
+
+    public void setCurvatureMaxima(ArrayList<BoundaryPixel>[] curvatureMaxima) {
+        this.curvatureMaxima = curvatureMaxima;
     }
     
 }
