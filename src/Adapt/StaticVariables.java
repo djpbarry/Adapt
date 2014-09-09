@@ -54,13 +54,21 @@ public class StaticVariables {
      */
     public static final String EROSION = "Erosion Iterations";
     /**
-     * GUI label for Curvature Window
+     * GUI label for Minimum Curvature Window
      */
-    public static final String CURVE_RANGE = "Curvature Window";
+    public static final String MIN_CURVE_RANGE = "Min Curvature Window";
     /**
-     * GUI label for Curvature Threshold
+     * GUI label for Minimum Curvature Threshold
      */
-    public static final String CURVE_THRESH = "Curvature Threshold";
+    public static final String MIN_CURVE_THRESH = "Min Curvature Threshold";
+    /**
+     * GUI label for Maximum Curvature Window
+     */
+    public static final String MAX_CURVE_RANGE = "Max Curvature Window";
+    /**
+     * GUI label for Maximum Curvature Threshold
+     */
+    public static final String MAX_CURVE_THRESH = "Max Curvature Threshold";
     /**
      * GUI label for Signal Threshold Factor
      */

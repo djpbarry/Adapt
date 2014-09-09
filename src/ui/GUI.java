@@ -113,10 +113,10 @@ public class GUI extends javax.swing.JDialog {
         lambdaLabel = new javax.swing.JLabel();
         lambdaTextField = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
-        curveRangeLabel = new javax.swing.JLabel();
-        curveRangeField = new javax.swing.JTextField();
-        curveThreshLabel = new javax.swing.JLabel();
-        curveThreshField = new javax.swing.JTextField();
+        minCurveRangeLabel = new javax.swing.JLabel();
+        minCurveRangeField = new javax.swing.JTextField();
+        minCurveThreshLabel = new javax.swing.JLabel();
+        minCurveThreshField = new javax.swing.JTextField();
         cutOffLabel = new javax.swing.JLabel();
         cutOffField = new javax.swing.JTextField();
         sigThreshFactLabel = new javax.swing.JLabel();
@@ -125,6 +125,10 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshField = new javax.swing.JTextField();
         anaProtToggleButton = new javax.swing.JToggleButton();
         useSigThreshToggleButton = new javax.swing.JToggleButton();
+        maxCurveRangeField = new javax.swing.JTextField();
+        maxCurveThreshField = new javax.swing.JTextField();
+        maxCurveRangeLabel = new javax.swing.JLabel();
+        maxCurveThreshLabel = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         cytoCanvas = new ImageCanvas(cytoImp);
         previewToggleButton = new javax.swing.JToggleButton();
@@ -437,18 +441,18 @@ public class GUI extends javax.swing.JDialog {
 
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
-        curveRangeLabel.setText(StaticVariables.CURVE_RANGE);
-        curveRangeLabel.setEnabled(UserVariables.isAnalyseProtrusions());
+        minCurveRangeLabel.setText(StaticVariables.MIN_CURVE_RANGE);
+        minCurveRangeLabel.setEnabled(UserVariables.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        jPanel4.add(curveRangeLabel, gridBagConstraints);
+        jPanel4.add(minCurveRangeLabel, gridBagConstraints);
 
-        curveRangeField.setText(String.valueOf(UserVariables.getCurveRange()));
-        curveRangeField.setEnabled(UserVariables.isAnalyseProtrusions());
+        minCurveRangeField.setText(String.valueOf(UserVariables.getMinCurveRange()));
+        minCurveRangeField.setEnabled(UserVariables.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -456,20 +460,20 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        jPanel4.add(curveRangeField, gridBagConstraints);
+        jPanel4.add(minCurveRangeField, gridBagConstraints);
 
-        curveThreshLabel.setText(StaticVariables.CURVE_THRESH);
-        curveThreshLabel.setEnabled(UserVariables.isAnalyseProtrusions());
+        minCurveThreshLabel.setText(StaticVariables.MIN_CURVE_THRESH);
+        minCurveThreshLabel.setEnabled(UserVariables.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        jPanel4.add(curveThreshLabel, gridBagConstraints);
+        jPanel4.add(minCurveThreshLabel, gridBagConstraints);
 
-        curveThreshField.setText(String.valueOf(UserVariables.getCurveThresh()));
-        curveThreshField.setEnabled(UserVariables.isAnalyseProtrusions());
+        minCurveThreshField.setText(String.valueOf(UserVariables.getMinCurveThresh()));
+        minCurveThreshField.setEnabled(UserVariables.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
@@ -477,13 +481,13 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        jPanel4.add(curveThreshField, gridBagConstraints);
+        jPanel4.add(minCurveThreshField, gridBagConstraints);
 
         cutOffLabel.setText(StaticVariables.CUT_OFF);
         cutOffLabel.setEnabled(UserVariables.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -493,7 +497,7 @@ public class GUI extends javax.swing.JDialog {
         cutOffField.setEnabled(UserVariables.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -504,7 +508,7 @@ public class GUI extends javax.swing.JDialog {
         sigThreshFactLabel.setEnabled(UserVariables.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -514,7 +518,7 @@ public class GUI extends javax.swing.JDialog {
         sigThreshFactField.setEnabled(UserVariables.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -525,7 +529,7 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshLabel.setEnabled(UserVariables.isAnalyseProtrusions() && UserVariables.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -535,7 +539,7 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshField.setEnabled(UserVariables.isAnalyseProtrusions() && UserVariables.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -567,11 +571,39 @@ public class GUI extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         jPanel4.add(useSigThreshToggleButton, gridBagConstraints);
+
+        maxCurveRangeField.setText(String.valueOf(UserVariables.getMaxCurveRange()));
+        maxCurveRangeField.setEnabled(UserVariables.isAnalyseProtrusions());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        jPanel4.add(maxCurveRangeField, gridBagConstraints);
+
+        maxCurveThreshField.setText(String.valueOf(UserVariables.getMaxCurveThresh()));
+        maxCurveThreshField.setEnabled(UserVariables.isAnalyseProtrusions());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        jPanel4.add(maxCurveThreshField, gridBagConstraints);
+
+        maxCurveRangeLabel.setText(StaticVariables.MAX_CURVE_RANGE);
+        maxCurveRangeLabel.setEnabled(UserVariables.isAnalyseProtrusions());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        jPanel4.add(maxCurveRangeLabel, gridBagConstraints);
+
+        maxCurveThreshLabel.setText(StaticVariables.MAX_CURVE_THRESH);
+        maxCurveThreshLabel.setEnabled(UserVariables.isAnalyseProtrusions());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        jPanel4.add(maxCurveThreshLabel, gridBagConstraints);
 
         jTabbedPane1.addTab("Protrusion Analysis", jPanel4);
 
@@ -724,8 +756,10 @@ public class GUI extends javax.swing.JDialog {
     }//GEN-LAST:event_previewToggleButtonActionPerformed
 
     private void anaProtToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anaProtToggleButtonActionPerformed
-        enableFieldOnSelect(curveRangeLabel, curveRangeField, anaProtToggleButton);
-        enableFieldOnSelect(curveThreshLabel, curveThreshField, anaProtToggleButton);
+        enableFieldOnSelect(minCurveRangeLabel, minCurveRangeField, anaProtToggleButton);
+        enableFieldOnSelect(minCurveThreshLabel, minCurveThreshField, anaProtToggleButton);
+        enableFieldOnSelect(maxCurveRangeLabel, maxCurveRangeField, anaProtToggleButton);
+        enableFieldOnSelect(maxCurveThreshLabel, maxCurveThreshField, anaProtToggleButton);
         enableFieldOnSelect(cutOffLabel, cutOffField, anaProtToggleButton);
         useSigThreshToggleButton.setEnabled(anaProtToggleButton.isSelected());
         useSigThreshToggleButtonActionPerformed(null);
@@ -784,7 +818,8 @@ public class GUI extends javax.swing.JDialog {
         try {
             UserVariables.setGreyThresh(Double.parseDouble(greyThreshField.getText()));
             UserVariables.setGenVis(genVisToggleButton.isSelected());
-            UserVariables.setCurveRange(Integer.parseInt(curveRangeField.getText()));
+            UserVariables.setMinCurveRange(Integer.parseInt(minCurveRangeField.getText()));
+            UserVariables.setMaxCurveRange(Integer.parseInt(maxCurveRangeField.getText()));
             UserVariables.setUseSigThresh(useSigThreshToggleButton.isSelected());
             UserVariables.setSpatialRes(Double.parseDouble(spatResField.getText()));
             UserVariables.setCutOffTime(Double.parseDouble(cutOffField.getText()));
@@ -796,7 +831,8 @@ public class GUI extends javax.swing.JDialog {
             UserVariables.setErosion(Integer.parseInt(erosionField.getText()));
             UserVariables.setGetMorph(genMorphToggleButton.isSelected());
             UserVariables.setTimeRes(Double.parseDouble(timeResField.getText()));
-            UserVariables.setCurveThresh(Double.parseDouble(curveThreshField.getText()));
+            UserVariables.setMinCurveThresh(Double.parseDouble(minCurveThreshField.getText()));
+            UserVariables.setMaxCurveThresh(Double.parseDouble(maxCurveThreshField.getText()));
             UserVariables.setAnalyseProtrusions(anaProtToggleButton.isSelected());
             UserVariables.setSigRecoveryThresh(Double.parseDouble(sigRecThreshField.getText()));
             UserVariables.setGaussRad(Double.parseDouble(gaussRadField.getText()));
@@ -885,10 +921,6 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JButton cancelButton;
     private javax.swing.JTextField cortexDepthField;
     private javax.swing.JLabel cortexDepthLabel;
-    private javax.swing.JTextField curveRangeField;
-    private javax.swing.JLabel curveRangeLabel;
-    private javax.swing.JTextField curveThreshField;
-    private javax.swing.JLabel curveThreshLabel;
     private javax.swing.JTextField cutOffField;
     private javax.swing.JLabel cutOffLabel;
     private java.awt.Canvas cytoCanvas;
@@ -910,6 +942,14 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel lambdaLabel;
     private javax.swing.JTextField lambdaTextField;
+    private javax.swing.JTextField maxCurveRangeField;
+    private javax.swing.JLabel maxCurveRangeLabel;
+    private javax.swing.JTextField maxCurveThreshField;
+    private javax.swing.JLabel maxCurveThreshLabel;
+    private javax.swing.JTextField minCurveRangeField;
+    private javax.swing.JLabel minCurveRangeLabel;
+    private javax.swing.JTextField minCurveThreshField;
+    private javax.swing.JLabel minCurveThreshLabel;
     private javax.swing.JLabel minTrajLabel;
     private javax.swing.JTextField minTrajTextField;
     private javax.swing.JTextField previewField;

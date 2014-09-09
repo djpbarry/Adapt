@@ -76,7 +76,7 @@ public class CurveMapAnalyser {
             }
         }
         C2 /= range;
-        if (C0 < min && C0 < C1 && C0 < C2 && C0 < threshold) {
+        if (C0 < min && C0 < C1 && C0 < C2 && C0 < -threshold) {
             return 0;
         } else if (C2 < C1) {
             return 1;
@@ -96,8 +96,7 @@ public class CurveMapAnalyser {
      * @param minDuration the minimum duration (in seconds) for which a minima
      * must exist in order to be stored
      */
-    public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData,
-            int startFrame, int endFrame, double minDuration, boolean min) {
+    public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, double minDuration, boolean min, double threshold, double curveRange) {
         MorphMap curveMap = cellData.getCurveMap();
         double[][] curveVals = curveMap.smoothMap(1.0, 1.0);
         double[][] xvals = curveMap.getxCoords();
@@ -107,10 +106,10 @@ public class CurveMapAnalyser {
         ParticleArray extrema = new ParticleArray(tLength);
         for (int t = startFrame; t <= endFrame; t++) {
             int currentIndex = t - startFrame;
-            int range = (int) Math.round(UserVariables.getCurveRange() * cellData.getScaleFactors()[currentIndex]
+            int range = (int) Math.round(curveRange * cellData.getScaleFactors()[currentIndex]
                     * curveSearchRangeFactor);
             for (int pos = 0; pos < posLength; pos++) {
-                if (CurveMapAnalyser.isLocalCurvatureExtreme(pos, range, curveVals[currentIndex], UserVariables.getCurveThresh(), min) == 0) {
+                if (CurveMapAnalyser.isLocalCurvatureExtreme(pos, range, curveVals[currentIndex], threshold, min) == 0) {
                     extrema.addDetection(currentIndex,
                             new Particle(t,
                                     new IsoGaussian(xvals[currentIndex][pos]

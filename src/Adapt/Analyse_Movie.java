@@ -593,8 +593,10 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.GEN_VIS + ", " + String.valueOf(UserVariables.isGenVis()));
         paramStream.println(StaticVariables.GET_MORPH + ", " + String.valueOf(UserVariables.isGetMorph()));
         paramStream.println(StaticVariables.ANA_PROT + ", " + String.valueOf(UserVariables.isAnalyseProtrusions()));
-        paramStream.println(StaticVariables.CURVE_RANGE + ", " + String.valueOf(UserVariables.getCurveRange()));
-        paramStream.println(StaticVariables.CURVE_THRESH + ", " + String.valueOf(UserVariables.getCurveThresh()));
+        paramStream.println(StaticVariables.MIN_CURVE_RANGE + ", " + String.valueOf(UserVariables.getMinCurveRange()));
+        paramStream.println(StaticVariables.MIN_CURVE_THRESH + ", " + String.valueOf(UserVariables.getMinCurveThresh()));
+        paramStream.println(StaticVariables.MAX_CURVE_RANGE + ", " + String.valueOf(UserVariables.getMaxCurveRange()));
+        paramStream.println(StaticVariables.MAX_CURVE_THRESH + ", " + String.valueOf(UserVariables.getMaxCurveThresh()));
         paramStream.println(StaticVariables.CUT_OFF + ", " + String.valueOf(UserVariables.getCutOffTime()));
         paramStream.println(StaticVariables.CORTEX_DEPTH + ", " + String.valueOf(UserVariables.getCortexDepth()));
         paramStream.println(StaticVariables.USE_SIG_THRESH + ", " + String.valueOf(UserVariables.isUseSigThresh()));
@@ -703,7 +705,7 @@ public class Analyse_Movie implements PlugIn {
             double upX[] = DSPProcessor.upScale(x, height, false);
             double upY[] = DSPProcessor.upScale(y, height, false);
             curveMap.addColumn(upX, upY, DSPProcessor.upScale(Region.calcCurvature(vmPoints,
-                    UserVariables.getCurveRange()), height, false), i);
+                    UserVariables.getMinCurveRange()), height, false), i);
             cellData.getScaleFactors()[i] = ((double) height) / vmPoints.length;
         }
         dialog.dispose();
@@ -1582,8 +1584,8 @@ public class Analyse_Movie implements PlugIn {
      * sigrois and velrois.
      */
     void correlativePlot(CellData cellData) {
-        double minBlebDuration = UserVariables.getCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
-        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, minBlebDuration, true));
+        double minBlebDuration = UserVariables.getMinCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
+        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, minBlebDuration, true, UserVariables.getMinCurveThresh(), UserVariables.getMinCurveRange()));
 //        ArrayList<Bleb> blebs = new ArrayList();
 //        CurveMapAnalyser.findAllBlebs(blebs, cellData);
 //        IJ.saveAs(new ImagePlus("", CurveMapAnalyser.drawAllBlebs(cellData, blebs, stacks[0])), "TIF", "c:\\users\\barry05\\desktop\\allblebs.tif");
@@ -1738,8 +1740,12 @@ public class Analyse_Movie implements PlugIn {
         if (UserVariables.isAnalyseProtrusions()) {
             for (int i = 0; i < nCell; i++) {
                 buildOutput(i, 1, true);
-                cellData[i].setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i], sliceIndex, sliceIndex, 0.0, true));
-                cellData[i].setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i], sliceIndex, sliceIndex, 0.0, false));
+                cellData[i].setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i],
+                        sliceIndex, sliceIndex, 0.0, true, UserVariables.getMinCurveThresh(),
+                        UserVariables.getMinCurveRange()));
+                cellData[i].setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i],
+                        sliceIndex, sliceIndex, 0.0, false, UserVariables.getMaxCurveThresh(),
+                        UserVariables.getMaxCurveRange()));
             }
         }
 

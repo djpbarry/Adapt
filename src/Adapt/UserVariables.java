@@ -25,7 +25,8 @@ public class UserVariables {
     private static double greyThresh = 0.95; // user-specified grey-level threshold used in conditional region dilation
     private static boolean genVis = true;
     private static final double blebDurThresh = 5.0; // minimum duration (in frames) of bleb to be considered in analysis
-    private static int curveRange = 10;
+    private static int minCurveRange = 10;
+    private static int maxCurveRange = 10;
     private static boolean useSigThresh = false;
     private static double spatialRes = 1.0; //timeRes in frames/minute, spatialRes in microns/pixel;
     private static double cutOffTime = 120.0;
@@ -38,7 +39,8 @@ public class UserVariables {
     private static boolean getMorph = false;
     private static double timeRes = 0.25; // temporal resolution in frames per minute
     private static final double blebLenThresh = 0.05; // minimum normalised length of bleb to be considered in analysis
-    private static double curveThresh = -20.0;
+    private static double minCurveThresh = 20.0;
+    private static double maxCurveThresh = 20.0;
     private static boolean analyseProtrusions = false;
     private static double sigRecoveryThresh = 0.25;
     private static double gaussRad = 1.0;
@@ -128,8 +130,8 @@ public class UserVariables {
      *
      * @return the width of the window in pixels
      */
-    public static int getCurveRange() {
-        return curveRange;
+    public static int getMinCurveRange() {
+        return minCurveRange;
     }
 
     /**
@@ -138,8 +140,8 @@ public class UserVariables {
      *
      * @param curveRange the width of the window in pixels
      */
-    public static void setCurveRange(int curveRange) {
-        UserVariables.curveRange = curveRange;
+    public static void setMinCurveRange(int curveRange) {
+        UserVariables.minCurveRange = curveRange;
     }
 
     /**
@@ -361,8 +363,8 @@ public class UserVariables {
      * @return curvature threshold - extrema must be lower than this value to be
      * considered candidates for bleb anchor points
      */
-    public static double getCurveThresh() {
-        return curveThresh;
+    public static double getMinCurveThresh() {
+        return minCurveThresh;
     }
 
     /**
@@ -372,8 +374,8 @@ public class UserVariables {
      * @param curveThresh curvature threshold - extrema must be lower than this
      * value to be considered candidates for bleb anchor points
      */
-    public static void setCurveThresh(double curveThresh) {
-        UserVariables.curveThresh = curveThresh;
+    public static void setMinCurveThresh(double curveThresh) {
+        UserVariables.minCurveThresh = curveThresh;
     }
 
     /**
@@ -468,6 +470,22 @@ public class UserVariables {
 
     public static void setMinLength(int minLength) {
         UserVariables.minLength = minLength;
+    }
+
+    public static int getMaxCurveRange() {
+        return maxCurveRange;
+    }
+
+    public static void setMaxCurveRange(int maxCurveRange) {
+        UserVariables.maxCurveRange = maxCurveRange;
+    }
+
+    public static double getMaxCurveThresh() {
+        return maxCurveThresh;
+    }
+
+    public static void setMaxCurveThresh(double maxCurveThresh) {
+        UserVariables.maxCurveThresh = maxCurveThresh;
     }
 
 }

@@ -77,7 +77,7 @@ public class BlebAnalyser {
         for (int timeIndex = bounds.x;
                 (timeIndex - bounds.x <= cutoff) && (timeIndex < velMapImage.getWidth() && !done);
                 timeIndex++) {
-            int searchRange = (int) Math.round(UserVariables.getCurveRange() * cellData.getScaleFactors()[timeIndex]);
+            int searchRange = (int) Math.round(UserVariables.getMinCurveRange() * cellData.getScaleFactors()[timeIndex]);
             double currentMeanVel = 0.0;
             double currentProtrusionLength;
 //            detectionSlice.setChannel(1, (ByteProcessor) ((new TypeConverter(cytoStack.getProcessor(timeIndex + 1), true)).convertToByte()));
