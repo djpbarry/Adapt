@@ -248,7 +248,7 @@ public class Analyse_Movie implements PlugIn {
         for (int i = 0; i < cytoSize; i++) {
             dialog.updateProgress(i, cytoSize);
             ImageProcessor cytoImage = cytoStack.getProcessor(i + 1).duplicate();
-            thresholds[i] = getThreshold(cytoImage, UserVariables.isAutoThreshold());
+            thresholds[i] = getThreshold(cytoImage, UserVariables.isAutoThreshold(), UserVariables.getGreyThresh());
             if (cytoImage != null) {
                 ArrayList<Region> theseRegions = findCellRegions(cytoImage, thresholds[i], cellData);
                 for (int k = 0; k < n; k++) {
@@ -326,7 +326,8 @@ public class Analyse_Movie implements PlugIn {
                 childDir = new File(childDirName);
                 buildOutput(index, length, false);
                 if (UserVariables.isAnalyseProtrusions()) {
-                    findProtrusions(cellData[index]);
+                    calcSigThresh(cellData[index]);
+                    findProtrusionsBasedOnVel(cellData[index]);
                     correlativePlot(cellData[index]);
                 }
             }
@@ -724,7 +725,7 @@ public class Analyse_Movie implements PlugIn {
         FloatProcessor greyCurvMap = cellData.getGreyCurveMap();
         FloatProcessor greySigMap = null;
         ColorProcessor colorVelMap = cellData.getColorVelMap();
-        double curvatures[][] = curveMap.getzVals();
+        double curvatures[][] = curveMap.smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());
         double sigchanges[][] = null;
         if (!sigNull) {
             sigchanges = cellData.getSigMap().smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());;
@@ -951,7 +952,7 @@ public class Analyse_Movie implements PlugIn {
         return colour;
     }
 
-    void findProtrusions(CellData cellData) {
+    void findProtrusionsBasedOnVel(CellData cellData) {
         /*
          * Protrusion events are identified by thresholding velMapImage.
          */
@@ -983,6 +984,22 @@ public class Analyse_Movie implements PlugIn {
         analyzeDetections(manager2, flippedBinMap, analyzer);
         copyRoisWithOffset(manager, manager2, offset);
         cellData.setVelRois(manager.getRoisAsArray());
+    }
+    
+    void findProtrusionsBasedOnCurve(CellData cellData) {
+        double minDuration = UserVariables.getMaxCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
+        ArrayList<BoundaryPixel>[] curvatureMaxima = CurveMapAnalyser.findAllCurvatureExtrema(cellData,
+                0, stacks[0].getSize() - 1, minDuration, false, UserVariables.getMaxCurveThresh(), UserVariables.getMaxCurveRange());
+        int length = curvatureMaxima.length;
+        ArrayList<Roi> rois = new ArrayList();
+        ArrayList<Integer> indices = new ArrayList();
+        for(int i=0; i<length; i++){
+            ArrayList<BoundaryPixel> currentMax = curvatureMaxima[i];
+            int size = currentMax.size();
+        }
+    }
+
+    void calcSigThresh(CellData cellData) {
         if (UserVariables.isUseSigThresh()) {
             ImageProcessor scaledSigMap = cellData.getGreySigMap().duplicate();
             scaledSigMap.multiply(UserVariables.getSpatialRes() / UserVariables.getCortexDepth());
@@ -1453,7 +1470,7 @@ public class Analyse_Movie implements PlugIn {
                 /*
                  * Dilation considered if grey-level threshold exceeded
                  */
-                if (r == StaticVariables.BACKGROUND && (g > UserVariables.getGreyThresh())) {
+                if (r == StaticVariables.BACKGROUND && (g > thresh)) {
                     float dist = calcDistance(point, i, j, gradient);
 //                    System.out.println(" x: " + centre.getX() + " y: " + centre.getY() + " i: " + i + " j: " + j + " dist: " + dist);
 //                    float dist = (float) ((Math.pow(gradient.getPixelValue(i, j)
@@ -1731,7 +1748,7 @@ public class Analyse_Movie implements PlugIn {
         int nCell = initialiseROIs(sliceIndex);
         ImageProcessor cytoProc = stacks[0].getProcessor(sliceIndex);
         Region[][] allRegions = new Region[nCell][1];
-        int threshold = getThreshold(cytoProc, UserVariables.isAutoThreshold());
+        int threshold = getThreshold(cytoProc, UserVariables.isAutoThreshold(), UserVariables.getGreyThresh());
         ArrayList<Region> detectedRegions = findCellRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
             allRegions[k][0] = detectedRegions.get(k);
@@ -1871,11 +1888,11 @@ public class Analyse_Movie implements PlugIn {
         }
     }
 
-    int getThreshold(ImageProcessor image, boolean auto) {
-        if (UserVariables.isAutoThreshold()) {
-            return (new AutoThresholder()).getThreshold(AutoThresholder.Method.Yen, image.getStatistics().histogram);
+    int getThreshold(ImageProcessor image, boolean auto, double thresh) {
+        if (auto) {
+            return (new AutoThresholder()).getThreshold(AutoThresholder.Method.Huang, image.getStatistics().histogram);
         } else {
-            return (int) Math.round(Utils.getPercentileThresh(image, UserVariables.getGreyThresh()));
+            return (int) Math.round(Utils.getPercentileThresh(image, thresh));
         }
     }
 }

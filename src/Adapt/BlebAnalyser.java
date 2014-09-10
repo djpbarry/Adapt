@@ -60,7 +60,7 @@ public class BlebAnalyser {
 //        int imageWidth = cytoStack.getWidth();
 //        int imageHeight = cytoStack.getHeight();
         int velMapHeight = cellData.getVelMapWithDetections().getHeight();
-        ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
+//        ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
         int anchor1[] = new int[2];
         anchor1[0] = GenUtils.checkRange(bounds.y, velMapHeight);
         anchor1[1] = -1;

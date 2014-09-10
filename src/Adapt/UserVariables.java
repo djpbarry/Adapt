@@ -38,7 +38,7 @@ public class UserVariables {
     private static int erosion = 4;
     private static boolean getMorph = false;
     private static double timeRes = 0.25; // temporal resolution in frames per minute
-    private static final double blebLenThresh = 0.05; // minimum normalised length of bleb to be considered in analysis
+    private static final double blebLenThresh = 0.0; // minimum normalised length of bleb to be considered in analysis
     private static double minCurveThresh = 20.0;
     private static double maxCurveThresh = 20.0;
     private static boolean analyseProtrusions = false;
