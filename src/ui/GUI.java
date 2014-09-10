@@ -442,7 +442,7 @@ public class GUI extends javax.swing.JDialog {
         advancedTab.add(lambdaTextField, gridBagConstraints);
 
         threshComboBox.setModel(new DefaultComboBoxModel(AutoThresholder.Method.values()));
-        threshComboBox.setSelectedItem(UserVariables.getThreshMethod());
+        threshComboBox.setSelectedItem(AutoThresholder.Method.valueOf(UserVariables.getThreshMethod()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;

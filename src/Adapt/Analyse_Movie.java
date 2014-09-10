@@ -584,6 +584,7 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(Utilities.getDate("dd/MM/yyyy HH:mm:ss"));
         paramStream.println();
         paramStream.println(StaticVariables.AUTO_THRESH + ", " + String.valueOf(UserVariables.isAutoThreshold()));
+        paramStream.println(StaticVariables.THRESH_METHOD + ", " + UserVariables.getThreshMethod());
         paramStream.println(StaticVariables.GREY_SENS + ", " + String.valueOf(UserVariables.getGreyThresh()));
         paramStream.println(StaticVariables.SPAT_RES + ", " + String.valueOf(UserVariables.getSpatialRes()));
         paramStream.println(StaticVariables.TIME_RES + ", " + String.valueOf(UserVariables.getTimeRes()));

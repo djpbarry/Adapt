@@ -445,7 +445,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="threshComboBox.setSelectedItem(UserVariables.getThreshMethod());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="threshComboBox.setSelectedItem(AutoThresholder.Method.valueOf(UserVariables.getThreshMethod()));"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
