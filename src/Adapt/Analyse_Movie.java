@@ -1890,7 +1890,7 @@ public class Analyse_Movie implements PlugIn {
 
     int getThreshold(ImageProcessor image, boolean auto, double thresh) {
         if (auto) {
-            return (new AutoThresholder()).getThreshold(AutoThresholder.Method.Huang, image.getStatistics().histogram);
+            return (new AutoThresholder()).getThreshold(AutoThresholder.Method.Default, image.getStatistics().histogram);
         } else {
             return (int) Math.round(Utils.getPercentileThresh(image, thresh));
         }
