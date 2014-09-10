@@ -248,7 +248,7 @@ public class Analyse_Movie implements PlugIn {
         for (int i = 0; i < cytoSize; i++) {
             dialog.updateProgress(i, cytoSize);
             ImageProcessor cytoImage = cytoStack.getProcessor(i + 1).duplicate();
-            thresholds[i] = getThreshold(cytoImage, UserVariables.isAutoThreshold(), UserVariables.getGreyThresh());
+            thresholds[i] = getThreshold(cytoImage, UserVariables.isAutoThreshold(), UserVariables.getGreyThresh(), UserVariables.getThreshMethod());
             if (cytoImage != null) {
                 ArrayList<Region> theseRegions = findCellRegions(cytoImage, thresholds[i], cellData);
                 for (int k = 0; k < n; k++) {
@@ -1764,7 +1764,7 @@ public class Analyse_Movie implements PlugIn {
         int nCell = initialiseROIs(sliceIndex);
         ImageProcessor cytoProc = stacks[0].getProcessor(sliceIndex);
         Region[][] allRegions = new Region[nCell][1];
-        int threshold = getThreshold(cytoProc, UserVariables.isAutoThreshold(), UserVariables.getGreyThresh());
+        int threshold = getThreshold(cytoProc, UserVariables.isAutoThreshold(), UserVariables.getGreyThresh(), UserVariables.getThreshMethod());
         ArrayList<Region> detectedRegions = findCellRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
             allRegions[k][0] = detectedRegions.get(k);
@@ -1904,9 +1904,9 @@ public class Analyse_Movie implements PlugIn {
         }
     }
 
-    int getThreshold(ImageProcessor image, boolean auto, double thresh) {
+    int getThreshold(ImageProcessor image, boolean auto, double thresh, String method) {
         if (auto) {
-            return (new AutoThresholder()).getThreshold(AutoThresholder.Method.Default, image.getStatistics().histogram);
+            return (new AutoThresholder()).getThreshold(method, image.getStatistics().histogram);
         } else {
             return (int) Math.round(Utils.getPercentileThresh(image, thresh));
         }

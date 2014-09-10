@@ -23,6 +23,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.ImageCanvas;
+import ij.process.AutoThresholder;
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
@@ -30,6 +31,7 @@ import ij.process.TypeConverter;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import javax.swing.DefaultBoundedRangeModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
@@ -112,6 +114,8 @@ public class GUI extends javax.swing.JDialog {
         initFiltRadTextField = new javax.swing.JTextField();
         lambdaLabel = new javax.swing.JLabel();
         lambdaTextField = new javax.swing.JTextField();
+        threshComboBox = new javax.swing.JComboBox();
+        threshLabel = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         minCurveRangeLabel = new javax.swing.JLabel();
         minCurveRangeField = new javax.swing.JTextField();
@@ -315,7 +319,7 @@ public class GUI extends javax.swing.JDialog {
         erosionField.setText(String.valueOf(UserVariables.getErosion()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -325,7 +329,7 @@ public class GUI extends javax.swing.JDialog {
         erosionLabel.setText(StaticVariables.EROSION);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -334,7 +338,7 @@ public class GUI extends javax.swing.JDialog {
         spatFiltRadLabel.setText(StaticVariables.SPAT_FILT_RAD);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -343,7 +347,7 @@ public class GUI extends javax.swing.JDialog {
         spatFiltRadField.setText(String.valueOf(UserVariables.getSpatFiltRad()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -353,7 +357,7 @@ public class GUI extends javax.swing.JDialog {
         tempFiltRadLabel.setText(StaticVariables.TEMP_FILT_RAD);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -362,7 +366,7 @@ public class GUI extends javax.swing.JDialog {
         tempFiltRadField.setText(String.valueOf(UserVariables.getTempFiltRad()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -401,7 +405,7 @@ public class GUI extends javax.swing.JDialog {
         initFiltRadLabel.setText(StaticVariables.INIT_FILT_RAD);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -410,7 +414,7 @@ public class GUI extends javax.swing.JDialog {
         initFiltRadTextField.setText(String.valueOf(UserVariables.getInitGaussRad()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -420,7 +424,7 @@ public class GUI extends javax.swing.JDialog {
         lambdaLabel.setText(StaticVariables.LAMBDA);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -430,12 +434,31 @@ public class GUI extends javax.swing.JDialog {
         lambdaTextField.setEnabled(advSegRadioButton.isSelected());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         advancedTab.add(lambdaTextField, gridBagConstraints);
+
+        threshComboBox.setModel(new DefaultComboBoxModel(AutoThresholder.Method.values()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        advancedTab.add(threshComboBox, gridBagConstraints);
+
+        threshLabel.setText(StaticVariables.THRESH_METHOD);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        advancedTab.add(threshLabel, gridBagConstraints);
 
         jTabbedPane1.addTab("Advanced", advancedTab);
 
@@ -508,7 +531,7 @@ public class GUI extends javax.swing.JDialog {
         sigThreshFactLabel.setEnabled(UserVariables.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -518,7 +541,7 @@ public class GUI extends javax.swing.JDialog {
         sigThreshFactField.setEnabled(UserVariables.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -529,7 +552,7 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshLabel.setEnabled(UserVariables.isAnalyseProtrusions() && UserVariables.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -539,7 +562,7 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshField.setEnabled(UserVariables.isAnalyseProtrusions() && UserVariables.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -571,7 +594,7 @@ public class GUI extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
@@ -582,6 +605,10 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         jPanel4.add(maxCurveRangeField, gridBagConstraints);
 
         maxCurveThreshField.setText(String.valueOf(UserVariables.getMaxCurveThresh()));
@@ -589,6 +616,10 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         jPanel4.add(maxCurveThreshField, gridBagConstraints);
 
         maxCurveRangeLabel.setText(StaticVariables.MAX_CURVE_RANGE);
@@ -596,6 +627,9 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel4.add(maxCurveRangeLabel, gridBagConstraints);
 
         maxCurveThreshLabel.setText(StaticVariables.MAX_CURVE_THRESH);
@@ -603,6 +637,9 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel4.add(maxCurveThreshLabel, gridBagConstraints);
 
         jTabbedPane1.addTab("Protrusion Analysis", jPanel4);
@@ -840,6 +877,7 @@ public class GUI extends javax.swing.JDialog {
             UserVariables.setInitGaussRad(Double.parseDouble(initFiltRadTextField.getText()));
             UserVariables.setLambda(Double.parseDouble(lambdaTextField.getText()));
             UserVariables.setMinLength((int) Math.round(Double.parseDouble(minTrajTextField.getText())));
+            UserVariables.setThreshMethod(String.valueOf(threshComboBox.getSelectedItem()));
         } catch (NumberFormatException e) {
             IJ.error("Number formatting error " + e.toString());
             return false;
@@ -970,6 +1008,8 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JLabel spatResLabel;
     private javax.swing.JTextField tempFiltRadField;
     private javax.swing.JLabel tempFiltRadLabel;
+    private javax.swing.JComboBox threshComboBox;
+    private javax.swing.JLabel threshLabel;
     private javax.swing.JTextField timeResField;
     private javax.swing.JLabel timeResLabel;
     private javax.swing.JToggleButton useSigThreshToggleButton;

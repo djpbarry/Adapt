@@ -16,6 +16,8 @@
  */
 package Adapt;
 
+import ij.process.AutoThresholder;
+
 /**
  *
  * @author David Barry <david.barry at cancer.org.uk>
@@ -50,7 +52,8 @@ public class UserVariables {
     private static boolean simple = true;
     private static double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
     private static int minLength = 10;
-    
+    private static String threshMethod =AutoThresholder.Method.Default.toString();
+
     /**
      * Get the radius of circles drawn on bleb detection output movies
      *
@@ -486,6 +489,14 @@ public class UserVariables {
 
     public static void setMaxCurveThresh(double maxCurveThresh) {
         UserVariables.maxCurveThresh = maxCurveThresh;
+    }
+
+    public static String getThreshMethod() {
+        return threshMethod;
+    }
+
+    public static void setThreshMethod(String threshMethod) {
+        UserVariables.threshMethod = threshMethod;
     }
 
 }
