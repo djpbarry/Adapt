@@ -106,8 +106,7 @@ public class CurveMapAnalyser {
         ParticleArray extrema = new ParticleArray(tLength);
         for (int t = startFrame; t <= endFrame; t++) {
             int currentIndex = t - startFrame;
-            int range = (int) Math.round(curveRange * cellData.getScaleFactors()[currentIndex]
-                    * curveSearchRangeFactor);
+            int range = calcScaledCurveRange(curveRange, cellData.getScaleFactors()[currentIndex]);
             for (int pos = 0; pos < posLength; pos++) {
                 if (CurveMapAnalyser.isLocalCurvatureExtreme(pos, range, curveVals[currentIndex], threshold, min) == 0) {
                     extrema.addDetection(currentIndex,
@@ -153,6 +152,9 @@ public class CurveMapAnalyser {
         return extPos;
     }
 
+    public static int calcScaledCurveRange(double curveRange, double scaleFactor) {
+        return (int) Math.round(curveRange * scaleFactor * curveSearchRangeFactor);
+    }
 //    public static void drawAllMinima(CellData cellData, double timeRes, double spatialRes, ImageStack cytoStack, int startFrame, int endFrame, double minDuration) {
 //        ImageStack detectionStack = new ImageStack(cytoStack.getWidth(), cytoStack.getHeight());
 //        int tLength = 1 + endFrame - startFrame;
@@ -178,6 +180,7 @@ public class CurveMapAnalyser {
 //        }
 //        IJ.saveAs(new ImagePlus("", detectionStack), "TIF", "C:/users/barry05/desktop/AllDetections.tif");
 //    }
+
     private static void findNearestMinTraj(int time, int anchor[], int maxRange, CellData cellData) {
         ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
         MorphMap curveMap = cellData.getCurveMap();

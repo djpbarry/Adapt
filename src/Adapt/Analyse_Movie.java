@@ -357,7 +357,7 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-//        initP.add(new Pixel(9, 40));
+//        initP.add(new Pixel(256, 256));
 //        initP.add(new Pixel(40, 40));
         int n;
 //        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
@@ -371,7 +371,7 @@ public class Analyse_Movie implements PlugIn {
         } else {
             getInitialSeedPoints((ByteProcessor) stacks[0].getProcessor(slice), initP);
             n = initP.size();
-//            n = 2;
+//            n = 1;
         }
         cellData = new CellData[n];
         for (int i = 0; i < n; i++) {
@@ -985,7 +985,7 @@ public class Analyse_Movie implements PlugIn {
         copyRoisWithOffset(manager, manager2, offset);
         cellData.setVelRois(manager.getRoisAsArray());
     }
-    
+
     void findProtrusionsBasedOnCurve(CellData cellData) {
         double minDuration = UserVariables.getMaxCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
         ArrayList<BoundaryPixel>[] curvatureMaxima = CurveMapAnalyser.findAllCurvatureExtrema(cellData,
@@ -993,10 +993,26 @@ public class Analyse_Movie implements PlugIn {
         int length = curvatureMaxima.length;
         ArrayList<Roi> rois = new ArrayList();
         ArrayList<Integer> indices = new ArrayList();
-        for(int i=0; i<length; i++){
+        for (int i = 0; i < length; i++) {
             ArrayList<BoundaryPixel> currentMax = curvatureMaxima[i];
-            int size = currentMax.size();
+            if (currentMax != null) {
+                int size = currentMax.size();
+                for (int j = 0; j < size; j++) {
+                    BoundaryPixel pix = currentMax.get(j);
+                    int id = pix.getID();
+                    if (!indices.contains(id)) {
+                        indices.add(id);
+                        int x = pix.getTime();
+                        int y = pix.getPos();
+                        int hh = CurveMapAnalyser.calcScaledCurveRange(UserVariables.getMaxCurveRange(),
+                                cellData.getScaleFactors()[x]);
+                        rois.add(new Roi(x, y - hh, 1, y + 2 * hh + 1));
+                    }
+                }
+            }
         }
+        Roi output[] = new Roi[rois.size()];
+        cellData.setVelRois(rois.toArray(output));
     }
 
     void calcSigThresh(CellData cellData) {

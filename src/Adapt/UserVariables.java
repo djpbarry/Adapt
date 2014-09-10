@@ -24,7 +24,7 @@ public class UserVariables {
 
     private static double greyThresh = 0.95; // user-specified grey-level threshold used in conditional region dilation
     private static boolean genVis = true;
-    private static final double blebDurThresh = 5.0; // minimum duration (in frames) of bleb to be considered in analysis
+    private static final double blebDurThresh = 0.0; // minimum duration (in frames) of bleb to be considered in analysis
     private static int minCurveRange = 10;
     private static int maxCurveRange = 10;
     private static boolean useSigThresh = false;
