@@ -104,7 +104,6 @@ public class Analyse_Movie implements PlugIn {
 //        am.run(null);
 //        System.exit(0);
 //    }
-
     /**
      * Default constructor
      */
@@ -269,7 +268,8 @@ public class Analyse_Movie implements PlugIn {
                     ImageProcessor mask = current.getMask(width, height);
 //                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/mask_" + i + "_" + j + ".png");
 //                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/adapt_test_data/masks/maskb_" + j + "_" + i + ".png");
-                    for (int k = 0; k < UserVariables.getErosion(); k++) {
+                    int e = UserVariables.getErosion();
+                    for (int k = 0; k < e; k++) {
                         mask.erode();
                     }
 //                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/mask_" + i + "_" + j + "_eroded.png");
@@ -288,7 +288,7 @@ public class Analyse_Movie implements PlugIn {
                         ArrayList<Pixel> centres = current.getCentres();
                         Pixel centre = centres.get(centres.size() - 1);
                         Region temp;
-                        if (cellData.length > 1) {
+                        if (cellData.length > 1 || e < 0) {
                             temp = new Region(width, height);
                             temp.addBorderPoint(centre);
                         } else {
