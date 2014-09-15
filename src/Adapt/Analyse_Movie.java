@@ -104,6 +104,7 @@ public class Analyse_Movie implements PlugIn {
 //        am.run(null);
 //        System.exit(0);
 //    }
+
     /**
      * Default constructor
      */
@@ -264,7 +265,7 @@ public class Analyse_Movie implements PlugIn {
 //                    int sx = current.getMaskSeed().getX();
 //                    int sy = current.getMaskSeed().getY();
 //                    current.calcCentre(current.getBorderPix());
-                    ImageProcessor mask = current.getMask(width, height);
+                    ImageProcessor mask = current.getMask();
                     current.calcCentroid(mask);
 //                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/mask_" + i + "_" + j + ".png");
 //                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/adapt_test_data/masks/maskb_" + j + "_" + i + ".png");
@@ -528,7 +529,7 @@ public class Analyse_Movie implements PlugIn {
 //                ArrayList<Pixel> centroids = current.getCentroids();
 //                Pixel centre = centroids.get(centroids.size() - 1);
                 ImagePlus maskImp = new ImagePlus(String.valueOf(index) + "_" + String.valueOf(h),
-                        current.getMask(stacks[0].getWidth(), stacks[0].getHeight()));
+                        current.getMask());
                 analyzer.analyze(maskImp);
             }
         }
@@ -1089,7 +1090,7 @@ public class Analyse_Movie implements PlugIn {
 //                    region.calcCentre(region.getBorderPix());
 //                }
 //                region.setMaskSeed(cellData[i].getMaskSeed());
-                ImageProcessor mask = region.getMask(width, height);
+                ImageProcessor mask = region.getMask();
 //            region.setSeedPix();
                 mask.invert();
                 mask.multiply((i + 1) / 255.0);
@@ -1098,7 +1099,7 @@ public class Analyse_Movie implements PlugIn {
             singleImageRegions.add(region);
             outVal++;
         }
-//        IJ.saveAs(new ImagePlus("", indexedRegions), "PNG", "C:/users/barry05/desktop/indexedRegions.png");
+        IJ.saveAs(new ImagePlus("", indexedRegions), "PNG", "C:/users/barry05/desktop/indexedRegions.png");
         intermediate = singleImageRegions.size() + 1;
         terminal = intermediate + 1;
         /*
@@ -1238,7 +1239,7 @@ public class Analyse_Movie implements PlugIn {
 //            Pixel centre = cell.getCentroids().get(0);
 //            ArrayList<Pixel> pixels = cell.getPixels();
 
-                ImageProcessor mask = cell.getMask(regionImage.getWidth(), regionImage.getHeight());
+                ImageProcessor mask = cell.getMask();
                 LinkedList<Pixel> borderPix = cell.getBorderPix();
                 ArrayList<Pixel> centres = cell.getCentres();
                 Pixel centre = centres.get(0);
@@ -1251,8 +1252,9 @@ public class Analyse_Movie implements PlugIn {
                  */
 //                ArrayList<Pixel> centres = cell.getCentres();
 //                Pixel median = centres.get(centres.size() - 1);
-                for (int i = 0; i < mask.getWidth(); i++) {
-                    for (int j = 0; j < mask.getHeight(); j++) {
+                Rectangle bounds = cell.getBounds();
+                for (int i = bounds.x; i < bounds.x + bounds.width; i++) {
+                    for (int j = bounds.y; j < bounds.y + bounds.height; j++) {
                         if (mask.getPixel(i, j) == 0) {
                             distancemaps[n][i][j] = 0.0f;
                         }
@@ -1807,7 +1809,7 @@ public class Analyse_Movie implements PlugIn {
                 if (channels > 1) {
 //                ArrayList<Pixel> centroids = region.getCentroids();
 //                Pixel centre = centroids.get(centroids.size() - 1);
-                    ImageProcessor origMask = region.getMask(stacks[0].getWidth(), stacks[0].getHeight());
+                    ImageProcessor origMask = region.getMask();
                     ImageProcessor shrunkMask = origMask.duplicate();
                     ImageProcessor enlargedMask = origMask.duplicate();
                     int erosions = (int) Math.round(UserVariables.getCortexDepth() / UserVariables.getSpatialRes());
