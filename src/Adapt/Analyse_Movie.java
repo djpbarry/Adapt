@@ -104,7 +104,6 @@ public class Analyse_Movie implements PlugIn {
 //        am.run(null);
 //        System.exit(0);
 //    }
-
     /**
      * Default constructor
      */
@@ -348,7 +347,7 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-//        initP.add(new Pixel(120, 120));
+//        initP.add(new Pixel(200, 200));
 //        initP.add(new Pixel(40, 40));
         int n;
 //        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
@@ -623,8 +622,8 @@ public class Analyse_Movie implements PlugIn {
              * Get points for one column (time-point) of map
              */
             Pixel vmPoints[] = current.buildMapCol(current.buildVelImage(cytoStack, i + 1,
-                        UserVariables.getTimeRes(), UserVariables.getSpatialRes(), cellData.getGreyThresholds()), height,
-                        (int) Math.round(UserVariables.getCortexDepth() / UserVariables.getSpatialRes()));
+                    UserVariables.getTimeRes(), UserVariables.getSpatialRes(), cellData.getGreyThresholds()), height,
+                    (int) Math.round(UserVariables.getCortexDepth() / UserVariables.getSpatialRes()));
             Pixel smPoints[] = null;
             if (sigStack != null) {
                 smPoints = current.buildMapCol(sigStack.getProcessor(i + 1), height,
@@ -783,9 +782,9 @@ public class Analyse_Movie implements PlugIn {
                     velOutput.setColor(Color.white);
                     Region current = allRegions[t];
                     ArrayList<Pixel> centres = current.getCentres();
-//                    int cl = centres.size();
-                    int xc = (int) Math.round(centres.get(0).getX());
-                    int yc = (int) Math.round(centres.get(0).getY());
+                    int cl = centres.size();
+                    int xc = (int) Math.round(centres.get(cl - 1).getX());
+                    int yc = (int) Math.round(centres.get(cl - 1).getY());
                     velOutput.fillOval(xc - 1, yc - 1, 3, 3);
                     velOutput.drawString(String.valueOf(n + 1), xc + 2, yc + 2);
                 }
@@ -1242,7 +1241,7 @@ public class Analyse_Movie implements PlugIn {
                 ImageProcessor mask = cell.getMask(regionImage.getWidth(), regionImage.getHeight());
                 LinkedList<Pixel> borderPix = cell.getBorderPix();
                 ArrayList<Pixel> centres = cell.getCentres();
-                Pixel centre = centres.get(centres.size() - 1);
+                Pixel centre = centres.get(0);
                 Region cellcopy = new Region(inputImage.getWidth(), inputImage.getHeight(), centre);
 //            int pixsize = pixels.size();
             /*
