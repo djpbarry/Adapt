@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
+import org.apache.commons.io.FilenameUtils;
 import ui.GUI;
 
 /**
@@ -84,7 +85,7 @@ public class Analyse_Movie implements PlugIn {
     private static File directory, // root directory
             childDir, // root output directory
             parDir, // output directory for each cell
-            velDirName, curvDirName, trajDirName;
+            velDirName, curvDirName, trajDirName, segDirName;
     private int intermediate, terminal;
     private String TITLE = StaticVariables.TITLE;
     private final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
@@ -97,11 +98,17 @@ public class Analyse_Movie implements PlugIn {
     private CellData cellData[];
     private final ImageStack stacks[] = new ImageStack[2];
     private double morphSizeMin = 5.0;
+    private boolean batchMode = false;
 
 //    public static void main(String args[]) {
 //        Analyse_Movie am = new Analyse_Movie();
 //        am.initialise();
 //        am.run(null);
+//        System.exit(0);
+//    }
+//    public static void main(String args[]) {
+//        Analyse_Movie am = new Analyse_Movie();
+//        am.batchInitialise(Utilities.getFolder(directory, null));
 //        System.exit(0);
 //    }
 
@@ -148,6 +155,34 @@ public class Analyse_Movie implements PlugIn {
         stacks[1] = sigStack;
     }
 
+    void batchInitialise(File inputDir) {
+        batchMode = true;
+        File cytoImageFiles[] = (new File(inputDir.getPath() + delimiter + StaticVariables.CYTO)).listFiles(); // Obtain file list
+        int cytoSize = cytoImageFiles.length;
+        File sigImageFiles[] = (new File(inputDir.getPath() + delimiter + StaticVariables.SIG)).listFiles(); // Obtain file list
+        int sigSize = sigImageFiles.length;
+        Arrays.sort(cytoImageFiles);
+        Arrays.sort(sigImageFiles);
+        int numFiles = cytoImageFiles.length;
+        directory = inputDir;
+        for (int f = 0; f < numFiles; f++) {
+            ImagePlus cytoImp = new ImagePlus(cytoImageFiles[f].getAbsolutePath());
+            ImageStack cytoStack = cytoImp.getImageStack();
+            if (cytoStack != null) {
+                ImageStack sigStack;
+                if (cytoSize == sigSize) {
+                    ImagePlus sigImp = new ImagePlus(sigImageFiles[f].getAbsolutePath());
+                    sigStack = sigImp.getImageStack();
+                } else {
+                    sigStack = null;
+                }
+                stacks[0] = cytoStack;
+                stacks[1] = sigStack;
+                run(cytoImageFiles[f].getAbsolutePath());
+            }
+        }
+    }
+
     /**
      * Opens GUIs for user to specify directory for output then runs analysis
      *
@@ -161,15 +196,17 @@ public class Analyse_Movie implements PlugIn {
             IJ.error("No Images Open.");
             return;
         }
-        directory = Utilities.getFolder(directory, "Specify directory for output files..."); // Specify directory for output
+        if (!batchMode) {
+            directory = Utilities.getFolder(directory, "Specify directory for output files..."); // Specify directory for output
+        }
         if (directory == null) {
             return;
         }
-        analyse();
+        analyse(arg);
         IJ.showStatus(TITLE + " done.");
     }
 
-    private void analyse() {
+    private void analyse(String imageName) {
         int cytoSize, sigSize;
         ImageStack cytoStack;
         if (IJ.getInstance() == null) {
@@ -209,7 +246,12 @@ public class Analyse_Movie implements PlugIn {
          * Create new parent output directory - make sure directory name is
          * unique so old results are not overwritten
          */
-        String parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE, delimiter);
+        String parDirName;
+        if (!batchMode) {
+            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE, delimiter);
+        } else {
+            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
+        }
         if (parDirName != null) {
             parDir = new File(parDirName);
         } else {
@@ -226,14 +268,16 @@ public class Analyse_Movie implements PlugIn {
         stacks[0] = tempCytoImp.getImageStack();
         cytoStack = stacks[0];
 
-        GUI gui = new GUI(null, true, TITLE, stacks, this);
-        gui.setVisible(true);
-        if (!gui.isWasOKed()) {
-            return;
+        if (!batchMode) {
+            GUI gui = new GUI(null, true, TITLE, stacks, this);
+            gui.setVisible(true);
+            if (!gui.isWasOKed()) {
+                return;
+            }
         }
 
-        ProgressDialog dialog = new ProgressDialog(null, "Segmenting...", false, true, TITLE);
-        dialog.setVisible(true);
+        ProgressDialog segDialog = new ProgressDialog(null, "Segmenting...", false, TITLE, false);
+        segDialog.setVisible(true);
 
         int n = initialiseROIs(1);
         if (n < 1) {
@@ -246,7 +290,7 @@ public class Analyse_Movie implements PlugIn {
         int thresholds[] = new int[cytoSize];
         Region[][] allRegions = new Region[n][cytoSize];
         for (int i = 0; i < cytoSize; i++) {
-            dialog.updateProgress(i, cytoSize);
+            segDialog.updateProgress(i, cytoSize);
             ImageProcessor cytoImage = cytoStack.getProcessor(i + 1).duplicate();
             thresholds[i] = getThreshold(cytoImage, UserVariables.isAutoThreshold(), UserVariables.getGreyThresh(), UserVariables.getThreshMethod());
             if (cytoImage != null) {
@@ -302,34 +346,44 @@ public class Analyse_Movie implements PlugIn {
             cellData[i].setCellRegions(allRegions[i]);
             cellData[i].setGreyThresholds(thresholds);
         }
-        dialog.dispose();
+        segDialog.dispose();
         /*
          * Analyse the dynamics of each cell, represented by a series of
          * detected regions.
          */
-        for (int index = 0; index < cellData.length; index++) {
-            /*
-             * Create child directory for current cell
-             */
-            String childDirName = GenUtils.openResultsDirectory(parDir + delimiter + index, delimiter);
-            int length = cellData[index].getLength();
-            if (length > UserVariables.getMinLength()) {
-                childDir = new File(childDirName);
-                buildOutput(index, length, false);
-                if (UserVariables.isAnalyseProtrusions()) {
-                    calcSigThresh(cellData[index]);
-                    findProtrusionsBasedOnVel(cellData[index]);
-                    correlativePlot(cellData[index]);
+        if (UserVariables.isGenVis()) {
+            ProgressDialog dialog = new ProgressDialog(null, "Generating individual outputs...", false, TITLE, false);
+            dialog.setVisible(true);
+            for (int index = 0; index < n; index++) {
+                /*
+                 * Create child directory for current cell
+                 */
+                dialog.updateProgress(index, n);
+                String childDirName = GenUtils.openResultsDirectory(parDir + delimiter + index, delimiter);
+                int length = cellData[index].getLength();
+                if (length > UserVariables.getMinLength()) {
+                    childDir = new File(childDirName);
+                    buildOutput(index, length, false);
+                    if (UserVariables.isAnalyseProtrusions()) {
+                        calcSigThresh(cellData[index]);
+                        findProtrusionsBasedOnVel(cellData[index]);
+                        correlativePlot(cellData[index]);
+                    }
                 }
             }
-        }
-        if (UserVariables.isGenVis()) {
+            dialog.dispose();
             velDirName = GenUtils.createDirectory(parDir + delimiter + "Velocity_Visualisation");
             curvDirName = GenUtils.createDirectory(parDir + delimiter + "Curvature_Visualisation");
-            trajDirName = GenUtils.createDirectory(parDir + delimiter + "Trajectories_Visualisation");
-            generateVisualisations(cellData);
-            generateCellTrajectories(cellData);
+            genCurveVelVis(cellData);
+        } else {
+            segDirName = GenUtils.createDirectory(parDir + delimiter + "Segmentation_Visualisation");
+            genSimpSegVis(cellData);
         }
+        if (UserVariables.isGetMorph()) {
+            getMorphologyData(cellData);
+        }
+        trajDirName = GenUtils.createDirectory(parDir + delimiter + "Trajectories_Visualisation");
+        generateCellTrajectories(cellData);
         File paramFile;
         PrintWriter paramStream;
         try {
@@ -411,12 +465,12 @@ public class Analyse_Movie implements PlugIn {
          * Analyse morphology of current cell in all frames and save results in
          * morphology.csv
          */
-        int upLength;
-        if (UserVariables.isGetMorph() || UserVariables.isAnalyseProtrusions()) {
-            upLength = getMorphologyData(cellData[index], allRegions, index, frames, preview);
-        } else {
-            upLength = getMaxBoundaryLength(cellData[index], allRegions, index);
-        }
+//        int upLength;
+//        if (UserVariables.isGetMorph() || UserVariables.isAnalyseProtrusions()) {
+//            upLength = getMorphologyData(cellData[index], allRegions, index, frames, preview);
+//        } else {
+        int upLength = getMaxBoundaryLength(cellData[index], allRegions, index);
+//        }
         MorphMap curveMap = new MorphMap(size, upLength);
         cellData[index].setCurveMap(curveMap);
         cellData[index].setScaleFactors(scaleFactors);
@@ -509,45 +563,40 @@ public class Analyse_Movie implements PlugIn {
         }
     }
 
-    int getMorphologyData(CellData cellData, Region[] allRegions, int index, int size, boolean preview) {
-        int maxBoundary = 0;
+    void getMorphologyData(CellData[] cellData) {
         int measures = Integer.MAX_VALUE;
         ResultsTable rt = Analyzer.getResultsTable();
         rt.reset();
-        int lengths[] = new int[size];
         Prefs.blackBackground = false;
-        for (int h = 0; h < size; h++) {
-            Region current = allRegions[h];
-            lengths[h] = (current.getBorderPix()).size();
-            if (lengths[h] > maxBoundary) {
-                maxBoundary = lengths[h];
-            }
-            if (!preview) {
-                double minArea = morphSizeMin / (Math.pow(UserVariables.getSpatialRes(), 2.0));
-                ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.SHOW_RESULTS,
-                        measures, rt, minArea, Double.POSITIVE_INFINITY);
-//                ArrayList<Pixel> centroids = current.getCentroids();
-//                Pixel centre = centroids.get(centroids.size() - 1);
-                ImagePlus maskImp = new ImagePlus(String.valueOf(index) + "_" + String.valueOf(h),
-                        current.getMask());
-                analyzer.analyze(maskImp);
-            }
+        double minArea = morphSizeMin / (Math.pow(UserVariables.getSpatialRes(), 2.0));
+        File morph;
+        PrintWriter morphStream = null;
+        try {
+            morph = new File(parDir.getAbsolutePath() + delimiter + "morphology.csv");
+            morphStream = new PrintWriter(new FileOutputStream(morph));
+        } catch (IOException e) {
+            IJ.error("Could not save morphological data file.");
         }
-        if (childDir != null && !preview) {
-            try {
-                File morph = new File(parDir.getAbsolutePath() + delimiter + "morphology.csv");
-                PrintWriter morphStream = new PrintWriter(new FileOutputStream(morph, true));
-                int N = rt.getCounter();
-                morphStream.println(rt.getColumnHeadings());
-                for (int i = 0; i < N; i++) {
-                    morphStream.println(rt.getRowAsString(i));
+        for (int index = 0; index < cellData.length; index++) {
+            int length = cellData[index].getLength();
+            if (length > UserVariables.getMinLength()) {
+                Region[] allRegions = cellData[index].getCellRegions();
+                for (int h = 0; h < length; h++) {
+                    Region current = allRegions[h];
+                    ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.SHOW_RESULTS,
+                            measures, rt, minArea, Double.POSITIVE_INFINITY);
+                    ImagePlus maskImp = new ImagePlus(String.valueOf(index) + "_" + String.valueOf(h),
+                            current.getMask());
+                    analyzer.analyze(maskImp);
+                    int N = rt.getCounter();
+                    morphStream.println(rt.getColumnHeadings());
+                    for (int i = 0; i < N; i++) {
+                        morphStream.println(rt.getRowAsString(i));
+                    }
                 }
-                morphStream.close();
-            } catch (IOException e) {
-                IJ.error("Could not save morphological data file.");
             }
         }
-        return maxBoundary;
+        morphStream.close();
     }
 
     int getMaxBoundaryLength(CellData cellData, Region[] allRegions, int index) {
@@ -601,16 +650,11 @@ public class Analyse_Movie implements PlugIn {
     void buildVelSigMaps(int index, Region[] allRegions, PrintWriter trajStream, PrintWriter segStream, CellData cellData, int total) {
         ImageStack cytoStack = stacks[0];
         ImageStack sigStack = stacks[1];
-        ProgressDialog dialog = new ProgressDialog(null,
-                "Initialising velocity map for cell " + String.valueOf(index + 1) + " of " + String.valueOf(total) + "...",
-                false, true, TITLE);
-        dialog.setVisible(true);
         MorphMap velMap = cellData.getVelMap();
         MorphMap sigMap = cellData.getSigMap();
         int width = velMap.getWidth();
         int height = velMap.getHeight();
         for (int i = 0; i < width; i++) {
-            dialog.updateProgress(i, width);
             Region current = allRegions[i];
             ArrayList<Pixel> centres = current.getCentres();
 //            int cl = centres.size();
@@ -659,19 +703,13 @@ public class Analyse_Movie implements PlugIn {
                 sigMap.addColumn(upX, upY, smz, i);
             }
         }
-        dialog.dispose();
     }
 
     private void buildCurveMap(Region[] allRegions, CellData cellData, int index, int total) {
-        ProgressDialog dialog = new ProgressDialog(null,
-                "Building curve map for cell " + String.valueOf(index + 1) + " of " + String.valueOf(total) + "...",
-                false, true, TITLE);
-        dialog.setVisible(true);
         MorphMap curveMap = cellData.getCurveMap();
         int width = curveMap.getWidth();
         int height = curveMap.getHeight();
         for (int i = 0; i < width; i++) {
-            dialog.updateProgress(i, width);
             Region current = allRegions[i];
             ArrayList<Pixel> centres = current.getCentres();
 //            int cl = centres.size();
@@ -701,14 +739,9 @@ public class Analyse_Movie implements PlugIn {
                     UserVariables.getMinCurveRange()), height, false), i);
             cellData.getScaleFactors()[i] = ((double) height) / vmPoints.length;
         }
-        dialog.dispose();
     }
 
     void generateMaps(double[][] smoothVelocities, CellData cellData, int index, int total) {
-        ProgressDialog dialog = new ProgressDialog(null,
-                "Generating maps for cell " + String.valueOf(index + 1) + " of " + String.valueOf(total) + "...",
-                false, true, TITLE);
-        dialog.setVisible(true);
         boolean sigNull = (cellData.getSigMap() == null);
         int l = smoothVelocities.length;
         MorphMap curveMap = cellData.getCurveMap();
@@ -724,7 +757,6 @@ public class Analyse_Movie implements PlugIn {
             greySigMap = cellData.getGreySigMap();
         }
         for (int i = 0; i < l; i++) {
-            dialog.updateProgress(i, l);
             for (int j = 0; j < upLength; j++) {
                 greyVelMap.putPixelValue(i, j, smoothVelocities[i][j]);
                 greyCurvMap.putPixelValue(i, j, curvatures[i][j]);
@@ -735,13 +767,12 @@ public class Analyse_Movie implements PlugIn {
                 }
             }
         }
-        dialog.dispose();
     }
 
-    void generateVisualisations(CellData cellDatas[]) {
+    void genCurveVelVis(CellData cellDatas[]) {
         int N = cellDatas.length;
         ImageStack cytoStack = stacks[0];
-        ProgressDialog dialog = new ProgressDialog(null, "Building Visualisations...", false, true, TITLE);
+        ProgressDialog dialog = new ProgressDialog(null, "Building Visualisations...", false, TITLE, false);
         dialog.setVisible(true);
         /*
          * Generate various visualisations for output
@@ -796,10 +827,51 @@ public class Analyse_Movie implements PlugIn {
         dialog.dispose();
     }
 
+    void genSimpSegVis(CellData cellDatas[]) {
+        int N = cellDatas.length;
+        ImageStack cytoStack = stacks[0];
+        ProgressDialog dialog = new ProgressDialog(null, "Building Visualisations...", false, TITLE, false);
+        dialog.setVisible(true);
+        /*
+         * Generate various visualisations for output
+         */
+        int width = cytoStack.getWidth();
+        int height = cytoStack.getHeight();
+        int stackSize = cytoStack.getSize();
+        for (int t = 0; t < stackSize; t++) {
+            dialog.updateProgress(t, stackSize);
+            ColorProcessor output = new ColorProcessor(width, height);
+            output.setColor(Color.black);
+            output.fill();
+            for (int n = 0; n < N; n++) {
+                int length = cellData[n].getLength();
+                if (length > t && length > UserVariables.getMinLength()) {
+                    Region[] allRegions = cellData[n].getCellRegions();
+                    Region current = allRegions[t];
+                    LinkedList<Pixel> border = current.getBorderPix();
+                    output.setColor(Color.yellow);
+                    for (int j = 0; j < border.size(); j++) {
+                        Pixel pix = border.get(j);
+                        output.drawDot(pix.getX(), pix.getY());
+                    }
+                    output.setColor(Color.white);
+                    ArrayList<Pixel> centres = current.getCentres();
+                    int cl = centres.size();
+                    int xc = (int) Math.round(centres.get(cl - 1).getX());
+                    int yc = (int) Math.round(centres.get(cl - 1).getY());
+                    output.fillOval(xc - 1, yc - 1, 3, 3);
+                    output.drawString(String.valueOf(n + 1), xc + 2, yc + 2);
+                }
+            }
+            IJ.saveAs((new ImagePlus("", output)), "PNG", segDirName.getAbsolutePath() + delimiter + numFormat.format(t));
+        }
+        dialog.dispose();
+    }
+
     void generateCellTrajectories(CellData cellDatas[]) {
         int N = cellDatas.length;
         ImageStack cytoStack = stacks[0];
-        ProgressDialog dialog = new ProgressDialog(null, "Building Cell Trajectories...", false, true, TITLE);
+        ProgressDialog dialog = new ProgressDialog(null, "Building Cell Trajectories...", false, TITLE, false);
         dialog.setVisible(true);
         /*
          * Generate various visualisations for output
@@ -1099,7 +1171,7 @@ public class Analyse_Movie implements PlugIn {
             singleImageRegions.add(region);
             outVal++;
         }
-        IJ.saveAs(new ImagePlus("", indexedRegions), "PNG", "C:/users/barry05/desktop/indexedRegions.png");
+//        IJ.saveAs(new ImagePlus("", indexedRegions), "PNG", "C:/users/barry05/desktop/indexedRegions.png");
         intermediate = singleImageRegions.size() + 1;
         terminal = intermediate + 1;
         /*
@@ -1626,7 +1698,7 @@ public class Analyse_Movie implements PlugIn {
         File plotDataDir = GenUtils.createDirectory(childDir + delimiter + "Bleb_Data_Files");
         File detectDir = GenUtils.createDirectory(childDir + delimiter + "Detection_Visualisation");
         File mapDir = GenUtils.createDirectory(childDir + delimiter + "Bleb_Signal_Maps");
-        ProgressDialog dialog = new ProgressDialog(null, "Plotting Data...", false, true, TITLE);
+        ProgressDialog dialog = new ProgressDialog(null, "Plotting Data...", false, TITLE, false);
         dialog.setVisible(true);
         ImageStack detectionStack = new ImageStack(stacks[0].getWidth(),
                 stacks[0].getHeight());

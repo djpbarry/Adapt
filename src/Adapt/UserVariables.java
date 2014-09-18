@@ -25,7 +25,7 @@ import ij.process.AutoThresholder;
 public class UserVariables {
 
     private static double greyThresh = 0.95; // user-specified grey-level threshold used in conditional region dilation
-    private static boolean genVis = true;
+    private static boolean genVis = false;
     private static final double blebDurThresh = 0.0; // minimum duration (in frames) of bleb to be considered in analysis
     private static int minCurveRange = 10;
     private static int maxCurveRange = 10;
@@ -33,26 +33,26 @@ public class UserVariables {
     private static double spatialRes = 1.0; //timeRes in frames/minute, spatialRes in microns/pixel;
     private static double cutOffTime = 120.0;
     private static double cortexDepth = 0.6;
-    private static boolean autoThreshold = false; // User-specifed threshold is used if set to false
+    private static boolean autoThreshold = true; // User-specifed threshold is used if set to false
     private static double tempFiltRad = 240.0; // radius of Gaussian filters used to smooth velocity and signal maps
     private static double sigThreshFact = 0.0;
     private static double spatFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
-    private static int erosion = 4;
-    private static boolean getMorph = false;
-    private static double timeRes = 0.25; // temporal resolution in frames per minute
+    private static int erosion = 2;
+    private static boolean getMorph = true;
+    private static double timeRes = 0.2; // temporal resolution in frames per minute
     private static final double blebLenThresh = 0.0; // minimum normalised length of bleb to be considered in analysis
     private static double minCurveThresh = 20.0;
     private static double maxCurveThresh = 20.0;
     private static boolean analyseProtrusions = false;
     private static double sigRecoveryThresh = 0.25;
     private static double gaussRad = 1.0;
-    private static double initGaussRad = 2.0;
+    private static double initGaussRad = 1.0;
     private static final boolean usedSmoothedVels = true;
     private static final int ovalRadius = 2;
     private static boolean simple = true;
     private static double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
     private static int minLength = 10;
-    private static String threshMethod =AutoThresholder.Method.Default.toString();
+    private static String threshMethod =AutoThresholder.Method.Triangle.toString();
 
     /**
      * Get the radius of circles drawn on bleb detection output movies
