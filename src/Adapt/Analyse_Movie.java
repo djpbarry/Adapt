@@ -82,13 +82,13 @@ import ui.GUI;
 public class Analyse_Movie implements PlugIn {
 
     private final double scaleFactor = 60.0 / 216.0;
-    private static File directory, // root directory
+    protected static File directory, // root directory
             childDir, // root output directory
             parDir, // output directory for each cell
             velDirName, curvDirName, trajDirName, segDirName;
     private int intermediate, terminal;
-    private String TITLE = StaticVariables.TITLE;
-    private final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
+    protected String TITLE = StaticVariables.TITLE;
+    protected final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
     private String channelLabels[] = {"Cytoplasmic channel", "Signal to be correlated"};
     /**
      * Determines the format of printed results
@@ -96,9 +96,9 @@ public class Analyse_Movie implements PlugIn {
     protected DecimalFormat numFormat = StaticVariables.numFormat; // For formatting results
     private PointRoi roi = null; // Points used as seeds for cell detection
     private CellData cellData[];
-    private final ImageStack stacks[] = new ImageStack[2];
+    protected final ImageStack stacks[] = new ImageStack[2];
     private double morphSizeMin = 5.0;
-    private boolean batchMode = false;
+    protected boolean batchMode = false;
 
 //    public static void main(String args[]) {
 //        Analyse_Movie am = new Analyse_Movie();
@@ -106,12 +106,6 @@ public class Analyse_Movie implements PlugIn {
 //        am.run(null);
 //        System.exit(0);
 //    }
-//    public static void main(String args[]) {
-//        Analyse_Movie am = new Analyse_Movie();
-//        am.batchInitialise(Utilities.getFolder(directory, null));
-//        System.exit(0);
-//    }
-
     /**
      * Default constructor
      */
@@ -155,34 +149,6 @@ public class Analyse_Movie implements PlugIn {
         stacks[1] = sigStack;
     }
 
-    void batchInitialise(File inputDir) {
-        batchMode = true;
-        File cytoImageFiles[] = (new File(inputDir.getPath() + delimiter + StaticVariables.CYTO)).listFiles(); // Obtain file list
-        int cytoSize = cytoImageFiles.length;
-        File sigImageFiles[] = (new File(inputDir.getPath() + delimiter + StaticVariables.SIG)).listFiles(); // Obtain file list
-        int sigSize = sigImageFiles.length;
-        Arrays.sort(cytoImageFiles);
-        Arrays.sort(sigImageFiles);
-        int numFiles = cytoImageFiles.length;
-        directory = inputDir;
-        for (int f = 0; f < numFiles; f++) {
-            ImagePlus cytoImp = new ImagePlus(cytoImageFiles[f].getAbsolutePath());
-            ImageStack cytoStack = cytoImp.getImageStack();
-            if (cytoStack != null) {
-                ImageStack sigStack;
-                if (cytoSize == sigSize) {
-                    ImagePlus sigImp = new ImagePlus(sigImageFiles[f].getAbsolutePath());
-                    sigStack = sigImp.getImageStack();
-                } else {
-                    sigStack = null;
-                }
-                stacks[0] = cytoStack;
-                stacks[1] = sigStack;
-                run(cytoImageFiles[f].getAbsolutePath());
-            }
-        }
-    }
-
     /**
      * Opens GUIs for user to specify directory for output then runs analysis
      *
@@ -206,10 +172,10 @@ public class Analyse_Movie implements PlugIn {
         IJ.showStatus(TITLE + " done.");
     }
 
-    private void analyse(String imageName) {
+    protected void analyse(String imageName) {
         int cytoSize, sigSize;
         ImageStack cytoStack;
-        if (IJ.getInstance() == null) {
+        if (IJ.getInstance() == null || batchMode) {
             cytoStack = stacks[0];
             cytoSize = cytoStack.getSize();
         } else {
