@@ -5,7 +5,6 @@
  */
 package Adapt;
 
-import static Adapt.Analyse_Movie.directory;
 import UtilClasses.Utilities;
 import ij.IJ;
 import ij.ImagePlus;
@@ -21,12 +20,13 @@ import ui.GUI;
 public class Analyse_Batch extends Analyse_Movie {
 
     private boolean showGUI = true;
-
+//
 //    public static void main(String args[]) {
 //        Analyse_Batch am = new Analyse_Batch();
 //        am.run(null);
 //        System.exit(0);
 //    }
+    
     public Analyse_Batch() {
         super();
     }

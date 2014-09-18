@@ -89,7 +89,7 @@ public class Analyse_Movie implements PlugIn {
     private int intermediate, terminal;
     protected String TITLE = StaticVariables.TITLE;
     protected final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
-    private String channelLabels[] = {"Cytoplasmic channel", "Signal to be correlated"};
+    private final String channelLabels[] = {"Cytoplasmic channel", "Signal to be correlated"};
     /**
      * Determines the format of printed results
      */
@@ -97,7 +97,7 @@ public class Analyse_Movie implements PlugIn {
     private PointRoi roi = null; // Points used as seeds for cell detection
     private CellData cellData[];
     protected final ImageStack stacks[] = new ImageStack[2];
-    private double morphSizeMin = 5.0;
+    private final double morphSizeMin = 5.0;
     protected boolean batchMode = false;
 
 //    public static void main(String args[]) {
@@ -368,7 +368,7 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-//        initP.add(new Pixel(200, 200));
+//        initP.add(new Pixel(256, 256));
 //        initP.add(new Pixel(40, 40));
         int n;
 //        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
@@ -566,7 +566,7 @@ public class Analyse_Movie implements PlugIn {
     }
 
     int getMaxBoundaryLength(CellData cellData, Region[] allRegions, int index) {
-        int size = cellData.getLength();
+        int size = allRegions.length;
         int maxBoundary = 0;
         for (int h = 0; h < size; h++) {
             Region current = allRegions[h];
@@ -719,7 +719,7 @@ public class Analyse_Movie implements PlugIn {
         double curvatures[][] = curveMap.smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());
         double sigchanges[][] = null;
         if (!sigNull) {
-            sigchanges = cellData.getSigMap().smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());;
+            sigchanges = cellData.getSigMap().smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());
             greySigMap = cellData.getGreySigMap();
         }
         for (int i = 0; i < l; i++) {
@@ -816,10 +816,9 @@ public class Analyse_Movie implements PlugIn {
                     Region current = allRegions[t];
                     LinkedList<Pixel> border = current.getBorderPix();
                     output.setColor(Color.yellow);
-                    for (int j = 0; j < border.size(); j++) {
-                        Pixel pix = border.get(j);
+                    border.stream().forEach((pix) -> {
                         output.drawDot(pix.getX(), pix.getY());
-                    }
+                    });
                     output.setColor(Color.white);
                     ArrayList<Pixel> centres = current.getCentres();
                     int cl = centres.size();
@@ -1865,11 +1864,11 @@ public class Analyse_Movie implements PlugIn {
                             regionsOutput[i].drawDot(sCurrent.getX(), sCurrent.getY());
                         }
                     }
-                    for (Pixel eCurrent : enlargedBorder) {
+                    enlargedBorder.stream().forEach((eCurrent) -> {
                         for (int i = 0; i < channels; i++) {
                             regionsOutput[i].drawDot(eCurrent.getX(), eCurrent.getY());
                         }
-                    }
+                    });
                 }
                 if (UserVariables.isAnalyseProtrusions()) {
                     ArrayList<BoundaryPixel> minPos[] = cellData[r].getCurvatureMinima();
