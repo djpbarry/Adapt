@@ -368,7 +368,7 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-//        initP.add(new Pixel(256, 256));
+//        initP.add(new Pixel(128, 128));
 //        initP.add(new Pixel(40, 40));
         int n;
 //        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
@@ -1649,12 +1649,14 @@ public class Analyse_Movie implements PlugIn {
      * sigrois and velrois.
      */
     void correlativePlot(CellData cellData) {
-        double minBlebDuration = UserVariables.getMinCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
-        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, minBlebDuration, true, UserVariables.getMinCurveThresh(), UserVariables.getMinCurveRange()));
+//        double minBlebDuration = UserVariables.getMinCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
+        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, 0.0, true, UserVariables.getMinCurveThresh(), UserVariables.getMinCurveRange()));
+        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, 0.0, false, UserVariables.getMaxCurveThresh(), UserVariables.getMaxCurveRange()));
 //        ArrayList<Bleb> blebs = new ArrayList();
 //        CurveMapAnalyser.findAllBlebs(blebs, cellData);
 //        IJ.saveAs(new ImagePlus("", CurveMapAnalyser.drawAllBlebs(cellData, blebs, stacks[0])), "TIF", "c:\\users\\barry05\\desktop\\allblebs.tif");
-//        CurveMapAnalyser.drawAllMinima(cellData, timeRes, spatialRes, stacks[0], 1, stacks[0].getSize() - 1, minBlebDuration);
+//        CurveMapAnalyser.drawAllExtrema(cellData, UserVariables.getTimeRes(), UserVariables.getSpatialRes(),
+//                stacks[0], 1, stacks[0].getSize() - 1, 0.0);
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
         cellData.getGreyVelMap().resetRoi();
         cellData.setVelMapWithDetections(velMapWithDetections);

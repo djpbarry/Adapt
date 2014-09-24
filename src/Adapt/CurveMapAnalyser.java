@@ -24,6 +24,12 @@ import ParticleTracking.Particle;
 import ParticleTracking.ParticleArray;
 import ParticleTracking.ParticleTrajectory;
 import ParticleTracking.Timelapse_Analysis;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.process.ImageProcessor;
+import ij.process.TypeConverter;
+import java.awt.Color;
 import java.util.ArrayList;
 
 /**
@@ -131,10 +137,10 @@ public class CurveMapAnalyser {
             int cSize = currentTraj.getSize();
             if (!(cSize < minDuration)) {
                 Particle currentParticle = currentTraj.getEnd();
-                int lastFrame = currentParticle.getTimePoint();
+                int lastFrame = currentParticle.getTimePoint() + 1;
                 while (currentParticle != null) {
                     int frame = currentParticle.getTimePoint();
-                    for (int k = lastFrame; k >= frame; k--) {
+                    for (int k = lastFrame - 1; k >= frame; k--) {
                         int currentIndex = k - startFrame;
                         if (extPos[currentIndex] == null) {
                             extPos[currentIndex] = new ArrayList<BoundaryPixel>();
@@ -155,31 +161,44 @@ public class CurveMapAnalyser {
     public static int calcScaledCurveRange(double curveRange, double scaleFactor) {
         return (int) Math.round(curveRange * scaleFactor * curveSearchRangeFactor);
     }
-//    public static void drawAllMinima(CellData cellData, double timeRes, double spatialRes, ImageStack cytoStack, int startFrame, int endFrame, double minDuration) {
-//        ImageStack detectionStack = new ImageStack(cytoStack.getWidth(), cytoStack.getHeight());
-//        int tLength = 1 + endFrame - startFrame;
-//        MorphMap curveMap = cellData.getCurveMap();
-//        double[][] xvals = curveMap.getxCoords();
-//        double[][] yvals = curveMap.getyCoords();
-//        ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
-//        for (int i = 0; i < tLength; i++) {
-//            ImageProcessor detectionSlice = (new TypeConverter(cytoStack.getProcessor(i + 1), true)).convertToRGB();
-//            detectionSlice.setLineWidth(8);
-//            detectionSlice.setColor(Color.white);
-//            if (minPos[i] != null) {
-//                int mpSize = minPos[i].size();
-//                for (int j = 0; j < mpSize; j++) {
-//                    BoundaryPixel currentPos = minPos[i].get(j);
-//                    int pos = currentPos.getPos();
-//                    int x = (int) Math.round(xvals[i][pos]);
-//                    int y = (int) Math.round(yvals[i][pos]);
-//                    detectionSlice.drawString("" + currentPos.getID(), x, y);
-//                }
-//            }
-//            detectionStack.addSlice("", detectionSlice);
-//        }
-//        IJ.saveAs(new ImagePlus("", detectionStack), "TIF", "C:/users/barry05/desktop/AllDetections.tif");
-//    }
+
+    public static void drawAllExtrema(CellData cellData, double timeRes, double spatialRes, ImageStack cytoStack, int startFrame, int endFrame, double minDuration) {
+        ImageStack detectionStack = new ImageStack(cytoStack.getWidth(), cytoStack.getHeight());
+        int tLength = 1 + endFrame - startFrame;
+        MorphMap curveMap = cellData.getCurveMap();
+        double[][] xvals = curveMap.getxCoords();
+        double[][] yvals = curveMap.getyCoords();
+        ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
+        ArrayList<BoundaryPixel> maxPos[] = cellData.getCurvatureMaxima();
+        for (int i = 0; i < tLength; i++) {
+            ImageProcessor detectionSlice = (new TypeConverter(cytoStack.getProcessor(i + 1), true)).convertToRGB();
+            detectionSlice.setLineWidth(8);
+            if (minPos[i] != null) {
+                int mpSize = minPos[i].size();
+                detectionSlice.setColor(Color.yellow);
+                for (int j = 0; j < mpSize; j++) {
+                    BoundaryPixel currentMin = minPos[i].get(j);
+                    int pos = currentMin.getPos();
+                    int x = (int) Math.round(xvals[i][pos]);
+                    int y = (int) Math.round(yvals[i][pos]);
+                    detectionSlice.drawString("" + currentMin.getID(), x, y);
+                }
+            }
+            if (maxPos[i] != null) {
+                int mpSize = maxPos[i].size();
+                detectionSlice.setColor(Color.magenta);
+                for (int j = 0; j < mpSize; j++) {
+                    BoundaryPixel currentMax = maxPos[i].get(j);
+                    int pos = currentMax.getPos();
+                    int x = (int) Math.round(xvals[i][pos]);
+                    int y = (int) Math.round(yvals[i][pos]);
+                    detectionSlice.drawString("" + currentMax.getID(), x, y);
+                }
+            }
+            detectionStack.addSlice("", detectionSlice);
+        }
+        IJ.saveAs(new ImagePlus("", detectionStack), "TIF", "C:/users/barry05/desktop/AllDetections.tif");
+    }
 
     private static void findNearestMinTraj(int time, int anchor[], int maxRange, CellData cellData) {
         ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
