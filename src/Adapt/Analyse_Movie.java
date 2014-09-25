@@ -97,7 +97,7 @@ public class Analyse_Movie implements PlugIn {
     private PointRoi roi = null; // Points used as seeds for cell detection
     private CellData cellData[];
     protected final ImageStack stacks[] = new ImageStack[2];
-    private final double morphSizeMin = 5.0;
+    private final double morphSizeMin = 5.0, trajMin = 10.0;
     protected boolean batchMode = false;
 
 //    public static void main(String args[]) {
@@ -228,11 +228,7 @@ public class Analyse_Movie implements PlugIn {
         /*
          Convert cyto channel to 8-bit for faster segmentation
          */
-        ImagePlus tempCytoImp = new ImagePlus("", stacks[0]);
-        StackConverter sc = new StackConverter(tempCytoImp);
-        sc.convertToGray8();
-        stacks[0] = tempCytoImp.getImageStack();
-        cytoStack = stacks[0];
+        cytoStack = convertStackTo8Bit(stacks[0]);
 
         if (!batchMode) {
             GUI gui = new GUI(null, true, TITLE, stacks, this);
@@ -380,7 +376,7 @@ public class Analyse_Movie implements PlugIn {
                 return -1;
             }
         } else {
-            getInitialSeedPoints((ByteProcessor) stacks[0].getProcessor(slice), initP);
+            getInitialSeedPoints((ByteProcessor)convertStackTo8Bit(stacks[0]).getProcessor(slice), initP);
             n = initP.size();
 //            n = 1;
         }
@@ -1650,8 +1646,8 @@ public class Analyse_Movie implements PlugIn {
      */
     void correlativePlot(CellData cellData) {
 //        double minBlebDuration = UserVariables.getMinCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
-        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, 0.0, true, UserVariables.getMinCurveThresh(), UserVariables.getMinCurveRange()));
-        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, 0.0, false, UserVariables.getMaxCurveThresh(), UserVariables.getMaxCurveRange()));
+        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, trajMin, true, UserVariables.getMinCurveThresh(), UserVariables.getMinCurveRange()));
+        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, trajMin, false, UserVariables.getMaxCurveThresh(), UserVariables.getMaxCurveRange()));
 //        ArrayList<Bleb> blebs = new ArrayList();
 //        CurveMapAnalyser.findAllBlebs(blebs, cellData);
 //        IJ.saveAs(new ImagePlus("", CurveMapAnalyser.drawAllBlebs(cellData, blebs, stacks[0])), "TIF", "c:\\users\\barry05\\desktop\\allblebs.tif");
@@ -1796,7 +1792,7 @@ public class Analyse_Movie implements PlugIn {
      */
     public ImageProcessor[] generatePreview(int sliceIndex) {
         int nCell = initialiseROIs(sliceIndex);
-        ImageProcessor cytoProc = stacks[0].getProcessor(sliceIndex);
+        ImageProcessor cytoProc = convertStackTo8Bit(stacks[0]).getProcessor(sliceIndex);
         Region[][] allRegions = new Region[nCell][1];
         int threshold = getThreshold(cytoProc, UserVariables.isAutoThreshold(), UserVariables.getGreyThresh(), UserVariables.getThreshMethod());
         ArrayList<Region> detectedRegions = findCellRegions(cytoProc, threshold, cellData);
@@ -1944,5 +1940,12 @@ public class Analyse_Movie implements PlugIn {
         } else {
             return (int) Math.round(Utils.getPercentileThresh(image, thresh));
         }
+    }
+
+    ImageStack convertStackTo8Bit(ImageStack stack) {
+        ImagePlus tempCytoImp = new ImagePlus("", stack.duplicate());
+        StackConverter sc = new StackConverter(tempCytoImp);
+        sc.convertToGray8();
+        return tempCytoImp.getImageStack();
     }
 }

@@ -181,7 +181,7 @@ public class CurveMapAnalyser {
                     int pos = currentMin.getPos();
                     int x = (int) Math.round(xvals[i][pos]);
                     int y = (int) Math.round(yvals[i][pos]);
-                    detectionSlice.drawString("" + currentMin.getID(), x, y);
+                    detectionSlice.drawDot(x, y);
                 }
             }
             if (maxPos[i] != null) {
@@ -192,7 +192,7 @@ public class CurveMapAnalyser {
                     int pos = currentMax.getPos();
                     int x = (int) Math.round(xvals[i][pos]);
                     int y = (int) Math.round(yvals[i][pos]);
-                    detectionSlice.drawString("" + currentMax.getID(), x, y);
+                    detectionSlice.drawDot(x, y);
                 }
             }
             detectionStack.addSlice("", detectionSlice);

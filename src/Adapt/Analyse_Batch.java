@@ -67,7 +67,7 @@ public class Analyse_Batch extends Analyse_Movie {
                         return;
                     }
                 }
-                analyse(arg);
+                analyse(cytoImageFiles[f].getName());
                 IJ.showStatus(TITLE + " done.");
             }
         }
