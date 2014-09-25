@@ -51,6 +51,7 @@ import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 import ij.process.StackConverter;
+import ij.process.StackProcessor;
 import ij.process.TypeConverter;
 import java.awt.Color;
 import java.awt.Font;
@@ -376,7 +377,7 @@ public class Analyse_Movie implements PlugIn {
                 return -1;
             }
         } else {
-            getInitialSeedPoints((ByteProcessor)convertStackTo8Bit(stacks[0]).getProcessor(slice), initP);
+            getInitialSeedPoints((ByteProcessor) convertStackTo8Bit(stacks[0]).getProcessor(slice), initP);
             n = initP.size();
 //            n = 1;
         }
@@ -812,9 +813,11 @@ public class Analyse_Movie implements PlugIn {
                     Region current = allRegions[t];
                     LinkedList<Pixel> border = current.getBorderPix();
                     output.setColor(Color.yellow);
-                    border.stream().forEach((pix) -> {
+                    int bsize = border.size();
+                    for (int i = 0; i < bsize; i++) {
+                        Pixel pix = border.get(i);
                         output.drawDot(pix.getX(), pix.getY());
-                    });
+                    }
                     output.setColor(Color.white);
                     ArrayList<Pixel> centres = current.getCentres();
                     int cl = centres.size();
@@ -1862,11 +1865,11 @@ public class Analyse_Movie implements PlugIn {
                             regionsOutput[i].drawDot(sCurrent.getX(), sCurrent.getY());
                         }
                     }
-                    enlargedBorder.stream().forEach((eCurrent) -> {
-                        for (int i = 0; i < channels; i++) {
-                            regionsOutput[i].drawDot(eCurrent.getX(), eCurrent.getY());
-                        }
-                    });
+                    int esize = enlargedBorder.size();
+                    for (int eb = 0; eb < esize; eb++) {
+                        Pixel eCurrent = enlargedBorder.get(eb);
+                        regionsOutput[eb].drawDot(eCurrent.getX(), eCurrent.getY());
+                    }
                 }
                 if (UserVariables.isAnalyseProtrusions()) {
                     ArrayList<BoundaryPixel> minPos[] = cellData[r].getCurvatureMinima();
@@ -1943,7 +1946,12 @@ public class Analyse_Movie implements PlugIn {
     }
 
     ImageStack convertStackTo8Bit(ImageStack stack) {
-        ImagePlus tempCytoImp = new ImagePlus("", stack.duplicate());
+        ImageStack tempStack = new ImageStack(stack.getWidth(), stack.getHeight());
+        int size = stack.getSize();
+        for (int i = 1; i <= size; i++) {
+            tempStack.addSlice(stack.getProcessor(i).duplicate());
+        }
+        ImagePlus tempCytoImp = new ImagePlus("", tempStack);
         StackConverter sc = new StackConverter(tempCytoImp);
         sc.convertToGray8();
         return tempCytoImp.getImageStack();
