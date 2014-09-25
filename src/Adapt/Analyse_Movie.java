@@ -116,7 +116,7 @@ public class Analyse_Movie implements PlugIn {
      * For debugging - images loaded from file
      */
     void initialise() {
-        directory = Utilities.getFolder(directory, null);
+        directory = Utilities.getFolder(directory, null, true);
         if (directory == null) {
             return;
         }
@@ -163,7 +163,7 @@ public class Analyse_Movie implements PlugIn {
             return;
         }
         if (!batchMode) {
-            directory = Utilities.getFolder(directory, "Specify directory for output files..."); // Specify directory for output
+            directory = Utilities.getFolder(directory, "Specify directory for output files...", true); // Specify directory for output
         }
         if (directory == null) {
             return;

@@ -21,12 +21,13 @@ public class Analyse_Batch extends Analyse_Movie {
 
     private boolean showGUI = true;
 //
+
 //    public static void main(String args[]) {
 //        Analyse_Batch am = new Analyse_Batch();
 //        am.run(null);
 //        System.exit(0);
 //    }
-    
+
     public Analyse_Batch() {
         super();
     }
@@ -34,19 +35,25 @@ public class Analyse_Batch extends Analyse_Movie {
     public void run(String arg) {
         Utilities.setLookAndFeel(GUI.class);
         TITLE = TITLE + "_v" + StaticVariables.VERSION + "." + numFormat.format(Revision.Revision.revisionNumber);
-        directory = Utilities.getFolder(directory, null);
+        directory = Utilities.getFolder(directory, "Select directory for reference channel", true);
         if (directory == null) {
             return;
         }
         batchMode = true;
-        File cytoImageFiles[] = (new File(directory.getPath() + delimiter + StaticVariables.CYTO)).listFiles(); // Obtain file list
+        File cytoImageFiles[] = directory.listFiles(); // Obtain file list
         int cytoSize = cytoImageFiles.length;
-        File sigImageFiles[] = (new File(directory.getPath() + delimiter + StaticVariables.SIG)).listFiles(); // Obtain file list
-        int sigSize = sigImageFiles.length;
+        File sigImageFiles[] = null;
+        File secondChannel = Utilities.getFolder(directory, "Select directory for second channel", false);
+        int sigSize = 0;
+        if (secondChannel != null) {
+            sigImageFiles = secondChannel.listFiles();
+            sigSize = sigImageFiles.length;
+        }
         Arrays.sort(cytoImageFiles);
-        Arrays.sort(sigImageFiles);
-        int numFiles = cytoImageFiles.length;
-        for (int f = 0; f < numFiles; f++) {
+        if (sigImageFiles != null) {
+            Arrays.sort(sigImageFiles);
+        }
+        for (int f = 0; f < cytoSize; f++) {
             ImagePlus cytoImp = new ImagePlus(cytoImageFiles[f].getAbsolutePath());
             ImageStack cytoStack = cytoImp.getImageStack();
             if (cytoStack != null) {
