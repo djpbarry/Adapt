@@ -50,27 +50,31 @@ public class Analyse_Batch extends Analyse_Movie {
         for (int f = 0; f < cytoSize; f++) {
             ImagePlus cytoImp = new ImagePlus(cytoImageFiles[f].getAbsolutePath());
             ImageStack cytoStack = cytoImp.getImageStack();
-            if (cytoStack != null) {
-                ImageStack sigStack;
-                if (cytoSize == sigSize) {
-                    ImagePlus sigImp = new ImagePlus(sigImageFiles[f].getAbsolutePath());
-                    sigStack = sigImp.getImageStack();
-                } else {
-                    sigStack = null;
-                }
-                stacks[0] = cytoStack;
-                stacks[1] = sigStack;
-                if (showGUI) {
-                    showGUI = false;
-                    GUI gui = new GUI(null, true, TITLE, stacks, this);
-                    gui.setVisible(true);
-                    if (!gui.isWasOKed()) {
-                        return;
+            if (cytoStack != null && cytoStack.getSize() > 0) {
+                try {
+                    ImageStack sigStack;
+                    if (cytoSize == sigSize) {
+                        ImagePlus sigImp = new ImagePlus(sigImageFiles[f].getAbsolutePath());
+                        sigStack = sigImp.getImageStack();
+                    } else {
+                        sigStack = null;
                     }
+                    stacks[0] = cytoStack;
+                    stacks[1] = sigStack;
+                    if (showGUI) {
+                        showGUI = false;
+                        GUI gui = new GUI(null, true, TITLE, stacks, this);
+                        gui.setVisible(true);
+                        if (!gui.isWasOKed()) {
+                            return;
+                        }
+                    }
+                    analyse(cytoImageFiles[f].getName());
+                } catch (Exception e) {
+                    IJ.log("Failed to analyse " + cytoImageFiles[f].getName());
                 }
-                analyse(cytoImageFiles[f].getName());
-                IJ.showStatus(TITLE + " done.");
             }
         }
+        IJ.showStatus(TITLE + " done.");
     }
 }
