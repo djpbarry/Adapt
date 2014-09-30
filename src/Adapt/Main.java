@@ -11,8 +11,15 @@ package Adapt;
  */
 public class Main {
 
+//    public static void main(String args[]) {
+//        Analyse_Batch am = new Analyse_Batch();
+//        am.run(null);
+//        System.exit(0);
+//    }
+    
     public static void main(String args[]) {
-        Analyse_Batch am = new Analyse_Batch();
+        Analyse_Movie am = new Analyse_Movie();
+        am.initialise();
         am.run(null);
         System.exit(0);
     }

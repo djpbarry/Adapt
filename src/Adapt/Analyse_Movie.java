@@ -51,7 +51,6 @@ import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 import ij.process.StackConverter;
-import ij.process.StackProcessor;
 import ij.process.TypeConverter;
 import java.awt.Color;
 import java.awt.Font;
@@ -101,12 +100,6 @@ public class Analyse_Movie implements PlugIn {
     private final double morphSizeMin = 5.0, trajMin = 10.0;
     protected boolean batchMode = false;
 
-//    public static void main(String args[]) {
-//        Analyse_Movie am = new Analyse_Movie();
-//        am.initialise();
-//        am.run(null);
-//        System.exit(0);
-//    }
     /**
      * Default constructor
      */
@@ -365,7 +358,7 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-//        initP.add(new Pixel(128, 128));
+//        initP.add(new Pixel(256, 256));
 //        initP.add(new Pixel(40, 40));
         int n;
 //        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
@@ -551,19 +544,19 @@ public class Analyse_Movie implements PlugIn {
                     ImagePlus maskImp = new ImagePlus(String.valueOf(index) + "_" + String.valueOf(h),
                             current.getMask());
                     analyzer.analyze(maskImp);
-                    int N = rt.getCounter();
-                    morphStream.println(rt.getColumnHeadings());
-                    for (int i = 0; i < N; i++) {
-                        morphStream.println(rt.getRowAsString(i));
-                    }
                 }
             }
+        }
+        int N = rt.getCounter();
+        morphStream.println(rt.getColumnHeadings());
+        for (int i = 0; i < N; i++) {
+            morphStream.println(rt.getRowAsString(i));
         }
         morphStream.close();
     }
 
     int getMaxBoundaryLength(CellData cellData, Region[] allRegions, int index) {
-        int size = allRegions.length;
+        int size = cellData.getLength();
         int maxBoundary = 0;
         for (int h = 0; h < size; h++) {
             Region current = allRegions[h];
@@ -1671,7 +1664,9 @@ public class Analyse_Movie implements PlugIn {
         for (int s = 0; s < stacks[0].getSize(); s++) {
             ColorProcessor detectionSlice = new ColorProcessor(detectionStack.getWidth(), detectionStack.getHeight());
             detectionSlice.setChannel(1, (ByteProcessor) ((new TypeConverter(stacks[0].getProcessor(s + 1), true)).convertToByte()));
-            detectionSlice.setChannel(2, (ByteProcessor) ((new TypeConverter(stacks[1].getProcessor(s + 1), true)).convertToByte()));
+            if (stacks[1] != null) {
+                detectionSlice.setChannel(2, (ByteProcessor) ((new TypeConverter(stacks[1].getProcessor(s + 1), true)).convertToByte()));
+            }
             detectionStack.addSlice(detectionSlice);
         }
         /*
@@ -1699,7 +1694,7 @@ public class Analyse_Movie implements PlugIn {
                     currentBleb.setSumSig(sumSig);
                     currentBleb.setPolys(new ArrayList<Polygon>());
                     currentBleb.setBlebPerimSigs(new ArrayList<ArrayList<Double>>());
-                    if (BlebAnalyser.extractAreaSignalData(currentBleb, cellData,
+                    if (stacks[1] != null && BlebAnalyser.extractAreaSignalData(currentBleb, cellData,
                             count, stacks)) {
                         generateDetectionStack(currentBleb, count);
                         /*
@@ -1866,9 +1861,11 @@ public class Analyse_Movie implements PlugIn {
                         }
                     }
                     int esize = enlargedBorder.size();
-                    for (int eb = 0; eb < esize; eb++) {
-                        Pixel eCurrent = enlargedBorder.get(eb);
-                        regionsOutput[eb].drawDot(eCurrent.getX(), eCurrent.getY());
+                    for (int i = 0; i < channels; i++) {
+                        for (int eb = 0; eb < esize; eb++) {
+                            Pixel eCurrent = enlargedBorder.get(eb);
+                            regionsOutput[i].drawDot(eCurrent.getX(), eCurrent.getY());
+                        }
                     }
                 }
                 if (UserVariables.isAnalyseProtrusions()) {
