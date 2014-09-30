@@ -322,7 +322,7 @@ public class Analyse_Movie implements PlugIn {
                     buildOutput(index, length, false);
                     if (UserVariables.isAnalyseProtrusions()) {
                         calcSigThresh(cellData[index]);
-                        findProtrusionsBasedOnVel(cellData[index]);
+                        findProtrusionsBasedOnCurve(cellData[index]);
                         correlativePlot(cellData[index]);
                     }
                 }
@@ -358,7 +358,7 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-//        initP.add(new Pixel(256, 256));
+        initP.add(new Pixel(256, 256));
 //        initP.add(new Pixel(40, 40));
         int n;
 //        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
@@ -371,8 +371,8 @@ public class Analyse_Movie implements PlugIn {
             }
         } else {
             getInitialSeedPoints((ByteProcessor) convertStackTo8Bit(stacks[0]).getProcessor(slice), initP);
-            n = initP.size();
-//            n = 1;
+//            n = initP.size();
+            n = 1;
         }
         cellData = new CellData[n];
         for (int i = 0; i < n; i++) {
@@ -1029,7 +1029,7 @@ public class Analyse_Movie implements PlugIn {
                         int y = pix.getPos();
                         int hh = CurveMapAnalyser.calcScaledCurveRange(UserVariables.getMaxCurveRange(),
                                 cellData.getScaleFactors()[x]);
-                        rois.add(new Roi(x, y - hh, 1, y + 2 * hh + 1));
+                        rois.add(new Roi(x, y - hh, 1, 2 * hh + 1));
                     }
                 }
             }
@@ -1763,8 +1763,12 @@ public class Analyse_Movie implements PlugIn {
         ArrayList<Polygon> polys = currentBleb.getPolys();
         int ovalRadius = UserVariables.getOvalRadius();
         int ovalDiam = ovalRadius * 2 + 1;
-        for (int timeIndex = bounds.x; timeIndex - bounds.x < duration; timeIndex++) {
-            ColorProcessor detectionSlice = (ColorProcessor) currentBleb.getDetectionStack().getProcessor(timeIndex + 1);
+        ImageStack detectionStack = new ImageStack(stacks[0].getWidth(), stacks[0].getHeight());
+        for (int i = 1; i < stacks[0].getSize(); i++) {
+            detectionStack.addSlice(new TypeConverter(stacks[0].getProcessor(i).duplicate(), true).convertToRGB());
+        }
+        for (int timeIndex = bounds.x; timeIndex - bounds.x < duration && timeIndex<detectionStack.getSize(); timeIndex++) {
+            ColorProcessor detectionSlice = (ColorProcessor) detectionStack.getProcessor(timeIndex + 1);
             Polygon poly = polys.get(timeIndex - bounds.x);
             ByteProcessor blebMask = BlebAnalyser.drawBlebMask(poly, cortexRad, stacks[0].getWidth(), stacks[0].getHeight(), 255, 0);
             Rectangle polyBounds = poly.getBounds();
@@ -1782,6 +1786,7 @@ public class Analyse_Movie implements PlugIn {
             detectionSlice.drawOval(poly.xpoints[poly.npoints - 1] - ovalRadius,
                     poly.ypoints[poly.npoints - 1] - ovalRadius, ovalDiam, ovalDiam);
         }
+        IJ.saveAs(new ImagePlus("", detectionStack), "TIF", parDir + delimiter + "detectionStack_" + index + ".TIF");
     }
 
     /**

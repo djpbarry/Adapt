@@ -16,7 +16,6 @@
  */
 package Adapt;
 
-import IAClasses.BoundaryPixel;
 import UtilClasses.GenUtils;
 import ij.ImageStack;
 import ij.process.ByteProcessor;
@@ -28,7 +27,7 @@ import java.util.ArrayList;
 
 /**
  * Contains static methods for extracting signal data from blebs
- * 
+ *
  * @author David Barry <david.barry at cancer.org.uk>
  */
 public class BlebAnalyser {
@@ -37,17 +36,17 @@ public class BlebAnalyser {
      * Using maps contained in cellData, currentBleb is tracked, beginning at
      * coordinates specified by currentBleb.getBounds(), and data fields within
      * currentBleb are updated accordingly.
-     * 
-     * @param currentBleb the bleb to be tracked. An initial bounding box, representing
-     * the location of currentBleb in the velocity map contained in cellData, must
-     * be specified.
-     * @param cellData data object containing various maps and parameters pertaining
-     * to the analysis
+     *
+     * @param currentBleb the bleb to be tracked. An initial bounding box,
+     * representing the location of currentBleb in the velocity map contained in
+     * cellData, must be specified.
+     * @param cellData data object containing various maps and parameters
+     * pertaining to the analysis
      * @param index a index reference tag corresponding to the current bleb
      * @param stacks the movie(s) from which the bleb was isolated
-     * @return true if currentBleb contains sufficient signal data to be analysed,
-     * based on ((no. of pixels &lt; cellData.getSigThresh()) / (total pixels) &lt;
-     * UserVariables.getSigRecoveryThresh()), false otherwise
+     * @return true if currentBleb contains sufficient signal data to be
+     * analysed, based on ((no. of pixels &lt; cellData.getSigThresh()) / (total
+     * pixels) &lt; UserVariables.getSigRecoveryThresh()), false otherwise
      */
     public static boolean extractAreaSignalData(Bleb currentBleb, CellData cellData, int index, ImageStack[] stacks) {
 //        ImageStack cytoStack = stacks[0];
@@ -151,14 +150,16 @@ public class BlebAnalyser {
                 currentBleb.getBlebPerimSigs().add(thisBlebPerimSig);
                 currentBleb.getMeanVel().add(currentMeanVel);
                 currentBleb.getProtrusionLength().add(currentProtrusionLength);
-                if (!(negvel && currentMeanVel >= 0.0)) {
-                    if (posvel && currentMeanVel < 0.0) {
-                        negvel = true;
-                    } else if (currentMeanVel >= 0.0) {
-                        posvel = true;
+                if (UserVariables.isVelDetect()) {
+                    if (!(negvel && currentMeanVel >= 0.0)) {
+                        if (posvel && currentMeanVel < 0.0) {
+                            negvel = true;
+                        } else if (currentMeanVel >= 0.0) {
+                            posvel = true;
+                        }
+                    } else {
+                        done = true;
                     }
-                } else {
-                    done = true;
                 }
             } else {
                 done = true;
@@ -248,19 +249,18 @@ public class BlebAnalyser {
 //            IJ.saveAs((new ImagePlus("", blebPlotImage)), "PNG", "C:\\Users\\barry05\\Desktop\\BlebPlotMovie\\slice_" + j);
 //        }
 //    }
-    
     /**
-     * Draw a mask image of the specified {@link java.awt.Polygon Polygon} representation
-     * of a bleb
-     * 
+     * Draw a mask image of the specified {@link java.awt.Polygon Polygon}
+     * representation of a bleb
+     *
      * @param poly the {@link java.awt.Polygon Polygon} to be drawn
      * @param radius the thickness of the line to be used
      * @param width the width of the output mask
      * @param height the height of the output mask
      * @param fg the foreground color to be used
      * @param bg the background color to be used
-     * @return a {@link ij.process.ByteProcessor ByteProcessor} mask image of the
-     * specified polygon 
+     * @return a {@link ij.process.ByteProcessor ByteProcessor} mask image of
+     * the specified polygon
      */
     public static ByteProcessor drawBlebMask(Polygon poly, int radius, int width, int height, int fg, int bg) {
         ByteProcessor mask = new ByteProcessor(width, height);
