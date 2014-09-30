@@ -556,13 +556,15 @@ public class Analyse_Movie implements PlugIn {
     }
 
     int getMaxBoundaryLength(CellData cellData, Region[] allRegions, int index) {
-        int size = cellData.getLength();
+        int size = allRegions.length;
         int maxBoundary = 0;
         for (int h = 0; h < size; h++) {
             Region current = allRegions[h];
-            int length = (current.getBorderPix()).size();
-            if (length > maxBoundary) {
-                maxBoundary = length;
+            if (current != null) {
+                int length = (current.getBorderPix()).size();
+                if (length > maxBoundary) {
+                    maxBoundary = length;
+                }
             }
         }
         return maxBoundary;
