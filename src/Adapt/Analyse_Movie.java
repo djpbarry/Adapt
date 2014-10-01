@@ -97,7 +97,7 @@ public class Analyse_Movie implements PlugIn {
     private PointRoi roi = null; // Points used as seeds for cell detection
     private CellData cellData[];
     protected final ImageStack stacks[] = new ImageStack[2];
-    private final double morphSizeMin = 5.0, trajMin = 10.0;
+    private final double morphSizeMin = 5.0, trajMin = 5.0;
     protected boolean batchMode = false;
 
     /**
@@ -1763,11 +1763,11 @@ public class Analyse_Movie implements PlugIn {
         ArrayList<Polygon> polys = currentBleb.getPolys();
         int ovalRadius = UserVariables.getOvalRadius();
         int ovalDiam = ovalRadius * 2 + 1;
-        ImageStack detectionStack = new ImageStack(stacks[0].getWidth(), stacks[0].getHeight());
-        for (int i = 1; i < stacks[0].getSize(); i++) {
-            detectionStack.addSlice(new TypeConverter(stacks[0].getProcessor(i).duplicate(), true).convertToRGB());
-        }
-        for (int timeIndex = bounds.x; timeIndex - bounds.x < duration && timeIndex<detectionStack.getSize(); timeIndex++) {
+        ImageStack detectionStack = currentBleb.getDetectionStack();
+//        for (int i = 1; i < stacks[0].getSize(); i++) {
+//            detectionStack.addSlice(new TypeConverter(stacks[0].getProcessor(i).duplicate(), true).convertToRGB());
+//        }
+        for (int timeIndex = bounds.x; timeIndex - bounds.x < duration && timeIndex < detectionStack.getSize(); timeIndex++) {
             ColorProcessor detectionSlice = (ColorProcessor) detectionStack.getProcessor(timeIndex + 1);
             Polygon poly = polys.get(timeIndex - bounds.x);
             ByteProcessor blebMask = BlebAnalyser.drawBlebMask(poly, cortexRad, stacks[0].getWidth(), stacks[0].getHeight(), 255, 0);
@@ -1786,7 +1786,7 @@ public class Analyse_Movie implements PlugIn {
             detectionSlice.drawOval(poly.xpoints[poly.npoints - 1] - ovalRadius,
                     poly.ypoints[poly.npoints - 1] - ovalRadius, ovalDiam, ovalDiam);
         }
-        IJ.saveAs(new ImagePlus("", detectionStack), "TIF", parDir + delimiter + "detectionStack_" + index + ".TIF");
+//        IJ.saveAs(new ImagePlus("", detectionStack), "TIF", parDir + delimiter + "detectionStack_" + index + ".TIF");
     }
 
     /**

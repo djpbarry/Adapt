@@ -529,7 +529,7 @@ public class GUI extends javax.swing.JDialog {
         jPanel4.add(cutOffField, gridBagConstraints);
 
         sigThreshFactLabel.setText(StaticVariables.SIG_THRESH_FACT);
-        sigThreshFactLabel.setEnabled(UserVariables.isAnalyseProtrusions());
+        sigThreshFactLabel.setEnabled(UserVariables.isAnalyseProtrusions() && UserVariables.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
@@ -539,7 +539,7 @@ public class GUI extends javax.swing.JDialog {
         jPanel4.add(sigThreshFactLabel, gridBagConstraints);
 
         sigThreshFactField.setText(String.valueOf(UserVariables.getSigThreshFact()));
-        sigThreshFactField.setEnabled(UserVariables.isAnalyseProtrusions());
+        sigThreshFactField.setEnabled(UserVariables.isAnalyseProtrusions() && UserVariables.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 7;
