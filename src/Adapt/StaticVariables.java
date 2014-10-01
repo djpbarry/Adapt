@@ -123,12 +123,16 @@ public class StaticVariables {
     public static final String ADV_SEG = "Advanced Segmentation";
 
     public static final String INIT_FILT_RAD = "Pre-Initilialisation Smoothing Radius";
-    
+
     public static final String LAMBDA = "Texture Sensitivity";
-    
+
     public static final String MIN_TRAJ_LENGTH = "Minimum Trajectory Length";
-    
+
     public static final String THRESH_METHOD = "Thresholding Method";
+
+    public static final String PROT_LEN_THRESH = "Minimum Protrusion Length (%)";
+
+    public static final String PROT_DUR_THRESH = "Minimum Protrusion Duration (frames)";
 
     public static final String DATA_STREAM_HEADINGS = "Time_(s), Zeroed_Time_(s), "
             + "V_(" + GenUtils.mu + "m/s), Total_Signal_(AU), Length_(" + GenUtils.mu + "m), "

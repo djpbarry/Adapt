@@ -97,7 +97,7 @@ public class Analyse_Movie implements PlugIn {
     private PointRoi roi = null; // Points used as seeds for cell detection
     private CellData cellData[];
     protected final ImageStack stacks[] = new ImageStack[2];
-    private final double morphSizeMin = 5.0, trajMin = 5.0;
+    private final double morphSizeMin = 5.0, trajMin = 10.0;
     protected boolean batchMode = false;
 
     /**
@@ -358,7 +358,7 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-        initP.add(new Pixel(256, 256));
+//        initP.add(new Pixel(256, 256));
 //        initP.add(new Pixel(40, 40));
         int n;
 //        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
@@ -371,8 +371,8 @@ public class Analyse_Movie implements PlugIn {
             }
         } else {
             getInitialSeedPoints((ByteProcessor) convertStackTo8Bit(stacks[0]).getProcessor(slice), initP);
-//            n = initP.size();
-            n = 1;
+            n = initP.size();
+//            n = 1;
         }
         cellData = new CellData[n];
         for (int i = 0; i < n; i++) {
@@ -597,6 +597,8 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.MIN_CURVE_THRESH + ", " + String.valueOf(UserVariables.getMinCurveThresh()));
         paramStream.println(StaticVariables.MAX_CURVE_RANGE + ", " + String.valueOf(UserVariables.getMaxCurveRange()));
         paramStream.println(StaticVariables.MAX_CURVE_THRESH + ", " + String.valueOf(UserVariables.getMaxCurveThresh()));
+        paramStream.println(StaticVariables.PROT_LEN_THRESH + ", " + String.valueOf(UserVariables.getBlebLenThresh()));
+        paramStream.println(StaticVariables.PROT_DUR_THRESH + ", " + String.valueOf(UserVariables.getBlebDurThresh()));
         paramStream.println(StaticVariables.CUT_OFF + ", " + String.valueOf(UserVariables.getCutOffTime()));
         paramStream.println(StaticVariables.CORTEX_DEPTH + ", " + String.valueOf(UserVariables.getCortexDepth()));
         paramStream.println(StaticVariables.USE_SIG_THRESH + ", " + String.valueOf(UserVariables.isUseSigThresh()));

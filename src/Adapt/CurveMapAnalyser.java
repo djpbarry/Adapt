@@ -104,7 +104,7 @@ public class CurveMapAnalyser {
      */
     public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, double minDuration, boolean min, double threshold, double curveRange) {
         MorphMap curveMap = cellData.getCurveMap();
-        double[][] curveVals = curveMap.smoothMap(1.0, 1.0);
+        double[][] curveVals = curveMap.smoothMap(UserVariables.getTempFiltRad(), UserVariables.getSpatFiltRad());
         double[][] xvals = curveMap.getxCoords();
         double[][] yvals = curveMap.getyCoords();
         int posLength = curveVals[0].length;

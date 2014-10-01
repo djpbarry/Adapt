@@ -26,7 +26,7 @@ public class UserVariables {
 
     private static double greyThresh = 0.95; // user-specified grey-level threshold used in conditional region dilation
     private static boolean genVis = true;
-    private static final double blebDurThresh = 0.0; // minimum duration (in frames) of bleb to be considered in analysis
+    private static double blebDurThresh = 0.0; // minimum duration (in frames) of bleb to be considered in analysis
     private static int minCurveRange = 10;
     private static int maxCurveRange = 10;
     private static boolean useSigThresh = false;
@@ -40,7 +40,7 @@ public class UserVariables {
     private static int erosion = 4;
     private static boolean getMorph = true;
     private static double timeRes = 12.0; // temporal resolution in frames per minute
-    private static final double blebLenThresh = 0.0; // minimum normalised length of bleb to be considered in analysis
+    private static double blebLenThresh = 0.0; // minimum normalised length of bleb to be considered in analysis
     private static double minCurveThresh = 20.0;
     private static double maxCurveThresh = 100.0;
     private static boolean analyseProtrusions = true;
@@ -52,7 +52,7 @@ public class UserVariables {
     private static boolean simple = true;
     private static double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
     private static int minLength = 10;
-    private static String threshMethod =AutoThresholder.Method.Triangle.toString();
+    private static String threshMethod = AutoThresholder.Method.Triangle.toString();
     private static boolean velDetect = false;
 
     /**
@@ -80,6 +80,14 @@ public class UserVariables {
      */
     public static double getBlebDurThresh() {
         return blebDurThresh;
+    }
+
+    public static void setBlebDurThresh(double blebDurThresh) {
+        UserVariables.blebDurThresh = blebDurThresh;
+    }
+
+    public static void setBlebLenThresh(double blebLenThresh) {
+        UserVariables.blebLenThresh = blebLenThresh;
     }
 
     /**
