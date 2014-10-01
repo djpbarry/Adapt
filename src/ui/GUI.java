@@ -133,8 +133,8 @@ public class GUI extends javax.swing.JDialog {
         maxCurveThreshField = new javax.swing.JTextField();
         maxCurveRangeLabel = new javax.swing.JLabel();
         maxCurveThreshLabel = new javax.swing.JLabel();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
+        velDetectRadioButton = new javax.swing.JRadioButton();
+        curveDetectRadioButton = new javax.swing.JRadioButton();
         protLenLabel = new javax.swing.JLabel();
         protDurLabel = new javax.swing.JLabel();
         protLenTextField = new javax.swing.JTextField();
@@ -389,7 +389,7 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
         advancedTab.add(simpSegRadioButton, gridBagConstraints);
 
         advSegRadioButton.setText(StaticVariables.ADV_SEG);
@@ -405,7 +405,7 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
         advancedTab.add(advSegRadioButton, gridBagConstraints);
 
         initFiltRadLabel.setText(StaticVariables.INIT_FILT_RAD);
@@ -649,17 +649,38 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel4.add(maxCurveThreshLabel, gridBagConstraints);
 
-        jRadioButton1.setText("jRadioButton1");
+        velDetectRadioButton.setText(StaticVariables.VEL_DETECT);
+        velDetectRadioButton.setSelected(UserVariables.isVelDetect());
+        velDetectRadioButton.setEnabled(UserVariables.isAnalyseProtrusions());
+        velDetectRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                velDetectRadioButtonActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        jPanel4.add(jRadioButton1, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
+        jPanel4.add(velDetectRadioButton, gridBagConstraints);
 
-        jRadioButton2.setText("jRadioButton2");
+        curveDetectRadioButton.setText(StaticVariables.CURVE_DETECT);
+        curveDetectRadioButton.setSelected(!UserVariables.isVelDetect());
+        curveDetectRadioButton.setEnabled(UserVariables.isAnalyseProtrusions());
+        curveDetectRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                curveDetectRadioButtonActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        jPanel4.add(jRadioButton2, gridBagConstraints);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
+        jPanel4.add(curveDetectRadioButton, gridBagConstraints);
 
         protLenLabel.setText(StaticVariables.PROT_LEN_THRESH);
         protLenLabel.setEnabled(UserVariables.isAnalyseProtrusions());
@@ -894,6 +915,14 @@ public class GUI extends javax.swing.JDialog {
         updateLambdaTextField();
     }//GEN-LAST:event_advSegRadioButtonActionPerformed
 
+    private void velDetectRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_velDetectRadioButtonActionPerformed
+        curveDetectRadioButton.setSelected(!velDetectRadioButton.isSelected());
+    }//GEN-LAST:event_velDetectRadioButtonActionPerformed
+
+    private void curveDetectRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_curveDetectRadioButtonActionPerformed
+        velDetectRadioButton.setSelected(!curveDetectRadioButton.isSelected());
+    }//GEN-LAST:event_curveDetectRadioButtonActionPerformed
+
     private void updateLambdaTextField() {
         lambdaTextField.setEnabled(advSegRadioButton.isSelected());
     }
@@ -932,6 +961,7 @@ public class GUI extends javax.swing.JDialog {
             UserVariables.setMinCurveThresh(Double.parseDouble(minCurveThreshField.getText()));
             UserVariables.setMaxCurveThresh(Double.parseDouble(maxCurveThreshField.getText()));
             UserVariables.setAnalyseProtrusions(anaProtToggleButton.isSelected());
+            UserVariables.setVelDetect(velDetectRadioButton.isSelected());
             UserVariables.setSigRecoveryThresh(Double.parseDouble(sigRecThreshField.getText()));
             UserVariables.setGaussRad(Double.parseDouble(gaussRadField.getText()));
             UserVariables.setSimple(simpSegRadioButton.isSelected());
@@ -1022,6 +1052,7 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JButton cancelButton;
     private javax.swing.JTextField cortexDepthField;
     private javax.swing.JLabel cortexDepthLabel;
+    private javax.swing.JRadioButton curveDetectRadioButton;
     private javax.swing.JTextField cutOffField;
     private javax.swing.JLabel cutOffLabel;
     private java.awt.Canvas cytoCanvas;
@@ -1040,8 +1071,6 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel lambdaLabel;
     private javax.swing.JTextField lambdaTextField;
@@ -1082,5 +1111,6 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JTextField timeResField;
     private javax.swing.JLabel timeResLabel;
     private javax.swing.JToggleButton useSigThreshToggleButton;
+    private javax.swing.JRadioButton velDetectRadioButton;
     // End of variables declaration//GEN-END:variables
 }

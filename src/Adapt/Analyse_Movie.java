@@ -322,7 +322,11 @@ public class Analyse_Movie implements PlugIn {
                     buildOutput(index, length, false);
                     if (UserVariables.isAnalyseProtrusions()) {
                         calcSigThresh(cellData[index]);
-                        findProtrusionsBasedOnCurve(cellData[index]);
+                        if (UserVariables.isVelDetect()) {
+                            findProtrusionsBasedOnVel(cellData[index]);
+                        } else {
+                            findProtrusionsBasedOnCurve(cellData[index]);
+                        }
                         correlativePlot(cellData[index]);
                     }
                 }
@@ -593,6 +597,7 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.GEN_VIS + ", " + String.valueOf(UserVariables.isGenVis()));
         paramStream.println(StaticVariables.GET_MORPH + ", " + String.valueOf(UserVariables.isGetMorph()));
         paramStream.println(StaticVariables.ANA_PROT + ", " + String.valueOf(UserVariables.isAnalyseProtrusions()));
+        paramStream.println(StaticVariables.VEL_DETECT + ", " + String.valueOf(UserVariables.isVelDetect()));
         paramStream.println(StaticVariables.MIN_CURVE_RANGE + ", " + String.valueOf(UserVariables.getMinCurveRange()));
         paramStream.println(StaticVariables.MIN_CURVE_THRESH + ", " + String.valueOf(UserVariables.getMinCurveThresh()));
         paramStream.println(StaticVariables.MAX_CURVE_RANGE + ", " + String.valueOf(UserVariables.getMaxCurveRange()));

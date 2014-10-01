@@ -133,7 +133,11 @@ public class StaticVariables {
     public static final String PROT_LEN_THRESH = "Minimum Protrusion Length (%)";
 
     public static final String PROT_DUR_THRESH = "Minimum Protrusion Duration (frames)";
+    
+    public static final String CURVE_DETECT = "Curvature Detection";
 
+    public static final String VEL_DETECT = "Velocity Detection";
+    
     public static final String DATA_STREAM_HEADINGS = "Time_(s), Zeroed_Time_(s), "
             + "V_(" + GenUtils.mu + "m/s), Total_Signal_(AU), Length_(" + GenUtils.mu + "m), "
             + "Total_Signal/L0, Mean_Signal, Normalised_Length";
