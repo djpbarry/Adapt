@@ -76,7 +76,7 @@ public class BlebAnalyser {
         for (int timeIndex = bounds.x;
                 (timeIndex - bounds.x <= cutoff) && (timeIndex < velMapImage.getWidth() && !done);
                 timeIndex++) {
-            int searchRange = (int) Math.round(UserVariables.getMinCurveRange() * cellData.getScaleFactors()[timeIndex]);
+            int searchRange = (int) Math.round(CurveMapAnalyser.curveSearchRangeFactor * UserVariables.getMinCurveRange() * cellData.getScaleFactors()[timeIndex]);
             double currentMeanVel = 0.0;
             double currentProtrusionLength;
 //            detectionSlice.setChannel(1, (ByteProcessor) ((new TypeConverter(cytoStack.getProcessor(timeIndex + 1), true)).convertToByte()));
@@ -145,7 +145,7 @@ public class BlebAnalyser {
                 if (anchor2[0] < anchor1[0]) {
                     currentProtrusionLength += velMapImage.getHeight();
                 }
-                currentProtrusionLength *= UserVariables.getSpatialRes();
+                currentProtrusionLength *= UserVariables.getSpatialRes() / cellData.getScaleFactors()[timeIndex];
 //                currentProtrusion.getDetectionStack().addSlice(detectionSlice);
                 currentBleb.getBlebPerimSigs().add(thisBlebPerimSig);
                 currentBleb.getMeanVel().add(currentMeanVel);

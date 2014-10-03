@@ -29,31 +29,31 @@ public class UserVariables {
     private static double blebDurThresh = 0.0; // minimum duration (in frames) of bleb to be considered in analysis
     private static int minCurveRange = 10;
     private static int maxCurveRange = 10;
-    private static boolean useSigThresh = false;
-    private static double spatialRes = 0.212; //timeRes in frames/minute, spatialRes in microns/pixel;
+    private static boolean useSigThresh = true;
+    private static double spatialRes = 0.132; //timeRes in frames/minute, spatialRes in microns/pixel;
     private static double cutOffTime = 120.0;
-    private static double cortexDepth = 1.0;
+    private static double cortexDepth = 0.6;
     private static boolean autoThreshold = true; // User-specifed threshold is used if set to false
     private static double tempFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
     private static double sigThreshFact = 0.0;
     private static double spatFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
     private static int erosion = 4;
     private static boolean getMorph = true;
-    private static double timeRes = 12.0; // temporal resolution in frames per minute
+    private static double timeRes = 60.0; // temporal resolution in frames per minute
     private static double blebLenThresh = 0.0; // minimum normalised length of bleb to be considered in analysis
-    private static double minCurveThresh = 20.0;
+    private static double minCurveThresh = 0.0;
     private static double maxCurveThresh = 100.0;
     private static boolean analyseProtrusions = true;
     private static double sigRecoveryThresh = 0.25;
     private static double gaussRad = 1.0;
-    private static double initGaussRad = 1.0;
+    private static double initGaussRad = 12.0;
     private static final boolean usedSmoothedVels = true;
     private static final int ovalRadius = 2;
     private static boolean simple = true;
     private static double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
     private static int minLength = 10;
-    private static String threshMethod = AutoThresholder.Method.Triangle.toString();
-    private static boolean velDetect = false;
+    private static String threshMethod = AutoThresholder.Method.Default.toString();
+    private static boolean velDetect = true;
 
     /**
      * Get the radius of circles drawn on bleb detection output movies

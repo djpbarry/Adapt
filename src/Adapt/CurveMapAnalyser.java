@@ -39,7 +39,7 @@ import java.util.ArrayList;
  */
 public class CurveMapAnalyser {
 
-    private final static int curveSearchRangeFactor = 4;
+    public final static int curveSearchRangeFactor = 4;
     private final static double maxTrajScore = 5.0;
 
     /**

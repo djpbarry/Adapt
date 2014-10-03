@@ -1048,7 +1048,7 @@ public class Analyse_Movie implements PlugIn {
     void calcSigThresh(CellData cellData) {
         if (UserVariables.isUseSigThresh()) {
             ImageProcessor scaledSigMap = cellData.getGreySigMap().duplicate();
-            scaledSigMap.multiply(UserVariables.getSpatialRes() / UserVariables.getCortexDepth());
+//            scaledSigMap.multiply(UserVariables.getSpatialRes() / UserVariables.getCortexDepth());
             ImageStatistics sigStats = ImageStatistics.getStatistics(scaledSigMap,
                     Measurements.MEAN + Measurements.STD_DEV, null);
             cellData.setSigThresh(sigStats.mean + UserVariables.getSigThreshFact() * sigStats.stdDev);
