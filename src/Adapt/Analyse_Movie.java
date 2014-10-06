@@ -598,9 +598,9 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.GET_MORPH + ", " + String.valueOf(UserVariables.isGetMorph()));
         paramStream.println(StaticVariables.ANA_PROT + ", " + String.valueOf(UserVariables.isAnalyseProtrusions()));
         paramStream.println(StaticVariables.VEL_DETECT + ", " + String.valueOf(UserVariables.isVelDetect()));
-        paramStream.println(StaticVariables.MIN_CURVE_RANGE + ", " + String.valueOf(UserVariables.getMinCurveRange()));
+        paramStream.println(StaticVariables.MIN_CURVE_RANGE + ", " + String.valueOf(UserVariables.getCurveRange()));
         paramStream.println(StaticVariables.MIN_CURVE_THRESH + ", " + String.valueOf(UserVariables.getMinCurveThresh()));
-        paramStream.println(StaticVariables.MAX_CURVE_RANGE + ", " + String.valueOf(UserVariables.getMaxCurveRange()));
+//        paramStream.println(StaticVariables.MAX_CURVE_RANGE + ", " + String.valueOf(UserVariables.getMaxCurveRange()));
         paramStream.println(StaticVariables.MAX_CURVE_THRESH + ", " + String.valueOf(UserVariables.getMaxCurveThresh()));
         paramStream.println(StaticVariables.PROT_LEN_THRESH + ", " + String.valueOf(UserVariables.getBlebLenThresh()));
         paramStream.println(StaticVariables.PROT_DUR_THRESH + ", " + String.valueOf(UserVariables.getBlebDurThresh()));
@@ -701,7 +701,7 @@ public class Analyse_Movie implements PlugIn {
             double upX[] = DSPProcessor.upScale(x, height, false);
             double upY[] = DSPProcessor.upScale(y, height, false);
             curveMap.addColumn(upX, upY, DSPProcessor.upScale(Region.calcCurvature(vmPoints,
-                    UserVariables.getMinCurveRange()), height, false), i);
+                    UserVariables.getCurveRange()), height, false), i);
             cellData.getScaleFactors()[i] = ((double) height) / vmPoints.length;
         }
     }
@@ -1017,9 +1017,9 @@ public class Analyse_Movie implements PlugIn {
     }
 
     void findProtrusionsBasedOnCurve(CellData cellData) {
-        double minDuration = UserVariables.getMaxCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
+        double minDuration = UserVariables.getCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
         ArrayList<BoundaryPixel>[] curvatureMaxima = CurveMapAnalyser.findAllCurvatureExtrema(cellData,
-                0, stacks[0].getSize() - 1, minDuration, false, UserVariables.getMaxCurveThresh(), UserVariables.getMaxCurveRange());
+                0, stacks[0].getSize() - 1, minDuration, false, UserVariables.getMaxCurveThresh(), UserVariables.getCurveRange());
         int length = curvatureMaxima.length;
         ArrayList<Roi> rois = new ArrayList();
         ArrayList<Integer> indices = new ArrayList();
@@ -1034,7 +1034,7 @@ public class Analyse_Movie implements PlugIn {
                         indices.add(id);
                         int x = pix.getTime();
                         int y = pix.getPos();
-                        int hh = CurveMapAnalyser.calcScaledCurveRange(UserVariables.getMaxCurveRange(),
+                        int hh = CurveMapAnalyser.calcScaledCurveRange(UserVariables.getCurveRange(),
                                 cellData.getScaleFactors()[x]);
                         rois.add(new Roi(x, y - hh, 1, 2 * hh + 1));
                     }
@@ -1651,8 +1651,8 @@ public class Analyse_Movie implements PlugIn {
      */
     void correlativePlot(CellData cellData) {
 //        double minBlebDuration = UserVariables.getMinCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
-        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, trajMin, true, UserVariables.getMinCurveThresh(), UserVariables.getMinCurveRange()));
-        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, trajMin, false, UserVariables.getMaxCurveThresh(), UserVariables.getMaxCurveRange()));
+        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, trajMin, true, UserVariables.getMinCurveThresh(), UserVariables.getCurveRange()));
+        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, trajMin, false, UserVariables.getMaxCurveThresh(), UserVariables.getCurveRange()));
 //        ArrayList<Bleb> blebs = new ArrayList();
 //        CurveMapAnalyser.findAllBlebs(blebs, cellData);
 //        IJ.saveAs(new ImagePlus("", CurveMapAnalyser.drawAllBlebs(cellData, blebs, stacks[0])), "TIF", "c:\\users\\barry05\\desktop\\allblebs.tif");
@@ -1817,10 +1817,10 @@ public class Analyse_Movie implements PlugIn {
                 buildOutput(i, 1, true);
                 cellData[i].setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i],
                         sliceIndex, sliceIndex, 0.0, true, UserVariables.getMinCurveThresh(),
-                        UserVariables.getMinCurveRange()));
+                        UserVariables.getCurveRange()));
                 cellData[i].setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i],
                         sliceIndex, sliceIndex, 0.0, false, UserVariables.getMaxCurveThresh(),
-                        UserVariables.getMaxCurveRange()));
+                        UserVariables.getCurveRange()));
             }
         }
 

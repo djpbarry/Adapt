@@ -27,8 +27,8 @@ public class UserVariables {
     private static double greyThresh = 0.95; // user-specified grey-level threshold used in conditional region dilation
     private static boolean genVis = true;
     private static double blebDurThresh = 0.0; // minimum duration (in frames) of bleb to be considered in analysis
-    private static int minCurveRange = 10;
-    private static int maxCurveRange = 10;
+    private static int curveRange = 10;
+//    private static int maxCurveRange = 10;
     private static boolean useSigThresh = true;
     private static double spatialRes = 0.132; //timeRes in frames/minute, spatialRes in microns/pixel;
     private static double cutOffTime = 120.0;
@@ -142,8 +142,8 @@ public class UserVariables {
      *
      * @return the width of the window in pixels
      */
-    public static int getMinCurveRange() {
-        return minCurveRange;
+    public static int getCurveRange() {
+        return curveRange;
     }
 
     /**
@@ -153,7 +153,7 @@ public class UserVariables {
      * @param curveRange the width of the window in pixels
      */
     public static void setMinCurveRange(int curveRange) {
-        UserVariables.minCurveRange = curveRange;
+        UserVariables.curveRange = curveRange;
     }
 
     /**
@@ -484,13 +484,13 @@ public class UserVariables {
         UserVariables.minLength = minLength;
     }
 
-    public static int getMaxCurveRange() {
-        return maxCurveRange;
-    }
-
-    public static void setMaxCurveRange(int maxCurveRange) {
-        UserVariables.maxCurveRange = maxCurveRange;
-    }
+//    public static int getMaxCurveRange() {
+//        return maxCurveRange;
+//    }
+//
+//    public static void setMaxCurveRange(int maxCurveRange) {
+//        UserVariables.maxCurveRange = maxCurveRange;
+//    }
 
     public static double getMaxCurveThresh() {
         return maxCurveThresh;
