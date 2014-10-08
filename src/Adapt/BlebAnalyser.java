@@ -59,6 +59,7 @@ public class BlebAnalyser {
 //        int imageWidth = cytoStack.getWidth();
 //        int imageHeight = cytoStack.getHeight();
         int velMapHeight = cellData.getVelMapWithDetections().getHeight();
+        int halfVelMapHeight = velMapHeight / 2;
 //        ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
         int anchor1[] = new int[2];
         anchor1[0] = GenUtils.checkRange(bounds.y, velMapHeight);
@@ -91,10 +92,10 @@ public class BlebAnalyser {
              */
             int y1 = anchor1[0];
             int y2 = anchor2[0];
-            if (y1 != y2) {
-                if (y2 < y1) {
-                    y2 += velMapHeight;
-                }
+            if (y2 < y1) {
+                y2 += velMapHeight;
+            }
+            if (y1 != y2 && y2 - y1 < halfVelMapHeight) {
                 ArrayList<Double> thisBlebPerimSig = new ArrayList<Double>();
                 if (y2 - y1 > maxExtent) {
                     maxExtent = y2 - y1;

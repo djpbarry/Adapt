@@ -5,8 +5,6 @@
  */
 package Adapt;
 
-import java.util.Random;
-
 /**
  *
  * @author David Barry <david.barry at cancer.org.uk>

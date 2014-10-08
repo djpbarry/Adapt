@@ -145,8 +145,8 @@ public class CurveMapAnalyser {
                         if (extPos[currentIndex] == null) {
                             extPos[currentIndex] = new ArrayList<BoundaryPixel>();
                         }
-                        BoundaryPixel currentPos = new BoundaryPixel((int) currentParticle.getX(),
-                                (int) currentParticle.getY(), currentParticle.getiD(), j, k);
+                        BoundaryPixel currentPos = new BoundaryPixel(currentParticle.getX(),
+                                currentParticle.getY(), currentParticle.getiD(), j, k);
                         extPos[currentIndex].add(currentPos);
                     }
                     currentParticle = currentParticle.getLink();
@@ -181,7 +181,7 @@ public class CurveMapAnalyser {
                     int pos = currentMin.getPos();
                     int x = (int) Math.round(xvals[i][pos]);
                     int y = (int) Math.round(yvals[i][pos]);
-                    detectionSlice.drawDot(x, y);
+                    detectionSlice.drawString(String.valueOf(currentMin.getID()), x, y);
                 }
             }
             if (maxPos[i] != null) {
@@ -192,7 +192,7 @@ public class CurveMapAnalyser {
                     int pos = currentMax.getPos();
                     int x = (int) Math.round(xvals[i][pos]);
                     int y = (int) Math.round(yvals[i][pos]);
-                    detectionSlice.drawDot(x, y);
+                    detectionSlice.drawString(String.valueOf(currentMax.getID()), x, y);
                 }
             }
             detectionStack.addSlice("", detectionSlice);

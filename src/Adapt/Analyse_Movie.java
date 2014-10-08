@@ -36,6 +36,7 @@ import ij.gui.Roi;
 import ij.measure.Measurements;
 import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
+import ij.plugin.RGBStackMerge;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.filter.EDM;
 import ij.plugin.filter.GaussianBlur;
@@ -97,7 +98,7 @@ public class Analyse_Movie implements PlugIn {
     private PointRoi roi = null; // Points used as seeds for cell detection
     private CellData cellData[];
     protected final ImageStack stacks[] = new ImageStack[2];
-    private final double morphSizeMin = 5.0, trajMin = 10.0;
+    private final double morphSizeMin = 5.0, trajMin = 0.0;
     protected boolean batchMode = false;
 
     /**
@@ -362,7 +363,7 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-//        initP.add(new Pixel(256, 256));
+//        initP.add(new Pixel(200, 300));
 //        initP.add(new Pixel(40, 40));
         int n;
 //        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
@@ -1656,8 +1657,8 @@ public class Analyse_Movie implements PlugIn {
 //        ArrayList<Bleb> blebs = new ArrayList();
 //        CurveMapAnalyser.findAllBlebs(blebs, cellData);
 //        IJ.saveAs(new ImagePlus("", CurveMapAnalyser.drawAllBlebs(cellData, blebs, stacks[0])), "TIF", "c:\\users\\barry05\\desktop\\allblebs.tif");
-//        CurveMapAnalyser.drawAllExtrema(cellData, UserVariables.getTimeRes(), UserVariables.getSpatialRes(),
-//                stacks[0], 1, stacks[0].getSize() - 1, 0.0);
+        CurveMapAnalyser.drawAllExtrema(cellData, UserVariables.getTimeRes(), UserVariables.getSpatialRes(),
+                stacks[0], 1, stacks[0].getSize() - 1, 0.0);
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
         cellData.getGreyVelMap().resetRoi();
         cellData.setVelMapWithDetections(velMapWithDetections);
@@ -1768,9 +1769,13 @@ public class Analyse_Movie implements PlugIn {
         Rectangle bounds = currentBleb.getBounds();
         int duration = currentBleb.getBlebPerimSigs().size();
         ArrayList<Polygon> polys = currentBleb.getPolys();
-        int ovalRadius = UserVariables.getOvalRadius();
-        int ovalDiam = ovalRadius * 2 + 1;
+//        int ovalRadius = UserVariables.getOvalRadius();
+//        int ovalDiam = ovalRadius * 2 + 1;
         ImageStack detectionStack = currentBleb.getDetectionStack();
+        Random r = new Random();
+        int red = r.nextInt(256);
+        int green = r.nextInt(256);
+        int blue = r.nextInt(256);
 //        for (int i = 1; i < stacks[0].getSize(); i++) {
 //            detectionStack.addSlice(new TypeConverter(stacks[0].getProcessor(i).duplicate(), true).convertToRGB());
 //        }
@@ -1778,20 +1783,30 @@ public class Analyse_Movie implements PlugIn {
             ColorProcessor detectionSlice = (ColorProcessor) detectionStack.getProcessor(timeIndex + 1);
             Polygon poly = polys.get(timeIndex - bounds.x);
             ByteProcessor blebMask = BlebAnalyser.drawBlebMask(poly, cortexRad, stacks[0].getWidth(), stacks[0].getHeight(), 255, 0);
-            Rectangle polyBounds = poly.getBounds();
-            detectionSlice.setColor(Color.yellow);
-            detectionSlice.drawString("" + index, polyBounds.x + polyBounds.width / 2,
-                    polyBounds.y + polyBounds.height / 2);
+//            Rectangle polyBounds = poly.getBounds();
+//            detectionSlice.setColor(Color.yellow);
+//            detectionSlice.drawString("" + index, polyBounds.x + polyBounds.width / 2,
+//                    polyBounds.y + polyBounds.height / 2);
             blebMask.invert();
             blebMask.outline();
             blebMask.invert();
+            ImageStack redC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
+            redC.addSlice(blebMask.duplicate());
+            redC.getProcessor(1).multiply(red / 255.0);
+            ImageStack greenC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
+            greenC.addSlice(blebMask.duplicate());
+            greenC.getProcessor(1).multiply(green / 255.0);
+            ImageStack blueC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
+            blueC.addSlice(blebMask.duplicate());
+            blueC.getProcessor(1).multiply(blue / 255.0);
+            ImageStack merged = RGBStackMerge.mergeStacks(redC, greenC, blueC, false);
             ColorBlitter blitter = new ColorBlitter(detectionSlice);
-            blitter.copyBits(blebMask, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
-            detectionSlice.setColor(Color.yellow);
-            detectionSlice.drawOval(poly.xpoints[0] - ovalRadius,
-                    poly.ypoints[0] - ovalRadius, ovalDiam, ovalDiam);
-            detectionSlice.drawOval(poly.xpoints[poly.npoints - 1] - ovalRadius,
-                    poly.ypoints[poly.npoints - 1] - ovalRadius, ovalDiam, ovalDiam);
+            blitter.copyBits(merged.getProcessor(1), 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
+//            detectionSlice.setColor(Color.yellow);
+//            detectionSlice.drawOval(poly.xpoints[0] - ovalRadius,
+//                    poly.ypoints[0] - ovalRadius, ovalDiam, ovalDiam);
+//            detectionSlice.drawOval(poly.xpoints[poly.npoints - 1] - ovalRadius,
+//                    poly.ypoints[poly.npoints - 1] - ovalRadius, ovalDiam, ovalDiam);
         }
 //        IJ.saveAs(new ImagePlus("", detectionStack), "TIF", parDir + delimiter + "detectionStack_" + index + ".TIF");
     }
