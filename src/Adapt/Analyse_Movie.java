@@ -435,7 +435,7 @@ public class Analyse_Movie implements PlugIn {
         MorphMap curveMap = new MorphMap(size, upLength);
         cellData[index].setCurveMap(curveMap);
         cellData[index].setScaleFactors(scaleFactors);
-        buildCurveMap(allRegions, cellData[index], index, cellData.length);
+        buildCurveMap(allRegions, cellData[index]);
 
         if (!preview) {
             /*
@@ -566,7 +566,9 @@ public class Analyse_Movie implements PlugIn {
         for (int h = 0; h < size; h++) {
             Region current = allRegions[h];
             if (current != null) {
-                int length = (current.getBorderPix()).size();
+                ArrayList<Pixel> centres = current.getCentres();
+                Pixel centre = centres.get(centres.size()-1);
+                int length = (current.getOrderedBoundary(stacks[0].getWidth(), stacks[0].getHeight(), current.getMask(), centre)).length;
                 if (length > maxBoundary) {
                     maxBoundary = length;
                 }
@@ -671,7 +673,7 @@ public class Analyse_Movie implements PlugIn {
         }
     }
 
-    private void buildCurveMap(Region[] allRegions, CellData cellData, int index, int total) {
+    private void buildCurveMap(Region[] allRegions, CellData cellData) {
         MorphMap curveMap = cellData.getCurveMap();
         int width = curveMap.getWidth();
         int height = curveMap.getHeight();
@@ -716,7 +718,7 @@ public class Analyse_Movie implements PlugIn {
         FloatProcessor greyCurvMap = cellData.getGreyCurveMap();
         FloatProcessor greySigMap = null;
         ColorProcessor colorVelMap = cellData.getColorVelMap();
-        double curvatures[][] = curveMap.smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());
+        double curvatures[][] = curveMap.smoothMap(0.0, UserVariables.getSpatFiltRad()/UserVariables.getSpatialRes());
         double sigchanges[][] = null;
         if (!sigNull) {
             sigchanges = cellData.getSigMap().smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());
@@ -1906,8 +1908,8 @@ public class Analyse_Movie implements PlugIn {
                             int minpSize = minPos[0].size();
                             for (int j = 0; j < minpSize; j++) {
                                 BoundaryPixel currentMin = minPos[0].get(j);
-                                int x = (int) Math.round(currentMin.getPrecX() / UserVariables.getSpatialRes());
-                                int y = (int) Math.round(currentMin.getPrecY() / UserVariables.getSpatialRes());
+                                int x = (int) Math.round(currentMin.getPrecX());
+                                int y = (int) Math.round(currentMin.getPrecY());
                                 regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
                             }
                             if (maxPos[0] != null) {
@@ -1915,8 +1917,8 @@ public class Analyse_Movie implements PlugIn {
                                 int maxpSize = maxPos[0].size();
                                 for (int j = 0; j < maxpSize; j++) {
                                     BoundaryPixel currentMax = maxPos[0].get(j);
-                                    int x = (int) Math.round(currentMax.getPrecX() / UserVariables.getSpatialRes());
-                                    int y = (int) Math.round(currentMax.getPrecY() / UserVariables.getSpatialRes());
+                                    int x = (int) Math.round(currentMax.getPrecX());
+                                    int y = (int) Math.round(currentMax.getPrecY());
                                     regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
                                 }
                             }

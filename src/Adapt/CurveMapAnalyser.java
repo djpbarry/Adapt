@@ -40,7 +40,7 @@ import java.util.ArrayList;
 public class CurveMapAnalyser {
 
     public final static int curveSearchRangeFactor = 4;
-    private final static double maxTrajScore = 5.0;
+    private final static double maxTrajScore = 3.0;
 
     /**
      * Determines whether the coordinate (pos, timePoint) represents a local
@@ -104,10 +104,11 @@ public class CurveMapAnalyser {
      */
     public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, double minDuration, boolean min, double threshold, double curveRange) {
         MorphMap curveMap = cellData.getCurveMap();
-        double[][] curveVals = curveMap.smoothMap(UserVariables.getTempFiltRad(), UserVariables.getSpatFiltRad());
+        double[][] curveVals = curveMap.smoothMap(0.0, UserVariables.getSpatFiltRad()/UserVariables.getSpatialRes());
         double[][] xvals = curveMap.getxCoords();
         double[][] yvals = curveMap.getyCoords();
         int posLength = curveVals[0].length;
+        int halfPosLength = posLength / 2;
         int tLength = 1 + endFrame - startFrame;
         ParticleArray extrema = new ParticleArray(tLength);
         for (int t = startFrame; t <= endFrame; t++) {
@@ -115,15 +116,13 @@ public class CurveMapAnalyser {
             int range = calcScaledCurveRange(curveRange, cellData.getScaleFactors()[currentIndex]);
             for (int pos = 0; pos < posLength; pos++) {
                 if (CurveMapAnalyser.isLocalCurvatureExtreme(pos, range, curveVals[currentIndex], threshold, min) == 0) {
+                    int adjPos = pos;
+                    if (pos > halfPosLength) {
+                        adjPos = posLength - pos;
+                    }
                     extrema.addDetection(currentIndex,
-                            new Particle(t,
-                                    new IsoGaussian(xvals[currentIndex][pos]
-                                            * UserVariables.getSpatialRes(),
-                                            yvals[currentIndex][pos]
-                                            * UserVariables.getSpatialRes(),
-                                            -1.0 * curveVals[currentIndex][pos],
-                                            1.0, 1.0, 1.0),
-                                    null, null, pos));
+                            new Particle(t, new IsoGaussian(adjPos, 0, curveVals[currentIndex][pos],
+                                            1.0, 1.0, 1.0), null, null, pos));
                 }
             }
         }
@@ -145,8 +144,9 @@ public class CurveMapAnalyser {
                         if (extPos[currentIndex] == null) {
                             extPos[currentIndex] = new ArrayList<BoundaryPixel>();
                         }
-                        BoundaryPixel currentPos = new BoundaryPixel(currentParticle.getX(),
-                                currentParticle.getY(), currentParticle.getiD(), j, k);
+                        int pos = currentParticle.getiD();
+                        BoundaryPixel currentPos = new BoundaryPixel(xvals[currentIndex][pos],
+                                yvals[currentIndex][pos], pos, j, currentIndex);
                         extPos[currentIndex].add(currentPos);
                     }
                     currentParticle = currentParticle.getLink();
@@ -175,12 +175,11 @@ public class CurveMapAnalyser {
             detectionSlice.setLineWidth(8);
             if (minPos[i] != null) {
                 int mpSize = minPos[i].size();
-                detectionSlice.setColor(Color.yellow);
+                detectionSlice.setColor(Color.red);
                 for (int j = 0; j < mpSize; j++) {
                     BoundaryPixel currentMin = minPos[i].get(j);
-                    int pos = currentMin.getPos();
-                    int x = (int) Math.round(xvals[i][pos]);
-                    int y = (int) Math.round(yvals[i][pos]);
+                    int x = currentMin.getX();
+                    int y = currentMin.getY();
                     detectionSlice.drawString(String.valueOf(currentMin.getID()), x, y);
                 }
             }
@@ -189,12 +188,13 @@ public class CurveMapAnalyser {
                 detectionSlice.setColor(Color.magenta);
                 for (int j = 0; j < mpSize; j++) {
                     BoundaryPixel currentMax = maxPos[i].get(j);
-                    int pos = currentMax.getPos();
-                    int x = (int) Math.round(xvals[i][pos]);
-                    int y = (int) Math.round(yvals[i][pos]);
+                    int x = currentMax.getX();
+                    int y = currentMax.getY();
                     detectionSlice.drawString(String.valueOf(currentMax.getID()), x, y);
                 }
             }
+            detectionSlice.setColor(Color.PINK);
+            detectionSlice.drawDot((int) xvals[i][0], (int) yvals[i][0]);
             detectionStack.addSlice("", detectionSlice);
         }
         IJ.saveAs(new ImagePlus("", detectionStack), "TIF", "C:/users/barry05/desktop/AllDetections.tif");
