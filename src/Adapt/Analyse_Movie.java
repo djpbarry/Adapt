@@ -382,6 +382,8 @@ public class Analyse_Movie implements PlugIn {
         cellData = new CellData[n];
         for (int i = 0; i < n; i++) {
             cellData[i] = new CellData();
+            cellData[i].setImageWidth(stacks[0].getWidth());
+            cellData[i].setImageHeight(stacks[0].getHeight());
 //            ArrayList<Pixel> initialPix = new ArrayList();
             Pixel init;
             if (roi != null) {
@@ -1038,7 +1040,7 @@ public class Analyse_Movie implements PlugIn {
                         indices.add(id);
                         int x = pix.getTime();
                         int y = pix.getPos();
-                        int hh = CurveMapAnalyser.calcScaledCurveRange(UserVariables.getCurveRange(),
+                        int hh = CurveMapAnalyser.calcScaledCurveRange(CurveMapAnalyser.curveSearchRangeFactor * UserVariables.getCurveRange(),
                                 cellData.getScaleFactors()[x]);
                         rois.add(new Roi(x, y - hh, 1, 2 * hh + 1));
                     }
@@ -1951,18 +1953,17 @@ public class Analyse_Movie implements PlugIn {
         if (binary.isInvertedLut()) {
             binary.invertLut();
         }
+        ResultsTable rt = Analyzer.getResultsTable();
+        rt.reset();
         Prefs.blackBackground = false;
-        EDM edm = new EDM();
-        edm.setup("points", new ImagePlus("", binary));
-        edm.run(binary);
-        int width = binary.getWidth();
-        int height = binary.getHeight();
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (binary.getPixel(x, y) > 0) {
-                    pixels.add(new Pixel(x, y));
-                }
-            }
+        ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES + ParticleAnalyzer.SHOW_MASKS,
+                Measurements.CENTROID, rt, 0.0, Double.POSITIVE_INFINITY);
+        analyzeDetections(null, binary, analyzer);
+        int count = rt.getCounter();
+        float x[] = rt.getColumn(rt.getColumnIndex("X"));
+        float y[] = rt.getColumn(rt.getColumnIndex("Y"));
+        for (int i = 0; i < count; i++) {
+            pixels.add(new Pixel(x[i], y[i]));
         }
     }
 

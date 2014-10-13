@@ -45,6 +45,7 @@ public class CellData {
     private int length;
     private Region[] cellRegions;
     private Region initialRegion;
+    private int imageWidth, imageHeight;
 
     /**
      * Get segmented cell regions derived from all input movie frames
@@ -309,6 +310,22 @@ public class CellData {
 
     public void setCurvatureMaxima(ArrayList<BoundaryPixel>[] curvatureMaxima) {
         this.curvatureMaxima = curvatureMaxima;
+    }
+
+    public int getImageWidth() {
+        return imageWidth;
+    }
+
+    public void setImageWidth(int imageWidth) {
+        this.imageWidth = imageWidth;
+    }
+
+    public int getImageHeight() {
+        return imageHeight;
+    }
+
+    public void setImageHeight(int imageHeight) {
+        this.imageHeight = imageHeight;
     }
     
 }

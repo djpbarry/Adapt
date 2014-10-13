@@ -40,7 +40,7 @@ import java.util.ArrayList;
 public class CurveMapAnalyser {
 
     public final static int curveSearchRangeFactor = 4;
-    private final static double maxTrajScore = 10.0;
+    private final static double maxTrajScore = 2.0;
 
     /**
      * Determines whether the coordinate (pos, timePoint) represents a local
@@ -122,7 +122,8 @@ public class CurveMapAnalyser {
                         adjPos = posLength - pos;
                     }
                     extrema.addDetection(currentIndex,
-                            new Particle(t, new IsoGaussian(adjPos, 0, curveVals[currentIndex][pos],
+                            new Particle(t, new IsoGaussian(xvals[currentIndex][pos],
+                                            yvals[currentIndex][pos], (double) adjPos * curveSearchRangeFactor / halfPosLength,
                                             1.0, 1.0, 1.0), null, null, pos));
 //                    String type = min ? "min" : "max";
 //                    System.out.println("t: " + t + " type:  " + type
