@@ -38,7 +38,6 @@ import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
 import ij.plugin.RGBStackMerge;
 import ij.plugin.filter.Analyzer;
-import ij.plugin.filter.EDM;
 import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
@@ -325,10 +324,17 @@ public class Analyse_Movie implements PlugIn {
                         calcSigThresh(cellData[index]);
                         if (UserVariables.isVelDetect()) {
                             findProtrusionsBasedOnVel(cellData[index]);
+                            correlativePlot(cellData[index]);
                         } else {
-                            findProtrusionsBasedOnCurve(cellData[index]);
+                            ImageStack protStack = findProtrusionsBasedOnMorph(cellData[index], 10);
+                            ImageStack tempCyto = stacks[0];
+                            stacks[0] = protStack;
+                            boolean tempBatch = batchMode;
+                            batchMode = true;
+                            analyse(String.valueOf(index));
+                            stacks[0] = tempCyto;
+                            batchMode = tempBatch;
                         }
-                        correlativePlot(cellData[index]);
                     }
                 }
             }
@@ -363,7 +369,7 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-//        initP.add(new Pixel(200, 300));
+        initP.add(new Pixel(200, 300));
 //        initP.add(new Pixel(40, 40));
         int n;
 //        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
@@ -376,8 +382,8 @@ public class Analyse_Movie implements PlugIn {
             }
         } else {
             getInitialSeedPoints((ByteProcessor) convertStackTo8Bit(stacks[0]).getProcessor(slice), initP);
-            n = initP.size();
-//            n = 1;
+//            n = initP.size();
+            n = 1;
         }
         cellData = new CellData[n];
         for (int i = 0; i < n; i++) {
@@ -1049,6 +1055,28 @@ public class Analyse_Movie implements PlugIn {
         }
         Roi output[] = new Roi[rois.size()];
         cellData.setVelRois(rois.toArray(output));
+    }
+
+    ImageStack findProtrusionsBasedOnMorph(CellData cellData, int reps) {
+        int length = cellData.getLength();
+        Region regions[] = cellData.getCellRegions();
+        ImageStack cyto2 = new ImageStack(stacks[0].getWidth(), stacks[0].getHeight());
+        for (int i = 0; i < length; i++) {
+            ImageProcessor mask = regions[i].getMask();
+            ImageProcessor mask2 = mask.duplicate();
+            for (int j = 0; j < reps; j++) {
+                mask2.erode();
+            }
+            for (int j = 0; j < reps; j++) {
+                mask2.dilate();
+            }
+            mask.invert();
+            ByteBlitter bb = new ByteBlitter((ByteProcessor) mask);
+            mask2.invert();
+            bb.copyBits(mask2, 0, 0, Blitter.SUBTRACT);
+            cyto2.addSlice(mask);
+        }
+        return cyto2;
     }
 
     void calcSigThresh(CellData cellData) {
