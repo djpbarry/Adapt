@@ -98,7 +98,7 @@ public class Analyse_Movie implements PlugIn {
     private PointRoi roi = null; // Points used as seeds for cell detection
     private CellData cellData[];
     protected final ImageStack stacks[] = new ImageStack[2];
-    private final double morphSizeMin = 5.0, trajMin = 0.0;
+    private final double morphSizeMin = 5.0, trajMin = 5.0;
     protected boolean batchMode = false;
 
     /**
@@ -474,7 +474,7 @@ public class Analyse_Movie implements PlugIn {
             trajStream.close();
             segStream.close();
             double smoothVelocities[][] = velMap.smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes()); // Gaussian smoothing in time and space
-            double curvatures[][] = curveMap.smoothMap(0.0, 0.0);
+            double curvatures[][] = curveMap.smoothMap(0.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());
             double sigchanges[][];
             if (sigMap != null) {
 //            sigchanges = sigMap.smoothMap(timeRes, spatialRes);
@@ -567,7 +567,7 @@ public class Analyse_Movie implements PlugIn {
             Region current = allRegions[h];
             if (current != null) {
                 ArrayList<Pixel> centres = current.getCentres();
-                Pixel centre = centres.get(centres.size()-1);
+                Pixel centre = centres.get(centres.size() - 1);
                 int length = (current.getOrderedBoundary(stacks[0].getWidth(), stacks[0].getHeight(), current.getMask(), centre)).length;
                 if (length > maxBoundary) {
                     maxBoundary = length;
@@ -707,6 +707,7 @@ public class Analyse_Movie implements PlugIn {
                     UserVariables.getCurveRange()), height, false), i);
             cellData.getScaleFactors()[i] = ((double) height) / vmPoints.length;
         }
+        curveMap.allignMap();
     }
 
     void generateMaps(double[][] smoothVelocities, CellData cellData, int index, int total) {
@@ -718,7 +719,7 @@ public class Analyse_Movie implements PlugIn {
         FloatProcessor greyCurvMap = cellData.getGreyCurveMap();
         FloatProcessor greySigMap = null;
         ColorProcessor colorVelMap = cellData.getColorVelMap();
-        double curvatures[][] = curveMap.smoothMap(0.0, UserVariables.getSpatFiltRad()/UserVariables.getSpatialRes());
+        double curvatures[][] = curveMap.smoothMap(0.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());
         double sigchanges[][] = null;
         if (!sigNull) {
             sigchanges = cellData.getSigMap().smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());
@@ -1833,10 +1834,10 @@ public class Analyse_Movie implements PlugIn {
             for (int i = 0; i < nCell; i++) {
                 buildOutput(i, 1, true);
                 cellData[i].setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i],
-                        sliceIndex, sliceIndex, 0.0, true, UserVariables.getMinCurveThresh(),
+                        sliceIndex - 1, sliceIndex - 1, 0.0, true, UserVariables.getMinCurveThresh(),
                         UserVariables.getCurveRange()));
                 cellData[i].setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i],
-                        sliceIndex, sliceIndex, 0.0, false, UserVariables.getMaxCurveThresh(),
+                        sliceIndex - 1, sliceIndex - 1, 0.0, false, UserVariables.getMaxCurveThresh(),
                         UserVariables.getCurveRange()));
             }
         }

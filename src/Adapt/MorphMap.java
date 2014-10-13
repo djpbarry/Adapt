@@ -16,6 +16,7 @@
  */
 package Adapt;
 
+import IAClasses.Utils;
 import ij.ImagePlus;
 import ij.plugin.filter.GaussianBlur;
 import ij.process.FloatProcessor;
@@ -249,18 +250,18 @@ public class MorphMap {
         return new ImagePlus("2D AutoCorrelation", crossCorrelation);
     }
 
-//    private int correlateColumns(int c1, int c2) {
-//        double minDist = Double.MAX_VALUE;
-//        int offset = 0;
-//        for (int i = height - 1; i >= 0; i--) {
-//            double dist = Utils.calcDistance(xCoords[c1][0], yCoords[c1][0], xCoords[c2][i], yCoords[c2][i]);
-//            if (dist < minDist) {
-//                minDist = dist;
-//                offset = i;
-//            }
-//        }
-//        return offset;
-//    }
+    private int correlateColumns(int c1, int c2) {
+        double minDist = Double.MAX_VALUE;
+        int offset = 0;
+        for (int i = height - 1; i >= 0; i--) {
+            double dist = Utils.calcDistance(xCoords[c1][0], yCoords[c1][0], xCoords[c2][i], yCoords[c2][i]);
+            if (dist < minDist) {
+                minDist = dist;
+                offset = i;
+            }
+        }
+        return offset;
+    }
 //    public double getMean(double[][] map) {
 //        double sum = 0.0;
 //        for (int i = 0; i < map.length; i++) {
@@ -270,6 +271,7 @@ public class MorphMap {
 //        }
 //        return sum / (width * height);
 //    }
+
     /**
      * Get the x-coordinates of this map
      *
@@ -288,37 +290,38 @@ public class MorphMap {
         return yCoords;
     }
 
-//    public double[][] allignedMap(double[][] map) {
-//        double[][] allignedMap = map.clone();
-//        double[][] allignedX = xCoords.clone();
-//        double[][] allignedY = yCoords.clone();
-//        for (int i = 0; i < map.length - 1; i++) {
-//            int xoffset = correlateColumns(i, i + 1);
-//            int yoffset = correlateColumns(i, i + 1);
-//            int offset = (xoffset + yoffset) / 2;
-//            allignedX = shiftColumn(allignedX, i + 1, offset);
-//            allignedY = shiftColumn(allignedY, i + 1, offset);
-//            allignedMap = shiftColumn(allignedMap, i + 1, offset);
-//        }
-//        xCoords = allignedX;
-//        yCoords = allignedY;
-//        return allignedMap;
-//    }
-//    private double[][] shiftColumn(double[][] map, int colIndex, int offset) {
-//        double[] column = new double[map[0].length];
-//        System.arraycopy(map[colIndex], 0, column, 0, column.length);
-//        int length = column.length;
-//        for (int i = 0; i < length; i++) {
-//            int j = i + offset;
-//            if (j < 0) {
-//                j += length;
-//            } else if (j >= length) {
-//                j -= length;
-//            }
-//            map[colIndex][i] = column[j];
-//        }
-//        return map;
-//    }
+    public void allignMap() {
+        double[][] allignedMap = zVals.clone();
+        double[][] allignedX = xCoords.clone();
+        double[][] allignedY = yCoords.clone();
+        for (int i = 0; i < zVals.length - 1; i++) {
+            int xoffset = correlateColumns(i, i + 1);
+            int yoffset = correlateColumns(i, i + 1);
+            int offset = (xoffset + yoffset) / 2;
+            allignedX = shiftColumn(allignedX, i + 1, offset);
+            allignedY = shiftColumn(allignedY, i + 1, offset);
+            allignedMap = shiftColumn(allignedMap, i + 1, offset);
+        }
+        xCoords = allignedX;
+        yCoords = allignedY;
+        zVals = allignedMap;
+    }
+
+    private double[][] shiftColumn(double[][] map, int colIndex, int offset) {
+        double[] column = new double[map[0].length];
+        System.arraycopy(map[colIndex], 0, column, 0, column.length);
+        int length = column.length;
+        for (int i = 0; i < length; i++) {
+            int j = i + offset;
+            if (j < 0) {
+                j += length;
+            } else if (j >= length) {
+                j -= length;
+            }
+            map[colIndex][i] = column[j];
+        }
+        return map;
+    }
 //    private void calcTMin(double[] correlation, int startIndex) {
 //        int l = correlation.length;
 //        for (int i = startIndex; i < l - 2; i++) {
@@ -353,6 +356,7 @@ public class MorphMap {
 //    public double getMagTmin() {
 //        return magTmin;
 //    }
+
     /**
      * Return the z-values of this MorphMap
      *

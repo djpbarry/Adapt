@@ -40,7 +40,7 @@ import java.util.ArrayList;
 public class CurveMapAnalyser {
 
     public final static int curveSearchRangeFactor = 4;
-    private final static double maxTrajScore = 3.0;
+    private final static double maxTrajScore = 10.0;
 
     /**
      * Determines whether the coordinate (pos, timePoint) represents a local
@@ -104,7 +104,7 @@ public class CurveMapAnalyser {
      */
     public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, double minDuration, boolean min, double threshold, double curveRange) {
         MorphMap curveMap = cellData.getCurveMap();
-        double[][] curveVals = curveMap.smoothMap(0.0, UserVariables.getSpatFiltRad()/UserVariables.getSpatialRes());
+        double[][] curveVals = curveMap.smoothMap(0.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());
         double[][] xvals = curveMap.getxCoords();
         double[][] yvals = curveMap.getyCoords();
         int posLength = curveVals[0].length;
@@ -115,6 +115,7 @@ public class CurveMapAnalyser {
             int currentIndex = t - startFrame;
             int range = calcScaledCurveRange(curveRange, cellData.getScaleFactors()[currentIndex]);
             for (int pos = 0; pos < posLength; pos++) {
+//                System.out.println(" pos: " + pos + " c: " + curveVals[currentIndex][pos]);
                 if (CurveMapAnalyser.isLocalCurvatureExtreme(pos, range, curveVals[currentIndex], threshold, min) == 0) {
                     int adjPos = pos;
                     if (pos > halfPosLength) {
@@ -123,6 +124,10 @@ public class CurveMapAnalyser {
                     extrema.addDetection(currentIndex,
                             new Particle(t, new IsoGaussian(adjPos, 0, curveVals[currentIndex][pos],
                                             1.0, 1.0, 1.0), null, null, pos));
+//                    String type = min ? "min" : "max";
+//                    System.out.println("t: " + t + " type:  " + type
+//                            + " x: " + xvals[currentIndex][pos] + " y: " + yvals[currentIndex][pos]
+//                            + " pos: " + pos + " c: " + curveVals[currentIndex][pos]);
                 }
             }
         }
