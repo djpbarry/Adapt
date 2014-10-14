@@ -28,7 +28,6 @@ public class UserVariables {
     private static boolean genVis = true;
     private static double blebDurThresh = 0.0; // minimum duration (in frames) of bleb to be considered in analysis
     private static int curveRange = 10;
-//    private static int maxCurveRange = 10;
     private static boolean useSigThresh = true;
     private static double spatialRes = 0.132; //timeRes in frames/minute, spatialRes in microns/pixel;
     private static double cutOffTime = 120.0;

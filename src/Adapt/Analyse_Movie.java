@@ -211,7 +211,7 @@ public class Analyse_Movie implements PlugIn {
         if (batchMode) {
             parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
         } else if (protMode) {
-            parDirName = GenUtils.openResultsDirectory(parDir + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
+            parDirName = GenUtils.openResultsDirectory(childDir + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
         } else {
             parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE, delimiter);
         }
@@ -234,8 +234,8 @@ public class Analyse_Movie implements PlugIn {
                 return;
             }
         }
-
-        ProgressDialog segDialog = new ProgressDialog(null, "Segmenting...", false, TITLE, false);
+        String pdLabel = protMode ? "Segmenting Filopodia..." : "Segmenting Cells...";
+        ProgressDialog segDialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
         segDialog.setVisible(true);
 
         int n = initialiseROIs(1);
@@ -311,7 +311,8 @@ public class Analyse_Movie implements PlugIn {
          * detected regions.
          */
         if (UserVariables.isGenVis()) {
-            ProgressDialog dialog = new ProgressDialog(null, "Generating individual outputs...", false, TITLE, false);
+            String pdLabel2 = protMode ? "Generating individual filipodia outputs..." : "Generating individual cell outputs...";
+            ProgressDialog dialog = new ProgressDialog(null, pdLabel2, false, TITLE, false);
             dialog.setVisible(true);
             for (int index = 0; index < n; index++) {
                 /*
@@ -329,7 +330,7 @@ public class Analyse_Movie implements PlugIn {
                             findProtrusionsBasedOnVel(cellData[index]);
                             correlativePlot(cellData[index]);
                         } else {
-                            ImageStack protStack = findProtrusionsBasedOnMorph(cellData[index], (int)Math.round(UserVariables.getFiloSize()));
+                            ImageStack protStack = findProtrusionsBasedOnMorph(cellData[index], (int) Math.round(UserVariables.getFiloSize()));
                             ImageStack tempCyto = stacks[0];
                             stacks[0] = protStack;
                             protMode = true;
@@ -373,7 +374,9 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-//        initP.add(new Pixel(200, 300));
+        if (IJ.getInstance() == null && !protMode) {
+            initP.add(new Pixel(200, 300));
+        }
 //        initP.add(new Pixel(40, 40));
         int n;
 //        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
@@ -386,8 +389,11 @@ public class Analyse_Movie implements PlugIn {
             }
         } else {
             getInitialSeedPoints((ByteProcessor) convertStackTo8Bit(stacks[0]).getProcessor(slice), initP);
-            n = initP.size();
-//            n = 1;
+            if (IJ.getInstance() == null && !protMode) {
+                n = 1;
+            } else {
+                n = initP.size();
+            }
         }
         cellData = new CellData[n];
         for (int i = 0; i < n; i++) {
@@ -615,7 +621,6 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.DETECT_BLEB + ", " + String.valueOf(UserVariables.isBlebDetect()));
         paramStream.println(StaticVariables.MIN_CURVE_RANGE + ", " + String.valueOf(UserVariables.getCurveRange()));
         paramStream.println(StaticVariables.MIN_CURVE_THRESH + ", " + String.valueOf(UserVariables.getMinCurveThresh()));
-//        paramStream.println(StaticVariables.MAX_CURVE_RANGE + ", " + String.valueOf(UserVariables.getMaxCurveRange()));
         paramStream.println(StaticVariables.MAX_CURVE_THRESH + ", " + String.valueOf(UserVariables.getMaxCurveThresh()));
         paramStream.println(StaticVariables.PROT_LEN_THRESH + ", " + String.valueOf(UserVariables.getBlebLenThresh()));
         paramStream.println(StaticVariables.PROT_DUR_THRESH + ", " + String.valueOf(UserVariables.getBlebDurThresh()));
@@ -624,6 +629,11 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.USE_SIG_THRESH + ", " + String.valueOf(UserVariables.isUseSigThresh()));
         paramStream.println(StaticVariables.SIG_THRESH_FACT + ", " + String.valueOf(UserVariables.getSigThreshFact()));
         paramStream.println(StaticVariables.SIG_REC_THRESH + ", " + String.valueOf(UserVariables.getSigRecoveryThresh()));
+        paramStream.println(StaticVariables.SIMP_SEG + ", " + String.valueOf(UserVariables.isSimple()));
+        paramStream.println(StaticVariables.LAMBDA + ", " + String.valueOf(UserVariables.getLambda()));
+        paramStream.println(StaticVariables.MIN_TRAJ_LENGTH + ", " + String.valueOf(UserVariables.getMinLength()));
+        paramStream.println(StaticVariables.DETECT_BLEB + ", " + String.valueOf(UserVariables.isBlebDetect()));
+        paramStream.println(StaticVariables.FILO_SIZE + ", " + String.valueOf(UserVariables.getFiloSize()));    
         return true;
     }
 
@@ -753,7 +763,8 @@ public class Analyse_Movie implements PlugIn {
     void genCurveVelVis(CellData cellDatas[]) {
         int N = cellDatas.length;
         ImageStack cytoStack = stacks[0];
-        ProgressDialog dialog = new ProgressDialog(null, "Building Visualisations...", false, TITLE, false);
+        String pdLabel = protMode ? "Building Filopodia Visualisations..." : "Building Cell Visualisations...";
+        ProgressDialog dialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
         dialog.setVisible(true);
         /*
          * Generate various visualisations for output
@@ -811,7 +822,8 @@ public class Analyse_Movie implements PlugIn {
     void genSimpSegVis(CellData cellDatas[]) {
         int N = cellDatas.length;
         ImageStack cytoStack = stacks[0];
-        ProgressDialog dialog = new ProgressDialog(null, "Building Visualisations...", false, TITLE, false);
+        String pdLabel = protMode ? "Building Filopodia Visualisations..." : "Building Cell Visualisations...";
+        ProgressDialog dialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
         dialog.setVisible(true);
         /*
          * Generate various visualisations for output
@@ -853,7 +865,8 @@ public class Analyse_Movie implements PlugIn {
     void generateCellTrajectories(CellData cellDatas[]) {
         int N = cellDatas.length;
         ImageStack cytoStack = stacks[0];
-        ProgressDialog dialog = new ProgressDialog(null, "Building Cell Trajectories...", false, TITLE, false);
+        String pdLabel = protMode ? "Building Filopodia Trajectories..." : "Building Cell Trajectories...";
+        ProgressDialog dialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
         dialog.setVisible(true);
         /*
          * Generate various visualisations for output
@@ -1704,7 +1717,8 @@ public class Analyse_Movie implements PlugIn {
         File plotDataDir = GenUtils.createDirectory(childDir + delimiter + "Bleb_Data_Files");
         File detectDir = GenUtils.createDirectory(childDir + delimiter + "Detection_Visualisation");
         File mapDir = GenUtils.createDirectory(childDir + delimiter + "Bleb_Signal_Maps");
-        ProgressDialog dialog = new ProgressDialog(null, "Plotting Data...", false, TITLE, false);
+        String pdLabel = protMode ? "Plotting filopodia data..." : "Plotting cell data...";
+        ProgressDialog dialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
         dialog.setVisible(true);
         ImageStack detectionStack = new ImageStack(stacks[0].getWidth(),
                 stacks[0].getHeight());
