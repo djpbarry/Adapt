@@ -99,6 +99,7 @@ public class Analyse_Movie implements PlugIn {
     protected final ImageStack stacks[] = new ImageStack[2];
     private final double morphSizeMin = 5.0, trajMin = 5.0;
     protected boolean batchMode = false;
+    protected boolean protMode = false;
 
     /**
      * Default constructor
@@ -169,7 +170,7 @@ public class Analyse_Movie implements PlugIn {
     protected void analyse(String imageName) {
         int cytoSize, sigSize;
         ImageStack cytoStack;
-        if (IJ.getInstance() == null || batchMode) {
+        if (IJ.getInstance() == null || batchMode || protMode) {
             cytoStack = stacks[0];
             cytoSize = cytoStack.getSize();
         } else {
@@ -207,10 +208,12 @@ public class Analyse_Movie implements PlugIn {
          * unique so old results are not overwritten
          */
         String parDirName;
-        if (!batchMode) {
-            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE, delimiter);
-        } else {
+        if (batchMode) {
             parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
+        } else if (protMode) {
+            parDirName = GenUtils.openResultsDirectory(parDir + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
+        } else {
+            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE, delimiter);
         }
         if (parDirName != null) {
             parDir = new File(parDirName);
@@ -224,7 +227,7 @@ public class Analyse_Movie implements PlugIn {
          */
         cytoStack = convertStackTo8Bit(stacks[0]);
 
-        if (!batchMode) {
+        if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, this);
             gui.setVisible(true);
             if (!gui.isWasOKed()) {
@@ -326,14 +329,18 @@ public class Analyse_Movie implements PlugIn {
                             findProtrusionsBasedOnVel(cellData[index]);
                             correlativePlot(cellData[index]);
                         } else {
-                            ImageStack protStack = findProtrusionsBasedOnMorph(cellData[index], 10);
+                            ImageStack protStack = findProtrusionsBasedOnMorph(cellData[index], 5);
                             ImageStack tempCyto = stacks[0];
                             stacks[0] = protStack;
-                            boolean tempBatch = batchMode;
-                            batchMode = true;
-                            analyse(String.valueOf(index));
+                            protMode = true;
+                            UserVariables.setAnalyseProtrusions(false);
+                            double tempInit = UserVariables.getCortexDepth();
+                            UserVariables.setInitGaussRad(1.0);
+                            analyse("Protrusions");
+                            UserVariables.setAnalyseProtrusions(true);
+                            UserVariables.setInitGaussRad(tempInit);
                             stacks[0] = tempCyto;
-                            batchMode = tempBatch;
+                            protMode = false;
                         }
                     }
                 }
@@ -369,7 +376,7 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-        initP.add(new Pixel(200, 300));
+//        initP.add(new Pixel(200, 300));
 //        initP.add(new Pixel(40, 40));
         int n;
 //        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
@@ -382,8 +389,8 @@ public class Analyse_Movie implements PlugIn {
             }
         } else {
             getInitialSeedPoints((ByteProcessor) convertStackTo8Bit(stacks[0]).getProcessor(slice), initP);
-//            n = initP.size();
-            n = 1;
+            n = initP.size();
+//            n = 1;
         }
         cellData = new CellData[n];
         for (int i = 0; i < n; i++) {
@@ -1690,8 +1697,8 @@ public class Analyse_Movie implements PlugIn {
 //        ArrayList<Bleb> blebs = new ArrayList();
 //        CurveMapAnalyser.findAllBlebs(blebs, cellData);
 //        IJ.saveAs(new ImagePlus("", CurveMapAnalyser.drawAllBlebs(cellData, blebs, stacks[0])), "TIF", "c:\\users\\barry05\\desktop\\allblebs.tif");
-        CurveMapAnalyser.drawAllExtrema(cellData, UserVariables.getTimeRes(), UserVariables.getSpatialRes(),
-                stacks[0], 1, stacks[0].getSize() - 1, 0.0);
+//        CurveMapAnalyser.drawAllExtrema(cellData, UserVariables.getTimeRes(), UserVariables.getSpatialRes(),
+//                stacks[0], 1, stacks[0].getSize() - 1, 0.0);
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
         cellData.getGreyVelMap().resetRoi();
         cellData.setVelMapWithDetections(velMapWithDetections);

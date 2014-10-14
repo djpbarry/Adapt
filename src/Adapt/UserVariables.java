@@ -491,7 +491,6 @@ public class UserVariables {
 //    public static void setMaxCurveRange(int maxCurveRange) {
 //        UserVariables.maxCurveRange = maxCurveRange;
 //    }
-
     public static double getMaxCurveThresh() {
         return maxCurveThresh;
     }
