@@ -42,10 +42,14 @@ public class CellData {
     private double[][] smoothVelocities;
     private double scaleFactors[];
     private int greyThresholds[];
-    private int length;
+    private int startframe, endFrame;
     private Region[] cellRegions;
     private Region initialRegion;
     private int imageWidth, imageHeight;
+
+    public CellData(int startframe) {
+        this.startframe = startframe;
+    }
 
     /**
      * Get segmented cell regions derived from all input movie frames
@@ -263,7 +267,6 @@ public class CellData {
 //    public void setInitialPix(ArrayList<Pixel> initialPix) {
 //        this.initialPix = initialPix;
 //    }
-
     public ColorProcessor getColorVelMap() {
         return colorVelMap;
     }
@@ -288,12 +291,12 @@ public class CellData {
         this.smoothVelocities = smoothVelocities;
     }
 
-    public int getLength() {
-        return length;
+    public int getEndFrame() {
+        return endFrame;
     }
 
-    public void setLength(int length) {
-        this.length = length;
+    public void setEndFrame(int endFrame) {
+        this.endFrame = endFrame;
     }
 
     public Region getInitialRegion() {
@@ -327,5 +330,9 @@ public class CellData {
     public void setImageHeight(int imageHeight) {
         this.imageHeight = imageHeight;
     }
-    
+
+    public int getStartFrame() {
+        return startframe;
+    }
+
 }
