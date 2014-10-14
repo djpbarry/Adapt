@@ -265,38 +265,24 @@ public class Analyse_Movie implements PlugIn {
                      * Mask from last segmentation used to initialise next
                      * segmentation
                      */
-//                    int sx = current.getMaskSeed().getX();
-//                    int sy = current.getMaskSeed().getY();
-//                    current.calcCentre(current.getBorderPix());
                     ImageProcessor mask = current.getMask();
                     current.calcCentroid(mask);
-//                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/mask_" + i + "_" + j + ".png");
-//                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/adapt_test_data/masks/maskb_" + j + "_" + i + ".png");
                     int e = UserVariables.getErosion();
                     for (int k = 0; k < e; k++) {
                         mask.erode();
                     }
-//                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "C:/users/barry05/desktop/adapt_test_data/masks/maska_" + j + "_" + i + ".png");
                     Pixel seed = current.findSeed(mask);
                     if (seed != null) {
-//                        ArrayList<Pixel> centres = current.getCentres();
-//                        Pixel centre = centres.get(centres.size() - 1);
                         Region temp;
                         if (e < 0) {
                             temp = new Region(width, height, seed);
-//                            temp.addBorderPoint(seed);
                         } else {
                             temp = new Region(mask, seed);
                         }
                         cellData[j].setInitialRegion(temp);
-//                        System.out.println("t: " + i + " cell: " + j + " x: " + centre.getX() + " y: " + centre.getY());
-//                        cellData[j].setMaskSeed(new Pixel(cPoints[0][0], cPoints[0][1], j));
                     } else {
-//                        ArrayList<Pixel> centres = current.getCentres();
-//                        Pixel centre = centres.get(centres.size() - 1);
                         cellData[j].setInitialRegion(null);
                         cellData[j].setLength(i + 1);
-//                        System.out.println("t: " + i + " cell: " + j + " x: " + centre.getX() + " y: " + centre.getY());
                     }
                 }
             }
@@ -377,9 +363,7 @@ public class Analyse_Movie implements PlugIn {
         if (IJ.getInstance() == null && !protMode) {
             initP.add(new Pixel(200, 300));
         }
-//        initP.add(new Pixel(40, 40));
         int n;
-//        int threshold = getThreshold(stacks[0].getProcessor(slice), UserVariables.isAutoThreshold());
         if (roi != null) {
             if (roi.getType() == Roi.POINT) {
                 n = roi.getNCoordinates();
@@ -400,7 +384,6 @@ public class Analyse_Movie implements PlugIn {
             cellData[i] = new CellData();
             cellData[i].setImageWidth(stacks[0].getWidth());
             cellData[i].setImageHeight(stacks[0].getHeight());
-//            ArrayList<Pixel> initialPix = new ArrayList();
             Pixel init;
             if (roi != null) {
                 init = new Pixel(roi.getXCoordinates()[i] + roi.getBounds().x,
@@ -408,21 +391,18 @@ public class Analyse_Movie implements PlugIn {
             } else {
                 init = initP.get(i);
             }
-//            initialPix.add(init);
             if (!Utils.isEdgePixel(init.getX(), init.getY(), stacks[0].getWidth(), stacks[0].getHeight(), 1)) {
                 ByteProcessor mask = new ByteProcessor(stacks[0].getWidth(), stacks[0].getHeight());
                 mask.setColor(Region.BACKGROUND);
                 mask.fill();
                 mask.setColor(Region.FOREGROUND);
                 mask.drawPixel(init.getX(), init.getY());
-//            cellData[i].setInitialPix(initialPix);
                 cellData[i].setInitialRegion(new Region(mask, init));
                 cellData[i].setLength(stacks[0].getSize());
             } else {
                 cellData[i].setInitialRegion(null);
                 cellData[i].setLength(0);
             }
-//            cellData[i].setMaskSeed(init);
         }
         return n;
     }
@@ -433,7 +413,6 @@ public class Analyse_Movie implements PlugIn {
      */
     void buildOutput(int index, int frames, boolean preview) {
         Region[] allRegions = cellData[index].getCellRegions();
-//        ImageStack cytoStack = stacks[0];
         ImageStack sigStack = stacks[1];
         int size = frames;
         File trajFile, segPointsFile;
@@ -444,12 +423,7 @@ public class Analyse_Movie implements PlugIn {
          * Analyse morphology of current cell in all frames and save results in
          * morphology.csv
          */
-//        int upLength;
-//        if (UserVariables.isGetMorph() || UserVariables.isAnalyseProtrusions()) {
-//            upLength = getMorphologyData(cellData[index], allRegions, index, frames, preview);
-//        } else {
         int upLength = getMaxBoundaryLength(cellData[index], allRegions, index);
-//        }
         MorphMap curveMap = new MorphMap(size, upLength);
         cellData[index].setCurveMap(curveMap);
         cellData[index].setScaleFactors(scaleFactors);
@@ -461,8 +435,6 @@ public class Analyse_Movie implements PlugIn {
              * scaled up to the same length. For signal processing convenience, this
              * upscaled length will always be a power of 2.
              */
-//        int power = (int) Math.ceil(Math.log(maxBoundary) / Math.log(2.0));
-//        int upLength = (int) Math.pow(2.0, power);
             MorphMap velMap = new MorphMap(size, upLength);
             MorphMap sigMap = null;
             if (sigStack != null) {
@@ -495,7 +467,6 @@ public class Analyse_Movie implements PlugIn {
             double curvatures[][] = curveMap.smoothMap(0.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());
             double sigchanges[][];
             if (sigMap != null) {
-//            sigchanges = sigMap.smoothMap(timeRes, spatialRes);
                 sigchanges = sigMap.getzVals();
             } else {
                 sigchanges = new double[velMap.getWidth()][velMap.getHeight()];
@@ -519,13 +490,9 @@ public class Analyse_Movie implements PlugIn {
             cellData[index].setColorVelMap(colorVelMap);
             cellData[index].setSmoothVelocities(smoothVelocities);
             generateMaps(smoothVelocities, cellData[index], index, cellData.length);
-//            File parentDirectory = new File(directory.getParent());
             IJ.saveAs(new ImagePlus("", greyVelMap), "TIF", childDir + delimiter + "VelocityMap.tif");
             IJ.saveAs(new ImagePlus("", greyCurvMap), "TIF", childDir + delimiter + "CurvatureMap.tif");
             IJ.saveAs(new ImagePlus("", colorVelMap), "PNG", childDir + delimiter + "ColorVelocityMap.png");
-//            IJ.saveAs(new ImagePlus("", greyVelMap), "TIF", parentDirectory.getParent() + delimiter
-//                    + "VelocityMap_" + parentDirectory.getName() + "_" + directory.getName()
-//                    + "_" + numFormat.format(index) + ".tif");
             IJ.saveAs(velMap.periodicity2D(greyVelMap, greyVelMap, 100), "TIF",
                     childDir + delimiter + "VelMap_AutoCorrelation.tif");
             if (sigStack != null) {
@@ -647,7 +614,6 @@ public class Analyse_Movie implements PlugIn {
         for (int i = 0; i < width; i++) {
             Region current = allRegions[i];
             ArrayList<Pixel> centres = current.getCentres();
-//            int cl = centres.size();
             double xc = centres.get(0).getX();
             double yc = centres.get(0).getY();
             trajStream.println(String.valueOf(i * 60.0 / UserVariables.getTimeRes())
@@ -702,7 +668,6 @@ public class Analyse_Movie implements PlugIn {
         for (int i = 0; i < width; i++) {
             Region current = allRegions[i];
             ArrayList<Pixel> centres = current.getCentres();
-//            int cl = centres.size();
             double xc = centres.get(0).getX();
             double yc = centres.get(0).getY();
             /*
@@ -778,11 +743,9 @@ public class Analyse_Movie implements PlugIn {
             ColorProcessor velOutput = new ColorProcessor(width, height);
             velOutput.setColor(Color.black);
             velOutput.fill();
-//            velOutput.setLineWidth(3);
             ColorProcessor curveOutput = new ColorProcessor(width, height);
             curveOutput.setColor(Color.black);
             curveOutput.fill();
-//            curveOutput.setLineWidth(3);
             for (int n = 0; n < N; n++) {
                 int length = cellData[n].getLength();
                 if (length > t && length > UserVariables.getMinLength()) {
@@ -1099,7 +1062,6 @@ public class Analyse_Movie implements PlugIn {
     void calcSigThresh(CellData cellData) {
         if (UserVariables.isUseSigThresh()) {
             ImageProcessor scaledSigMap = cellData.getGreySigMap().duplicate();
-//            scaledSigMap.multiply(UserVariables.getSpatialRes() / UserVariables.getCortexDepth());
             ImageStatistics sigStats = ImageStatistics.getStatistics(scaledSigMap,
                     Measurements.MEAN + Measurements.STD_DEV, null);
             cellData.setSigThresh(sigStats.mean + UserVariables.getSigThreshFact() * sigStats.stdDev);
@@ -1172,15 +1134,9 @@ public class Analyse_Movie implements PlugIn {
         indexedRegions.setColor(outVal);
         ByteBlitter bb = new ByteBlitter(indexedRegions);
         for (int i = 0; i < n; i++) {
-//            ArrayList<Pixel> initialPix = cellData[i].getInitialPix();
             Region region = cellData[i].getInitialRegion();
             if (region != null) {
-//                if (region.getCentres().size() < 1) {
-//                    region.calcCentre(region.getBorderPix());
-//                }
-//                region.setMaskSeed(cellData[i].getMaskSeed());
                 ImageProcessor mask = region.getMask();
-//            region.setSeedPix();
                 mask.invert();
                 mask.multiply((i + 1) / 255.0);
                 bb.copyBits(mask, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
@@ -1188,16 +1144,11 @@ public class Analyse_Movie implements PlugIn {
             singleImageRegions.add(region);
             outVal++;
         }
-//        IJ.saveAs(new ImagePlus("", indexedRegions), "PNG", "C:/users/barry05/desktop/indexedRegions.png");
         intermediate = singleImageRegions.size() + 1;
         terminal = intermediate + 1;
         /*
          * Filter image to be used as basis for region growing.
          */
-//        sigmoidFilter(inputDup, threshold);
-//        PSF psf = new PSF(spatialRes, gaussRad);
-//        psf.calcPSF();
-//        double gaussRad = psf.getSigEst();
         (new GaussianBlur()).blurGaussian(inputDup, UserVariables.getGaussRad(), UserVariables.getGaussRad(), 0.01);
         growRegions(indexedRegions, inputDup, singleImageRegions, UserVariables.isSimple(), threshold);
         return singleImageRegions;
@@ -1237,7 +1188,6 @@ public class Analyse_Movie implements PlugIn {
         /*
          * Grow regions according to texture, grey levels and distance maps
          */
-//        ImageStack regionImageStack = new ImageStack(regionImage.getWidth(), regionImage.getHeight());
         while (totChange) {
             totChange = false;
             for (i = 0; i < cellNum; i++) {
@@ -1254,8 +1204,6 @@ public class Analyse_Movie implements PlugIn {
 //                IJ.saveAs(new ImagePlus("", distanceMapImage), "TIF", "C:/users/barry05/desktop/distanceMapImage_" + i + ".tif");}
                 ByteProcessor ref = (ByteProcessor) regionImages[i].duplicate();
                 Region cell = singleImageRegions.get(i);
-//                if (cell.isActive()) {
-//                    cell.savePixels(width, height);
                 if (cell != null) {
                     LinkedList<Pixel> borderPix = cell.getBorderPix();
                     int borderLength = borderPix.size();
@@ -1277,9 +1225,6 @@ public class Analyse_Movie implements PlugIn {
 //                regionImageStack.addSlice(ref.duplicate());
 //                }
             }
-//            if (regionImageStack.getSize() == 222) {
-//                IJ.wait(0);
-//            }
 //            regionImageStack.addSlice(regionImage.duplicate());
 //            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\regions.tif");
             if (simple) {
@@ -1306,12 +1251,9 @@ public class Analyse_Movie implements PlugIn {
          * Standard deviation of grey levels is used as a simple measure of
          * texture.
          */
-//        ImageProcessor texture = sdImage(inputImage.duplicate(), 1);
         ImageProcessor texture = inputImage.duplicate();
         texture.findEdges();
         blurrer.blurGaussian(texture, filtRad, filtRad, 0.01);
-//        ImageProcessor grad = inputImage.duplicate();
-//        grad.findEdges();
         int cellNum = singleImageRegions.size();
         ArrayList<Region> tempRegions = new ArrayList<Region>();
         for (int n = 0; n < cellNum; n++) {
@@ -1325,29 +1267,22 @@ public class Analyse_Movie implements PlugIn {
             }
             Region cell = singleImageRegions.get(n);
             if (cell != null) {
-//            Pixel centre = cell.getCentroids().get(0);
-//            ArrayList<Pixel> pixels = cell.getPixels();
-
                 ImageProcessor mask = cell.getMask();
                 LinkedList<Pixel> borderPix = cell.getBorderPix();
                 ArrayList<Pixel> centres = cell.getCentres();
                 Pixel centre = centres.get(0);
                 Region cellcopy = new Region(inputImage.getWidth(), inputImage.getHeight(), centre);
-//            int pixsize = pixels.size();
             /*
                  * Copy initial pixels and border pixels to cell copy for distance
                  * map construction. This can probably be replaced with a clone
                  * method.
                  */
-//                ArrayList<Pixel> centres = cell.getCentres();
-//                Pixel median = centres.get(centres.size() - 1);
                 Rectangle bounds = cell.getBounds();
                 for (int i = bounds.x; i < bounds.x + bounds.width; i++) {
                     for (int j = bounds.y; j < bounds.y + bounds.height; j++) {
                         if (mask.getPixel(i, j) == 0) {
                             distancemaps[n][i][j] = 0.0f;
                         }
-//                cellcopy.addPoint(pix);
                     }
                 }
                 int bordersize = borderPix.size();
@@ -1358,7 +1293,6 @@ public class Analyse_Movie implements PlugIn {
                     distancemaps[n][sx][sy] = 0.0f;
                     cellcopy.addBorderPoint(pix);
                 }
-//                cellcopy.calcCentre(borderPix);
                 tempRegions.add(cellcopy);
                 regionImages[n] = (ByteProcessor) regionImage.duplicate();
             } else {
@@ -1402,8 +1336,6 @@ public class Analyse_Movie implements PlugIn {
     float calcDistance(Pixel point, int x, int y, ImageProcessor gradient) {
         return (float) ((Math.pow(gradient.getPixelValue(point.getX(), point.getY())
                 - gradient.getPixelValue(x, y), 2.0) + UserVariables.getLambda()) / (1.0 + UserVariables.getLambda()));
-//        return (float) Utils.calcDistance(point.getX(), point.getY(), x, y);
-//        return Math.abs(point.getX() - x) + Math.abs(point.getY() - y);
     }
     /*
      * Returns an image which illustrates the standard deviation at each point
@@ -1477,8 +1409,6 @@ public class Analyse_Movie implements PlugIn {
             }
         } else if (Utils.isEdgePixel(x, y, width, height, 1)) {
             cell.addExpandedBorderPix(point);
-//        } else {
-//            cell.setMaskSeed(point);
         }
         return dilate;
     }
@@ -1540,12 +1470,7 @@ public class Analyse_Movie implements PlugIn {
             }
         } else if (Utils.isEdgePixel(x, y, width, height, 1)) {
             region.addExpandedBorderPix(point);
-//        } else {
-//            cell.setMaskSeed(point);
         }
-//        } else {
-//            region.addPoint(point);
-//        }
         return dilate;
     }
 
@@ -1556,8 +1481,6 @@ public class Analyse_Movie implements PlugIn {
     boolean buildDistanceMaps(ByteProcessor regionImage, ImageProcessor greys, Region region, Pixel point, float[][] distancemap, double thresh, ImageProcessor gradient, int index) {
         int x = point.getX();
         int y = point.getY();
-//        ArrayList<Pixel> centres = region.getCentres();
-//        Pixel centre = centres.get(centres.size() - 1);
         boolean dilate = false;
         boolean remove = true;
         float minDist = Float.MAX_VALUE;
@@ -1572,9 +1495,6 @@ public class Analyse_Movie implements PlugIn {
                  */
                 if (r == StaticVariables.BACKGROUND && (g > thresh)) {
                     float dist = calcDistance(point, i, j, gradient);
-//                    System.out.println(" x: " + centre.getX() + " y: " + centre.getY() + " i: " + i + " j: " + j + " dist: " + dist);
-//                    float dist = (float) ((Math.pow(gradient.getPixelValue(i, j)
-//                            - gradient.getPixelValue(x, y), 2.0) + lambda) / (1.0 + lambda)); // See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
                     /*
                      * Dilation will only occur at point minimally distant from
                      * seed
@@ -1598,7 +1518,6 @@ public class Analyse_Movie implements PlugIn {
             dilate = true;
             region.addExpandedBorderPix(p);
             distancemap[p.getX()][p.getY()] = distancemap[x][y] + minDist;
-//            distancemap[p.getX()][p.getY()] = minDist;
         }
         if (!remove) {
             region.addExpandedBorderPix(point);
@@ -1606,9 +1525,6 @@ public class Analyse_Movie implements PlugIn {
                 region.setEdge(true);
             }
         }
-//        } else {
-//            region.addPoint(point);
-//        }
         return dilate;
     }
 
@@ -1647,7 +1563,6 @@ public class Analyse_Movie implements PlugIn {
                 }
             }
         }
-//        IJ.saveAs((new ImagePlus("", tempRegionImage)), "PNG", "c:\\users\\barry05\\desktop\\tempregions.png");
         for (int i = 0; i < N; i++) {
             Region cell = regions.get(i);
             if (cell != null) {
@@ -1659,17 +1574,6 @@ public class Analyse_Movie implements PlugIn {
                     int y = current.getY();
                     if (tempRegionImage.getPixel(x, y) > 1) {
                         regionImage.putPixelValue(x, y, terminal);
-//                                                double minDist = Double.MAX_VALUE;
-//                        for (int k = 0; k < N; k++) {
-//                            ArrayList<Pixel> centroids = regions.get(k).getCentroids();
-//                            Pixel centroid = centroids.get(centroids.size() - 1);
-//                            int xc = centroid.getX();
-//                            int yc = centroid.getY();
-//                            double dist = Utils.calcDistance(x, y, xc, yc);
-//                            if (dist < minDist) {
-//                                
-//                            }
-//                        }
                     } else {
                         regionImage.putPixelValue(x, y, i + 1);
                     }
@@ -1701,12 +1605,8 @@ public class Analyse_Movie implements PlugIn {
      * sigrois and velrois.
      */
     void correlativePlot(CellData cellData) {
-//        double minBlebDuration = UserVariables.getMinCurveRange() * scaleFactor / 1.0 / (UserVariables.getTimeRes() / 60.0);
         cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, trajMin, true, UserVariables.getMinCurveThresh(), UserVariables.getCurveRange()));
         cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, trajMin, false, UserVariables.getMaxCurveThresh(), UserVariables.getCurveRange()));
-//        ArrayList<Bleb> blebs = new ArrayList();
-//        CurveMapAnalyser.findAllBlebs(blebs, cellData);
-//        IJ.saveAs(new ImagePlus("", CurveMapAnalyser.drawAllBlebs(cellData, blebs, stacks[0])), "TIF", "c:\\users\\barry05\\desktop\\allblebs.tif");
 //        CurveMapAnalyser.drawAllExtrema(cellData, UserVariables.getTimeRes(), UserVariables.getSpatialRes(),
 //                stacks[0], 1, stacks[0].getSize() - 1, 0.0);
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
@@ -1780,8 +1680,6 @@ public class Analyse_Movie implements PlugIn {
                         IJ.saveAs(new ImagePlus("", BlebAnalyser.drawBlebSigMap(currentBleb,
                                 UserVariables.getSpatialRes(), UserVariables.isUseSigThresh())),
                                 "TIF", mapDir + delimiter + "detection_" + numFormat.format(count) + "_map.tif");
-//                        IJ.saveAs(new ImagePlus("", detectionStack), "TIF", currentProtrusion.getDetectionDir()
-//                                + "_startindex_" + currentProtrusion.getStartIndex() + ".tif");
                         for (int z = 0; z < meanVel.size(); z++) {
                             meanVel.set(z, meanVel.get(z) / protrusionLength.get(z)); //Divide by protrusion length to get mean
                         }
@@ -1820,24 +1718,15 @@ public class Analyse_Movie implements PlugIn {
         Rectangle bounds = currentBleb.getBounds();
         int duration = currentBleb.getBlebPerimSigs().size();
         ArrayList<Polygon> polys = currentBleb.getPolys();
-//        int ovalRadius = UserVariables.getOvalRadius();
-//        int ovalDiam = ovalRadius * 2 + 1;
         ImageStack detectionStack = currentBleb.getDetectionStack();
         Random r = new Random();
         int red = r.nextInt(256);
         int green = r.nextInt(256);
         int blue = r.nextInt(256);
-//        for (int i = 1; i < stacks[0].getSize(); i++) {
-//            detectionStack.addSlice(new TypeConverter(stacks[0].getProcessor(i).duplicate(), true).convertToRGB());
-//        }
         for (int timeIndex = bounds.x; timeIndex - bounds.x < duration && timeIndex < detectionStack.getSize(); timeIndex++) {
             ColorProcessor detectionSlice = (ColorProcessor) detectionStack.getProcessor(timeIndex + 1);
             Polygon poly = polys.get(timeIndex - bounds.x);
             ByteProcessor blebMask = BlebAnalyser.drawBlebMask(poly, cortexRad, stacks[0].getWidth(), stacks[0].getHeight(), 255, 0);
-//            Rectangle polyBounds = poly.getBounds();
-//            detectionSlice.setColor(Color.yellow);
-//            detectionSlice.drawString("" + index, polyBounds.x + polyBounds.width / 2,
-//                    polyBounds.y + polyBounds.height / 2);
             blebMask.invert();
             blebMask.outline();
             blebMask.invert();
@@ -1853,13 +1742,7 @@ public class Analyse_Movie implements PlugIn {
             ImageStack merged = RGBStackMerge.mergeStacks(redC, greenC, blueC, false);
             ColorBlitter blitter = new ColorBlitter(detectionSlice);
             blitter.copyBits(merged.getProcessor(1), 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
-//            detectionSlice.setColor(Color.yellow);
-//            detectionSlice.drawOval(poly.xpoints[0] - ovalRadius,
-//                    poly.ypoints[0] - ovalRadius, ovalDiam, ovalDiam);
-//            detectionSlice.drawOval(poly.xpoints[poly.npoints - 1] - ovalRadius,
-//                    poly.ypoints[poly.npoints - 1] - ovalRadius, ovalDiam, ovalDiam);
         }
-//        IJ.saveAs(new ImagePlus("", detectionStack), "TIF", parDir + delimiter + "detectionStack_" + index + ".TIF");
     }
 
     /**
@@ -1902,13 +1785,9 @@ public class Analyse_Movie implements PlugIn {
         for (int r = 0; r < nCell; r++) {
             Region region = detectedRegions.get(r);
             if (region != null) {
-//                if (region.getCentres().size() < 1) {
-//                    region.calcCentre(region.getMask(stacks[0].getWidth(), stacks[0].getHeight()));
-//                }
                 ArrayList<Pixel> centres = region.getCentres();
                 Pixel centre = centres.get(centres.size() - 1);
                 LinkedList<Pixel> border = region.getBorderPix();
-//            ArrayList<Pixel> seed = region.getSeedPix();
                 for (int i = 0; i < channels; i++) {
                     regionsOutput[i].setColor(Color.red);
                     for (Pixel current : border) {
@@ -1920,8 +1799,6 @@ public class Analyse_Movie implements PlugIn {
                     Utils.drawCross(regionsOutput[i], centre.getX(), centre.getY(), 6);
                 }
                 if (channels > 1) {
-//                ArrayList<Pixel> centroids = region.getCentroids();
-//                Pixel centre = centroids.get(centroids.size() - 1);
                     ImageProcessor origMask = region.getMask();
                     ImageProcessor shrunkMask = origMask.duplicate();
                     ImageProcessor enlargedMask = origMask.duplicate();
@@ -1979,18 +1856,6 @@ public class Analyse_Movie implements PlugIn {
         return regionsOutput;
     }
 
-//    void setLookAndFeel() {
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//    }
     void getInitialSeedPoints(ByteProcessor image, ArrayList<Pixel> pixels) {
         ByteProcessor binary = (ByteProcessor) image.duplicate();
         (new GaussianBlur()).blurGaussian(binary, UserVariables.getGaussRad(), UserVariables.getGaussRad(), 0.01);
