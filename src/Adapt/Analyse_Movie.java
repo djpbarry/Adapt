@@ -95,7 +95,7 @@ public class Analyse_Movie implements PlugIn {
      */
     protected DecimalFormat numFormat = StaticVariables.numFormat; // For formatting results
     private PointRoi roi = null; // Points used as seeds for cell detection
-    private CellData cellData[];
+    private ArrayList<CellData> cellData;
     protected final ImageStack stacks[] = new ImageStack[2];
     private final double morphSizeMin = 5.0, trajMin = 5.0;
     protected boolean batchMode = false;
@@ -238,7 +238,7 @@ public class Analyse_Movie implements PlugIn {
         ProgressDialog segDialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
         segDialog.setVisible(true);
 
-        int n = initialiseROIs(1);
+        int n = initialiseROIs(1, null);
         if (n < 1) {
             return;
         }
@@ -279,17 +279,17 @@ public class Analyse_Movie implements PlugIn {
                         } else {
                             temp = new Region(mask, seed);
                         }
-                        cellData[j].setInitialRegion(temp);
+                        cellData.get(j).setInitialRegion(temp);
                     } else {
-                        cellData[j].setInitialRegion(null);
-                        cellData[j].setLength(i + 1);
+                        cellData.get(j).setInitialRegion(null);
+                        cellData.get(j).setLength(i + 1);
                     }
                 }
             }
         }
         for (int i = 0; i < n; i++) {
-            cellData[i].setCellRegions(allRegions[i]);
-            cellData[i].setGreyThresholds(thresholds);
+            cellData.get(i).setCellRegions(allRegions[i]);
+            cellData.get(i).setGreyThresholds(thresholds);
         }
         segDialog.dispose();
         /*
@@ -306,17 +306,17 @@ public class Analyse_Movie implements PlugIn {
                  */
                 dialog.updateProgress(index, n);
                 String childDirName = GenUtils.openResultsDirectory(parDir + delimiter + index, delimiter);
-                int length = cellData[index].getLength();
+                int length = cellData.get(index).getLength();
                 if (length > UserVariables.getMinLength()) {
                     childDir = new File(childDirName);
                     buildOutput(index, length, false);
                     if (UserVariables.isAnalyseProtrusions()) {
-                        calcSigThresh(cellData[index]);
+                        calcSigThresh(cellData.get(index));
                         if (UserVariables.isBlebDetect()) {
-                            findProtrusionsBasedOnVel(cellData[index]);
-                            correlativePlot(cellData[index]);
+                            findProtrusionsBasedOnVel(cellData.get(index));
+                            correlativePlot(cellData.get(index));
                         } else {
-                            ImageStack protStack = findProtrusionsBasedOnMorph(cellData[index], (int) Math.round(UserVariables.getFiloSize()));
+                            ImageStack protStack = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(UserVariables.getFiloSize()));
                             ImageStack tempCyto = stacks[0];
                             stacks[0] = protStack;
                             protMode = true;
@@ -358,7 +358,7 @@ public class Analyse_Movie implements PlugIn {
         paramStream.close();
     }
 
-    int initialiseROIs(int slice) {
+    int initialiseROIs(int slice, ByteProcessor masks) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
         if (IJ.getInstance() == null && !protMode) {
             initP.add(new Pixel(200, 300));
@@ -372,18 +372,25 @@ public class Analyse_Movie implements PlugIn {
                 return -1;
             }
         } else {
-            getInitialSeedPoints((ByteProcessor) convertStackTo8Bit(stacks[0]).getProcessor(slice), initP);
+            ByteProcessor image = (ByteProcessor) (ByteProcessor) convertStackTo8Bit(stacks[0]).getProcessor(slice).duplicate();
+            (new GaussianBlur()).blurGaussian(image, UserVariables.getGaussRad(), UserVariables.getGaussRad(), 0.01);
+            image.threshold((int) Math.round(Utils.getPercentileThresh(image, UserVariables.getGreyThresh())));
+            if (masks != null) {
+                ByteBlitter bb = new ByteBlitter(image);
+                bb.copyBits(image, 0, 0, Blitter.SUBTRACT);
+            }
+            getSeedPoints(image, initP);
             if (IJ.getInstance() == null && !protMode) {
                 n = 1;
             } else {
                 n = initP.size();
             }
         }
-        cellData = new CellData[n];
+        cellData = new ArrayList();
         for (int i = 0; i < n; i++) {
-            cellData[i] = new CellData();
-            cellData[i].setImageWidth(stacks[0].getWidth());
-            cellData[i].setImageHeight(stacks[0].getHeight());
+            cellData.add(new CellData());
+            cellData.get(i).setImageWidth(stacks[0].getWidth());
+            cellData.get(i).setImageHeight(stacks[0].getHeight());
             Pixel init;
             if (roi != null) {
                 init = new Pixel(roi.getXCoordinates()[i] + roi.getBounds().x,
@@ -397,11 +404,11 @@ public class Analyse_Movie implements PlugIn {
                 mask.fill();
                 mask.setColor(Region.FOREGROUND);
                 mask.drawPixel(init.getX(), init.getY());
-                cellData[i].setInitialRegion(new Region(mask, init));
-                cellData[i].setLength(stacks[0].getSize());
+                cellData.get(i).setInitialRegion(new Region(mask, init));
+                cellData.get(i).setLength(stacks[0].getSize());
             } else {
-                cellData[i].setInitialRegion(null);
-                cellData[i].setLength(0);
+                cellData.get(i).setInitialRegion(null);
+                cellData.get(i).setLength(0);
             }
         }
         return n;
@@ -412,7 +419,7 @@ public class Analyse_Movie implements PlugIn {
      * cell corresponding to index
      */
     void buildOutput(int index, int frames, boolean preview) {
-        Region[] allRegions = cellData[index].getCellRegions();
+        Region[] allRegions = cellData.get(index).getCellRegions();
         ImageStack sigStack = stacks[1];
         int size = frames;
         File trajFile, segPointsFile;
@@ -423,11 +430,11 @@ public class Analyse_Movie implements PlugIn {
          * Analyse morphology of current cell in all frames and save results in
          * morphology.csv
          */
-        int upLength = getMaxBoundaryLength(cellData[index], allRegions, index);
+        int upLength = getMaxBoundaryLength(cellData.get(index), allRegions, index);
         MorphMap curveMap = new MorphMap(size, upLength);
-        cellData[index].setCurveMap(curveMap);
-        cellData[index].setScaleFactors(scaleFactors);
-        buildCurveMap(allRegions, cellData[index]);
+        cellData.get(index).setCurveMap(curveMap);
+        cellData.get(index).setScaleFactors(scaleFactors);
+        buildCurveMap(allRegions, cellData.get(index));
 
         if (!preview) {
             /*
@@ -457,10 +464,10 @@ public class Analyse_Movie implements PlugIn {
             if (!prepareOutputFiles(trajStream, segStream, size, 3)) {
                 return;
             }
-            cellData[index].setVelMap(velMap);
-            cellData[index].setSigMap(sigMap);
-            cellData[index].setScaleFactors(scaleFactors);
-            buildVelSigMaps(index, allRegions, trajStream, segStream, cellData[index], cellData.length);
+            cellData.get(index).setVelMap(velMap);
+            cellData.get(index).setSigMap(sigMap);
+            cellData.get(index).setScaleFactors(scaleFactors);
+            buildVelSigMaps(index, allRegions, trajStream, segStream, cellData.get(index), cellData.size());
             trajStream.close();
             segStream.close();
             double smoothVelocities[][] = velMap.smoothMap(UserVariables.getTempFiltRad() * UserVariables.getTimeRes() / 60.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes()); // Gaussian smoothing in time and space
@@ -482,14 +489,14 @@ public class Analyse_Movie implements PlugIn {
             double maxvel = velstats.getUpper99(); // Max and min velocity values (for colourmap) based on upper.lower 99th percentile boundaries
             double minvel = velstats.getLower99();
             generateScaleBar(maxvel, minvel);
-            cellData[index].setGreyVelMap(greyVelMap);
-            cellData[index].setGreyCurveMap(greyCurvMap);
-            cellData[index].setMaxVel(maxvel);
-            cellData[index].setMinVel(minvel);
-            cellData[index].setGreySigMap(greySigMap);
-            cellData[index].setColorVelMap(colorVelMap);
-            cellData[index].setSmoothVelocities(smoothVelocities);
-            generateMaps(smoothVelocities, cellData[index], index, cellData.length);
+            cellData.get(index).setGreyVelMap(greyVelMap);
+            cellData.get(index).setGreyCurveMap(greyCurvMap);
+            cellData.get(index).setMaxVel(maxvel);
+            cellData.get(index).setMinVel(minvel);
+            cellData.get(index).setGreySigMap(greySigMap);
+            cellData.get(index).setColorVelMap(colorVelMap);
+            cellData.get(index).setSmoothVelocities(smoothVelocities);
+            generateMaps(smoothVelocities, cellData.get(index), index, cellData.size());
             IJ.saveAs(new ImagePlus("", greyVelMap), "TIF", childDir + delimiter + "VelocityMap.tif");
             IJ.saveAs(new ImagePlus("", greyCurvMap), "TIF", childDir + delimiter + "CurvatureMap.tif");
             IJ.saveAs(new ImagePlus("", colorVelMap), "PNG", childDir + delimiter + "ColorVelocityMap.png");
@@ -509,7 +516,7 @@ public class Analyse_Movie implements PlugIn {
         }
     }
 
-    void getMorphologyData(CellData[] cellData) {
+    void getMorphologyData(ArrayList<CellData> cellData) {
         int measures = Integer.MAX_VALUE;
         ResultsTable rt = Analyzer.getResultsTable();
         rt.reset();
@@ -523,10 +530,10 @@ public class Analyse_Movie implements PlugIn {
         } catch (IOException e) {
             IJ.error("Could not save morphological data file.");
         }
-        for (int index = 0; index < cellData.length; index++) {
-            int length = cellData[index].getLength();
+        for (int index = 0; index < cellData.size(); index++) {
+            int length = cellData.get(index).getLength();
             if (length > UserVariables.getMinLength()) {
-                Region[] allRegions = cellData[index].getCellRegions();
+                Region[] allRegions = cellData.get(index).getCellRegions();
                 for (int h = 0; h < length; h++) {
                     Region current = allRegions[h];
                     ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.SHOW_RESULTS,
@@ -725,8 +732,8 @@ public class Analyse_Movie implements PlugIn {
         }
     }
 
-    void genCurveVelVis(CellData cellDatas[]) {
-        int N = cellDatas.length;
+    void genCurveVelVis(ArrayList<CellData> cellDatas) {
+        int N = cellDatas.size();
         ImageStack cytoStack = stacks[0];
         String pdLabel = protMode ? "Building Filopodia Visualisations..." : "Building Cell Visualisations...";
         ProgressDialog dialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
@@ -747,14 +754,14 @@ public class Analyse_Movie implements PlugIn {
             curveOutput.setColor(Color.black);
             curveOutput.fill();
             for (int n = 0; n < N; n++) {
-                int length = cellData[n].getLength();
+                int length = cellData.get(n).getLength();
                 if (length > t && length > UserVariables.getMinLength()) {
-                    double[][] smoothVelocities = cellData[n].getSmoothVelocities();
-                    Region[] allRegions = cellData[n].getCellRegions();
-                    MorphMap curveMap = cellData[n].getCurveMap();
+                    double[][] smoothVelocities = cellData.get(n).getSmoothVelocities();
+                    Region[] allRegions = cellData.get(n).getCellRegions();
+                    MorphMap curveMap = cellData.get(n).getCurveMap();
                     int upLength = curveMap.getHeight();
-                    double maxvel = cellData[n].getMaxVel();
-                    double minvel = cellData[n].getMinVel();
+                    double maxvel = cellData.get(n).getMaxVel();
+                    double minvel = cellData.get(n).getMinVel();
                     double xCoords[][] = curveMap.getxCoords();
                     double yCoords[][] = curveMap.getyCoords();
                     double curvatures[][] = curveMap.getzVals();
@@ -782,8 +789,8 @@ public class Analyse_Movie implements PlugIn {
         dialog.dispose();
     }
 
-    void genSimpSegVis(CellData cellDatas[]) {
-        int N = cellDatas.length;
+    void genSimpSegVis(ArrayList<CellData> cellDatas) {
+        int N = cellDatas.size();
         ImageStack cytoStack = stacks[0];
         String pdLabel = protMode ? "Building Filopodia Visualisations..." : "Building Cell Visualisations...";
         ProgressDialog dialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
@@ -800,9 +807,9 @@ public class Analyse_Movie implements PlugIn {
             output.setColor(Color.black);
             output.fill();
             for (int n = 0; n < N; n++) {
-                int length = cellData[n].getLength();
+                int length = cellData.get(n).getLength();
                 if (length > t && length > UserVariables.getMinLength()) {
-                    Region[] allRegions = cellData[n].getCellRegions();
+                    Region[] allRegions = cellData.get(n).getCellRegions();
                     Region current = allRegions[t];
                     LinkedList<Pixel> border = current.getBorderPix();
                     output.setColor(Color.yellow);
@@ -825,8 +832,8 @@ public class Analyse_Movie implements PlugIn {
         dialog.dispose();
     }
 
-    void generateCellTrajectories(CellData cellDatas[]) {
-        int N = cellDatas.length;
+    void generateCellTrajectories(ArrayList<CellData> cellDatas) {
+        int N = cellDatas.size();
         ImageStack cytoStack = stacks[0];
         String pdLabel = protMode ? "Building Filopodia Trajectories..." : "Building Cell Trajectories...";
         ProgressDialog dialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
@@ -857,10 +864,10 @@ public class Analyse_Movie implements PlugIn {
         trajStream.print("Frame,");
         for (int n = 0; n < N; n++) {
             colors[n] = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
-            if (cellData[n].getLength() > UserVariables.getMinLength()) {
+            if (cellData.get(n).getLength() > UserVariables.getMinLength()) {
                 trajStream.print("Cell_" + String.valueOf(n + 1) + "_X,");
                 trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y,");
-                Region[] allRegions = cellData[n].getCellRegions();
+                Region[] allRegions = cellData.get(n).getCellRegions();
                 Region current = allRegions[0];
                 ArrayList<Pixel> centres = current.getCentres();
                 int cl = centres.size();
@@ -877,9 +884,9 @@ public class Analyse_Movie implements PlugIn {
             trajOutput.fill();
             for (int n = 0; n < N; n++) {
                 trajOutput.setColor(colors[n]);
-                int length = cellData[n].getLength();
+                int length = cellData.get(n).getLength();
                 if (length > t && length > UserVariables.getMinLength()) {
-                    Region[] allRegions = cellData[n].getCellRegions();
+                    Region[] allRegions = cellData.get(n).getCellRegions();
                     Region current = allRegions[t];
                     ArrayList<Pixel> centres = current.getCentres();
                     int c = centres.size();
@@ -903,7 +910,7 @@ public class Analyse_Movie implements PlugIn {
         }
         trajStream.print("\nMean Velocity (" + IJ.micronSymbol + "m/min):,");
         for (int n = 0; n < N; n++) {
-            int l = cellData[n].getLength();
+            int l = cellData.get(n).getLength();
             if (l > UserVariables.getMinLength()) {
                 trajStream.print(String.valueOf(distances[n] * UserVariables.getSpatialRes()
                         / (l * UserVariables.getTimeRes())) + ",,");
@@ -911,9 +918,9 @@ public class Analyse_Movie implements PlugIn {
         }
         trajStream.print("\nDirectionality:,");
         for (int n = 0; n < N; n++) {
-            int l = cellData[n].getLength();
+            int l = cellData.get(n).getLength();
             if (l > UserVariables.getMinLength()) {
-                Region current = cellData[n].getCellRegions()[l - 1];
+                Region current = cellData.get(n).getCellRegions()[l - 1];
                 ArrayList<Pixel> centres = current.getCentres();
                 Pixel centre = centres.get(centres.size() - 1);
                 trajStream.print(String.valueOf(Utils.calcDistance(origins[n][0], origins[n][1], centre.getX(), centre.getY()) / distances[n]) + ",,");
@@ -1116,13 +1123,13 @@ public class Analyse_Movie implements PlugIn {
      * Detects the cells in the specified image and, if showPreview is true,
      * returns an image illustrating the detected boundary.
      */
-    private ArrayList<Region> findCellRegions(ImageProcessor inputProc, double threshold, CellData[] cellData) {
+    private ArrayList<Region> findCellRegions(ImageProcessor inputProc, double threshold, ArrayList<CellData> cellData) {
         int outVal = 1;
         ImageProcessor inputFloatProc = (new TypeConverter(inputProc, true)).convertToFloat(null);
         ImageProcessor inputDup = inputFloatProc.duplicate();
         int width = inputDup.getWidth();
         int height = inputDup.getHeight();
-        int n = cellData.length;
+        int n = cellData.size();
         ArrayList<Region> singleImageRegions = new ArrayList<Region>();
         /*
          * Create image depicting regions to be "grown". Regions initialised
@@ -1134,7 +1141,7 @@ public class Analyse_Movie implements PlugIn {
         indexedRegions.setColor(outVal);
         ByteBlitter bb = new ByteBlitter(indexedRegions);
         for (int i = 0; i < n; i++) {
-            Region region = cellData[i].getInitialRegion();
+            Region region = cellData.get(i).getInitialRegion();
             if (region != null) {
                 ImageProcessor mask = region.getMask();
                 mask.invert();
@@ -1752,23 +1759,23 @@ public class Analyse_Movie implements PlugIn {
      * @return 1- or 2-channel preview image showing segmentation result
      */
     public ImageProcessor[] generatePreview(int sliceIndex) {
-        int nCell = initialiseROIs(sliceIndex);
+        int nCell = initialiseROIs(sliceIndex, null);
         ImageProcessor cytoProc = convertStackTo8Bit(stacks[0]).getProcessor(sliceIndex);
         Region[][] allRegions = new Region[nCell][1];
         int threshold = getThreshold(cytoProc, UserVariables.isAutoThreshold(), UserVariables.getGreyThresh(), UserVariables.getThreshMethod());
         ArrayList<Region> detectedRegions = findCellRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
             allRegions[k][0] = detectedRegions.get(k);
-            cellData[k].setCellRegions(allRegions[k]);
-            cellData[k].setLength(1);
+            cellData.get(k).setCellRegions(allRegions[k]);
+            cellData.get(k).setLength(1);
         }
         if (UserVariables.isAnalyseProtrusions()) {
             for (int i = 0; i < nCell; i++) {
                 buildOutput(i, 1, true);
-                cellData[i].setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i],
+                cellData.get(i).setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData.get(i),
                         sliceIndex - 1, sliceIndex - 1, 0.0, true, UserVariables.getMinCurveThresh(),
                         UserVariables.getCurveRange()));
-                cellData[i].setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData[i],
+                cellData.get(i).setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData.get(i),
                         sliceIndex - 1, sliceIndex - 1, 0.0, false, UserVariables.getMaxCurveThresh(),
                         UserVariables.getCurveRange()));
             }
@@ -1828,8 +1835,8 @@ public class Analyse_Movie implements PlugIn {
                 }
                 if (UserVariables.isAnalyseProtrusions()) {
                     if (UserVariables.isBlebDetect()) {
-                        ArrayList<BoundaryPixel> minPos[] = cellData[r].getCurvatureMinima();
-                        ArrayList<BoundaryPixel> maxPos[] = cellData[r].getCurvatureMaxima();
+                        ArrayList<BoundaryPixel> minPos[] = cellData.get(r).getCurvatureMinima();
+                        ArrayList<BoundaryPixel> maxPos[] = cellData.get(r).getCurvatureMaxima();
                         for (int i = 0; i < channels; i++) {
                             if (minPos[0] != null) {
                                 regionsOutput[i].setColor(Color.yellow);
@@ -1856,7 +1863,7 @@ public class Analyse_Movie implements PlugIn {
                         for (int i = 0; i < channels; i++) {
                             regionsOutput[i].setColor(Color.yellow);
                         }
-                        ImageStack filoStack = findProtrusionsBasedOnMorph(cellData[r], (int) Math.round(UserVariables.getFiloSize()));
+                        ImageStack filoStack = findProtrusionsBasedOnMorph(cellData.get(r), (int) Math.round(UserVariables.getFiloSize()));
                         ByteProcessor filoBin = (ByteProcessor) filoStack.getProcessor(1);
                         filoBin.outline();
                         for (int y = 0; y < filoBin.getHeight(); y++) {
@@ -1875,10 +1882,7 @@ public class Analyse_Movie implements PlugIn {
         return regionsOutput;
     }
 
-    void getInitialSeedPoints(ByteProcessor image, ArrayList<Pixel> pixels) {
-        ByteProcessor binary = (ByteProcessor) image.duplicate();
-        (new GaussianBlur()).blurGaussian(binary, UserVariables.getGaussRad(), UserVariables.getGaussRad(), 0.01);
-        binary.threshold((int) Math.round(Utils.getPercentileThresh(image, UserVariables.getGreyThresh())));
+    void getSeedPoints(ByteProcessor binary, ArrayList<Pixel> pixels) {
         binary.invert();
         if (binary.isInvertedLut()) {
             binary.invertLut();
