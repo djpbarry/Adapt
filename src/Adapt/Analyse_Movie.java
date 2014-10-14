@@ -325,20 +325,17 @@ public class Analyse_Movie implements PlugIn {
                     buildOutput(index, length, false);
                     if (UserVariables.isAnalyseProtrusions()) {
                         calcSigThresh(cellData[index]);
-                        if (UserVariables.isVelDetect()) {
+                        if (UserVariables.isBlebDetect()) {
                             findProtrusionsBasedOnVel(cellData[index]);
                             correlativePlot(cellData[index]);
                         } else {
-                            ImageStack protStack = findProtrusionsBasedOnMorph(cellData[index], 5);
+                            ImageStack protStack = findProtrusionsBasedOnMorph(cellData[index], (int)Math.round(UserVariables.getFiloSize()));
                             ImageStack tempCyto = stacks[0];
                             stacks[0] = protStack;
                             protMode = true;
                             UserVariables.setAnalyseProtrusions(false);
-                            double tempInit = UserVariables.getCortexDepth();
-                            UserVariables.setInitGaussRad(1.0);
                             analyse("Protrusions");
                             UserVariables.setAnalyseProtrusions(true);
-                            UserVariables.setInitGaussRad(tempInit);
                             stacks[0] = tempCyto;
                             protMode = false;
                         }
@@ -615,7 +612,7 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.GEN_VIS + ", " + String.valueOf(UserVariables.isGenVis()));
         paramStream.println(StaticVariables.GET_MORPH + ", " + String.valueOf(UserVariables.isGetMorph()));
         paramStream.println(StaticVariables.ANA_PROT + ", " + String.valueOf(UserVariables.isAnalyseProtrusions()));
-        paramStream.println(StaticVariables.VEL_DETECT + ", " + String.valueOf(UserVariables.isVelDetect()));
+        paramStream.println(StaticVariables.DETECT_BLEB + ", " + String.valueOf(UserVariables.isBlebDetect()));
         paramStream.println(StaticVariables.MIN_CURVE_RANGE + ", " + String.valueOf(UserVariables.getCurveRange()));
         paramStream.println(StaticVariables.MIN_CURVE_THRESH + ", " + String.valueOf(UserVariables.getMinCurveThresh()));
 //        paramStream.println(StaticVariables.MAX_CURVE_RANGE + ", " + String.valueOf(UserVariables.getMaxCurveRange()));
@@ -1982,7 +1979,7 @@ public class Analyse_Movie implements PlugIn {
 //    }
     void getInitialSeedPoints(ByteProcessor image, ArrayList<Pixel> pixels) {
         ByteProcessor binary = (ByteProcessor) image.duplicate();
-        (new GaussianBlur()).blurGaussian(binary, UserVariables.getInitGaussRad(), UserVariables.getInitGaussRad(), 0.01);
+        (new GaussianBlur()).blurGaussian(binary, UserVariables.getGaussRad(), UserVariables.getGaussRad(), 0.01);
         binary.threshold((int) Math.round(Utils.getPercentileThresh(image, UserVariables.getGreyThresh())));
         binary.invert();
         if (binary.isInvertedLut()) {
@@ -1995,10 +1992,12 @@ public class Analyse_Movie implements PlugIn {
                 Measurements.CENTROID, rt, 0.0, Double.POSITIVE_INFINITY);
         analyzeDetections(null, binary, analyzer);
         int count = rt.getCounter();
-        float x[] = rt.getColumn(rt.getColumnIndex("X"));
-        float y[] = rt.getColumn(rt.getColumnIndex("Y"));
-        for (int i = 0; i < count; i++) {
-            pixels.add(new Pixel(x[i], y[i]));
+        if (count > 0) {
+            float x[] = rt.getColumn(rt.getColumnIndex("X"));
+            float y[] = rt.getColumn(rt.getColumnIndex("Y"));
+            for (int i = 0; i < count; i++) {
+                pixels.add(new Pixel(x[i], y[i]));
+            }
         }
     }
 

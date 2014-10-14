@@ -387,30 +387,6 @@
                     </Constraint>
                   </Constraints>
                 </Component>
-                <Component class="javax.swing.JLabel" name="initFiltRadLabel">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="StaticVariables.INIT_FILT_RAD" type="code"/>
-                    </Property>
-                  </Properties>
-                  <Constraints>
-                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                      <GridBagConstraints gridX="0" gridY="6" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="10" insetsBottom="0" insetsRight="0" anchor="21" weightX="1.0" weightY="0.0"/>
-                    </Constraint>
-                  </Constraints>
-                </Component>
-                <Component class="javax.swing.JTextField" name="initFiltRadTextField">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(UserVariables.getInitGaussRad())" type="code"/>
-                    </Property>
-                  </Properties>
-                  <Constraints>
-                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                      <GridBagConstraints gridX="1" gridY="6" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="10" anchor="22" weightX="1.0" weightY="0.0"/>
-                    </Constraint>
-                  </Constraints>
-                </Component>
                 <Component class="javax.swing.JLabel" name="lambdaLabel">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
@@ -485,7 +461,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveRangeLabel.setEnabled(UserVariables.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveRangeLabel.setEnabled(UserVariables.isAnalyseProtrusions() &amp;&amp; UserVariables.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -500,7 +476,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveRangeField.setEnabled(UserVariables.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveRangeField.setEnabled(UserVariables.isAnalyseProtrusions() &amp;&amp; UserVariables.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -515,7 +491,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveThreshLabel.setEnabled(UserVariables.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveThreshLabel.setEnabled(UserVariables.isAnalyseProtrusions() &amp;&amp; UserVariables.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -530,7 +506,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveThreshField.setEnabled(UserVariables.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveThreshField.setEnabled(UserVariables.isAnalyseProtrusions() &amp;&amp; UserVariables.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -549,7 +525,7 @@
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                      <GridBagConstraints gridX="0" gridY="6" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="10" insetsBottom="0" insetsRight="0" anchor="21" weightX="1.0" weightY="0.0"/>
+                      <GridBagConstraints gridX="0" gridY="6" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="10" insetsLeft="10" insetsBottom="0" insetsRight="0" anchor="21" weightX="1.0" weightY="0.0"/>
                     </Constraint>
                   </Constraints>
                 </Component>
@@ -564,7 +540,7 @@
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                      <GridBagConstraints gridX="1" gridY="6" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="10" anchor="22" weightX="1.0" weightY="0.0"/>
+                      <GridBagConstraints gridX="1" gridY="6" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="10" insetsLeft="0" insetsBottom="0" insetsRight="10" anchor="22" weightX="1.0" weightY="0.0"/>
                     </Constraint>
                   </Constraints>
                 </Component>
@@ -671,11 +647,11 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="maxCurveThreshField.setEnabled(UserVariables.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="maxCurveThreshField.setEnabled(UserVariables.isAnalyseProtrusions() &amp;&amp; UserVariables.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                      <GridBagConstraints gridX="1" gridY="5" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="10" anchor="22" weightX="1.0" weightY="0.0"/>
+                      <GridBagConstraints gridX="1" gridY="4" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="10" insetsRight="10" anchor="22" weightX="1.0" weightY="0.0"/>
                     </Constraint>
                   </Constraints>
                 </Component>
@@ -686,25 +662,25 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="maxCurveThreshLabel.setEnabled(UserVariables.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="maxCurveThreshLabel.setEnabled(UserVariables.isAnalyseProtrusions() &amp;&amp; UserVariables.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                      <GridBagConstraints gridX="0" gridY="5" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="10" insetsBottom="0" insetsRight="0" anchor="21" weightX="1.0" weightY="0.0"/>
+                      <GridBagConstraints gridX="0" gridY="4" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="10" insetsBottom="10" insetsRight="0" anchor="21" weightX="1.0" weightY="0.0"/>
                     </Constraint>
                   </Constraints>
                 </Component>
-                <Component class="javax.swing.JRadioButton" name="velDetectRadioButton">
+                <Component class="javax.swing.JRadioButton" name="blebDetectRadioButton">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="StaticVariables.VEL_DETECT" type="code"/>
+                      <Connection code="StaticVariables.DETECT_BLEB" type="code"/>
                     </Property>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="velDetectRadioButtonActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="blebDetectRadioButtonActionPerformed"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="velDetectRadioButton.setSelected(UserVariables.isVelDetect());&#xa;velDetectRadioButton.setEnabled(UserVariables.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="blebDetectRadioButton.setSelected(UserVariables.isBlebDetect());&#xa;blebDetectRadioButton.setEnabled(UserVariables.isAnalyseProtrusions());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -712,17 +688,17 @@
                     </Constraint>
                   </Constraints>
                 </Component>
-                <Component class="javax.swing.JRadioButton" name="curveDetectRadioButton">
+                <Component class="javax.swing.JRadioButton" name="filoDetectRadioButton">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="StaticVariables.CURVE_DETECT" type="code"/>
+                      <Connection code="StaticVariables.DETECT_FILO" type="code"/>
                     </Property>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="curveDetectRadioButtonActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="filoDetectRadioButtonActionPerformed"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="curveDetectRadioButton.setSelected(!UserVariables.isVelDetect());&#xa;curveDetectRadioButton.setEnabled(UserVariables.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoDetectRadioButton.setSelected(!UserVariables.isBlebDetect());&#xa;filoDetectRadioButton.setEnabled(UserVariables.isAnalyseProtrusions());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -760,14 +736,14 @@
                     </Constraint>
                   </Constraints>
                 </Component>
-                <Component class="javax.swing.JTextField" name="protLenTextField">
+                <Component class="javax.swing.JTextField" name="protLenField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="String.valueOf(UserVariables.getBlebLenThresh())" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="protLenTextField.setEnabled(UserVariables.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="protLenField.setEnabled(UserVariables.isAnalyseProtrusions());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -775,18 +751,48 @@
                     </Constraint>
                   </Constraints>
                 </Component>
-                <Component class="javax.swing.JTextField" name="protDurTextField">
+                <Component class="javax.swing.JTextField" name="protDurField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="String.valueOf(UserVariables.getBlebDurThresh())" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="protDurTextField.setEnabled(UserVariables.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="protDurField.setEnabled(UserVariables.isAnalyseProtrusions());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
                       <GridBagConstraints gridX="1" gridY="8" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="10" anchor="22" weightX="1.0" weightY="0.0"/>
+                    </Constraint>
+                  </Constraints>
+                </Component>
+                <Component class="javax.swing.JLabel" name="filoSizeLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="StaticVariables.FILO_SIZE" type="code"/>
+                    </Property>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoSizeLabel.setEnabled(UserVariables.isAnalyseProtrusions() &amp;&amp; !UserVariables.isBlebDetect());"/>
+                  </AuxValues>
+                  <Constraints>
+                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+                      <GridBagConstraints gridX="0" gridY="5" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="10" insetsLeft="10" insetsBottom="10" insetsRight="0" anchor="21" weightX="1.0" weightY="0.0"/>
+                    </Constraint>
+                  </Constraints>
+                </Component>
+                <Component class="javax.swing.JTextField" name="filoSizeField">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="String.valueOf(UserVariables.getFiloSize())" type="code"/>
+                    </Property>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoSizeField.setEnabled(UserVariables.isAnalyseProtrusions() &amp;&amp; !UserVariables.isBlebDetect());"/>
+                  </AuxValues>
+                  <Constraints>
+                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+                      <GridBagConstraints gridX="1" gridY="5" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="10" insetsLeft="0" insetsBottom="10" insetsRight="10" anchor="22" weightX="1.0" weightY="0.0"/>
                     </Constraint>
                   </Constraints>
                 </Component>

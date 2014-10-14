@@ -46,14 +46,14 @@ public class UserVariables {
     private static boolean analyseProtrusions = true;
     private static double sigRecoveryThresh = 0.25;
     private static double gaussRad = 1.0;
-    private static double initGaussRad = 12.0;
     private static final boolean usedSmoothedVels = true;
     private static final int ovalRadius = 2;
     private static boolean simple = true;
     private static double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
     private static int minLength = 10;
     private static String threshMethod = AutoThresholder.Method.Triangle.toString();
-    private static boolean velDetect = false;
+    private static boolean blebDetect = true;
+    private static double filoSize = 10;
 
     /**
      * Get the radius of circles drawn on bleb detection output movies
@@ -452,14 +452,6 @@ public class UserVariables {
         UserVariables.gaussRad = gaussRad;
     }
 
-    public static double getInitGaussRad() {
-        return initGaussRad;
-    }
-
-    public static void setInitGaussRad(double initGaussRad) {
-        UserVariables.initGaussRad = initGaussRad;
-    }
-
     public static boolean isSimple() {
         return simple;
     }
@@ -507,12 +499,20 @@ public class UserVariables {
         UserVariables.threshMethod = threshMethod;
     }
 
-    public static boolean isVelDetect() {
-        return velDetect;
+    public static boolean isBlebDetect() {
+        return blebDetect;
     }
 
-    public static void setVelDetect(boolean velDetect) {
-        UserVariables.velDetect = velDetect;
+    public static void setBlebDetect(boolean velDetect) {
+        UserVariables.blebDetect = velDetect;
+    }
+
+    public static double getFiloSize() {
+        return filoSize;
+    }
+
+    public static void setFiloSize(double filoSize) {
+        UserVariables.filoSize = filoSize;
     }
 
 }

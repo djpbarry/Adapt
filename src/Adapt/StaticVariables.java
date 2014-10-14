@@ -56,15 +56,11 @@ public class StaticVariables {
     /**
      * GUI label for Minimum Curvature Window
      */
-    public static final String MIN_CURVE_RANGE = "Min Curvature Window";
+    public static final String MIN_CURVE_RANGE = "Curvature Window";
     /**
      * GUI label for Minimum Curvature Threshold
      */
     public static final String MIN_CURVE_THRESH = "Min Curvature Threshold";
-    /**
-     * GUI label for Maximum Curvature Window
-     */
-    public static final String MAX_CURVE_RANGE = "Max Curvature Window";
     /**
      * GUI label for Maximum Curvature Threshold
      */
@@ -134,9 +130,11 @@ public class StaticVariables {
 
     public static final String PROT_DUR_THRESH = "Minimum Protrusion Duration (frames)";
     
-    public static final String CURVE_DETECT = "Curvature Detection";
+    public static final String DETECT_FILO = "Detect Filopodia";
 
-    public static final String VEL_DETECT = "Velocity Detection";
+    public static final String DETECT_BLEB = "Detect Blebs";
+    
+    public static final String FILO_SIZE = "Filopodia Size";
     
     public static final String DATA_STREAM_HEADINGS = "Time_(s), Zeroed_Time_(s), "
             + "V_(" + GenUtils.mu + "m/s), Total_Signal_(AU), Length_(" + GenUtils.mu + "m), "

@@ -151,7 +151,7 @@ public class BlebAnalyser {
                 currentBleb.getBlebPerimSigs().add(thisBlebPerimSig);
                 currentBleb.getMeanVel().add(currentMeanVel);
                 currentBleb.getProtrusionLength().add(currentProtrusionLength);
-                if (UserVariables.isVelDetect()) {
+                if (UserVariables.isBlebDetect()) {
                     if (!(negvel && currentMeanVel >= 0.0)) {
                         if (posvel && currentMeanVel < 0.0) {
                             negvel = true;
