@@ -600,7 +600,7 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.LAMBDA + ", " + String.valueOf(UserVariables.getLambda()));
         paramStream.println(StaticVariables.MIN_TRAJ_LENGTH + ", " + String.valueOf(UserVariables.getMinLength()));
         paramStream.println(StaticVariables.DETECT_BLEB + ", " + String.valueOf(UserVariables.isBlebDetect()));
-        paramStream.println(StaticVariables.FILO_SIZE + ", " + String.valueOf(UserVariables.getFiloSize()));    
+        paramStream.println(StaticVariables.FILO_SIZE + ", " + String.valueOf(UserVariables.getFiloSize()));
         return true;
     }
 
@@ -1272,7 +1272,7 @@ public class Analyse_Movie implements PlugIn {
                 ArrayList<Pixel> centres = cell.getCentres();
                 Pixel centre = centres.get(0);
                 Region cellcopy = new Region(inputImage.getWidth(), inputImage.getHeight(), centre);
-            /*
+                /*
                  * Copy initial pixels and border pixels to cell copy for distance
                  * map construction. This can probably be replaced with a clone
                  * method.
@@ -1760,6 +1760,7 @@ public class Analyse_Movie implements PlugIn {
         for (int k = 0; k < nCell; k++) {
             allRegions[k][0] = detectedRegions.get(k);
             cellData[k].setCellRegions(allRegions[k]);
+            cellData[k].setLength(1);
         }
         if (UserVariables.isAnalyseProtrusions()) {
             for (int i = 0; i < nCell; i++) {
@@ -1826,26 +1827,44 @@ public class Analyse_Movie implements PlugIn {
                     }
                 }
                 if (UserVariables.isAnalyseProtrusions()) {
-                    ArrayList<BoundaryPixel> minPos[] = cellData[r].getCurvatureMinima();
-                    ArrayList<BoundaryPixel> maxPos[] = cellData[r].getCurvatureMaxima();
-                    for (int i = 0; i < channels; i++) {
-                        if (minPos[0] != null) {
-                            regionsOutput[i].setColor(Color.yellow);
-                            int minpSize = minPos[0].size();
-                            for (int j = 0; j < minpSize; j++) {
-                                BoundaryPixel currentMin = minPos[0].get(j);
-                                int x = (int) Math.round(currentMin.getPrecX());
-                                int y = (int) Math.round(currentMin.getPrecY());
-                                regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
-                            }
-                            if (maxPos[0] != null) {
-                                regionsOutput[i].setColor(Color.MAGENTA);
-                                int maxpSize = maxPos[0].size();
-                                for (int j = 0; j < maxpSize; j++) {
-                                    BoundaryPixel currentMax = maxPos[0].get(j);
-                                    int x = (int) Math.round(currentMax.getPrecX());
-                                    int y = (int) Math.round(currentMax.getPrecY());
+                    if (UserVariables.isBlebDetect()) {
+                        ArrayList<BoundaryPixel> minPos[] = cellData[r].getCurvatureMinima();
+                        ArrayList<BoundaryPixel> maxPos[] = cellData[r].getCurvatureMaxima();
+                        for (int i = 0; i < channels; i++) {
+                            if (minPos[0] != null) {
+                                regionsOutput[i].setColor(Color.yellow);
+                                int minpSize = minPos[0].size();
+                                for (int j = 0; j < minpSize; j++) {
+                                    BoundaryPixel currentMin = minPos[0].get(j);
+                                    int x = (int) Math.round(currentMin.getPrecX());
+                                    int y = (int) Math.round(currentMin.getPrecY());
                                     regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
+                                }
+                                if (maxPos[0] != null) {
+                                    regionsOutput[i].setColor(Color.MAGENTA);
+                                    int maxpSize = maxPos[0].size();
+                                    for (int j = 0; j < maxpSize; j++) {
+                                        BoundaryPixel currentMax = maxPos[0].get(j);
+                                        int x = (int) Math.round(currentMax.getPrecX());
+                                        int y = (int) Math.round(currentMax.getPrecY());
+                                        regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        for (int i = 0; i < channels; i++) {
+                            regionsOutput[i].setColor(Color.yellow);
+                        }
+                        ImageStack filoStack = findProtrusionsBasedOnMorph(cellData[r], (int) Math.round(UserVariables.getFiloSize()));
+                        ByteProcessor filoBin = (ByteProcessor) filoStack.getProcessor(1);
+                        filoBin.outline();
+                        for (int y = 0; y < filoBin.getHeight(); y++) {
+                            for (int x = 0; x < filoBin.getWidth(); x++) {
+                                if (filoBin.getPixel(x, y) < Region.BACKGROUND) {
+                                    for (int i = 0; i < channels; i++) {
+                                        regionsOutput[i].drawPixel(x, y);
+                                    }
                                 }
                             }
                         }
