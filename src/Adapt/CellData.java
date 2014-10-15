@@ -42,13 +42,13 @@ public class CellData {
     private double[][] smoothVelocities;
     private double scaleFactors[];
     private int greyThresholds[];
-    private int startframe, endFrame;
+    private int startFrame, endFrame;
     private Region[] cellRegions;
     private Region initialRegion;
     private int imageWidth, imageHeight;
 
     public CellData(int startframe) {
-        this.startframe = startframe;
+        this.startFrame = startframe;
     }
 
     /**
@@ -332,7 +332,10 @@ public class CellData {
     }
 
     public int getStartFrame() {
-        return startframe;
+        return startFrame;
     }
 
+    public int getLength() {
+        return 1 + endFrame - startFrame;
+    }
 }
