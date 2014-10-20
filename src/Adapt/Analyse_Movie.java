@@ -97,7 +97,7 @@ public class Analyse_Movie implements PlugIn {
     private PointRoi roi = null; // Points used as seeds for cell detection
     private ArrayList<CellData> cellData;
     protected final ImageStack stacks[] = new ImageStack[2];
-    private final double morphSizeMin = 50.0, trajMin = 5.0;
+    private final double morphSizeMin = 5.0, trajMin = 5.0;
     protected boolean batchMode = false;
     protected boolean protMode = false;
 
@@ -226,7 +226,9 @@ public class Analyse_Movie implements PlugIn {
          Convert cyto channel to 8-bit for faster segmentation
          */
         cytoStack = convertStackTo8Bit(stacks[0]);
-
+        if (IJ.getInstance() == null && !protMode) {
+            roi = new PointRoi(200, 300);
+        }
         if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, this);
             gui.setVisible(true);
@@ -330,7 +332,7 @@ public class Analyse_Movie implements PlugIn {
                 if (length > UserVariables.getMinLength()) {
                     childDir = new File(childDirName);
                     buildOutput(index, length, false);
-                    if (UserVariables.isAnalyseProtrusions()) {
+                    if (!protMode && UserVariables.isAnalyseProtrusions()) {
                         calcSigThresh(cellData.get(index));
                         if (UserVariables.isBlebDetect()) {
                             findProtrusionsBasedOnVel(cellData.get(index));
@@ -341,10 +343,15 @@ public class Analyse_Movie implements PlugIn {
                             stacks[0] = protStack;
                             protMode = true;
                             UserVariables.setAnalyseProtrusions(false);
+                            ArrayList<CellData> tempCellData = (ArrayList<CellData>) cellData.clone();
+                            File tempParDir = parDir;
+//                            (new ImagePlus("",stacks[0])).show();
                             analyse("Protrusions");
                             UserVariables.setAnalyseProtrusions(true);
                             stacks[0] = tempCyto;
                             protMode = false;
+                            cellData = tempCellData;
+                            parDir = tempParDir;
                         }
                     }
                 }
@@ -380,9 +387,6 @@ public class Analyse_Movie implements PlugIn {
 
     int initialiseROIs(int slice, ByteProcessor masks, int threshold, int start) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
-//        if (IJ.getInstance() == null && !protMode) {
-//            initP.add(new Pixel(200, 300));
-//        }
         int n;
         if (roi != null) {
             if (roi.getType() == Roi.POINT) {
@@ -404,11 +408,7 @@ public class Analyse_Movie implements PlugIn {
             }
 //            (new ImagePlus("",image)).show();
             getSeedPoints(image, initP);
-//            if (IJ.getInstance() == null && !protMode) {
-//                n = 1;
-//            } else {
             n = initP.size();
-//            }
         }
         int s = cellData.size();
         int N = s + n;
@@ -632,7 +632,6 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.SIMP_SEG + ", " + String.valueOf(UserVariables.isSimple()));
         paramStream.println(StaticVariables.LAMBDA + ", " + String.valueOf(UserVariables.getLambda()));
         paramStream.println(StaticVariables.MIN_TRAJ_LENGTH + ", " + String.valueOf(UserVariables.getMinLength()));
-        paramStream.println(StaticVariables.DETECT_BLEB + ", " + String.valueOf(UserVariables.isBlebDetect()));
         paramStream.println(StaticVariables.FILO_SIZE + ", " + String.valueOf(UserVariables.getFiloSize()));
         return true;
     }
@@ -709,8 +708,8 @@ public class Analyse_Movie implements PlugIn {
             /*
              * Get points for one column (time-point) of map
              */
-            Pixel vmPoints[] = current.buildVelMapCol(xc, yc, stacks[0], i + 1,
-                    UserVariables.getTimeRes(), UserVariables.getSpatialRes(), cellData.getGreyThresholds());
+            Pixel vmPoints[] = current.getOrderedBoundary(stacks[0].getWidth(), stacks[0].getHeight(),
+                    current.getMask(), new Pixel(xc, yc, 0.0));
             double x[] = new double[vmPoints.length];
             double y[] = new double[vmPoints.length];
             /*
@@ -1081,22 +1080,26 @@ public class Analyse_Movie implements PlugIn {
     }
 
     ImageStack findProtrusionsBasedOnMorph(CellData cellData, int reps) {
-        int length = cellData.getLength();
         Region regions[] = cellData.getCellRegions();
         ImageStack cyto2 = new ImageStack(stacks[0].getWidth(), stacks[0].getHeight());
-        for (int i = 0; i < length; i++) {
-            ImageProcessor mask = regions[i].getMask();
-            ImageProcessor mask2 = mask.duplicate();
-            for (int j = 0; j < reps; j++) {
-                mask2.erode();
+        for (int f = 0; f < stacks[0].getSize(); f++) {
+            ImageProcessor mask = new ByteProcessor(stacks[0].getWidth(), stacks[0].getHeight());
+            mask.setColor(Region.BACKGROUND);
+            mask.fill();
+            if (regions[f] != null) {
+                mask = regions[f].getMask();
+                ImageProcessor mask2 = mask.duplicate();
+                for (int j = 0; j < reps; j++) {
+                    mask2.erode();
+                }
+                for (int j = 0; j < reps; j++) {
+                    mask2.dilate();
+                }
+                mask.invert();
+                ByteBlitter bb = new ByteBlitter((ByteProcessor) mask);
+                mask2.invert();
+                bb.copyBits(mask2, 0, 0, Blitter.SUBTRACT);
             }
-            for (int j = 0; j < reps; j++) {
-                mask2.dilate();
-            }
-            mask.invert();
-            ByteBlitter bb = new ByteBlitter((ByteProcessor) mask);
-            mask2.invert();
-            bb.copyBits(mask2, 0, 0, Blitter.SUBTRACT);
             cyto2.addSlice(mask);
         }
         return cyto2;
@@ -1799,10 +1802,10 @@ public class Analyse_Movie implements PlugIn {
         ImageProcessor cytoProc = convertStackTo8Bit(stacks[0]).getProcessor(sliceIndex);
         int threshold = getThreshold(cytoProc, UserVariables.isAutoThreshold(), UserVariables.getGreyThresh(), UserVariables.getThreshMethod());
         int nCell = initialiseROIs(sliceIndex, null, threshold, sliceIndex);
-        Region[][] allRegions = new Region[nCell][1];
+        Region[][] allRegions = new Region[nCell][stacks[0].getSize()];
         ArrayList<Region> detectedRegions = findCellRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
-            allRegions[k][0] = detectedRegions.get(k);
+            allRegions[k][sliceIndex - 1] = detectedRegions.get(k);
             cellData.get(k).setCellRegions(allRegions[k]);
             cellData.get(k).setEndFrame(sliceIndex);
         }
@@ -1901,7 +1904,7 @@ public class Analyse_Movie implements PlugIn {
                             regionsOutput[i].setColor(Color.yellow);
                         }
                         ImageStack filoStack = findProtrusionsBasedOnMorph(cellData.get(r), (int) Math.round(UserVariables.getFiloSize()));
-                        ByteProcessor filoBin = (ByteProcessor) filoStack.getProcessor(1);
+                        ByteProcessor filoBin = (ByteProcessor) filoStack.getProcessor(sliceIndex);
                         filoBin.outline();
                         for (int y = 0; y < filoBin.getHeight(); y++) {
                             for (int x = 0; x < filoBin.getWidth(); x++) {
