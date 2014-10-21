@@ -24,42 +24,42 @@ import ij.process.AutoThresholder;
  */
 public class UserVariables {
 
-    private static double greyThresh = 0.95; // user-specified grey-level threshold used in conditional region dilation
-    private static boolean genVis = true;
-    private static double blebDurThresh = 0.0; // minimum duration (in frames) of bleb to be considered in analysis
-    private static int curveRange = 10;
-    private static boolean useSigThresh = true;
-    private static double spatialRes = 1.0; //timeRes in frames/minute, spatialRes in microns/pixel;
-    private static double cutOffTime = 120.0;
-    private static double cortexDepth = 0.6;
-    private static boolean autoThreshold = true; // User-specifed threshold is used if set to false
-    private static double tempFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
-    private static double sigThreshFact = 0.0;
-    private static double spatFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
-    private static int erosion = 4;
-    private static boolean getMorph = true;
-    private static double timeRes = 0.067; // temporal resolution in frames per minute
-    private static double blebLenThresh = 0.0; // minimum normalised length of bleb to be considered in analysis
-    private static double minCurveThresh = 20.0;
-    private static double maxCurveThresh = 40.0;
-    private static boolean analyseProtrusions = false;
-    private static double sigRecoveryThresh = 0.25;
-    private static double gaussRad = 1.0;
-    private static final boolean usedSmoothedVels = true;
-    private static final int ovalRadius = 2;
-    private static boolean simple = true;
-    private static double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
-    private static int minLength = 0;
-    private static String threshMethod = AutoThresholder.Method.Triangle.toString();
-    private static boolean blebDetect = true;
-    private static double filoSize = 10;
+    private double greyThresh = 0.95; // user-specified grey-level threshold used in conditional region dilation
+    private boolean genVis = true;
+    private double blebDurThresh = 0.0; // minimum duration (in frames) of bleb to be considered in analysis
+    private int curveRange = 10;
+    private boolean useSigThresh = true;
+    private double spatialRes = 1.0; //timeRes in frames/minute, spatialRes in microns/pixel;
+    private double cutOffTime = 120.0;
+    private double cortexDepth = 0.6;
+    private boolean autoThreshold = true; // User-specifed threshold is used if set to false
+    private double tempFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
+    private double sigThreshFact = 0.0;
+    private double spatFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
+    private int erosion = 4;
+    private boolean getMorph = true;
+    private double timeRes = 0.067; // temporal resolution in frames per minute
+    private double blebLenThresh = 0.0; // minimum normalised length of bleb to be considered in analysis
+    private double minCurveThresh = 20.0;
+    private double maxCurveThresh = 40.0;
+    private boolean analyseProtrusions = false;
+    private double sigRecoveryThresh = 0.25;
+    private double gaussRad = 1.0;
+    private final boolean usedSmoothedVels = true;
+    private final int ovalRadius = 2;
+    private boolean simple = true;
+    private double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
+    private int minLength = 0;
+    private String threshMethod = AutoThresholder.Method.Triangle.toString();
+    private boolean blebDetect = true;
+    private double filoSize = 10;
 
     /**
      * Get the radius of circles drawn on bleb detection output movies
      *
      * @return radius of circles
      */
-    public static int getOvalRadius() {
+    public int getOvalRadius() {
         return ovalRadius;
     }
 
@@ -68,7 +68,7 @@ public class UserVariables {
      *
      * @return true if velocity values are filtered
      */
-    public static boolean isUsedSmoothedVels() {
+    public boolean isUsedSmoothedVels() {
         return usedSmoothedVels;
     }
 
@@ -77,16 +77,16 @@ public class UserVariables {
      *
      * @return minimum bleb duration in frames
      */
-    public static double getBlebDurThresh() {
+    public double getBlebDurThresh() {
         return blebDurThresh;
     }
 
-    public static void setBlebDurThresh(double blebDurThresh) {
-        UserVariables.blebDurThresh = blebDurThresh;
+    public void setBlebDurThresh(double blebDurThresh) {
+        this.blebDurThresh = blebDurThresh;
     }
 
-    public static void setBlebLenThresh(double blebLenThresh) {
-        UserVariables.blebLenThresh = blebLenThresh;
+    public void setBlebLenThresh(double blebLenThresh) {
+        this.blebLenThresh = blebLenThresh;
     }
 
     /**
@@ -95,7 +95,7 @@ public class UserVariables {
      * @return minimum bleb length, expressed as (min length)/(total cell
      * length)
      */
-    public static double getBlebLenThresh() {
+    public double getBlebLenThresh() {
         return blebLenThresh;
     }
 
@@ -104,7 +104,7 @@ public class UserVariables {
      *
      * @return grey level segmentation threshold
      */
-    public static double getGreyThresh() {
+    public double getGreyThresh() {
         return greyThresh;
     }
 
@@ -113,8 +113,8 @@ public class UserVariables {
      *
      * @param greyThresh value of threshold to be used
      */
-    public static void setGreyThresh(double greyThresh) {
-        UserVariables.greyThresh = greyThresh;
+    public void setGreyThresh(double greyThresh) {
+        this.greyThresh = greyThresh;
     }
 
     /**
@@ -122,7 +122,7 @@ public class UserVariables {
      *
      * @return true if visualisations are to be generated
      */
-    public static boolean isGenVis() {
+    public boolean isGenVis() {
         return genVis;
     }
 
@@ -131,8 +131,8 @@ public class UserVariables {
      *
      * @param genVis true to generate visualisations
      */
-    public static void setGenVis(boolean genVis) {
-        UserVariables.genVis = genVis;
+    public void setGenVis(boolean genVis) {
+        this.genVis = genVis;
     }
 
     /**
@@ -141,7 +141,7 @@ public class UserVariables {
      *
      * @return the width of the window in pixels
      */
-    public static int getCurveRange() {
+    public int getCurveRange() {
         return curveRange;
     }
 
@@ -151,8 +151,8 @@ public class UserVariables {
      *
      * @param curveRange the width of the window in pixels
      */
-    public static void setMinCurveRange(int curveRange) {
-        UserVariables.curveRange = curveRange;
+    public void setMinCurveRange(int curveRange) {
+        this.curveRange = curveRange;
     }
 
     /**
@@ -161,7 +161,7 @@ public class UserVariables {
      *
      * @return true if signal threshold is used
      */
-    public static boolean isUseSigThresh() {
+    public boolean isUseSigThresh() {
         return useSigThresh;
     }
 
@@ -171,8 +171,8 @@ public class UserVariables {
      *
      * @param useSigThresh true if signal threshold is used
      */
-    public static void setUseSigThresh(boolean useSigThresh) {
-        UserVariables.useSigThresh = useSigThresh;
+    public void setUseSigThresh(boolean useSigThresh) {
+        this.useSigThresh = useSigThresh;
     }
 
     /**
@@ -180,7 +180,7 @@ public class UserVariables {
      *
      * @return spatial resolution in microns/pixel
      */
-    public static double getSpatialRes() {
+    public double getSpatialRes() {
         return spatialRes;
     }
 
@@ -189,8 +189,8 @@ public class UserVariables {
      *
      * @param spatialRes spatial resolution in microns/pixel
      */
-    public static void setSpatialRes(double spatialRes) {
-        UserVariables.spatialRes = spatialRes;
+    public void setSpatialRes(double spatialRes) {
+        this.spatialRes = spatialRes;
     }
 
     /**
@@ -198,7 +198,7 @@ public class UserVariables {
      *
      * @return maximum tracking duration in seconds
      */
-    public static double getCutOffTime() {
+    public double getCutOffTime() {
         return cutOffTime;
     }
 
@@ -207,8 +207,8 @@ public class UserVariables {
      *
      * @param cutOffTime maximum tracking duration in seconds
      */
-    public static void setCutOffTime(double cutOffTime) {
-        UserVariables.cutOffTime = cutOffTime;
+    public void setCutOffTime(double cutOffTime) {
+        this.cutOffTime = cutOffTime;
     }
 
     /**
@@ -216,7 +216,7 @@ public class UserVariables {
      *
      * @return cortex depth in microns
      */
-    public static double getCortexDepth() {
+    public double getCortexDepth() {
         return cortexDepth;
     }
 
@@ -225,8 +225,8 @@ public class UserVariables {
      *
      * @param cortexDepth cortex depth in microns
      */
-    public static void setCortexDepth(double cortexDepth) {
-        UserVariables.cortexDepth = cortexDepth;
+    public void setCortexDepth(double cortexDepth) {
+        this.cortexDepth = cortexDepth;
     }
 
     /**
@@ -234,7 +234,7 @@ public class UserVariables {
      *
      * @return true if auto-thresholding is used
      */
-    public static boolean isAutoThreshold() {
+    public boolean isAutoThreshold() {
         return autoThreshold;
     }
 
@@ -243,8 +243,8 @@ public class UserVariables {
      *
      * @param autoThreshold true if auto-thresholding is to be used
      */
-    public static void setAutoThreshold(boolean autoThreshold) {
-        UserVariables.autoThreshold = autoThreshold;
+    public void setAutoThreshold(boolean autoThreshold) {
+        this.autoThreshold = autoThreshold;
     }
 
     /**
@@ -253,7 +253,7 @@ public class UserVariables {
      *
      * @return temporal radius of smoothing filter in seconds
      */
-    public static double getTempFiltRad() {
+    public double getTempFiltRad() {
         return tempFiltRad;
     }
 
@@ -263,8 +263,8 @@ public class UserVariables {
      *
      * @param tempFiltRad temporal radius of smoothing filter in seconds
      */
-    public static void setTempFiltRad(double tempFiltRad) {
-        UserVariables.tempFiltRad = tempFiltRad;
+    public void setTempFiltRad(double tempFiltRad) {
+        this.tempFiltRad = tempFiltRad;
     }
 
     /**
@@ -274,7 +274,7 @@ public class UserVariables {
      *
      * @return signal threshold factor
      */
-    public static double getSigThreshFact() {
+    public double getSigThreshFact() {
         return sigThreshFact;
     }
 
@@ -285,8 +285,8 @@ public class UserVariables {
      *
      * @param sigThreshFact signal threshold factor
      */
-    public static void setSigThreshFact(double sigThreshFact) {
-        UserVariables.sigThreshFact = sigThreshFact;
+    public void setSigThreshFact(double sigThreshFact) {
+        this.sigThreshFact = sigThreshFact;
     }
 
     /**
@@ -295,7 +295,7 @@ public class UserVariables {
      *
      * @return spatial radius of smoothing filter in seconds
      */
-    public static double getSpatFiltRad() {
+    public double getSpatFiltRad() {
         return spatFiltRad;
     }
 
@@ -305,8 +305,8 @@ public class UserVariables {
      *
      * @param spatFiltRad spatial radius of smoothing filter in seconds
      */
-    public static void setSpatFiltRad(double spatFiltRad) {
-        UserVariables.spatFiltRad = spatFiltRad;
+    public void setSpatFiltRad(double spatFiltRad) {
+        this.spatFiltRad = spatFiltRad;
     }
 
     /**
@@ -316,7 +316,7 @@ public class UserVariables {
      *
      * @return number of erosion operations
      */
-    public static int getErosion() {
+    public int getErosion() {
         return erosion;
     }
 
@@ -327,8 +327,8 @@ public class UserVariables {
      *
      * @param erosion number of erosion operations
      */
-    public static void setErosion(int erosion) {
-        UserVariables.erosion = erosion;
+    public void setErosion(int erosion) {
+        this.erosion = erosion;
     }
 
     /**
@@ -336,7 +336,7 @@ public class UserVariables {
      *
      * @return true if morphological data is to be generated
      */
-    public static boolean isGetMorph() {
+    public boolean isGetMorph() {
         return getMorph;
     }
 
@@ -345,8 +345,8 @@ public class UserVariables {
      *
      * @param getMorph true if morphological data is to be generated
      */
-    public static void setGetMorph(boolean getMorph) {
-        UserVariables.getMorph = getMorph;
+    public void setGetMorph(boolean getMorph) {
+        this.getMorph = getMorph;
     }
 
     /**
@@ -354,7 +354,7 @@ public class UserVariables {
      *
      * @return time resolution in frames per minute
      */
-    public static double getTimeRes() {
+    public double getTimeRes() {
         return timeRes;
     }
 
@@ -363,8 +363,8 @@ public class UserVariables {
      *
      * @param timeRes time resolution in frames per minute
      */
-    public static void setTimeRes(double timeRes) {
-        UserVariables.timeRes = timeRes;
+    public void setTimeRes(double timeRes) {
+        this.timeRes = timeRes;
     }
 
     /**
@@ -374,7 +374,7 @@ public class UserVariables {
      * @return curvature threshold - extrema must be lower than this value to be
      * considered candidates for bleb anchor points
      */
-    public static double getMinCurveThresh() {
+    public double getMinCurveThresh() {
         return minCurveThresh;
     }
 
@@ -385,8 +385,8 @@ public class UserVariables {
      * @param curveThresh curvature threshold - extrema must be lower than this
      * value to be considered candidates for bleb anchor points
      */
-    public static void setMinCurveThresh(double curveThresh) {
-        UserVariables.minCurveThresh = curveThresh;
+    public void setMinCurveThresh(double curveThresh) {
+        this.minCurveThresh = curveThresh;
     }
 
     /**
@@ -394,7 +394,7 @@ public class UserVariables {
      *
      * @return true if individual blebs are to be analysed
      */
-    public static boolean isAnalyseProtrusions() {
+    public boolean isAnalyseProtrusions() {
         return analyseProtrusions;
     }
 
@@ -403,8 +403,8 @@ public class UserVariables {
      *
      * @param analyseProtrusions true if individual blebs are to be analysed
      */
-    public static void setAnalyseProtrusions(boolean analyseProtrusions) {
-        UserVariables.analyseProtrusions = analyseProtrusions;
+    public void setAnalyseProtrusions(boolean analyseProtrusions) {
+        this.analyseProtrusions = analyseProtrusions;
     }
 
     /**
@@ -415,7 +415,7 @@ public class UserVariables {
      * @return recovery threshold, defined as (number of frames where at least
      * one pixel is above threshold) / (total number of frames)
      */
-    public static double getSigRecoveryThresh() {
+    public double getSigRecoveryThresh() {
         return sigRecoveryThresh;
     }
 
@@ -427,8 +427,8 @@ public class UserVariables {
      * @param sigRecoveryThresh recovery threshold, defined as (number of frames
      * where at least one pixel is above threshold) / (total number of frames)
      */
-    public static void setSigRecoveryThresh(double sigRecoveryThresh) {
-        UserVariables.sigRecoveryThresh = sigRecoveryThresh;
+    public void setSigRecoveryThresh(double sigRecoveryThresh) {
+        this.sigRecoveryThresh = sigRecoveryThresh;
     }
 
     /**
@@ -437,7 +437,7 @@ public class UserVariables {
      *
      * @return standard deviation of Gaussian filter in pixels
      */
-    public static double getGaussRad() {
+    public double getGaussRad() {
         return gaussRad;
     }
 
@@ -447,71 +447,71 @@ public class UserVariables {
      *
      * @param gaussRad standard deviation of Gaussian filter in pixels
      */
-    public static void setGaussRad(double gaussRad) {
-        UserVariables.gaussRad = gaussRad;
+    public void setGaussRad(double gaussRad) {
+        this.gaussRad = gaussRad;
     }
 
-    public static boolean isSimple() {
+    public boolean isSimple() {
         return simple;
     }
 
-    public static void setSimple(boolean simple) {
-        UserVariables.simple = simple;
+    public void setSimple(boolean simple) {
+        this.simple = simple;
     }
 
-    public static double getLambda() {
+    public double getLambda() {
         return lambda;
     }
 
-    public static void setLambda(double lambda) {
-        UserVariables.lambda = lambda;
+    public void setLambda(double lambda) {
+        this.lambda = lambda;
     }
 
-    public static int getMinLength() {
+    public int getMinLength() {
         return minLength;
     }
 
-    public static void setMinLength(int minLength) {
-        UserVariables.minLength = minLength;
+    public void setMinLength(int minLength) {
+        this.minLength = minLength;
     }
 
-//    public static int getMaxCurveRange() {
+//    public   int getMaxCurveRange() {
 //        return maxCurveRange;
 //    }
 //
-//    public static void setMaxCurveRange(int maxCurveRange) {
-//        UserVariables.maxCurveRange = maxCurveRange;
+//    public   void setMaxCurveRange(int maxCurveRange) {
+//        this.maxCurveRange = maxCurveRange;
 //    }
-    public static double getMaxCurveThresh() {
+    public double getMaxCurveThresh() {
         return maxCurveThresh;
     }
 
-    public static void setMaxCurveThresh(double maxCurveThresh) {
-        UserVariables.maxCurveThresh = maxCurveThresh;
+    public void setMaxCurveThresh(double maxCurveThresh) {
+        this.maxCurveThresh = maxCurveThresh;
     }
 
-    public static String getThreshMethod() {
+    public String getThreshMethod() {
         return threshMethod;
     }
 
-    public static void setThreshMethod(String threshMethod) {
-        UserVariables.threshMethod = threshMethod;
+    public void setThreshMethod(String threshMethod) {
+        this.threshMethod = threshMethod;
     }
 
-    public static boolean isBlebDetect() {
+    public boolean isBlebDetect() {
         return blebDetect;
     }
 
-    public static void setBlebDetect(boolean velDetect) {
-        UserVariables.blebDetect = velDetect;
+    public void setBlebDetect(boolean velDetect) {
+        this.blebDetect = velDetect;
     }
 
-    public static double getFiloSize() {
+    public double getFiloSize() {
         return filoSize;
     }
 
-    public static void setFiloSize(double filoSize) {
-        UserVariables.filoSize = filoSize;
+    public void setFiloSize(double filoSize) {
+        this.filoSize = filoSize;
     }
 
 }

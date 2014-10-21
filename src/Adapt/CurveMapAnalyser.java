@@ -102,9 +102,9 @@ public class CurveMapAnalyser {
      * @param minDuration the minimum duration (in seconds) for which a minima
      * must exist in order to be stored
      */
-    public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, double minDuration, boolean min, double threshold, double curveRange) {
+    public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, double minDuration, boolean min, double threshold, double curveRange, UserVariables uv) {
         MorphMap curveMap = cellData.getCurveMap();
-        double[][] curveVals = curveMap.smoothMap(0.0, UserVariables.getSpatFiltRad() / UserVariables.getSpatialRes());
+        double[][] curveVals = curveMap.smoothMap(0.0, uv.getSpatFiltRad() / uv.getSpatialRes());
         double[][] xvals = curveMap.getxCoords();
         double[][] yvals = curveMap.getyCoords();
         int posLength = curveVals[0].length;
@@ -133,7 +133,7 @@ public class CurveMapAnalyser {
             }
         }
         Timelapse_Analysis ta = new Timelapse_Analysis();
-        ta.updateTrajectories(extrema, UserVariables.getTimeRes(), maxTrajScore, UserVariables.getSpatialRes(), false);
+        ta.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false);
         ArrayList<ParticleTrajectory> trajectories = ta.getTrajectories();
         ArrayList<BoundaryPixel> extPos[] = new ArrayList[tLength];
         int tSize = trajectories.size();

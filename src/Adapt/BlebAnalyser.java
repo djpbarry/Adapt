@@ -46,9 +46,9 @@ public class BlebAnalyser {
      * @param stacks the movie(s) from which the bleb was isolated
      * @return true if currentBleb contains sufficient signal data to be
      * analysed, based on ((no. of pixels &lt; cellData.getSigThresh()) / (total
-     * pixels) &lt; UserVariables.getSigRecoveryThresh()), false otherwise
+     * pixels) &lt; uv.getSigRecoveryThresh()), false otherwise
      */
-    public static boolean extractAreaSignalData(Bleb currentBleb, CellData cellData, int index, ImageStack[] stacks) {
+    public static boolean extractAreaSignalData(Bleb currentBleb, CellData cellData, int index, ImageStack[] stacks, UserVariables uv) {
 //        ImageStack cytoStack = stacks[0];
 //        ImageStack sigStack = stacks[1];
         MorphMap curveMap = cellData.getCurveMap();
@@ -70,14 +70,14 @@ public class BlebAnalyser {
         int maxExtent = bounds.height;
 //        ColorProcessor detectionSlice;
         ImageProcessor velMapImage = cellData.getGreyVelMap();
-        double cutoff = UserVariables.getCutOffTime() * (UserVariables.getTimeRes() / 60.0);
+        double cutoff = uv.getCutOffTime() * (uv.getTimeRes() / 60.0);
         int totalCount = 0, zeroCount = 0;
-        int cortexRad = (int) Math.round(UserVariables.getCortexDepth() / UserVariables.getSpatialRes());
+        int cortexRad = (int) Math.round(uv.getCortexDepth() / uv.getSpatialRes());
         boolean done = false, negvel = false, posvel = false;
         for (int timeIndex = bounds.x;
                 (timeIndex - bounds.x <= cutoff) && (timeIndex < velMapImage.getWidth() && !done);
                 timeIndex++) {
-            int searchRange = (int) Math.round(UserVariables.getCurveRange() * cellData.getScaleFactors()[timeIndex]);
+            int searchRange = (int) Math.round(uv.getCurveRange() * cellData.getScaleFactors()[timeIndex]);
             double currentMeanVel = 0.0;
             double currentProtrusionLength;
 //            detectionSlice.setChannel(1, (ByteProcessor) ((new TypeConverter(cytoStack.getProcessor(timeIndex + 1), true)).convertToByte()));
@@ -109,7 +109,7 @@ public class BlebAnalyser {
                     }
                     int xpos = (int) Math.round(xvals[timeIndex][posIndex]);
                     int ypos = (int) Math.round(yvals[timeIndex][posIndex]);
-                    if (!UserVariables.isUsedSmoothedVels()) {
+                    if (!uv.isUsedSmoothedVels()) {
                         currentMeanVel += noisyVels[timeIndex][posIndex];
                     } else {
                         currentMeanVel += velMapImage.getPixelValue(timeIndex, posIndex);
@@ -146,12 +146,12 @@ public class BlebAnalyser {
                 if (anchor2[0] < anchor1[0]) {
                     currentProtrusionLength += velMapImage.getHeight();
                 }
-                currentProtrusionLength *= UserVariables.getSpatialRes() / cellData.getScaleFactors()[timeIndex];
+                currentProtrusionLength *= uv.getSpatialRes() / cellData.getScaleFactors()[timeIndex];
 //                currentProtrusion.getDetectionStack().addSlice(detectionSlice);
                 currentBleb.getBlebPerimSigs().add(thisBlebPerimSig);
                 currentBleb.getMeanVel().add(currentMeanVel);
                 currentBleb.getProtrusionLength().add(currentProtrusionLength);
-                if (UserVariables.isBlebDetect()) {
+                if (uv.isBlebDetect()) {
                     if (!(negvel && currentMeanVel >= 0.0)) {
                         if (posvel && currentMeanVel < 0.0) {
                             negvel = true;
@@ -167,7 +167,7 @@ public class BlebAnalyser {
             }
         }
         currentBleb.setMaxExtent(maxExtent);
-        return (((double) zeroCount) / totalCount < UserVariables.getSigRecoveryThresh());
+        return (((double) zeroCount) / totalCount < uv.getSigRecoveryThresh());
     }
 
     /**
