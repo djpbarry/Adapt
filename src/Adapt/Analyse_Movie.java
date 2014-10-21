@@ -227,6 +227,7 @@ public class Analyse_Movie implements PlugIn {
          Convert cyto channel to 8-bit for faster segmentation
          */
         cytoStack = convertStackTo8Bit(stacks[0]);
+        stacks[0]=cytoStack;
         if (IJ.getInstance() == null && !protMode) {
             roi = new PointRoi(200, 300);
         }
@@ -347,7 +348,6 @@ public class Analyse_Movie implements PlugIn {
                             uv.setAnalyseProtrusions(false);
                             ArrayList<CellData> tempCellData = (ArrayList<CellData>) cellData.clone();
                             File tempParDir = parDir;
-//                            (new ImagePlus("",stacks[0])).show();
                             analyse("Protrusions");
                             uv.setAnalyseProtrusions(true);
                             stacks[0] = tempCyto;
@@ -398,7 +398,7 @@ public class Analyse_Movie implements PlugIn {
                 return -1;
             }
         } else {
-            ByteProcessor image = (ByteProcessor) (ByteProcessor) convertStackTo8Bit(stacks[0]).getProcessor(slice).duplicate();
+            ByteProcessor image = (ByteProcessor) (stacks[0].getProcessor(slice)).duplicate();
             (new GaussianBlur()).blurGaussian(image, uv.getGaussRad(), uv.getGaussRad(), 0.01);
             if (threshold < 0) {
                 threshold = getThreshold(image, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
