@@ -235,7 +235,7 @@ public class Analyse_Movie implements PlugIn {
         cytoStack = convertStackTo8Bit(stacks[0]);
         stacks[0] = cytoStack;
         if (IJ.getInstance() == null && !protMode) {
-            roi = new PointRoi(200, 300);
+            roi = new PointRoi(128, 128);
         }
         if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, this);
@@ -499,7 +499,7 @@ public class Analyse_Movie implements PlugIn {
             trajStream.close();
             segStream.close();
             double smoothVelocities[][] = velMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes()); // Gaussian smoothing in time and space
-            double curvatures[][] = curveMap.smoothMap(0.0, uv.getSpatFiltRad() / uv.getSpatialRes());
+            double curvatures[][] = curveMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
             double sigchanges[][];
             if (sigMap != null) {
                 sigchanges = sigMap.getzVals();
@@ -745,7 +745,7 @@ public class Analyse_Movie implements PlugIn {
         FloatProcessor greyCurvMap = cellData.getGreyCurveMap();
         FloatProcessor greySigMap = null;
         ColorProcessor colorVelMap = cellData.getColorVelMap();
-        double curvatures[][] = curveMap.smoothMap(0.0, uv.getSpatFiltRad() / uv.getSpatialRes());
+        double curvatures[][] = curveMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
         double sigchanges[][] = null;
         if (!sigNull) {
             sigchanges = cellData.getSigMap().smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
