@@ -151,7 +151,7 @@ public class UserVariables {
      *
      * @param curveRange the width of the window in pixels
      */
-    public void setMinCurveRange(int curveRange) {
+    public void setCurveRange(int curveRange) {
         this.curveRange = curveRange;
     }
 
@@ -514,4 +514,35 @@ public class UserVariables {
         this.filoSize = filoSize;
     }
 
+    public Object clone() {
+        UserVariables copy = new UserVariables();
+        copy.setGreyThresh(greyThresh);
+        copy.setGenVis(genVis);
+        copy.setBlebDurThresh(blebDurThresh);
+        copy.setCurveRange(curveRange);
+        copy.setUseSigThresh(useSigThresh);
+        copy.setSpatialRes(spatialRes);
+        copy.setCutOffTime(cutOffTime);
+        copy.setCortexDepth(cortexDepth);
+        copy.setAutoThreshold(autoThreshold);
+        copy.setTempFiltRad(tempFiltRad);
+        copy.setSigThreshFact(sigThreshFact);
+        copy.setSpatFiltRad(spatFiltRad);
+        copy.setErosion(erosion);
+        copy.setGetMorph(getMorph);
+        copy.setTimeRes(timeRes);
+        copy.setBlebLenThresh(blebLenThresh);
+        copy.setMinCurveThresh(minCurveThresh);
+        copy.setMaxCurveThresh(maxCurveThresh);
+        copy.setAnalyseProtrusions(analyseProtrusions);
+        copy.setSigRecoveryThresh(sigRecoveryThresh);
+        copy.setGaussRad(gaussRad);
+        copy.setSimple(simple);
+        copy.setLambda(lambda);
+        copy.setMinLength(minLength);
+        copy.setThreshMethod(threshMethod);
+        copy.setBlebDetect(blebDetect);
+        copy.setFiloSize(filoSize);
+        return copy;
+    }
 }

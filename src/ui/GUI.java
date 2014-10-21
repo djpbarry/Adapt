@@ -936,7 +936,7 @@ public class GUI extends javax.swing.JDialog {
         try {
             uv.setGreyThresh(Double.parseDouble(greyThreshField.getText()));
             uv.setGenVis(genVisToggleButton.isSelected());
-            uv.setMinCurveRange(Integer.parseInt(minCurveRangeField.getText()));
+            uv.setCurveRange(Integer.parseInt(minCurveRangeField.getText()));
 //            uv.setMaxCurveRange(Integer.parseInt(maxCurveRangeField.getText()));
             uv.setUseSigThresh(useSigThreshToggleButton.isSelected());
             uv.setSpatialRes(Double.parseDouble(spatResField.getText()));

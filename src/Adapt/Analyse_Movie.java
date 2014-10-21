@@ -82,8 +82,8 @@ import ui.GUI;
 public class Analyse_Movie implements PlugIn {
 
     private final double scaleFactor = 60.0 / 216.0;
-    protected static File directory, // root directory
-            childDir, // root output directory
+    protected static File directory; // root directory
+    protected File childDir, // root output directory
             parDir, // output directory for each cell
             velDirName, curvDirName, trajDirName, segDirName;
     private int intermediate, terminal;
@@ -96,7 +96,7 @@ public class Analyse_Movie implements PlugIn {
     protected DecimalFormat numFormat = StaticVariables.numFormat; // For formatting results
     private PointRoi roi = null; // Points used as seeds for cell detection
     private ArrayList<CellData> cellData;
-    protected final ImageStack stacks[] = new ImageStack[2];
+    protected ImageStack stacks[] = new ImageStack[2];
     private final double morphSizeMin = 5.0, trajMin = 5.0;
     protected boolean batchMode = false;
     protected boolean protMode = false;
@@ -106,6 +106,14 @@ public class Analyse_Movie implements PlugIn {
      * Default constructor
      */
     public Analyse_Movie() {
+    }
+
+    public Analyse_Movie(ImageStack stacks[], boolean protMode, boolean batchMode, UserVariables uv, File parDir) {
+        this.stacks = stacks;
+        this.protMode = protMode;
+        this.batchMode = batchMode;
+        this.uv = uv;
+        this.parDir = parDir;
     }
 
     /*
@@ -208,17 +216,15 @@ public class Analyse_Movie implements PlugIn {
          * Create new parent output directory - make sure directory name is
          * unique so old results are not overwritten
          */
-        String parDirName;
+        String parDirName = null;
         if (batchMode) {
             parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
-        } else if (protMode) {
-            parDirName = GenUtils.openResultsDirectory(childDir + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
-        } else {
+        } else if (!protMode) {
             parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE, delimiter);
         }
         if (parDirName != null) {
             parDir = new File(parDirName);
-        } else {
+        } else if (parDir == null) {
             return;
         }
         int width = cytoStack.getWidth();
@@ -227,7 +233,7 @@ public class Analyse_Movie implements PlugIn {
          Convert cyto channel to 8-bit for faster segmentation
          */
         cytoStack = convertStackTo8Bit(stacks[0]);
-        stacks[0]=cytoStack;
+        stacks[0] = cytoStack;
         if (IJ.getInstance() == null && !protMode) {
             roi = new PointRoi(200, 300);
         }
@@ -341,19 +347,15 @@ public class Analyse_Movie implements PlugIn {
                             findProtrusionsBasedOnVel(cellData.get(index));
                             correlativePlot(cellData.get(index));
                         } else {
-                            ImageStack protStack = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(uv.getFiloSize()));
-                            ImageStack tempCyto = stacks[0];
-                            stacks[0] = protStack;
-                            protMode = true;
-                            uv.setAnalyseProtrusions(false);
-                            ArrayList<CellData> tempCellData = (ArrayList<CellData>) cellData.clone();
-                            File tempParDir = parDir;
-                            analyse("Protrusions");
-                            uv.setAnalyseProtrusions(true);
-                            stacks[0] = tempCyto;
-                            protMode = false;
-                            cellData = tempCellData;
-                            parDir = tempParDir;
+                            ImageStack protStacks[] = new ImageStack[2];
+                            protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(uv.getFiloSize()));
+                            protStacks[1] = stacks[1];
+                            UserVariables protUV = (UserVariables) uv.clone();
+                            protUV.setAnalyseProtrusions(false);
+                            Analyse_Movie protAM = new Analyse_Movie(protStacks,
+                                    true, false, protUV,
+                                    new File(GenUtils.openResultsDirectory(childDir + delimiter + "Protrusions", delimiter)));
+                            protAM.analyse(null);
                         }
                     }
                 }
@@ -1800,7 +1802,7 @@ public class Analyse_Movie implements PlugIn {
      * @return 1- or 2-channel preview image showing segmentation result
      */
     public ImageProcessor[] generatePreview(int sliceIndex) {
-        uv=GUI.getUv();
+        uv = GUI.getUv();
         cellData = new ArrayList();
         ImageProcessor cytoProc = convertStackTo8Bit(stacks[0]).getProcessor(sliceIndex);
         int threshold = getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
