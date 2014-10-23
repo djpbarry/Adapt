@@ -499,7 +499,7 @@ public class Analyse_Movie implements PlugIn {
             trajStream.close();
             segStream.close();
             double smoothVelocities[][] = velMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes()); // Gaussian smoothing in time and space
-            double curvatures[][] = curveMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
+            double curvatures[][] = curveMap.smoothMap(0.0,0.0);
             double sigchanges[][];
             if (sigMap != null) {
                 sigchanges = sigMap.getzVals();
@@ -733,7 +733,7 @@ public class Analyse_Movie implements PlugIn {
                     uv.getCurveRange()), height, false), index);
             cellData.getScaleFactors()[index] = ((double) height) / vmPoints.length;
         }
-        curveMap.allignMap();
+//        curveMap.allignMap();
     }
 
     void generateMaps(double[][] smoothVelocities, CellData cellData, int index, int total) {
@@ -745,7 +745,7 @@ public class Analyse_Movie implements PlugIn {
         FloatProcessor greyCurvMap = cellData.getGreyCurveMap();
         FloatProcessor greySigMap = null;
         ColorProcessor colorVelMap = cellData.getColorVelMap();
-        double curvatures[][] = curveMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
+        double curvatures[][] = curveMap.smoothMap(0.0,0.0);
         double sigchanges[][] = null;
         if (!sigNull) {
             sigchanges = cellData.getSigMap().smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
@@ -1055,9 +1055,9 @@ public class Analyse_Movie implements PlugIn {
     }
 
     void findProtrusionsBasedOnCurve(CellData cellData) {
-        double minDuration = uv.getCurveRange() * scaleFactor / 1.0 / (uv.getTimeRes() / 60.0);
+        double minDuration = uv.getBlebDurThresh() / 1.0 / (uv.getTimeRes() / 60.0);
         ArrayList<BoundaryPixel>[] curvatureMaxima = CurveMapAnalyser.findAllCurvatureExtrema(cellData,
-                0, stacks[0].getSize() - 1, minDuration, false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv);
+                cellData.getStartFrame(), cellData.getEndFrame(), minDuration, false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv);
         int length = curvatureMaxima.length;
         ArrayList<Roi> rois = new ArrayList();
         ArrayList<Integer> indices = new ArrayList();
@@ -1655,10 +1655,10 @@ public class Analyse_Movie implements PlugIn {
      * sigrois and velrois.
      */
     void correlativePlot(CellData cellData) {
-        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, trajMin, true, uv.getMinCurveThresh(), uv.getCurveRange(), uv));
-        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, 0, stacks[0].getSize() - 1, trajMin, false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv));
+        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), trajMin, true, uv.getMinCurveThresh(), uv.getCurveRange(), uv));
+        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), trajMin, false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv));
 //        CurveMapAnalyser.drawAllExtrema(cellData, uv.getTimeRes(), uv.getSpatialRes(),
-//                stacks[0], 1, stacks[0].getSize() - 1, 0.0);
+//                stacks[0], cellData.getStartFrame(), cellData.getEndFrame(), 0.0);
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
         cellData.getGreyVelMap().resetRoi();
         cellData.setVelMapWithDetections(velMapWithDetections);
@@ -1769,10 +1769,10 @@ public class Analyse_Movie implements PlugIn {
         int duration = currentBleb.getBlebPerimSigs().size();
         ArrayList<Polygon> polys = currentBleb.getPolys();
         ImageStack detectionStack = currentBleb.getDetectionStack();
-        Random r = new Random();
-        int red = r.nextInt(256);
-        int green = r.nextInt(256);
-        int blue = r.nextInt(256);
+//        Random r = new Random();
+//        int red = r.nextInt(256);
+//        int green = r.nextInt(256);
+//        int blue = r.nextInt(256);
         for (int timeIndex = bounds.x; timeIndex - bounds.x < duration && timeIndex < detectionStack.getSize(); timeIndex++) {
             ColorProcessor detectionSlice = (ColorProcessor) detectionStack.getProcessor(timeIndex + 1);
             Polygon poly = polys.get(timeIndex - bounds.x);
@@ -1780,18 +1780,18 @@ public class Analyse_Movie implements PlugIn {
             blebMask.invert();
             blebMask.outline();
             blebMask.invert();
-            ImageStack redC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
-            redC.addSlice(blebMask.duplicate());
-            redC.getProcessor(1).multiply(red / 255.0);
-            ImageStack greenC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
-            greenC.addSlice(blebMask.duplicate());
-            greenC.getProcessor(1).multiply(green / 255.0);
-            ImageStack blueC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
-            blueC.addSlice(blebMask.duplicate());
-            blueC.getProcessor(1).multiply(blue / 255.0);
-            ImageStack merged = RGBStackMerge.mergeStacks(redC, greenC, blueC, false);
+//            ImageStack redC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
+//            redC.addSlice(blebMask.duplicate());
+//            redC.getProcessor(1).multiply(red / 255.0);
+//            ImageStack greenC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
+//            greenC.addSlice(blebMask.duplicate());
+//            greenC.getProcessor(1).multiply(green / 255.0);
+//            ImageStack blueC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
+//            blueC.addSlice(blebMask.duplicate());
+//            blueC.getProcessor(1).multiply(blue / 255.0);
+//            ImageStack merged = RGBStackMerge.mergeStacks(redC, greenC, blueC, false);
             ColorBlitter blitter = new ColorBlitter(detectionSlice);
-            blitter.copyBits(merged.getProcessor(1), 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
+            blitter.copyBits(blebMask, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
         }
     }
 
@@ -1818,10 +1818,10 @@ public class Analyse_Movie implements PlugIn {
             for (int i = 0; i < nCell; i++) {
                 buildOutput(i, 1, true);
                 cellData.get(i).setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData.get(i),
-                        sliceIndex - 1, sliceIndex - 1, 0.0, true, uv.getMinCurveThresh(),
+                        sliceIndex, sliceIndex, 0.0, true, uv.getMinCurveThresh(),
                         uv.getCurveRange(), uv));
                 cellData.get(i).setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData.get(i),
-                        sliceIndex - 1, sliceIndex - 1, 0.0, false, uv.getMaxCurveThresh(),
+                        sliceIndex, sliceIndex, 0.0, false, uv.getMaxCurveThresh(),
                         uv.getCurveRange(), uv));
             }
         }

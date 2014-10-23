@@ -868,6 +868,7 @@ public class GUI extends javax.swing.JDialog {
         blebDetectRadioButton.setEnabled(anaProtToggleButton.isSelected());
         filoDetectRadioButton.setEnabled(anaProtToggleButton.isSelected());
         useSigThreshToggleButtonActionPerformed(null);
+        blebDetectRadioButtonActionPerformed(null);
     }//GEN-LAST:event_anaProtToggleButtonActionPerformed
 
     private void useSigThreshToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useSigThreshToggleButtonActionPerformed

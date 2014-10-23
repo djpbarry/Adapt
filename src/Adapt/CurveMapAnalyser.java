@@ -40,7 +40,7 @@ import java.util.ArrayList;
 public class CurveMapAnalyser {
 
     public final static int curveSearchRangeFactor = 4;
-    private final static double maxTrajScore = 2.0;
+    private final static double maxTrajScore = 5.0;
 
     /**
      * Determines whether the coordinate (pos, timePoint) represents a local
@@ -104,11 +104,11 @@ public class CurveMapAnalyser {
      */
     public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, double minDuration, boolean min, double threshold, double curveRange, UserVariables uv) {
         MorphMap curveMap = cellData.getCurveMap();
-        double[][] curveVals = curveMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
+        double[][] curveVals = curveMap.smoothMap(0.0,0.0);
         double[][] xvals = curveMap.getxCoords();
         double[][] yvals = curveMap.getyCoords();
         int posLength = curveVals[0].length;
-        int halfPosLength = posLength / 2;
+//        int halfPosLength = posLength / 2;
         int tLength = 1 + endFrame - startFrame;
         ParticleArray extrema = new ParticleArray(tLength);
         for (int t = startFrame; t <= endFrame; t++) {
@@ -117,13 +117,13 @@ public class CurveMapAnalyser {
             for (int pos = 0; pos < posLength; pos++) {
 //                System.out.println(" pos: " + pos + " c: " + curveVals[currentIndex][pos]);
                 if (CurveMapAnalyser.isLocalCurvatureExtreme(pos, range, curveVals[currentIndex], threshold, min) == 0) {
-                    int adjPos = pos;
-                    if (pos > halfPosLength) {
-                        adjPos = posLength - pos;
-                    }
+//                    int adjPos = pos;
+//                    if (pos > halfPosLength) {
+//                        adjPos = posLength - pos;
+//                    }
                     extrema.addDetection(currentIndex,
-                            new Particle(t, new IsoGaussian(xvals[currentIndex][pos],
-                                            yvals[currentIndex][pos], (double) adjPos * curveSearchRangeFactor / halfPosLength,
+                            new Particle(t - 1, new IsoGaussian(xvals[currentIndex][pos] * uv.getSpatialRes(),
+                                            yvals[currentIndex][pos] * uv.getSpatialRes(), 1.0,
                                             1.0, 1.0, 1.0), null, null, pos));
 //                    String type = min ? "min" : "max";
 //                    System.out.println("t: " + t + " type:  " + type
@@ -142,17 +142,19 @@ public class CurveMapAnalyser {
             int cSize = currentTraj.getSize();
             if (!(cSize < minDuration)) {
                 Particle currentParticle = currentTraj.getEnd();
-                int lastFrame = currentParticle.getTimePoint() + 1;
+                int lastFrame = currentParticle.getTimePoint() + 2;
                 while (currentParticle != null) {
-                    int frame = currentParticle.getTimePoint();
+                    int frame = currentParticle.getTimePoint() + 1;
                     for (int k = lastFrame - 1; k >= frame; k--) {
                         int currentIndex = k - startFrame;
                         if (extPos[currentIndex] == null) {
                             extPos[currentIndex] = new ArrayList<BoundaryPixel>();
                         }
+                        double x = currentParticle.getX() / uv.getSpatialRes();
+                        double y = currentParticle.getY() / uv.getSpatialRes();
                         int pos = currentParticle.getiD();
-                        BoundaryPixel currentPos = new BoundaryPixel(xvals[currentIndex][pos],
-                                yvals[currentIndex][pos], pos, j, currentIndex);
+                        BoundaryPixel currentPos = new BoundaryPixel(x,
+                                y, pos, j, currentIndex);
                         extPos[currentIndex].add(currentPos);
                     }
                     currentParticle = currentParticle.getLink();
