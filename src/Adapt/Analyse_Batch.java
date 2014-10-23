@@ -83,6 +83,7 @@ public class Analyse_Batch extends Analyse_Movie {
                         if (!gui.isWasOKed()) {
                             return;
                         }
+                        uv = GUI.getUv();
                     }
                     analyse(cytoImageFiles[f].getName());
                 } catch (Exception e) {

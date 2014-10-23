@@ -100,7 +100,7 @@ public class Analyse_Movie implements PlugIn {
     private final double morphSizeMin = 5.0, trajMin = 5.0;
     protected boolean batchMode = false;
     protected boolean protMode = false;
-    private UserVariables uv;
+    protected UserVariables uv;
 
     /**
      * Default constructor
@@ -234,9 +234,9 @@ public class Analyse_Movie implements PlugIn {
          */
         cytoStack = convertStackTo8Bit(stacks[0]);
         stacks[0] = cytoStack;
-        if (IJ.getInstance() == null && !protMode) {
-            roi = new PointRoi(128, 128);
-        }
+//        if (IJ.getInstance() == null && !protMode) {
+//            roi = new PointRoi(256,256);
+//        }
         if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, this);
             gui.setVisible(true);
@@ -249,7 +249,9 @@ public class Analyse_Movie implements PlugIn {
         ProgressDialog segDialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
         segDialog.setVisible(true);
         cellData = new ArrayList();
-        if (initialiseROIs(1, null, -1, 1) < 1) {
+        ImageProcessor cytoImage = cytoStack.getProcessor(1).duplicate();
+        (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
+        if (initialiseROIs(1, null, -1, 1, cytoImage) < 1) {
             return;
         }
         roi = null;
@@ -262,12 +264,13 @@ public class Analyse_Movie implements PlugIn {
         ByteProcessor allMasks = null;
         for (int i = 0; i < cytoSize; i++) {
             segDialog.updateProgress(i, cytoSize);
-            ImageProcessor cytoImage = cytoStack.getProcessor(i + 1).duplicate();
+            cytoImage = cytoStack.getProcessor(i + 1).duplicate();
+            (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
             thresholds[i] = getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             int N = cellData.size();
             if (cytoImage != null) {
                 if (i > 0) {
-                    initialiseROIs(i, allMasks, thresholds[i - 1], i + 1);
+                    initialiseROIs(i, allMasks, thresholds[i - 1], i + 1, cytoImage);
                 }
                 allRegions[i] = findCellRegions(cytoImage, thresholds[i], cellData);
                 allMasks = new ByteProcessor(width, height);
@@ -389,7 +392,7 @@ public class Analyse_Movie implements PlugIn {
         paramStream.close();
     }
 
-    int initialiseROIs(int slice, ByteProcessor masks, int threshold, int start) {
+    int initialiseROIs(int slice, ByteProcessor masks, int threshold, int start, ImageProcessor input) {
         ArrayList<Pixel> initP = new ArrayList<Pixel>();
         int n;
         if (roi != null) {
@@ -400,18 +403,19 @@ public class Analyse_Movie implements PlugIn {
                 return -1;
             }
         } else {
-            ByteProcessor image = (ByteProcessor) (stacks[0].getProcessor(slice)).duplicate();
-            (new GaussianBlur()).blurGaussian(image, uv.getGaussRad(), uv.getGaussRad(), 0.01);
+//            ByteProcessor image = (ByteProcessor) (new TypeConverter((stacks[0].getProcessor(slice)).duplicate(), true)).convertToByte();
+//            (new GaussianBlur()).blurGaussian(input, uv.getGaussRad(), uv.getGaussRad(), 0.01);
             if (threshold < 0) {
-                threshold = getThreshold(image, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
+                threshold = getThreshold(input, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             }
-            image.threshold(threshold);
+            input.threshold(threshold);
+            ByteProcessor binary = (ByteProcessor) input.duplicate();
             if (masks != null) {
-                ByteBlitter bb = new ByteBlitter(image);
+                ByteBlitter bb = new ByteBlitter(binary);
                 bb.copyBits(masks, 0, 0, Blitter.SUBTRACT);
             }
 //            (new ImagePlus("",image)).show();
-            getSeedPoints(image, initP);
+            getSeedPoints(binary, initP);
             n = initP.size();
         }
         int s = cellData.size();
@@ -499,7 +503,7 @@ public class Analyse_Movie implements PlugIn {
             trajStream.close();
             segStream.close();
             double smoothVelocities[][] = velMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes()); // Gaussian smoothing in time and space
-            double curvatures[][] = curveMap.smoothMap(0.0,0.0);
+            double curvatures[][] = curveMap.smoothMap(0.0, 0.0);
             double sigchanges[][];
             if (sigMap != null) {
                 sigchanges = sigMap.getzVals();
@@ -745,7 +749,7 @@ public class Analyse_Movie implements PlugIn {
         FloatProcessor greyCurvMap = cellData.getGreyCurveMap();
         FloatProcessor greySigMap = null;
         ColorProcessor colorVelMap = cellData.getColorVelMap();
-        double curvatures[][] = curveMap.smoothMap(0.0,0.0);
+        double curvatures[][] = curveMap.smoothMap(0.0, 0.0);
         double sigchanges[][] = null;
         if (!sigNull) {
             sigchanges = cellData.getSigMap().smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
@@ -1199,7 +1203,7 @@ public class Analyse_Movie implements PlugIn {
         /*
          * Filter image to be used as basis for region growing.
          */
-        (new GaussianBlur()).blurGaussian(inputDup, uv.getGaussRad(), uv.getGaussRad(), 0.01);
+//        (new GaussianBlur()).blurGaussian(inputDup, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         growRegions(indexedRegions, inputDup, singleImageRegions, uv.isSimple(), threshold);
         return singleImageRegions;
     }
@@ -1805,8 +1809,9 @@ public class Analyse_Movie implements PlugIn {
         uv = GUI.getUv();
         cellData = new ArrayList();
         ImageProcessor cytoProc = convertStackTo8Bit(stacks[0]).getProcessor(sliceIndex);
+        (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         int threshold = getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
-        int nCell = initialiseROIs(sliceIndex, null, threshold, sliceIndex);
+        int nCell = initialiseROIs(sliceIndex, null, -1, sliceIndex, cytoProc);
         Region[][] allRegions = new Region[nCell][stacks[0].getSize()];
         ArrayList<Region> detectedRegions = findCellRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
