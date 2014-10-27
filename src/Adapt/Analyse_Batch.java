@@ -38,7 +38,7 @@ public class Analyse_Batch extends Analyse_Movie {
         File sigImageFiles[] = null;
         File secondChannel = null;
         batchMode = true;
-        if (arg == null) {
+//        if (arg == null) {
             directory = Utilities.getFolder(directory, "Select directory for reference channel", true);
             if (directory == null) {
                 return;
@@ -46,12 +46,12 @@ public class Analyse_Batch extends Analyse_Movie {
             cytoImageFiles = directory.listFiles(); // Obtain file list
             secondChannel = Utilities.getFolder(directory, "Select directory for second channel", false);
             directory = new File(directory.getAbsolutePath() + delimiter + "..");
-        } else {
-            directory = new File(arg + delimiter + "cyto");
-            cytoImageFiles = directory.listFiles(); // Obtain file list
-            secondChannel = new File(arg + delimiter + "sig");
-            directory = new File(directory.getAbsolutePath() + delimiter + "..");
-        }
+//        } else {
+//            directory = new File(arg + delimiter + "cyto");
+//            cytoImageFiles = directory.listFiles(); // Obtain file list
+//            secondChannel = new File(arg + delimiter + "sig");
+//            directory = new File(directory.getAbsolutePath() + delimiter + "..");
+//        }
         int cytoSize = cytoImageFiles.length;
         int sigSize = 0;
         if (secondChannel != null) {

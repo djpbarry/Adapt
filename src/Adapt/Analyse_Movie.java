@@ -946,6 +946,8 @@ public class Analyse_Movie implements PlugIn {
                         double ly = lastCentres.get(lc - 1).getY();
                         distances[n] += Utils.calcDistance(x, y, lx, ly) * uv.getSpatialRes();
                     }
+                } else {
+                    trajStream.print(",,");
                 }
             }
             IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + numFormat.format(t));
@@ -955,8 +957,7 @@ public class Analyse_Movie implements PlugIn {
         for (int n = 0; n < N; n++) {
             int l = cellData.get(n).getLength();
             if (l > uv.getMinLength()) {
-                trajStream.print(String.valueOf(distances[n] * uv.getSpatialRes()
-                        / (l * uv.getTimeRes())) + ",,");
+                trajStream.print(String.valueOf(distances[n] / (l * uv.getTimeRes())) + ",,");
             }
         }
         trajStream.print("\nDirectionality:,");
@@ -966,7 +967,8 @@ public class Analyse_Movie implements PlugIn {
                 Region current = cellData.get(n).getCellRegions()[cellData.get(n).getEndFrame() - 1];
                 ArrayList<Pixel> centres = current.getCentres();
                 Pixel centre = centres.get(centres.size() - 1);
-                trajStream.print(String.valueOf(Utils.calcDistance(origins[n][0], origins[n][1], centre.getX(), centre.getY()) / distances[n]) + ",,");
+                trajStream.print(String.valueOf(uv.getSpatialRes() * Utils.calcDistance(origins[n][0], origins[n][1], centre.getX(), centre.getY())
+                        / distances[n]) + ",,");
             }
         }
         dialog.dispose();
