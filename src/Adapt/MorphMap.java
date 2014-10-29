@@ -16,12 +16,14 @@
  */
 package Adapt;
 
+import IAClasses.Pixel;
+import IAClasses.Region;
 import IAClasses.Utils;
-import ij.IJ;
 import ij.ImagePlus;
 import ij.plugin.filter.GaussianBlur;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import java.util.ArrayList;
 
 /**
  * Two dimensional map for representing cell velocities, fluorescence signals at
@@ -309,30 +311,36 @@ public class MorphMap {
     }
 
     /**
-     * Aligns the map such that the centre row represents the boundary coordinate(s)
-     * maximally distant from (xr, yr).
-     * 
-     * @param xr
-     * @param yr
-     * @param p 
+     * Aligns the map such that the pth row represents the boundary
+     * coordinate(s) maximally distant from the region centre.
+     *
+     * @param p
+     * @param cellData
      */
-    public void allignMapMaxDistToPoint(double xr, double yr, int p) {
+    public void allignMapMaxDistToPoint(int p, CellData cellData) {
         double[][] allignedZ = zVals.clone();
         double[][] allignedX = xCoords.clone();
         double[][] allignedY = yCoords.clone();
-        for (int i = 0; i < zVals.length - 1; i++) {
+        Region regions[] = cellData.getCellRegions();
+        int startframe = cellData.getStartFrame();
+        for (int i = startframe; i - startframe < zVals.length; i++) {
+            Region current = regions[i - 1];
+            int index = i - startframe;
+            ArrayList<Pixel> centres = current.getCentres();
+            Pixel centre = centres.get(centres.size() - 1);
             double maxDist = -Double.MAX_VALUE;
             int offset = 0;
-            for (int j = 0; j < zVals[i].length; j++) {
-                double dist = Utils.calcDistance(xr, yr, xCoords[i][j], yCoords[i][j]);
+            for (int j = 0; j < zVals[index].length; j++) {
+                double dist = Utils.calcDistance(centre.getPrecX(), centre.getPrecY(),
+                        xCoords[index][j], yCoords[index][j]);
                 if (dist > maxDist) {
                     maxDist = dist;
                     offset = j - p;
                 }
             }
-            allignedX = shiftColumn(allignedX, i, offset);
-            allignedY = shiftColumn(allignedY, i, offset);
-            allignedZ = shiftColumn(allignedZ, i, offset);
+            allignedX = shiftColumn(allignedX, index, offset);
+            allignedY = shiftColumn(allignedY, index, offset);
+            allignedZ = shiftColumn(allignedZ, index, offset);
         }
         xCoords = allignedX;
         yCoords = allignedY;

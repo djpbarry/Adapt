@@ -36,7 +36,6 @@ import ij.gui.Roi;
 import ij.measure.Measurements;
 import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
-import ij.plugin.RGBStackMerge;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.ParticleAnalyzer;
@@ -96,6 +95,7 @@ public class Analyse_Movie implements PlugIn {
     protected DecimalFormat numFormat = StaticVariables.numFormat; // For formatting results
     private PointRoi roi = null; // Points used as seeds for cell detection
     private ArrayList<CellData> cellData;
+    private CellData parentCellData;
     protected ImageStack stacks[] = new ImageStack[2];
     private final double morphSizeMin = 5.0, trajMin = 5.0;
     protected boolean batchMode = false;
@@ -108,12 +108,13 @@ public class Analyse_Movie implements PlugIn {
     public Analyse_Movie() {
     }
 
-    public Analyse_Movie(ImageStack stacks[], boolean protMode, boolean batchMode, UserVariables uv, File parDir) {
+    public Analyse_Movie(ImageStack[] stacks, boolean protMode, boolean batchMode, UserVariables uv, File parDir, CellData parentCellData) {
         this.stacks = stacks;
         this.protMode = protMode;
         this.batchMode = batchMode;
         this.uv = uv;
         this.parDir = parDir;
+        this.parentCellData = parentCellData;
     }
 
     /*
@@ -261,7 +262,7 @@ public class Analyse_Movie implements PlugIn {
          */
         int thresholds[] = new int[cytoSize];
         ArrayList<Region>[] allRegions = new ArrayList[cytoSize];
-        ByteProcessor allMasks = null;
+//        ByteProcessor allMasks = null;
         for (int i = 0; i < cytoSize; i++) {
             segDialog.updateProgress(i, cytoSize);
             cytoImage = cytoStack.getProcessor(i + 1).duplicate();
@@ -273,18 +274,18 @@ public class Analyse_Movie implements PlugIn {
 //                    initialiseROIs(i, allMasks, thresholds[i - 1], i + 1, cytoImage);
 //                }
                 allRegions[i] = findCellRegions(cytoImage, thresholds[i], cellData);
-                allMasks = new ByteProcessor(width, height);
-                allMasks.setColor(Region.FOREGROUND);
-                allMasks.fill();
-                ByteBlitter bb = new ByteBlitter(allMasks);
-                for (int k = 0; k < allRegions[i].size(); k++) {
-                    Region current = allRegions[i].get(k);
-                    if (current != null) {
-                        ImageProcessor currentMask = current.getMask();
-                        currentMask.invert();
-                        bb.copyBits(currentMask, 0, 0, Blitter.ADD);
-                    }
-                }
+//                allMasks = new ByteProcessor(width, height);
+//                allMasks.setColor(Region.FOREGROUND);
+//                allMasks.fill();
+//                ByteBlitter bb = new ByteBlitter(allMasks);
+//                for (int k = 0; k < allRegions[i].size(); k++) {
+//                    Region current = allRegions[i].get(k);
+//                    if (current != null) {
+//                        ImageProcessor currentMask = current.getMask();
+//                        currentMask.invert();
+//                        bb.copyBits(currentMask, 0, 0, Blitter.ADD);
+//                    }
+//                }
             }
             for (int j = 0; j < N; j++) {
                 Region current = allRegions[i].get(j);
@@ -357,7 +358,7 @@ public class Analyse_Movie implements PlugIn {
                             protUV.setAnalyseProtrusions(false);
                             Analyse_Movie protAM = new Analyse_Movie(protStacks,
                                     true, false, protUV,
-                                    new File(GenUtils.openResultsDirectory(childDir + delimiter + "Protrusions", delimiter)));
+                                    new File(GenUtils.openResultsDirectory(childDir + delimiter + "Protrusions", delimiter)), cellData.get(index));
                             protAM.analyse(null);
                         }
                     }
@@ -700,7 +701,7 @@ public class Analyse_Movie implements PlugIn {
             }
         }
         if (protMode) {
-            sigMap.allignMapMaxDistToPoint(256.0, 256.0, sigMap.getHeight() / 2);
+            sigMap.allignMapMaxDistToPoint(sigMap.getHeight() / 2, parentCellData);
         }
     }
 
@@ -849,11 +850,11 @@ public class Analyse_Movie implements PlugIn {
             output.setColor(Color.black);
             output.fill();
             for (int n = 0; n < N; n++) {
-                int start = cellData.get(n).getStartFrame();
-                int end = cellData.get(n).getEndFrame();
-                int length = cellData.get(n).getLength();
+                int start = cellDatas.get(n).getStartFrame();
+                int end = cellDatas.get(n).getEndFrame();
+                int length = cellDatas.get(n).getLength();
                 if (length > uv.getMinLength() && t + 1 >= start && t < end) {
-                    Region[] allRegions = cellData.get(n).getCellRegions();
+                    Region[] allRegions = cellDatas.get(n).getCellRegions();
                     Region current = allRegions[t];
                     LinkedList<Pixel> border = current.getBorderPix();
                     output.setColor(Color.yellow);
