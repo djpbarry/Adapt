@@ -17,6 +17,7 @@
 package Adapt;
 
 import IAClasses.Utils;
+import ij.IJ;
 import ij.ImagePlus;
 import ij.plugin.filter.GaussianBlur;
 import ij.process.FloatProcessor;
@@ -305,6 +306,37 @@ public class MorphMap {
         xCoords = allignedX;
         yCoords = allignedY;
         zVals = allignedMap;
+    }
+
+    /**
+     * Aligns the map such that the centre row represents the boundary coordinate(s)
+     * maximally distant from (xr, yr).
+     * 
+     * @param xr
+     * @param yr
+     * @param p 
+     */
+    public void allignMapMaxDistToPoint(double xr, double yr, int p) {
+        double[][] allignedZ = zVals.clone();
+        double[][] allignedX = xCoords.clone();
+        double[][] allignedY = yCoords.clone();
+        for (int i = 0; i < zVals.length - 1; i++) {
+            double maxDist = -Double.MAX_VALUE;
+            int offset = 0;
+            for (int j = 0; j < zVals[i].length; j++) {
+                double dist = Utils.calcDistance(xr, yr, xCoords[i][j], yCoords[i][j]);
+                if (dist > maxDist) {
+                    maxDist = dist;
+                    offset = j - p;
+                }
+            }
+            allignedX = shiftColumn(allignedX, i, offset);
+            allignedY = shiftColumn(allignedY, i, offset);
+            allignedZ = shiftColumn(allignedZ, i, offset);
+        }
+        xCoords = allignedX;
+        yCoords = allignedY;
+        zVals = allignedZ;
     }
 
     private double[][] shiftColumn(double[][] map, int colIndex, int offset) {

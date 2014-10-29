@@ -104,31 +104,23 @@ public class CurveMapAnalyser {
      */
     public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, double minDuration, boolean min, double threshold, double curveRange, UserVariables uv) {
         MorphMap curveMap = cellData.getCurveMap();
-        double[][] curveVals = curveMap.smoothMap(0.0,0.0);
+        double[][] curveVals = curveMap.smoothMap(0.0, 0.0);
         double[][] xvals = curveMap.getxCoords();
         double[][] yvals = curveMap.getyCoords();
         int posLength = curveVals[0].length;
-//        int halfPosLength = posLength / 2;
         int tLength = 1 + endFrame - startFrame;
         ParticleArray extrema = new ParticleArray(tLength);
         for (int t = startFrame; t <= endFrame; t++) {
             int currentIndex = t - startFrame;
             int range = calcScaledCurveRange(curveRange, cellData.getScaleFactors()[currentIndex]);
-            for (int pos = 0; pos < posLength; pos++) {
-//                System.out.println(" pos: " + pos + " c: " + curveVals[currentIndex][pos]);
-                if (CurveMapAnalyser.isLocalCurvatureExtreme(pos, range, curveVals[currentIndex], threshold, min) == 0) {
-//                    int adjPos = pos;
-//                    if (pos > halfPosLength) {
-//                        adjPos = posLength - pos;
-//                    }
-                    extrema.addDetection(currentIndex,
-                            new Particle(t - 1, new IsoGaussian(xvals[currentIndex][pos] * uv.getSpatialRes(),
-                                            yvals[currentIndex][pos] * uv.getSpatialRes(), 1.0,
-                                            1.0, 1.0, 1.0), null, null, pos));
-//                    String type = min ? "min" : "max";
-//                    System.out.println("t: " + t + " type:  " + type
-//                            + " x: " + xvals[currentIndex][pos] + " y: " + yvals[currentIndex][pos]
-//                            + " pos: " + pos + " c: " + curveVals[currentIndex][pos]);
+            if (posLength > 2 * range + 1) {
+                for (int pos = 0; pos < posLength; pos++) {
+                    if (CurveMapAnalyser.isLocalCurvatureExtreme(pos, range, curveVals[currentIndex], threshold, min) == 0) {
+                        extrema.addDetection(currentIndex,
+                                new Particle(t - 1, new IsoGaussian(xvals[currentIndex][pos] * uv.getSpatialRes(),
+                                                yvals[currentIndex][pos] * uv.getSpatialRes(), 1.0,
+                                                1.0, 1.0, 1.0), null, null, pos));
+                    }
                 }
             }
         }

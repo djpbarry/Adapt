@@ -29,16 +29,16 @@ public class UserVariables {
     private double blebDurThresh = 0.0; // minimum duration (in frames) of bleb to be considered in analysis
     private int curveRange = 10;
     private boolean useSigThresh = false;
-    private double spatialRes = .212; //timeRes in frames/minute, spatialRes in microns/pixel;
+    private double spatialRes = 1.0; //timeRes in frames/minute, spatialRes in microns/pixel;
     private double cutOffTime = 120.0;
-    private double cortexDepth = 0.0;
+    private double cortexDepth = 5.0;
     private boolean autoThreshold = true; // User-specifed threshold is used if set to false
     private double tempFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
     private double sigThreshFact = 0.0;
     private double spatFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
-    private int erosion = 4;
+    private int erosion = 2;
     private boolean getMorph = true;
-    private double timeRes = 216.0; // temporal resolution in frames per minute
+    private double timeRes = 1.0; // temporal resolution in frames per minute
     private double blebLenThresh = 0.0; // minimum normalised length of bleb to be considered in analysis
     private double minCurveThresh = 0.0;
     private double maxCurveThresh = 0.0;
@@ -51,8 +51,8 @@ public class UserVariables {
     private double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
     private int minLength = 0;
     private String threshMethod = AutoThresholder.Method.Triangle.toString();
-    private boolean blebDetect = true;
-    private double filoSize = 10;
+    private boolean blebDetect = false;
+    private double filoSize = 4;
 
     /**
      * Get the radius of circles drawn on bleb detection output movies

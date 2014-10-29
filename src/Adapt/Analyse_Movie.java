@@ -269,9 +269,9 @@ public class Analyse_Movie implements PlugIn {
             thresholds[i] = getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             int N = cellData.size();
             if (cytoImage != null) {
-                if (i > 0) {
-                    initialiseROIs(i, allMasks, thresholds[i - 1], i + 1, cytoImage);
-                }
+//                if (i > 0) {
+//                    initialiseROIs(i, allMasks, thresholds[i - 1], i + 1, cytoImage);
+//                }
                 allRegions[i] = findCellRegions(cytoImage, thresholds[i], cellData);
                 allMasks = new ByteProcessor(width, height);
                 allMasks.setColor(Region.FOREGROUND);
@@ -699,6 +699,9 @@ public class Analyse_Movie implements PlugIn {
                 sigMap.addColumn(upX, upY, smz, i);
             }
         }
+        if (protMode) {
+            sigMap.allignMapMaxDistToPoint(256.0, 256.0, sigMap.getHeight() / 2);
+        }
     }
 
     private void buildCurveMap(Region[] allRegions, CellData cellData) {
@@ -928,26 +931,28 @@ public class Analyse_Movie implements PlugIn {
                 int start = cellData.get(n).getStartFrame();
                 int end = cellData.get(n).getEndFrame();
                 int length = cellData.get(n).getLength();
-                if (length > uv.getMinLength() && t + 1 >= start && t < end) {
-                    Region[] allRegions = cellData.get(n).getCellRegions();
-                    Region current = allRegions[t];
-                    ArrayList<Pixel> centres = current.getCentres();
-                    int c = centres.size();
-                    double x = centres.get(c - 1).getX();
-                    double y = centres.get(c - 1).getY();
-                    trajOutput.fillOval((int) Math.round(x + xc - origins[n][0]) - 1,
-                            (int) Math.round(y + yc - origins[n][1]) - 1, 3, 3);
-                    trajStream.print(String.valueOf(x) + "," + String.valueOf(y) + ",");
-                    if (t + 1 > start) {
-                        Region last = allRegions[t - 1];
-                        ArrayList<Pixel> lastCentres = last.getCentres();
-                        int lc = lastCentres.size();
-                        double lx = lastCentres.get(lc - 1).getX();
-                        double ly = lastCentres.get(lc - 1).getY();
-                        distances[n] += Utils.calcDistance(x, y, lx, ly) * uv.getSpatialRes();
+                if (length > uv.getMinLength()) {
+                    if (t + 1 >= start && t < end) {
+                        Region[] allRegions = cellData.get(n).getCellRegions();
+                        Region current = allRegions[t];
+                        ArrayList<Pixel> centres = current.getCentres();
+                        int c = centres.size();
+                        double x = centres.get(c - 1).getX();
+                        double y = centres.get(c - 1).getY();
+                        trajOutput.fillOval((int) Math.round(x + xc - origins[n][0]) - 1,
+                                (int) Math.round(y + yc - origins[n][1]) - 1, 3, 3);
+                        trajStream.print(String.valueOf(x) + "," + String.valueOf(y) + ",");
+                        if (t + 1 > start) {
+                            Region last = allRegions[t - 1];
+                            ArrayList<Pixel> lastCentres = last.getCentres();
+                            int lc = lastCentres.size();
+                            double lx = lastCentres.get(lc - 1).getX();
+                            double ly = lastCentres.get(lc - 1).getY();
+                            distances[n] += Utils.calcDistance(x, y, lx, ly) * uv.getSpatialRes();
+                        }
+                    } else {
+                        trajStream.print(",,");
                     }
-                } else {
-                    trajStream.print(",,");
                 }
             }
             IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + numFormat.format(t));
