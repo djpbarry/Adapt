@@ -75,8 +75,6 @@ import ui.GUI;
  * represents the cell cytosol, which should depict a uniform cell against a
  * relatively uniform background. The second movie contains a signal of interest
  * that the user wishes to correlate with membrane dynamics.
- *
- * @author David Barry <david.barry at cancer.org.uk>
  */
 public class Analyse_Movie implements PlugIn {
 
@@ -617,33 +615,33 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(TITLE);
         paramStream.println(Utilities.getDate("dd/MM/yyyy HH:mm:ss"));
         paramStream.println();
-        paramStream.println(StaticVariables.AUTO_THRESH + ", " + String.valueOf(uv.isAutoThreshold()));
-        paramStream.println(StaticVariables.THRESH_METHOD + ", " + uv.getThreshMethod());
-        paramStream.println(StaticVariables.GREY_SENS + ", " + String.valueOf(uv.getGreyThresh()));
-        paramStream.println(StaticVariables.SPAT_RES + ", " + String.valueOf(uv.getSpatialRes()));
-        paramStream.println(StaticVariables.TIME_RES + ", " + String.valueOf(uv.getTimeRes()));
-        paramStream.println(StaticVariables.EROSION + ", " + String.valueOf(uv.getErosion()));
-        paramStream.println(StaticVariables.SPAT_FILT_RAD + ", " + String.valueOf(uv.getSpatFiltRad()));
-        paramStream.println(StaticVariables.TEMP_FILT_RAD + ", " + String.valueOf(uv.getTempFiltRad()));
-        paramStream.println(StaticVariables.GAUSS_RAD + ", " + String.valueOf(uv.getGaussRad()));
-        paramStream.println(StaticVariables.GEN_VIS + ", " + String.valueOf(uv.isGenVis()));
-        paramStream.println(StaticVariables.GET_MORPH + ", " + String.valueOf(uv.isGetMorph()));
-        paramStream.println(StaticVariables.ANA_PROT + ", " + String.valueOf(uv.isAnalyseProtrusions()));
-        paramStream.println(StaticVariables.DETECT_BLEB + ", " + String.valueOf(uv.isBlebDetect()));
-        paramStream.println(StaticVariables.MIN_CURVE_RANGE + ", " + String.valueOf(uv.getCurveRange()));
-        paramStream.println(StaticVariables.MIN_CURVE_THRESH + ", " + String.valueOf(uv.getMinCurveThresh()));
-        paramStream.println(StaticVariables.MAX_CURVE_THRESH + ", " + String.valueOf(uv.getMaxCurveThresh()));
-        paramStream.println(StaticVariables.PROT_LEN_THRESH + ", " + String.valueOf(uv.getBlebLenThresh()));
-        paramStream.println(StaticVariables.PROT_DUR_THRESH + ", " + String.valueOf(uv.getBlebDurThresh()));
-        paramStream.println(StaticVariables.CUT_OFF + ", " + String.valueOf(uv.getCutOffTime()));
-        paramStream.println(StaticVariables.CORTEX_DEPTH + ", " + String.valueOf(uv.getCortexDepth()));
-        paramStream.println(StaticVariables.USE_SIG_THRESH + ", " + String.valueOf(uv.isUseSigThresh()));
-        paramStream.println(StaticVariables.SIG_THRESH_FACT + ", " + String.valueOf(uv.getSigThreshFact()));
-        paramStream.println(StaticVariables.SIG_REC_THRESH + ", " + String.valueOf(uv.getSigRecoveryThresh()));
-        paramStream.println(StaticVariables.SIMP_SEG + ", " + String.valueOf(uv.isSimple()));
-        paramStream.println(StaticVariables.LAMBDA + ", " + String.valueOf(uv.getLambda()));
-        paramStream.println(StaticVariables.MIN_TRAJ_LENGTH + ", " + String.valueOf(uv.getMinLength()));
-        paramStream.println(StaticVariables.FILO_SIZE + ", " + String.valueOf(uv.getFiloSize()));
+        paramStream.println(StaticVariables.AUTO_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isAutoThreshold()));
+        paramStream.println(StaticVariables.THRESH_METHOD.replaceAll("\\s", "_") + ", " + uv.getThreshMethod());
+        paramStream.println(StaticVariables.GREY_SENS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getGreyThresh()));
+        paramStream.println(StaticVariables.SPAT_RES.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSpatialRes()));
+        paramStream.println(StaticVariables.TIME_RES.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getTimeRes()));
+        paramStream.println(StaticVariables.EROSION.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getErosion()));
+        paramStream.println(StaticVariables.SPAT_FILT_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSpatFiltRad()));
+        paramStream.println(StaticVariables.TEMP_FILT_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getTempFiltRad()));
+        paramStream.println(StaticVariables.GAUSS_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getGaussRad()));
+        paramStream.println(StaticVariables.GEN_VIS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGenVis()));
+        paramStream.println(StaticVariables.GET_MORPH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetMorph()));
+        paramStream.println(StaticVariables.ANA_PROT.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isAnalyseProtrusions()));
+        paramStream.println(StaticVariables.DETECT_BLEB.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isBlebDetect()));
+        paramStream.println(StaticVariables.MIN_CURVE_RANGE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCurveRange()));
+        paramStream.println(StaticVariables.MIN_CURVE_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinCurveThresh()));
+        paramStream.println(StaticVariables.MAX_CURVE_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMaxCurveThresh()));
+        paramStream.println(StaticVariables.PROT_LEN_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebLenThresh()));
+        paramStream.println(StaticVariables.PROT_DUR_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebDurThresh()));
+        paramStream.println(StaticVariables.CUT_OFF.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCutOffTime()));
+        paramStream.println(StaticVariables.CORTEX_DEPTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCortexDepth()));
+        paramStream.println(StaticVariables.USE_SIG_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isUseSigThresh()));
+        paramStream.println(StaticVariables.SIG_THRESH_FACT.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigThreshFact()));
+        paramStream.println(StaticVariables.SIG_REC_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigRecoveryThresh()));
+        paramStream.println(StaticVariables.SIMP_SEG.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isSimple()));
+        paramStream.println(StaticVariables.LAMBDA.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getLambda()));
+        paramStream.println(StaticVariables.MIN_TRAJ_LENGTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinLength()));
+        paramStream.println(StaticVariables.FILO_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSize()));
         return true;
     }
 

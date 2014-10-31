@@ -28,8 +28,6 @@ import java.util.ArrayList;
 /**
  * Two dimensional map for representing cell velocities, fluorescence signals at
  * cell boundaries and curvature of cell boundaries
- *
- * @author David Barry <david.barry at cancer.org.uk>
  */
 public class MorphMap {
 

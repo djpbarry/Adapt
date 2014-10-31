@@ -34,8 +34,6 @@ import java.util.ArrayList;
 
 /**
  * Class consisting of static methods for the analysis of cell curvature maps
- *
- * @author David Barry <david.barry at cancer.org.uk>
  */
 public class CurveMapAnalyser {
 

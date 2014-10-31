@@ -27,8 +27,6 @@ import java.util.ArrayList;
 
 /**
  * Contains static methods for extracting signal data from blebs
- *
- * @author David Barry <david.barry at cancer.org.uk>
  */
 public class BlebAnalyser {
 

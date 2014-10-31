@@ -26,8 +26,6 @@ import java.util.ArrayList;
 
 /**
  * Container class for data pertaining to cellular analysis
- *
- * @author David Barry <david.barry at cancer.org.uk>
  */
 public class CellData {
 

@@ -21,8 +21,6 @@ import java.util.ArrayList;
 
 /**
  * Container class for data pertaining to cellular protrusions
- *
- * @author David Barry <david.barry at cancer.org.uk>
  */
 public class Protrusion {
 

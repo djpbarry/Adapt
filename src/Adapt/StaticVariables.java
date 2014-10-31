@@ -22,8 +22,6 @@ import java.text.DecimalFormat;
 
 /**
  * Container class for variable labels
- *
- * @author David Barry <david.barry at cancer.org.uk>
  */
 public class StaticVariables {
 

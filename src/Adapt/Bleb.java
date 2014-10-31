@@ -22,8 +22,6 @@ import java.util.ArrayList;
 
 /**
  * Container class containing data specifying an individual bleb
- *
- * @author David Barry <david.barry at cancer.org.uk>
  */
 public class Bleb extends Protrusion {
 

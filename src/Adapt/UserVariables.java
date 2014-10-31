@@ -20,7 +20,6 @@ import ij.process.AutoThresholder;
 
 /**
  *
- * @author David Barry <david.barry at cancer.org.uk>
  */
 public class UserVariables {
 
