@@ -262,7 +262,7 @@ public class Analyse_Movie implements PlugIn {
          */
         int thresholds[] = new int[cytoSize];
         ArrayList<Region>[] allRegions = new ArrayList[cytoSize];
-//        ByteProcessor allMasks = null;
+        ByteProcessor allMasks = null;
         for (int i = 0; i < cytoSize; i++) {
             segDialog.updateProgress(i, cytoSize);
             cytoImage = cytoStack.getProcessor(i + 1).duplicate();
@@ -270,22 +270,24 @@ public class Analyse_Movie implements PlugIn {
             thresholds[i] = getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             int N = cellData.size();
             if (cytoImage != null) {
-//                if (i > 0) {
-//                    initialiseROIs(i, allMasks, thresholds[i - 1], i + 1, cytoImage);
-//                }
+                if (i > 0 && protMode) {
+                    initialiseROIs(i, allMasks, thresholds[i - 1], i + 1, cytoImage);
+                }
                 allRegions[i] = findCellRegions(cytoImage, thresholds[i], cellData);
-//                allMasks = new ByteProcessor(width, height);
-//                allMasks.setColor(Region.FOREGROUND);
-//                allMasks.fill();
-//                ByteBlitter bb = new ByteBlitter(allMasks);
-//                for (int k = 0; k < allRegions[i].size(); k++) {
-//                    Region current = allRegions[i].get(k);
-//                    if (current != null) {
-//                        ImageProcessor currentMask = current.getMask();
-//                        currentMask.invert();
-//                        bb.copyBits(currentMask, 0, 0, Blitter.ADD);
-//                    }
-//                }
+                if (protMode) {
+                    allMasks = new ByteProcessor(width, height);
+                    allMasks.setColor(Region.FOREGROUND);
+                    allMasks.fill();
+                    ByteBlitter bb = new ByteBlitter(allMasks);
+                    for (int k = 0; k < allRegions[i].size(); k++) {
+                        Region current = allRegions[i].get(k);
+                        if (current != null) {
+                            ImageProcessor currentMask = current.getMask();
+                            currentMask.invert();
+                            bb.copyBits(currentMask, 0, 0, Blitter.ADD);
+                        }
+                    }
+                }
             }
             for (int j = 0; j < N; j++) {
                 Region current = allRegions[i].get(j);
