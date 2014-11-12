@@ -123,7 +123,7 @@ public class CurveMapAnalyser {
             }
         }
         Timelapse_Analysis ta = new Timelapse_Analysis();
-        ta.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false);
+        ta.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false, 1.0);
         ArrayList<ParticleTrajectory> trajectories = ta.getTrajectories();
         ArrayList<BoundaryPixel> extPos[] = new ArrayList[tLength];
         int tSize = trajectories.size();

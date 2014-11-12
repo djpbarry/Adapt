@@ -9,6 +9,7 @@ import UtilClasses.Utilities;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.PointRoi;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -85,6 +86,7 @@ public class Analyse_Batch extends Analyse_Movie {
         for (int f = 0; f < cytoSize; f++) {
             ImagePlus cytoImp = new ImagePlus(cytoImageFiles[f].getAbsolutePath());
             ImageStack cytoStack = cytoImp.getImageStack();
+            roi = (PointRoi) cytoImp.getRoi();
             if (cytoStack != null && cytoStack.getSize() > 0) {
                 try {
                     ImageStack sigStack;

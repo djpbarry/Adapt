@@ -49,7 +49,6 @@ import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
-import ij.process.StackConverter;
 import ij.process.TypeConverter;
 import java.awt.Color;
 import java.awt.Font;
@@ -78,7 +77,7 @@ import ui.GUI;
  */
 public class Analyse_Movie implements PlugIn {
 
-    private final double scaleFactor = 60.0 / 216.0;
+//    private final double scaleFactor = 60.0 / 216.0;
     protected static File directory; // root directory
     protected File childDir, // root output directory
             parDir, // output directory for each cell
@@ -91,7 +90,7 @@ public class Analyse_Movie implements PlugIn {
      * Determines the format of printed results
      */
     protected DecimalFormat numFormat = StaticVariables.numFormat; // For formatting results
-    private PointRoi roi = null; // Points used as seeds for cell detection
+    protected PointRoi roi = null; // Points used as seeds for cell detection
     private ArrayList<CellData> cellData;
     private CellData parentCellData;
     protected ImageStack stacks[] = new ImageStack[2];
@@ -231,7 +230,7 @@ public class Analyse_Movie implements PlugIn {
         /*
          Convert cyto channel to 8-bit for faster segmentation
          */
-        cytoStack = convertStackTo8Bit(stacks[0]);
+        cytoStack = GenUtils.convertStackTo8Bit(stacks[0]);
         stacks[0] = cytoStack;
 //        if (IJ.getInstance() == null && !protMode) {
 //            roi = new PointRoi(256,256);
@@ -1816,7 +1815,7 @@ public class Analyse_Movie implements PlugIn {
     public ImageProcessor[] generatePreview(int sliceIndex) {
         uv = GUI.getUv();
         cellData = new ArrayList();
-        ImageProcessor cytoProc = convertStackTo8Bit(stacks[0]).getProcessor(sliceIndex);
+        ImageProcessor cytoProc = GenUtils.convertStackTo8Bit(stacks[0]).getProcessor(sliceIndex);
         (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         int threshold = getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
         int nCell = initialiseROIs(sliceIndex, null, -1, sliceIndex, cytoProc);
@@ -1970,15 +1969,4 @@ public class Analyse_Movie implements PlugIn {
         }
     }
 
-    ImageStack convertStackTo8Bit(ImageStack stack) {
-        ImageStack tempStack = new ImageStack(stack.getWidth(), stack.getHeight());
-        int size = stack.getSize();
-        for (int i = 1; i <= size; i++) {
-            tempStack.addSlice(stack.getProcessor(i).duplicate());
-        }
-        ImagePlus tempCytoImp = new ImagePlus("", tempStack);
-        StackConverter sc = new StackConverter(tempCytoImp);
-        sc.convertToGray8();
-        return tempCytoImp.getImageStack();
-    }
 }
