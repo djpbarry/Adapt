@@ -46,6 +46,7 @@ import ij.process.ByteBlitter;
 import ij.process.ByteProcessor;
 import ij.process.ColorBlitter;
 import ij.process.ColorProcessor;
+import ij.process.FloatBlitter;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
@@ -66,6 +67,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import ui.GUI;
 
 /**
@@ -544,6 +547,11 @@ public class Analyse_Movie implements PlugIn {
                         + "ChangeInSignalMap.tif");
                 IJ.saveAs(velMap.periodicity2D(rateOfSigChange, greyVelMap, 100), "TIF",
                         childDir + delimiter + "VelMap_ChangeInSigMap_CrossCorrelation.tif");
+                FloatProcessor fluorMaps[] = getFluorDists(cellData.get(index), 512);
+                IJ.saveAs(new ImagePlus("", fluorMaps[0]), "TIF", childDir + delimiter
+                        + "MeanFluorescenceIntensity.tif");
+                IJ.saveAs(new ImagePlus("", fluorMaps[1]), "TIF", childDir + delimiter
+                        + "STDFluorescenceIntensity.tif");
             }
         }
     }
@@ -594,7 +602,7 @@ public class Analyse_Movie implements PlugIn {
             if (current != null) {
                 ArrayList<Pixel> centres = current.getCentres();
                 Pixel centre = centres.get(centres.size() - 1);
-                int length = (current.getOrderedBoundary(stacks[0].getWidth(), stacks[0].getHeight(), current.getMask(), centre)).length;
+                int length = (current.getOrderedBoundary(stacks[0].getWidth(), stacks[0].getHeight(), current.getMask(), centre, true)).length;
                 if (length > maxBoundary) {
                     maxBoundary = length;
                 }
@@ -720,7 +728,7 @@ public class Analyse_Movie implements PlugIn {
              * Get points for one column (time-point) of map
              */
             Pixel vmPoints[] = current.getOrderedBoundary(stacks[0].getWidth(), stacks[0].getHeight(),
-                    current.getMask(), new Pixel(xc, yc, 0.0));
+                    current.getMask(), new Pixel(xc, yc, 0.0), true);
             double x[] = new double[vmPoints.length];
             double y[] = new double[vmPoints.length];
             /*
@@ -1969,4 +1977,48 @@ public class Analyse_Movie implements PlugIn {
         }
     }
 
+    FloatProcessor[] getFluorDists(CellData cellData, int height) {
+        Region[] regions = cellData.getCellRegions();
+        FloatProcessor dists[] = new FloatProcessor[2];
+        int start = cellData.getStartFrame();
+        int end = cellData.getEndFrame();
+        int width = 1 + end - start;
+        dists[0] = new FloatProcessor(width, height);
+        dists[1] = new FloatProcessor(width, height);
+        FloatBlitter meanBlitter = new FloatBlitter(dists[0]);
+        FloatBlitter stdBlitter = new FloatBlitter(dists[1]);
+        Mean mean = new Mean();
+        StandardDeviation std = new StandardDeviation();
+        for (int i = start; i <= end; i++) {
+            Region current = (Region) regions[i - 1].clone();
+            ArrayList<Double> means = new ArrayList();
+            ArrayList<Double> stds = new ArrayList();
+            int index = 0;
+//            IJ.saveAs((new ImagePlus("", current.getMask())), "PNG", "C:/users/barry05/desktop/Test_Data_Sets/adapt_test_data/masks/mask_orig.png");
+            while (current.shrink(2, false, index)) {
+//                IJ.saveAs((new ImagePlus("", current.getMask())), "PNG", "C:/users/barry05/desktop/Test_Data_Sets/adapt_test_data/masks/mask_" + index + ".png");
+                Pixel[] pix = current.buildMapCol(stacks[1].getProcessor(i), height, 3);
+                double pixVals[] = new double[pix.length];
+                for (int j = 0; j < height; j++) {
+                    pixVals[j] = pix[j].getZ();
+                }
+                means.add(mean.evaluate(pixVals, 0, height));
+                stds.add(std.evaluate(pixVals));
+                index++;
+            }
+            FloatProcessor meanCol = new FloatProcessor(1, means.size());
+            FloatProcessor stdCol = new FloatProcessor(1, stds.size());
+            for (int k = 0; k < meanCol.getHeight(); k++) {
+                meanCol.putPixelValue(0, k, means.get(k));
+                stdCol.putPixelValue(0, k, stds.get(k));
+            }
+            meanCol.setInterpolate(true);
+            meanCol.setInterpolationMethod(ImageProcessor.BILINEAR);
+            stdCol.setInterpolate(true);
+            stdCol.setInterpolationMethod(ImageProcessor.BILINEAR);
+            meanBlitter.copyBits(meanCol.resize(1, height), i - start, 0, Blitter.COPY);
+            stdBlitter.copyBits(stdCol.resize(1, height), i - start, 0, Blitter.COPY);
+        }
+        return dists;
+    }
 }
