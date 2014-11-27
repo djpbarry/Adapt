@@ -52,6 +52,7 @@ public class UserVariables {
     private String threshMethod = AutoThresholder.Method.Default.toString();
     private boolean blebDetect = false;
     private double filoSize = 4;
+    private boolean getFluorDist = false;
 
     /**
      * Get the radius of circles drawn on bleb detection output movies
@@ -513,6 +514,14 @@ public class UserVariables {
         this.filoSize = filoSize;
     }
 
+    public boolean isGetFluorDist() {
+        return getFluorDist;
+    }
+
+    public void setGetFluorDist(boolean getFluorDist) {
+        this.getFluorDist = getFluorDist;
+    }
+
     public Object clone() {
         UserVariables copy = new UserVariables();
         copy.setGreyThresh(greyThresh);
@@ -542,6 +551,7 @@ public class UserVariables {
         copy.setThreshMethod(threshMethod);
         copy.setBlebDetect(blebDetect);
         copy.setFiloSize(filoSize);
+        copy.setGetFluorDist(getFluorDist);
         return copy;
     }
 }

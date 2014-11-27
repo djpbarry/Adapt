@@ -134,6 +134,8 @@ public class StaticVariables {
     
     public static final String FILO_SIZE = "Filopodia Size";
     
+    public static final String GEN_SIG_DIST = "Generate Signal Distribution";
+    
     public static final String DATA_STREAM_HEADINGS = "Time_(s), Zeroed_Time_(s), "
             + "V_(" + GenUtils.mu + "m/s), Total_Signal_(AU), Length_(" + GenUtils.mu + "m), "
             + "Total_Signal/L0, Mean_Signal, Normalised_Length";

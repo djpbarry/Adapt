@@ -358,6 +358,7 @@ public class Analyse_Movie implements PlugIn {
                             protStacks[1] = stacks[1];
                             UserVariables protUV = (UserVariables) uv.clone();
                             protUV.setAnalyseProtrusions(false);
+                            protUV.setErosion(2);
                             Analyse_Movie protAM = new Analyse_Movie(protStacks,
                                     true, false, protUV,
                                     new File(GenUtils.openResultsDirectory(childDir + delimiter + "Protrusions", delimiter)), cellData.get(index));
@@ -547,11 +548,13 @@ public class Analyse_Movie implements PlugIn {
                         + "ChangeInSignalMap.tif");
                 IJ.saveAs(velMap.periodicity2D(rateOfSigChange, greyVelMap, 100), "TIF",
                         childDir + delimiter + "VelMap_ChangeInSigMap_CrossCorrelation.tif");
-                FloatProcessor fluorMaps[] = getFluorDists(cellData.get(index), 512);
-                IJ.saveAs(new ImagePlus("", fluorMaps[0]), "TIF", childDir + delimiter
-                        + "MeanFluorescenceIntensity.tif");
-                IJ.saveAs(new ImagePlus("", fluorMaps[1]), "TIF", childDir + delimiter
-                        + "STDFluorescenceIntensity.tif");
+                if (uv.isGetFluorDist()) {
+                    FloatProcessor fluorMaps[] = getFluorDists(cellData.get(index), 512);
+                    IJ.saveAs(new ImagePlus("", fluorMaps[0]), "TIF", childDir + delimiter
+                            + "MeanFluorescenceIntensity.tif");
+                    IJ.saveAs(new ImagePlus("", fluorMaps[1]), "TIF", childDir + delimiter
+                            + "STDFluorescenceIntensity.tif");
+                }
             }
         }
     }
@@ -602,7 +605,7 @@ public class Analyse_Movie implements PlugIn {
             if (current != null) {
                 ArrayList<Pixel> centres = current.getCentres();
                 Pixel centre = centres.get(centres.size() - 1);
-                int length = (current.getOrderedBoundary(stacks[0].getWidth(), stacks[0].getHeight(), current.getMask(), centre, true)).length;
+                int length = (current.getOrderedBoundary(stacks[0].getWidth(), stacks[0].getHeight(), current.getMask(), centre)).length;
                 if (length > maxBoundary) {
                     maxBoundary = length;
                 }
@@ -649,6 +652,7 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.LAMBDA.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getLambda()));
         paramStream.println(StaticVariables.MIN_TRAJ_LENGTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinLength()));
         paramStream.println(StaticVariables.FILO_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSize()));
+        paramStream.println(StaticVariables.GEN_SIG_DIST.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetFluorDist()));
         return true;
     }
 
@@ -728,7 +732,7 @@ public class Analyse_Movie implements PlugIn {
              * Get points for one column (time-point) of map
              */
             Pixel vmPoints[] = current.getOrderedBoundary(stacks[0].getWidth(), stacks[0].getHeight(),
-                    current.getMask(), new Pixel(xc, yc, 0.0), true);
+                    current.getMask(), new Pixel(xc, yc, 0.0));
             double x[] = new double[vmPoints.length];
             double y[] = new double[vmPoints.length];
             /*
@@ -823,7 +827,7 @@ public class Analyse_Movie implements PlugIn {
                         curveOutput.setColor(getColor(curvatures[index][j], maxcurve, mincurve));
                         curveOutput.drawDot(x, y);
                     }
-                    velOutput.setColor(Color.white);
+                    velOutput.setColor(Color.blue);
                     Region current = allRegions[t];
                     ArrayList<Pixel> centres = current.getCentres();
                     int cl = centres.size();
@@ -870,7 +874,7 @@ public class Analyse_Movie implements PlugIn {
                         Pixel pix = border.get(i);
                         output.drawDot(pix.getX(), pix.getY());
                     }
-                    output.setColor(Color.white);
+                    output.setColor(Color.blue);
                     ArrayList<Pixel> centres = current.getCentres();
                     int cl = centres.size();
                     int xc = (int) Math.round(centres.get(cl - 1).getX());

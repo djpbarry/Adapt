@@ -116,6 +116,7 @@ public class GUI extends javax.swing.JDialog {
         lambdaTextField = new javax.swing.JTextField();
         threshComboBox = new javax.swing.JComboBox();
         threshLabel = new javax.swing.JLabel();
+        genSigDistToggleButton = new javax.swing.JToggleButton();
         jPanel4 = new javax.swing.JPanel();
         minCurveRangeLabel = new javax.swing.JLabel();
         minCurveRangeField = new javax.swing.JTextField();
@@ -449,6 +450,15 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         advancedTab.add(threshLabel, gridBagConstraints);
+
+        genSigDistToggleButton.setText(StaticVariables.GEN_SIG_DIST);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        advancedTab.add(genSigDistToggleButton, gridBagConstraints);
 
         jTabbedPane1.addTab("Advanced", advancedTab);
 
@@ -967,6 +977,7 @@ public class GUI extends javax.swing.JDialog {
             uv.setBlebDurThresh(Double.parseDouble(protDurField.getText()));
             uv.setBlebLenThresh(Double.parseDouble(protLenField.getText()));
             uv.setFiloSize(Double.parseDouble(filoSizeField.getText()));
+            uv.setGetFluorDist(genSigDistToggleButton.isSelected());
         } catch (NumberFormatException e) {
             IJ.error("Number formatting error " + e.toString());
             return false;
@@ -1065,6 +1076,7 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JTextField gaussRadField;
     private javax.swing.JLabel gaussRadLabel;
     private javax.swing.JToggleButton genMorphToggleButton;
+    private javax.swing.JToggleButton genSigDistToggleButton;
     private javax.swing.JToggleButton genVisToggleButton;
     private javax.swing.JTextField greyThreshField;
     private javax.swing.JLabel greyThreshLabel;
