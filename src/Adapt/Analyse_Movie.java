@@ -949,8 +949,8 @@ public class Analyse_Movie implements PlugIn {
                         Region current = allRegions[t];
                         ArrayList<Pixel> centres = current.getCentres();
                         int c = centres.size();
-                        double x = centres.get(c - 1).getX();
-                        double y = centres.get(c - 1).getY();
+                        double x = centres.get(c - 1).getPrecX();
+                        double y = centres.get(c - 1).getPrecY();
                         trajOutput.fillOval((int) Math.round(x + xc - origins[n][0]) - 1,
                                 (int) Math.round(y + yc - origins[n][1]) - 1, 3, 3);
                         trajStream.print(String.valueOf(x) + "," + String.valueOf(y) + ",");
@@ -958,8 +958,8 @@ public class Analyse_Movie implements PlugIn {
                             Region last = allRegions[t - 1];
                             ArrayList<Pixel> lastCentres = last.getCentres();
                             int lc = lastCentres.size();
-                            double lx = lastCentres.get(lc - 1).getX();
-                            double ly = lastCentres.get(lc - 1).getY();
+                            double lx = lastCentres.get(lc - 1).getPrecX();
+                            double ly = lastCentres.get(lc - 1).getPrecY();
                             distances[n] += Utils.calcDistance(x, y, lx, ly) * uv.getSpatialRes();
                         }
                     } else {
@@ -974,7 +974,7 @@ public class Analyse_Movie implements PlugIn {
         for (int n = 0; n < N; n++) {
             int l = cellData.get(n).getLength();
             if (l > uv.getMinLength()) {
-                trajStream.print(String.valueOf(distances[n] / (l * uv.getTimeRes())) + ",,");
+                trajStream.print(String.valueOf(distances[n] * uv.getTimeRes() / l) + ",,");
             }
         }
         trajStream.print("\nDirectionality:,");
