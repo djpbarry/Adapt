@@ -25,22 +25,20 @@ import ui.GUI;
 public class Analyse_Batch extends Analyse_Movie {
 
     private boolean showGUI = true, mono = false;
-    private File paramFile, c1Directory, c2Directory;
+    private File c1Directory, c2Directory;
 //
 
     public Analyse_Batch() {
         super();
     }
 
-    public Analyse_Batch(boolean showGUI, boolean mono, String paramFileName, File c1Directory, File c2Directory) {
+    public Analyse_Batch(boolean showGUI, boolean mono, File c1Directory, File c2Directory, UserVariables uv) {
         super();
         this.showGUI = showGUI;
         this.mono = mono;
         this.c1Directory = c1Directory;
         this.c2Directory = c2Directory;
-        if (paramFileName != null) {
-            this.paramFile = new File(paramFileName);
-        }
+        this.uv = uv;
     }
 
     public void run(String arg) {
@@ -79,10 +77,6 @@ public class Analyse_Batch extends Analyse_Movie {
         if (sigImageFiles != null) {
             Arrays.sort(sigImageFiles);
         }
-        if (!showGUI) {
-            uv = new UserVariables();
-            readParams(uv, paramFile);
-        }
         for (int f = 0; f < cytoSize; f++) {
             ImagePlus cytoImp = new ImagePlus(cytoImageFiles[f].getAbsolutePath());
             ImageStack cytoStack = cytoImp.getImageStack();
@@ -116,7 +110,7 @@ public class Analyse_Batch extends Analyse_Movie {
         IJ.showStatus(TITLE + " done.");
     }
 
-    void readParams(UserVariables uv, File input) {
+    public static void readParams(UserVariables uv, File input) {
         Pattern p = Pattern.compile("\\S*,\\s*");
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(input)));

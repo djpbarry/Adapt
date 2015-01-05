@@ -23,7 +23,7 @@ import IAClasses.Utils;
 import ParticleTracking.Particle;
 import ParticleTracking.ParticleArray;
 import ParticleTracking.ParticleTrajectory;
-import ParticleTracking.Timelapse_Analysis;
+import ParticleTracking.TimelapseAnalysis;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -100,7 +100,7 @@ public class CurveMapAnalyser {
      * @param minDuration the minimum duration (in seconds) for which a minima
      * must exist in order to be stored
      */
-    public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, double minDuration, boolean min, double threshold, double curveRange, UserVariables uv) {
+    public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, boolean min, double threshold, double curveRange, UserVariables uv, double minDuration) {
         MorphMap curveMap = cellData.getCurveMap();
         double[][] curveVals = curveMap.smoothMap(0.0, 0.0);
         double[][] xvals = curveMap.getxCoords();
@@ -122,7 +122,7 @@ public class CurveMapAnalyser {
                 }
             }
         }
-        Timelapse_Analysis ta = new Timelapse_Analysis();
+        TimelapseAnalysis ta = new TimelapseAnalysis();
         ta.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false, 1.0);
         ArrayList<ParticleTrajectory> trajectories = ta.getTrajectories();
         ArrayList<BoundaryPixel> extPos[] = new ArrayList[tLength];

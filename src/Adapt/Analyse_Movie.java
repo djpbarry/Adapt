@@ -97,7 +97,7 @@ public class Analyse_Movie implements PlugIn {
     private ArrayList<CellData> cellData;
     private CellData parentCellData;
     protected ImageStack stacks[] = new ImageStack[2];
-    private final double morphSizeMin = 5.0, trajMin = 5.0;
+    private final double morphSizeMin = 10.0, trajMin = 5.0;
     protected boolean batchMode = false;
     protected boolean protMode = false;
     protected UserVariables uv;
@@ -333,7 +333,7 @@ public class Analyse_Movie implements PlugIn {
          * Analyse the dynamics of each cell, represented by a series of
          * detected regions.
          */
-        if (uv.isGenVis()) {
+        if (uv.isGenVis() && !protMode) {
             String pdLabel2 = protMode ? "Generating individual filipodia outputs..." : "Generating individual cell outputs...";
             ProgressDialog dialog = new ProgressDialog(null, pdLabel2, false, TITLE, false);
             dialog.setVisible(true);
@@ -1077,35 +1077,34 @@ public class Analyse_Movie implements PlugIn {
         cellData.setVelRois(manager.getRoisAsArray());
     }
 
-    void findProtrusionsBasedOnCurve(CellData cellData) {
-        double minDuration = uv.getBlebDurThresh() / 1.0 / (uv.getTimeRes() / 60.0);
-        ArrayList<BoundaryPixel>[] curvatureMaxima = CurveMapAnalyser.findAllCurvatureExtrema(cellData,
-                cellData.getStartFrame(), cellData.getEndFrame(), minDuration, false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv);
-        int length = curvatureMaxima.length;
-        ArrayList<Roi> rois = new ArrayList();
-        ArrayList<Integer> indices = new ArrayList();
-        for (int i = 0; i < length; i++) {
-            ArrayList<BoundaryPixel> currentMax = curvatureMaxima[i];
-            if (currentMax != null) {
-                int size = currentMax.size();
-                for (int j = 0; j < size; j++) {
-                    BoundaryPixel pix = currentMax.get(j);
-                    int id = pix.getID();
-                    if (!indices.contains(id)) {
-                        indices.add(id);
-                        int x = pix.getTime();
-                        int y = pix.getPos();
-                        int hh = CurveMapAnalyser.calcScaledCurveRange(CurveMapAnalyser.curveSearchRangeFactor * uv.getCurveRange(),
-                                cellData.getScaleFactors()[x]);
-                        rois.add(new Roi(x, y - hh, 1, 2 * hh + 1));
-                    }
-                }
-            }
-        }
-        Roi output[] = new Roi[rois.size()];
-        cellData.setVelRois(rois.toArray(output));
-    }
-
+//    void findProtrusionsBasedOnCurve(CellData cellData) {
+////        double minDuration = uv.getBlebDurThresh() / 1.0 / (uv.getTimeRes() / 60.0);
+//        ArrayList<BoundaryPixel>[] curvatureMaxima = CurveMapAnalyser.findAllCurvatureExtrema(cellData,
+//                cellData.getStartFrame(), cellData.getEndFrame(), false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv);
+//        int length = curvatureMaxima.length;
+//        ArrayList<Roi> rois = new ArrayList();
+//        ArrayList<Integer> indices = new ArrayList();
+//        for (int i = 0; i < length; i++) {
+//            ArrayList<BoundaryPixel> currentMax = curvatureMaxima[i];
+//            if (currentMax != null) {
+//                int size = currentMax.size();
+//                for (int j = 0; j < size; j++) {
+//                    BoundaryPixel pix = currentMax.get(j);
+//                    int id = pix.getID();
+//                    if (!indices.contains(id)) {
+//                        indices.add(id);
+//                        int x = pix.getTime();
+//                        int y = pix.getPos();
+//                        int hh = CurveMapAnalyser.calcScaledCurveRange(CurveMapAnalyser.curveSearchRangeFactor * uv.getCurveRange(),
+//                                cellData.getScaleFactors()[x]);
+//                        rois.add(new Roi(x, y - hh, 1, 2 * hh + 1));
+//                    }
+//                }
+//            }
+//        }
+//        Roi output[] = new Roi[rois.size()];
+//        cellData.setVelRois(rois.toArray(output));
+//    }
     ImageStack findProtrusionsBasedOnMorph(CellData cellData, int reps) {
         Region regions[] = cellData.getCellRegions();
         ImageStack cyto2 = new ImageStack(stacks[0].getWidth(), stacks[0].getHeight());
@@ -1678,8 +1677,8 @@ public class Analyse_Movie implements PlugIn {
      * sigrois and velrois.
      */
     void correlativePlot(CellData cellData) {
-        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), trajMin, true, uv.getMinCurveThresh(), uv.getCurveRange(), uv));
-        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), trajMin, false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv));
+        cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), true, uv.getMinCurveThresh(), uv.getCurveRange(), uv, trajMin));
+        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv, trajMin));
 //        CurveMapAnalyser.drawAllExtrema(cellData, uv.getTimeRes(), uv.getSpatialRes(),
 //                stacks[0], cellData.getStartFrame(), cellData.getEndFrame(), 0.0);
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
@@ -1815,6 +1814,11 @@ public class Analyse_Movie implements PlugIn {
 //            ImageStack merged = RGBStackMerge.mergeStacks(redC, greenC, blueC, false);
             ColorBlitter blitter = new ColorBlitter(detectionSlice);
             blitter.copyBits(blebMask, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
+            Rectangle box = poly.getBounds();
+            int sx = box.x + box.width / 2;
+            int sy = box.y + box.height / 2;
+            detectionSlice.setColor(Color.yellow);
+            detectionSlice.drawString(String.valueOf(index), sx, sy);
         }
     }
 
@@ -1842,11 +1846,11 @@ public class Analyse_Movie implements PlugIn {
             for (int i = 0; i < nCell; i++) {
                 buildOutput(i, 1, true);
                 cellData.get(i).setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData.get(i),
-                        sliceIndex, sliceIndex, 0.0, true, uv.getMinCurveThresh(),
-                        uv.getCurveRange(), uv));
+                        sliceIndex, sliceIndex, true, uv.getMinCurveThresh(),
+                        uv.getCurveRange(), uv, 0.0));
                 cellData.get(i).setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData.get(i),
-                        sliceIndex, sliceIndex, 0.0, false, uv.getMaxCurveThresh(),
-                        uv.getCurveRange(), uv));
+                        sliceIndex, sliceIndex, false, uv.getMaxCurveThresh(),
+                        uv.getCurveRange(), uv, 0.0));
             }
         }
 
