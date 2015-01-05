@@ -97,7 +97,7 @@ public class Analyse_Movie implements PlugIn {
     private ArrayList<CellData> cellData;
     private CellData parentCellData;
     protected ImageStack stacks[] = new ImageStack[2];
-    private final double morphSizeMin = 10.0, trajMin = 5.0;
+    private final double trajMin = 5.0;
     protected boolean batchMode = false;
     protected boolean protMode = false;
     protected UserVariables uv;
@@ -564,7 +564,7 @@ public class Analyse_Movie implements PlugIn {
         ResultsTable rt = Analyzer.getResultsTable();
         rt.reset();
         Prefs.blackBackground = false;
-        double minArea = morphSizeMin / (Math.pow(uv.getSpatialRes(), 2.0));
+        double minArea = getMinArea();
         File morph;
         PrintWriter morphStream = null;
         try {
@@ -1963,7 +1963,7 @@ public class Analyse_Movie implements PlugIn {
         ResultsTable rt = Analyzer.getResultsTable();
         rt.reset();
         Prefs.blackBackground = false;
-        double minArea = morphSizeMin / (Math.pow(uv.getSpatialRes(), 2.0));
+        double minArea = getMinArea();
         ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES + ParticleAnalyzer.SHOW_MASKS,
                 Measurements.CENTROID, rt, minArea, Double.POSITIVE_INFINITY);
         analyzeDetections(null, binary, analyzer);
@@ -1983,6 +1983,10 @@ public class Analyse_Movie implements PlugIn {
         } else {
             return (int) Math.round(Utils.getPercentileThresh(image, thresh));
         }
+    }
+
+    double getMinArea() {
+        return uv.getMorphSizeMin() / (Math.pow(uv.getSpatialRes(), 2.0));
     }
 
     FloatProcessor[] getFluorDists(CellData cellData, int height) {

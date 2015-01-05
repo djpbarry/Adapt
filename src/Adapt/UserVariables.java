@@ -41,7 +41,7 @@ public class UserVariables {
     private double blebLenThresh = 0.0; // minimum normalised length of bleb to be considered in analysis
     private double minCurveThresh = 0.0;
     private double maxCurveThresh = 0.0;
-    private boolean analyseProtrusions =false;
+    private boolean analyseProtrusions = false;
     private double sigRecoveryThresh = 0.25;
     private double gaussRad = 1.0;
     private final boolean usedSmoothedVels = true;
@@ -53,6 +53,7 @@ public class UserVariables {
     private boolean blebDetect = false;
     private double filoSize = 4;
     private boolean getFluorDist = false;
+    private double morphSizeMin = 10.0;
 
     /**
      * Get the radius of circles drawn on bleb detection output movies
@@ -522,6 +523,14 @@ public class UserVariables {
         this.getFluorDist = getFluorDist;
     }
 
+    public double getMorphSizeMin() {
+        return morphSizeMin;
+    }
+
+    public void setMorphSizeMin(double morphSizeMin) {
+        this.morphSizeMin = morphSizeMin;
+    }
+
     public Object clone() {
         UserVariables copy = new UserVariables();
         copy.setGreyThresh(greyThresh);
@@ -552,6 +561,7 @@ public class UserVariables {
         copy.setBlebDetect(blebDetect);
         copy.setFiloSize(filoSize);
         copy.setGetFluorDist(getFluorDist);
+        copy.setMorphSizeMin(morphSizeMin);
         return copy;
     }
 }

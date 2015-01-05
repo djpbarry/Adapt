@@ -94,15 +94,14 @@ public class GUI extends javax.swing.JDialog {
         spatResField = new javax.swing.JTextField();
         timeResLabel = new javax.swing.JLabel();
         timeResField = new javax.swing.JTextField();
-        gaussRadLabel = new javax.swing.JLabel();
-        gaussRadField = new javax.swing.JTextField();
         autoThreshToggleButton = new javax.swing.JToggleButton();
         genVisToggleButton = new javax.swing.JToggleButton();
         genMorphToggleButton = new javax.swing.JToggleButton();
-        cortexDepthField = new javax.swing.JTextField();
-        cortexDepthLabel = new javax.swing.JLabel();
         minTrajLabel = new javax.swing.JLabel();
         minTrajTextField = new javax.swing.JTextField();
+        genSigDistToggleButton = new javax.swing.JToggleButton();
+        minMorphAreaLabel = new javax.swing.JLabel();
+        minMorphAreaTextField = new javax.swing.JTextField();
         advancedTab = new javax.swing.JPanel();
         erosionField = new javax.swing.JTextField();
         erosionLabel = new javax.swing.JLabel();
@@ -116,7 +115,10 @@ public class GUI extends javax.swing.JDialog {
         lambdaTextField = new javax.swing.JTextField();
         threshComboBox = new javax.swing.JComboBox();
         threshLabel = new javax.swing.JLabel();
-        genSigDistToggleButton = new javax.swing.JToggleButton();
+        gaussRadField = new javax.swing.JTextField();
+        gaussRadLabel = new javax.swing.JLabel();
+        cortexDepthField = new javax.swing.JTextField();
+        cortexDepthLabel = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         minCurveRangeLabel = new javax.swing.JLabel();
         minCurveRangeField = new javax.swing.JTextField();
@@ -224,26 +226,6 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         simpleTab.add(timeResField, gridBagConstraints);
 
-        gaussRadLabel.setText(StaticVariables.GAUSS_RAD);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        simpleTab.add(gaussRadLabel, gridBagConstraints);
-
-        gaussRadField.setText(String.valueOf(uv.getGaussRad()));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        simpleTab.add(gaussRadField, gridBagConstraints);
-
         autoThreshToggleButton.setText(StaticVariables.AUTO_THRESH);
         autoThreshToggleButton.setSelected(uv.isAutoThreshold());
         autoThreshToggleButton.addActionListener(new java.awt.event.ActionListener() {
@@ -263,7 +245,7 @@ public class GUI extends javax.swing.JDialog {
         genVisToggleButton.setSelected(uv.isGenVis());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
@@ -273,37 +255,16 @@ public class GUI extends javax.swing.JDialog {
         genMorphToggleButton.setSelected(uv.isGetMorph());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         simpleTab.add(genMorphToggleButton, gridBagConstraints);
 
-        cortexDepthField.setText(String.valueOf(uv.getCortexDepth()));
-        cortexDepthField.setEnabled(stacks[1]!=null);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        simpleTab.add(cortexDepthField, gridBagConstraints);
-
-        cortexDepthLabel.setText(StaticVariables.CORTEX_DEPTH);
-        cortexDepthLabel.setEnabled(stacks[1]!=null);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        simpleTab.add(cortexDepthLabel, gridBagConstraints);
-
         minTrajLabel.setText(StaticVariables.MIN_TRAJ_LENGTH);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -312,12 +273,40 @@ public class GUI extends javax.swing.JDialog {
         minTrajTextField.setText(String.valueOf(uv.getMinLength()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         simpleTab.add(minTrajTextField, gridBagConstraints);
+
+        genSigDistToggleButton.setText(StaticVariables.GEN_SIG_DIST);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        simpleTab.add(genSigDistToggleButton, gridBagConstraints);
+
+        minMorphAreaLabel.setText(StaticVariables.MIN_MORPH_AREA);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        simpleTab.add(minMorphAreaLabel, gridBagConstraints);
+
+        minMorphAreaTextField.setText(String.valueOf(uv.getMorphSizeMin()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        simpleTab.add(minMorphAreaTextField, gridBagConstraints);
 
         jTabbedPane1.addTab("Simple", simpleTab);
 
@@ -326,7 +315,7 @@ public class GUI extends javax.swing.JDialog {
         erosionField.setText(String.valueOf(uv.getErosion()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -336,7 +325,7 @@ public class GUI extends javax.swing.JDialog {
         erosionLabel.setText(StaticVariables.EROSION);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -345,7 +334,7 @@ public class GUI extends javax.swing.JDialog {
         spatFiltRadLabel.setText(StaticVariables.SPAT_FILT_RAD);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -354,7 +343,7 @@ public class GUI extends javax.swing.JDialog {
         spatFiltRadField.setText(String.valueOf(uv.getSpatFiltRad()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -364,7 +353,7 @@ public class GUI extends javax.swing.JDialog {
         tempFiltRadLabel.setText(StaticVariables.TEMP_FILT_RAD);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -373,7 +362,7 @@ public class GUI extends javax.swing.JDialog {
         tempFiltRadField.setText(String.valueOf(uv.getTempFiltRad()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -451,14 +440,45 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         advancedTab.add(threshLabel, gridBagConstraints);
 
-        genSigDistToggleButton.setText(StaticVariables.GEN_SIG_DIST);
+        gaussRadField.setText(String.valueOf(uv.getGaussRad()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        advancedTab.add(gaussRadField, gridBagConstraints);
+
+        gaussRadLabel.setText(StaticVariables.GAUSS_RAD);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        advancedTab.add(gaussRadLabel, gridBagConstraints);
+
+        cortexDepthField.setText(String.valueOf(uv.getCortexDepth()));
+        cortexDepthField.setEnabled(stacks[1]!=null);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        advancedTab.add(genSigDistToggleButton, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        advancedTab.add(cortexDepthField, gridBagConstraints);
+
+        cortexDepthLabel.setText(StaticVariables.CORTEX_DEPTH);
+        cortexDepthLabel.setEnabled(stacks[1]!=null);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        advancedTab.add(cortexDepthLabel, gridBagConstraints);
 
         jTabbedPane1.addTab("Advanced", advancedTab);
 
@@ -978,6 +998,7 @@ public class GUI extends javax.swing.JDialog {
             uv.setBlebLenThresh(Double.parseDouble(protLenField.getText()));
             uv.setFiloSize(Double.parseDouble(filoSizeField.getText()));
             uv.setGetFluorDist(genSigDistToggleButton.isSelected());
+            uv.setMorphSizeMin(Double.parseDouble(minMorphAreaTextField.getText()));
         } catch (NumberFormatException e) {
             IJ.error("Number formatting error " + e.toString());
             return false;
@@ -1093,6 +1114,8 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JLabel minCurveRangeLabel;
     private javax.swing.JTextField minCurveThreshField;
     private javax.swing.JLabel minCurveThreshLabel;
+    private javax.swing.JLabel minMorphAreaLabel;
+    private javax.swing.JTextField minMorphAreaTextField;
     private javax.swing.JLabel minTrajLabel;
     private javax.swing.JTextField minTrajTextField;
     private javax.swing.JTextField previewField;
