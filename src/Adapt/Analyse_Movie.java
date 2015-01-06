@@ -640,7 +640,7 @@ public class Analyse_Movie implements PlugIn {
         paramStream.println(StaticVariables.DETECT_BLEB.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isBlebDetect()));
         paramStream.println(StaticVariables.MIN_CURVE_RANGE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCurveRange()));
         paramStream.println(StaticVariables.MIN_CURVE_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinCurveThresh()));
-        paramStream.println(StaticVariables.MAX_CURVE_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMaxCurveThresh()));
+//        paramStream.println(StaticVariables.MAX_CURVE_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMaxCurveThresh()));
         paramStream.println(StaticVariables.PROT_LEN_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebLenThresh()));
         paramStream.println(StaticVariables.PROT_DUR_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebDurThresh()));
         paramStream.println(StaticVariables.CUT_OFF.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCutOffTime()));
@@ -1679,7 +1679,7 @@ public class Analyse_Movie implements PlugIn {
      */
     void correlativePlot(CellData cellData) {
         cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), true, uv.getMinCurveThresh(), uv.getCurveRange(), uv, trajMin));
-        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv, trajMin));
+//        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv, trajMin));
 //        CurveMapAnalyser.drawAllExtrema(cellData, uv.getTimeRes(), uv.getSpatialRes(),
 //                stacks[0], cellData.getStartFrame(), cellData.getEndFrame(), 0.0);
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
@@ -1849,9 +1849,9 @@ public class Analyse_Movie implements PlugIn {
                 cellData.get(i).setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData.get(i),
                         sliceIndex, sliceIndex, true, uv.getMinCurveThresh(),
                         uv.getCurveRange(), uv, 0.0));
-                cellData.get(i).setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData.get(i),
-                        sliceIndex, sliceIndex, false, uv.getMaxCurveThresh(),
-                        uv.getCurveRange(), uv, 0.0));
+//                cellData.get(i).setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData.get(i),
+//                        sliceIndex, sliceIndex, false, uv.getMaxCurveThresh(),
+//                        uv.getCurveRange(), uv, 0.0));
             }
         }
 
@@ -1910,7 +1910,7 @@ public class Analyse_Movie implements PlugIn {
                 if (uv.isAnalyseProtrusions()) {
                     if (uv.isBlebDetect()) {
                         ArrayList<BoundaryPixel> minPos[] = cellData.get(r).getCurvatureMinima();
-                        ArrayList<BoundaryPixel> maxPos[] = cellData.get(r).getCurvatureMaxima();
+//                        ArrayList<BoundaryPixel> maxPos[] = cellData.get(r).getCurvatureMaxima();
                         for (int i = 0; i < channels; i++) {
                             if (minPos[0] != null) {
                                 regionsOutput[i].setColor(Color.yellow);
@@ -1921,16 +1921,16 @@ public class Analyse_Movie implements PlugIn {
                                     int y = (int) Math.round(currentMin.getPrecY());
                                     regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
                                 }
-                                if (maxPos[0] != null) {
-                                    regionsOutput[i].setColor(Color.MAGENTA);
-                                    int maxpSize = maxPos[0].size();
-                                    for (int j = 0; j < maxpSize; j++) {
-                                        BoundaryPixel currentMax = maxPos[0].get(j);
-                                        int x = (int) Math.round(currentMax.getPrecX());
-                                        int y = (int) Math.round(currentMax.getPrecY());
-                                        regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
-                                    }
-                                }
+//                                if (maxPos[0] != null) {
+//                                    regionsOutput[i].setColor(Color.MAGENTA);
+//                                    int maxpSize = maxPos[0].size();
+//                                    for (int j = 0; j < maxpSize; j++) {
+//                                        BoundaryPixel currentMax = maxPos[0].get(j);
+//                                        int x = (int) Math.round(currentMax.getPrecX());
+//                                        int y = (int) Math.round(currentMax.getPrecY());
+//                                        regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
+//                                    }
+//                                }
                             }
                         }
                     } else {

@@ -40,7 +40,7 @@ public class UserVariables {
     private double timeRes = 216.0; // temporal resolution in frames per minute
     private double blebLenThresh = 0.0; // minimum normalised length of bleb to be considered in analysis
     private double minCurveThresh = 0.0;
-    private double maxCurveThresh = 0.0;
+//    private double maxCurveThresh = 0.0;
     private boolean analyseProtrusions = false;
     private double sigRecoveryThresh = 0.25;
     private double gaussRad = 1.0;
@@ -483,13 +483,13 @@ public class UserVariables {
 //    public   void setMaxCurveRange(int maxCurveRange) {
 //        this.maxCurveRange = maxCurveRange;
 //    }
-    public double getMaxCurveThresh() {
-        return maxCurveThresh;
-    }
-
-    public void setMaxCurveThresh(double maxCurveThresh) {
-        this.maxCurveThresh = maxCurveThresh;
-    }
+//    public double getMaxCurveThresh() {
+//        return maxCurveThresh;
+//    }
+//
+//    public void setMaxCurveThresh(double maxCurveThresh) {
+//        this.maxCurveThresh = maxCurveThresh;
+//    }
 
     public String getThreshMethod() {
         return threshMethod;
@@ -550,7 +550,7 @@ public class UserVariables {
         copy.setTimeRes(timeRes);
         copy.setBlebLenThresh(blebLenThresh);
         copy.setMinCurveThresh(minCurveThresh);
-        copy.setMaxCurveThresh(maxCurveThresh);
+//        copy.setMaxCurveThresh(maxCurveThresh);
         copy.setAnalyseProtrusions(analyseProtrusions);
         copy.setSigRecoveryThresh(sigRecoveryThresh);
         copy.setGaussRad(gaussRad);

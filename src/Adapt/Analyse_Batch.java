@@ -132,7 +132,7 @@ public class Analyse_Batch extends Analyse_Movie {
             uv.setBlebDetect(new Scanner(br.readLine()).useDelimiter(p).nextBoolean());
             uv.setCurveRange(new Scanner(br.readLine()).useDelimiter(p).nextInt());
             uv.setMinCurveThresh(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
-            uv.setMaxCurveThresh(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
+//            uv.setMaxCurveThresh(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
             uv.setBlebLenThresh(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
             uv.setBlebDurThresh(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
             uv.setCutOffTime(new Scanner(br.readLine()).useDelimiter(p).nextDouble());

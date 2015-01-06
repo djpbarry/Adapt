@@ -132,8 +132,6 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshField = new javax.swing.JTextField();
         anaProtToggleButton = new javax.swing.JToggleButton();
         useSigThreshToggleButton = new javax.swing.JToggleButton();
-        maxCurveThreshField = new javax.swing.JTextField();
-        maxCurveThreshLabel = new javax.swing.JLabel();
         blebDetectRadioButton = new javax.swing.JRadioButton();
         filoDetectRadioButton = new javax.swing.JRadioButton();
         protLenLabel = new javax.swing.JLabel();
@@ -620,27 +618,6 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         jPanel4.add(useSigThreshToggleButton, gridBagConstraints);
 
-        maxCurveThreshField.setText(String.valueOf(uv.getMaxCurveThresh()));
-        maxCurveThreshField.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 10);
-        jPanel4.add(maxCurveThreshField, gridBagConstraints);
-
-        maxCurveThreshLabel.setText(StaticVariables.MAX_CURVE_THRESH);
-        maxCurveThreshLabel.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 10, 0);
-        jPanel4.add(maxCurveThreshLabel, gridBagConstraints);
-
         blebDetectRadioButton.setText(StaticVariables.DETECT_BLEB);
         blebDetectRadioButton.setSelected(uv.isBlebDetect());
         blebDetectRadioButton.setEnabled(uv.isAnalyseProtrusions());
@@ -891,7 +868,7 @@ public class GUI extends javax.swing.JDialog {
     private void anaProtToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anaProtToggleButtonActionPerformed
         enableComponentOnSelect(minCurveRangeLabel, minCurveRangeField, anaProtToggleButton);
         enableComponentOnSelect(minCurveThreshLabel, minCurveThreshField, anaProtToggleButton);
-        enableComponentOnSelect(maxCurveThreshLabel, maxCurveThreshField, anaProtToggleButton);
+//        enableComponentOnSelect(maxCurveThreshLabel, maxCurveThreshField, anaProtToggleButton);
         enableComponentOnSelect(cutOffLabel, cutOffField, anaProtToggleButton);
         enableComponentOnSelect(protLenLabel, protLenField, anaProtToggleButton);
         enableComponentOnSelect(protDurLabel, protDurField, anaProtToggleButton);
@@ -940,7 +917,7 @@ public class GUI extends javax.swing.JDialog {
         filoDetectRadioButton.setSelected(!blebDetectRadioButton.isSelected());
         enableComponentOnSelect(minCurveRangeLabel, minCurveRangeField, blebDetectRadioButton);
         enableComponentOnSelect(minCurveThreshLabel, minCurveThreshField, blebDetectRadioButton);
-        enableComponentOnSelect(maxCurveThreshLabel, maxCurveThreshField, blebDetectRadioButton);
+//        enableComponentOnSelect(maxCurveThreshLabel, maxCurveThreshField, blebDetectRadioButton);
         enableComponentOnSelect(filoSizeLabel, filoSizeField, filoDetectRadioButton);
     }//GEN-LAST:event_blebDetectRadioButtonActionPerformed
 
@@ -985,7 +962,7 @@ public class GUI extends javax.swing.JDialog {
             uv.setGetMorph(genMorphToggleButton.isSelected());
             uv.setTimeRes(Double.parseDouble(timeResField.getText()));
             uv.setMinCurveThresh(Double.parseDouble(minCurveThreshField.getText()));
-            uv.setMaxCurveThresh(Double.parseDouble(maxCurveThreshField.getText()));
+//            uv.setMaxCurveThresh(Double.parseDouble(maxCurveThreshField.getText()));
             uv.setAnalyseProtrusions(anaProtToggleButton.isSelected());
             uv.setBlebDetect(blebDetectRadioButton.isSelected());
             uv.setSigRecoveryThresh(Double.parseDouble(sigRecThreshField.getText()));
@@ -1108,8 +1085,6 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel lambdaLabel;
     private javax.swing.JTextField lambdaTextField;
-    private javax.swing.JTextField maxCurveThreshField;
-    private javax.swing.JLabel maxCurveThreshLabel;
     private javax.swing.JTextField minCurveRangeField;
     private javax.swing.JLabel minCurveRangeLabel;
     private javax.swing.JTextField minCurveThreshField;
