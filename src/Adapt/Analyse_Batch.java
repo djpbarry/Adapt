@@ -144,6 +144,8 @@ public class Analyse_Batch extends Analyse_Movie {
             uv.setLambda(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
             uv.setMinLength(new Scanner(br.readLine()).useDelimiter(p).nextInt());
             uv.setFiloSize(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
+            uv.setGetFluorDist(new Scanner(br.readLine()).useDelimiter(p).nextBoolean());
+            uv.setMorphSizeMin(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
             br.close();
         } catch (Exception e) {
             System.out.println("Error reading parameter file.");
