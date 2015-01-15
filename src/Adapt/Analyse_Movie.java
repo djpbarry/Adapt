@@ -101,6 +101,7 @@ public class Analyse_Movie implements PlugIn {
     protected boolean batchMode = false;
     protected boolean protMode = false;
     protected UserVariables uv;
+    private double minLength;
 
     /**
      * Default constructor
@@ -246,6 +247,7 @@ public class Analyse_Movie implements PlugIn {
             }
             uv = GUI.getUv();
         }
+        minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
         String pdLabel = protMode ? "Segmenting Filopodia..." : "Segmenting Cells...";
         ProgressDialog segDialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
         segDialog.setVisible(true);
@@ -344,7 +346,7 @@ public class Analyse_Movie implements PlugIn {
                 dialog.updateProgress(index, cellData.size());
                 String childDirName = GenUtils.openResultsDirectory(parDir + delimiter + index, delimiter);
                 int length = cellData.get(index).getLength();
-                if (length > uv.getMinLength()) {
+                if (length > minLength) {
                     childDir = new File(childDirName);
                     buildOutput(index, length, false);
                     if (!protMode && uv.isAnalyseProtrusions()) {
@@ -575,7 +577,7 @@ public class Analyse_Movie implements PlugIn {
         }
         for (int index = 0; index < cellData.size(); index++) {
             int length = cellData.get(index).getLength();
-            if (length > uv.getMinLength()) {
+            if (length > minLength) {
                 Region[] allRegions = cellData.get(index).getCellRegions();
                 int start = cellData.get(index).getStartFrame();
                 int end = cellData.get(index).getEndFrame();
@@ -809,7 +811,7 @@ public class Analyse_Movie implements PlugIn {
                 int start = cellData.get(n).getStartFrame();
                 int end = cellData.get(n).getEndFrame();
                 int length = cellData.get(n).getLength();
-                if (length > uv.getMinLength() && t + 1 >= start && t < end) {
+                if (length > minLength && t + 1 >= start && t < end) {
                     int index = t + 1 - start;
                     double[][] smoothVelocities = cellData.get(n).getSmoothVelocities();
                     Region[] allRegions = cellData.get(n).getCellRegions();
@@ -865,7 +867,7 @@ public class Analyse_Movie implements PlugIn {
                 int start = cellDatas.get(n).getStartFrame();
                 int end = cellDatas.get(n).getEndFrame();
                 int length = cellDatas.get(n).getLength();
-                if (length > uv.getMinLength() && t + 1 >= start && t < end) {
+                if (length > minLength && t + 1 >= start && t < end) {
                     Region[] allRegions = cellDatas.get(n).getCellRegions();
                     Region current = allRegions[t];
                     LinkedList<Pixel> border = current.getBorderPix();
@@ -921,7 +923,7 @@ public class Analyse_Movie implements PlugIn {
         trajStream.print("Frame,");
         for (int n = 0; n < N; n++) {
             colors[n] = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
-            if (cellData.get(n).getLength() > uv.getMinLength()) {
+            if (cellData.get(n).getLength() > minLength) {
                 trajStream.print("Cell_" + String.valueOf(n + 1) + "_X,");
                 trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y,");
                 Region[] allRegions = cellData.get(n).getCellRegions();
@@ -944,7 +946,7 @@ public class Analyse_Movie implements PlugIn {
                 int start = cellData.get(n).getStartFrame();
                 int end = cellData.get(n).getEndFrame();
                 int length = cellData.get(n).getLength();
-                if (length > uv.getMinLength()) {
+                if (length > minLength) {
                     if (t + 1 >= start && t < end) {
                         Region[] allRegions = cellData.get(n).getCellRegions();
                         Region current = allRegions[t];
@@ -974,14 +976,14 @@ public class Analyse_Movie implements PlugIn {
         trajStream.print("\nMean Velocity (" + IJ.micronSymbol + "m/min):,");
         for (int n = 0; n < N; n++) {
             int l = cellData.get(n).getLength();
-            if (l > uv.getMinLength()) {
+            if (l > minLength) {
                 trajStream.print(String.valueOf(distances[n] * uv.getTimeRes() / l) + ",,");
             }
         }
         trajStream.print("\nDirectionality:,");
         for (int n = 0; n < N; n++) {
             int l = cellData.get(n).getLength();
-            if (l > uv.getMinLength()) {
+            if (l > minLength) {
                 Region current = cellData.get(n).getCellRegions()[cellData.get(n).getEndFrame() - 1];
                 ArrayList<Pixel> centres = current.getCentres();
                 Pixel centre = centres.get(centres.size() - 1);
