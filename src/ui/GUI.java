@@ -18,6 +18,7 @@ package ui;
 
 import Adapt.Analyse_Movie;
 import Adapt.StaticVariables;
+import Adapt.TaskListener;
 import Adapt.UserVariables;
 import ij.IJ;
 import ij.ImagePlus;
@@ -30,11 +31,10 @@ import ij.process.ImageProcessor;
 import ij.process.TypeConverter;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.ArrayList;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 
 /**
@@ -51,6 +51,7 @@ public class GUI extends javax.swing.JDialog {
     private boolean wasOKed = false;
     private final int MAX_DIM = 512;
     private static UserVariables uv = new UserVariables();
+    ArrayList<Thread> previewThreads = new ArrayList();
 
     /**
      * Creates new form GUI
@@ -749,7 +750,7 @@ public class GUI extends javax.swing.JDialog {
         previewField.setEditable(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 0.2;
@@ -789,7 +790,7 @@ public class GUI extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 0.8;
@@ -891,7 +892,34 @@ public class GUI extends javax.swing.JDialog {
         if (previewScrollBar.getValueIsAdjusting() || !setVariables()) {
             return;
         }
-        ImageProcessor updates[] = analyser.generatePreview(previewScrollBar.getValue());
+        for (int i = 0; i < previewThreads.size(); i++) {
+            Thread currentThread = previewThreads.get(i);
+//            try {
+            currentThread.interrupt();
+//                currentThread.join();
+//            } catch (InterruptedException e) {
+//                IJ.error("Failed to generate preview.");
+//                return;
+//            }
+        }
+        previewThreads = new ArrayList();
+        previewField.setText(String.valueOf(previewScrollBar.getValue()));
+        final Analyse_Movie previewAnalyser = new Analyse_Movie(stacks, false, false, uv, null, null);
+        previewAnalyser.preparePreview(previewScrollBar.getValue(), (UserVariables) uv.clone());
+        previewAnalyser.addListener(new TaskListener() {
+            public void threadComplete(Runnable runner) {
+                if (!Thread.interrupted()) {
+                    generatePreviewComplete((Analyse_Movie) runner);
+                }
+            }
+        });
+        Thread previewThread = new Thread(previewAnalyser);
+        previewThread.start();
+        previewThreads.add(previewThread);
+    }//GEN-LAST:event_previewScrollBarAdjustmentValueChanged
+
+    private void generatePreviewComplete(Analyse_Movie analyser) {
+        ImageProcessor updates[] = analyser.getPreviewImages();
         ImageProcessor cytoUpdate = checkImageDimensions(updates[0]);
         cytoImp.setProcessor(cytoUpdate);
         cytoCanvas.repaint();
@@ -900,8 +928,7 @@ public class GUI extends javax.swing.JDialog {
             sigImp.setProcessor(sigUpdate);
             sigCanvas.repaint();
         }
-        previewField.setText(String.valueOf(previewScrollBar.getValue()));
-    }//GEN-LAST:event_previewScrollBarAdjustmentValueChanged
+    }
 
     private void simpSegRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simpSegRadioButtonActionPerformed
         advSegRadioButton.setSelected(!simpSegRadioButton.isSelected());

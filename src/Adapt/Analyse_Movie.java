@@ -78,7 +78,7 @@ import ui.GUI;
  * relatively uniform background. The second movie contains a signal of interest
  * that the user wishes to correlate with membrane dynamics.
  */
-public class Analyse_Movie implements PlugIn {
+public class Analyse_Movie extends NotificationThread implements PlugIn {
 
 //    private final double scaleFactor = 60.0 / 216.0;
     protected static File directory; // root directory
@@ -102,6 +102,8 @@ public class Analyse_Movie implements PlugIn {
     protected boolean protMode = false;
     protected UserVariables uv;
     private double minLength;
+    private int previewSlice;
+    private ImageProcessor[] previewImages;
 
     /**
      * Default constructor
@@ -1068,7 +1070,7 @@ public class Analyse_Movie implements PlugIn {
         Prefs.blackBackground = true;
         RoiManager manager = new RoiManager(true);
         ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.ADD_TO_MANAGER
-                + ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES + ParticleAnalyzer.SHOW_MASKS,
+                + ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES,
                 0, null, 0.0, Double.POSITIVE_INFINITY);
         analyzeDetections(manager, binmap, analyzer);
         ByteProcessor binmapnoedge = (ByteProcessor) analyzer.getOutputImage().getProcessor();
@@ -1149,9 +1151,9 @@ public class Analyse_Movie implements PlugIn {
         ParticleAnalyzer.setRoiManager(manager);
         if (!analyzer.analyze(new ImagePlus("", binmap))) {
             IJ.error("Protrusion analysis failed.");
-            return;
+//            return;
         }
-        WindowManager.getImage(WindowManager.getIDList()[WindowManager.getImageCount() - 1]).hide();
+//        WindowManager.getImage(WindowManager.getIDList()[WindowManager.getImageCount() - 1]).hide();
     }
 
     int constructFlippedBinMap(ByteProcessor input1, ByteProcessor input2, ByteProcessor output) {
@@ -1831,8 +1833,7 @@ public class Analyse_Movie implements PlugIn {
      * @param sliceIndex Frame number of stack to be previewed
      * @return 1- or 2-channel preview image showing segmentation result
      */
-    public ImageProcessor[] generatePreview(int sliceIndex) {
-        uv = GUI.getUv();
+    public void generatePreview(int sliceIndex) {
         cellData = new ArrayList();
         ImageProcessor cytoProc = GenUtils.convertStackTo8Bit(stacks[0]).getProcessor(sliceIndex);
         (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);
@@ -1955,7 +1956,7 @@ public class Analyse_Movie implements PlugIn {
                 }
             }
         }
-        return regionsOutput;
+        previewImages = regionsOutput;
     }
 
     void getSeedPoints(ByteProcessor binary, ArrayList<Pixel> pixels) {
@@ -1967,7 +1968,7 @@ public class Analyse_Movie implements PlugIn {
         rt.reset();
         Prefs.blackBackground = false;
         double minArea = getMinArea();
-        ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES + ParticleAnalyzer.SHOW_MASKS,
+        ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES,
                 Measurements.CENTROID, rt, minArea, Double.POSITIVE_INFINITY);
         analyzeDetections(null, binary, analyzer);
         int count = rt.getCounter();
@@ -2035,5 +2036,18 @@ public class Analyse_Movie implements PlugIn {
             stdBlitter.copyBits(stdCol.resize(1, height), i - start, 0, Blitter.COPY);
         }
         return dists;
+    }
+
+    public ImageProcessor[] getPreviewImages() {
+        return previewImages;
+    }
+
+    public void preparePreview(int slice, UserVariables uv) {
+        this.previewSlice = slice;
+        this.uv = uv;
+    }
+
+    public void doWork() {
+        generatePreview(previewSlice);
     }
 }
