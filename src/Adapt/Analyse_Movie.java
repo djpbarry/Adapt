@@ -1070,7 +1070,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         Prefs.blackBackground = true;
         RoiManager manager = new RoiManager(true);
         ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.ADD_TO_MANAGER
-                + ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES,
+                + ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES + ParticleAnalyzer.SHOW_MASKS,
                 0, null, 0.0, Double.POSITIVE_INFINITY);
         analyzeDetections(manager, binmap, analyzer);
         ByteProcessor binmapnoedge = (ByteProcessor) analyzer.getOutputImage().getProcessor();
@@ -1153,7 +1153,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             IJ.error("Protrusion analysis failed.");
 //            return;
         }
-//        WindowManager.getImage(WindowManager.getIDList()[WindowManager.getImageCount() - 1]).hide();
+        if (WindowManager.getImageCount() > 0) {
+            WindowManager.getImage(WindowManager.getIDList()[WindowManager.getImageCount() - 1]).hide();
+        }
     }
 
     int constructFlippedBinMap(ByteProcessor input1, ByteProcessor input2, ByteProcessor output) {
