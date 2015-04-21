@@ -267,6 +267,18 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int thresholds[] = new int[cytoSize];
         ArrayList<Region>[] allRegions = new ArrayList[cytoSize];
         ByteProcessor allMasks = null;
+        File filoData;
+        PrintWriter filoStream = null;
+        if (protMode) {
+            try {
+                filoData = new File(parDir + delimiter + "FilopodiaVersusTime.csv");
+                filoStream = new PrintWriter(new FileOutputStream(filoData));
+                filoStream.println("Frame,Number of Filopodia");
+            } catch (FileNotFoundException e) {
+                System.out.println(e.toString());
+                return;
+            }
+        }
         for (int i = 0; i < cytoSize; i++) {
             segDialog.updateProgress(i, cytoSize);
             cytoImage = cytoStack.getProcessor(i + 1).duplicate();
@@ -293,9 +305,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     }
                 }
             }
+            int fcount = 0;
             for (int j = 0; j < N; j++) {
                 Region current = allRegions[i].get(j);
                 if (current != null) {
+                    fcount++;
                     /*
                      * Mask from last segmentation used to initialise next
                      * segmentation
@@ -321,6 +335,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     }
                 }
             }
+            if (protMode) {
+                filoStream.println(i + ", " + fcount);
+            }
+        }
+        if (protMode) {
+            filoStream.close();
         }
         for (int i = 0; i < cellData.size(); i++) {
             Region regions[] = new Region[cytoSize];
@@ -1691,8 +1711,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
         cellData.getGreyVelMap().resetRoi();
         cellData.setVelMapWithDetections(velMapWithDetections);
-        File thisMeanData;
-        PrintWriter thisDataStream;
+        File thisMeanData, blebCount;
+        PrintWriter thisDataStream, blebCountStream;
         File plotDataDir = GenUtils.createDirectory(childDir + delimiter + "Bleb_Data_Files");
         File detectDir = GenUtils.createDirectory(childDir + delimiter + "Detection_Visualisation");
         File mapDir = GenUtils.createDirectory(childDir + delimiter + "Bleb_Signal_Maps");
@@ -1713,6 +1733,16 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * Cycle through all sigrois and calculate, as functions of time, mean
          * velocity, mean signal strength for all sigrois (all protrusions).
          */
+        try {
+            blebCount = new File(childDir + delimiter + "BlebsVersusTime.csv");
+            blebCountStream = new PrintWriter(new FileOutputStream(blebCount));
+            blebCountStream.println("Frame,Number of Blebs");
+        } catch (FileNotFoundException e) {
+            System.out.println(e.toString());
+            return;
+        }
+        int blebFrameCount[] = new int[stacks[0].getSize()];
+        Arrays.fill(blebFrameCount, 0);
         int count = 0;
         for (int i = 0; i < cellData.getVelRois().length; i++) {
             if (cellData.getVelRois()[i] != null) {
@@ -1778,6 +1808,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                                     + String.valueOf(currentMeanSig) + ", "
                                     + String.valueOf(protrusionLength.get(z) / protrusionLength.get(0)));
                             thisDataStream.println();
+                            blebFrameCount[t]++;
                         }
                         thisDataStream.close();
                         count++;
@@ -1786,6 +1817,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 }
             }
         }
+        for (int b = 0; b < blebFrameCount.length; b++) {
+            blebCountStream.println(b + "," + blebFrameCount[b]);
+        }
+        blebCountStream.close();
         Utils.saveStackAsSeries(detectionStack, detectDir + delimiter, "JPEG", numFormat);
         dialog.dispose();
 
@@ -1833,7 +1868,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * Generates preview segmentation of the image frame specified by sliceIndex
      *
      * @param sliceIndex Frame number of stack to be previewed
-     * @return 1- or 2-channel preview image showing segmentation result
      */
     public void generatePreview(int sliceIndex) {
         cellData = new ArrayList();
