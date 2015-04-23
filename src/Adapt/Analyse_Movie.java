@@ -584,7 +584,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     void getMorphologyData(ArrayList<CellData> cellData) {
-        int measures = Integer.MAX_VALUE;
+//        int measures = Integer.MAX_VALUE;
         ResultsTable rt = Analyzer.getResultsTable();
         rt.reset();
         Prefs.blackBackground = false;
@@ -606,7 +606,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 for (int h = start - 1; h < end; h++) {
                     Region current = allRegions[h];
                     ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.SHOW_RESULTS,
-                            measures, rt, minArea, Double.POSITIVE_INFINITY);
+                            Analyzer.getMeasurements(), rt, minArea, Double.POSITIVE_INFINITY);
                     ImagePlus maskImp = new ImagePlus(String.valueOf(index) + "_" + String.valueOf(h),
                             current.getMask());
                     analyzer.analyze(maskImp);
