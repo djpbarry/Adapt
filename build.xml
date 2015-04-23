@@ -70,11 +70,14 @@
     nbproject/build-impl.xml file. 
 
     -->
-    <target name="-post-init">
+    <target name="-pre-init">
         <exec executable="perl.exe">
             <arg line="C:\Users\barry05\perl_tests\get_mercurial_revision_number.pl"/>
             <arg line="${basedir}"/>
-            <arg line="${src.dir}"/>
+        </exec>
+        <exec executable="perl.exe">
+            <arg line="C:\Users\barry05\perl_tests\update_jar_name.pl"/>
+            <arg line="${basedir}"/>
         </exec>
     </target>
 </project>

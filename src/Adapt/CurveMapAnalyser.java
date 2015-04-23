@@ -23,7 +23,7 @@ import IAClasses.Utils;
 import ParticleTracking.Particle;
 import ParticleTracking.ParticleArray;
 import ParticleTracking.ParticleTrajectory;
-import ParticleTracking.Analyse_Movie;
+import ParticleTracking.Analyse;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -124,7 +124,7 @@ public class CurveMapAnalyser {
         }
         ArrayList<ParticleTrajectory> trajectories = null;
         if (tLength > 1) {
-            Analyse_Movie ta = new Analyse_Movie();
+            Analyse ta = new Analyse();
             ta.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false, 1.0);
             trajectories = ta.getTrajectories();
         } else {
