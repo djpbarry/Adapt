@@ -23,7 +23,7 @@ import IAClasses.Utils;
 import ParticleTracking.Particle;
 import ParticleTracking.ParticleArray;
 import ParticleTracking.ParticleTrajectory;
-import ParticleTracking.Analyse;
+import ParticleTracking.TrajectoryBuilder;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -122,11 +122,9 @@ public class CurveMapAnalyser {
                 }
             }
         }
-        ArrayList<ParticleTrajectory> trajectories = null;
+        ArrayList<ParticleTrajectory> trajectories = new ArrayList();
         if (tLength > 1) {
-            Analyse ta = new Analyse();
-            ta.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false, 1.0);
-            trajectories = ta.getTrajectories();
+           TrajectoryBuilder.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false, 1.0, trajectories);
         } else {
             ArrayList<Particle> particles = extrema.getLevel(0);
             trajectories = new ArrayList();
