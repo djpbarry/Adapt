@@ -94,7 +94,7 @@ public class Analyse_Batch extends Analyse_Movie {
                     stacks[1] = sigStack;
                     if (showGUI) {
                         showGUI = false;
-                        GUI gui = new GUI(null, true, TITLE, stacks, this);
+                        GUI gui = new GUI(null, true, TITLE, stacks, roi);
                         gui.setVisible(true);
                         if (!gui.isWasOKed()) {
                             return;

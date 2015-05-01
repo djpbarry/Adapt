@@ -534,20 +534,20 @@ public class Analyse_MovieTest {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of generatePreview method, of class Analyse_Movie.
-     */
-    @Test
-    public void testGeneratePreview() {
-        System.out.println("generatePreview");
-        int sliceIndex = 0;
-        Analyse_Movie instance = new Analyse_Movie();
-        ImageProcessor[] expResult = null;
-        ImageProcessor[] result = instance.generatePreview(sliceIndex);
-        assertArrayEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+//    /**
+//     * Test of generatePreview method, of class Analyse_Movie.
+//     */
+//    @Test
+//    public void testGeneratePreview() {
+//        System.out.println("generatePreview");
+//        int sliceIndex = 0;
+//        Analyse_Movie instance = new Analyse_Movie();
+//        ImageProcessor[] expResult = null;
+//        ImageProcessor[] result = instance.generatePreview(sliceIndex);
+//        assertArrayEquals(expResult, result);
+//        // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
+//    }
 
     /**
      * Test of getSeedPoints method, of class Analyse_Movie.

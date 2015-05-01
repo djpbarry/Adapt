@@ -24,6 +24,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.ImageCanvas;
+import ij.gui.PointRoi;
 import ij.process.AutoThresholder;
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
@@ -43,7 +44,6 @@ import javax.swing.JToggleButton;
  */
 public class GUI extends javax.swing.JDialog {
 
-    private Analyse_Movie analyser;
     private ImagePlus cytoImp, sigImp;
     private ImageProcessor cytoProc, sigProc;
     private ImageStack[] stacks;
@@ -52,18 +52,19 @@ public class GUI extends javax.swing.JDialog {
     private final int MAX_DIM = 512;
     private static UserVariables uv = new UserVariables();
     ArrayList<Thread> previewThreads = new ArrayList();
+    private PointRoi roi;
 
     /**
      * Creates new form GUI
      */
-    public GUI(java.awt.Frame parent, boolean modal, String title, ImageStack[] stacks, Analyse_Movie analyser) {
+    public GUI(java.awt.Frame parent, boolean modal, String title, ImageStack[] stacks, PointRoi roi) {
         super(parent, modal);
         this.stacks = stacks;
         this.title = title;
-        this.analyser = analyser;
         cytoProc = stacks[0].getProcessor(1).duplicate();
         cytoProc = checkImageDimensions(cytoProc);
         cytoImp = new ImagePlus("", cytoProc);
+        this.roi = roi;
         if (stacks[1] != null) {
             sigProc = stacks[1].getProcessor(1).duplicate();
             sigProc = checkImageDimensions(sigProc);
@@ -904,7 +905,7 @@ public class GUI extends javax.swing.JDialog {
         }
         previewThreads = new ArrayList();
         previewField.setText(String.valueOf(previewScrollBar.getValue()));
-        final Analyse_Movie previewAnalyser = new Analyse_Movie(stacks, false, false, uv, null, null);
+        final Analyse_Movie previewAnalyser = new Analyse_Movie(stacks, false, false, uv, null, roi);
         previewAnalyser.preparePreview(previewScrollBar.getValue(), (UserVariables) uv.clone());
         previewAnalyser.addListener(new TaskListener() {
             public void threadComplete(Runnable runner) {

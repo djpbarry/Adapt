@@ -95,7 +95,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     protected DecimalFormat numFormat = StaticVariables.numFormat; // For formatting results
     protected PointRoi roi = null; // Points used as seeds for cell detection
     private ArrayList<CellData> cellData;
-    private CellData parentCellData;
+//    private CellData parentCellData;
     protected ImageStack stacks[] = new ImageStack[2];
     private final double trajMin = 5.0;
     protected boolean batchMode = false;
@@ -111,13 +111,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     public Analyse_Movie() {
     }
 
-    public Analyse_Movie(ImageStack[] stacks, boolean protMode, boolean batchMode, UserVariables uv, File parDir, CellData parentCellData) {
+    public Analyse_Movie(ImageStack[] stacks, boolean protMode, boolean batchMode, UserVariables uv, File parDir, PointRoi roi) {
         this.stacks = stacks;
         this.protMode = protMode;
         this.batchMode = batchMode;
         this.uv = uv;
         this.parDir = parDir;
-        this.parentCellData = parentCellData;
+        this.roi = roi;
+//        this.parentCellData = parentCellData;
     }
 
     /*
@@ -221,10 +222,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * unique so old results are not overwritten
          */
         String parDirName = null;
-        if (batchMode) {
+//        if (batchMode) {
+//            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
+//        } else 
+        if (!protMode) {
             parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
-        } else if (!protMode) {
-            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE, delimiter);
         }
         if (parDirName != null) {
             parDir = new File(parDirName);
@@ -242,7 +244,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //            roi = new PointRoi(256,256);
 //        }
         if (!(batchMode || protMode)) {
-            GUI gui = new GUI(null, true, TITLE, stacks, this);
+            GUI gui = new GUI(null, true, TITLE, stacks, roi);
             gui.setVisible(true);
             if (!gui.isWasOKed()) {
                 return;
@@ -385,7 +387,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             protUV.setErosion(2);
                             Analyse_Movie protAM = new Analyse_Movie(protStacks,
                                     true, false, protUV,
-                                    new File(GenUtils.openResultsDirectory(childDir + delimiter + "Protrusions", delimiter)), cellData.get(index));
+                                    new File(GenUtils.openResultsDirectory(childDir + delimiter + "Protrusions", delimiter)), roi);
                             protAM.analyse(null);
                         }
                     }
@@ -586,7 +588,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     void getMorphologyData(ArrayList<CellData> cellData) {
 //        int measures = Integer.MAX_VALUE;
         ResultsTable rt = Analyzer.getResultsTable();
-        rt.reset();
         Prefs.blackBackground = false;
         double minArea = getMinArea();
         File morph;
@@ -600,6 +601,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         for (int index = 0; index < cellData.size(); index++) {
             int length = cellData.get(index).getLength();
             if (length > minLength) {
+                rt.reset();
                 Region[] allRegions = cellData.get(index).getCellRegions();
                 int start = cellData.get(index).getStartFrame();
                 int end = cellData.get(index).getEndFrame();
@@ -611,12 +613,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             current.getMask());
                     analyzer.analyze(maskImp);
                 }
+                int N = rt.getCounter();
+                morphStream.println(rt.getColumnHeadings());
+                morphStream.println("Cell_" + String.valueOf(index));
+                for (int i = 0; i < N; i++) {
+                    morphStream.println(rt.getRowAsString(i));
+                }
             }
-        }
-        int N = rt.getCounter();
-        morphStream.println(rt.getColumnHeadings());
-        for (int i = 0; i < N; i++) {
-            morphStream.println(rt.getRowAsString(i));
         }
         morphStream.close();
     }
@@ -736,9 +739,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 sigMap.addColumn(upX, upY, smz, i);
             }
         }
-        if (protMode) {
-            sigMap.allignMapMaxDistToPoint(sigMap.getHeight() / 2, parentCellData);
-        }
+//        if (protMode) {
+//            sigMap.allignMapMaxDistToPoint(sigMap.getHeight() / 2, parentCellData);
+//        }
     }
 
     private void buildCurveMap(Region[] allRegions, CellData cellData) {
@@ -942,7 +945,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             System.out.println(e.toString());
             return;
         }
-        trajStream.print("Frame,");
+        trajStream.print("Frame,Time (s),");
         for (int n = 0; n < N; n++) {
             colors[n] = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
             if (cellData.get(n).getLength() > minLength) {
@@ -958,7 +961,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         trajStream.println();
         for (int t = 0; t < stackSize; t++) {
-            trajStream.print(String.valueOf(t) + ",");
+            trajStream.print(String.valueOf(t) + "," + String.valueOf(t * uv.getTimeRes() / 60.0) + ",");
             dialog.updateProgress(t, stackSize);
             ColorProcessor trajOutput = new ColorProcessor(width, height);
             trajOutput.setColor(StaticVariables.BACKGROUND);

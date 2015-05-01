@@ -21,14 +21,14 @@ import static org.junit.Assert.*;
  * @author David Barry <david.barry at cancer.org.uk>
  */
 public class CellDataTest {
-    
+
     public CellDataTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
@@ -150,7 +150,7 @@ public class CellDataTest {
         CellData instance = new CellData();
         double[] expResult = null;
         double[] result = instance.getScaleFactors();
-        assertArrayEquals(expResult, result);
+        assertArrayEquals(expResult, result, .001);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
@@ -681,5 +681,5 @@ public class CellDataTest {
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
-    
+
 }
