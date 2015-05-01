@@ -184,6 +184,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     protected void analyse(String imageName) {
         int cytoSize, sigSize;
         ImageStack cytoStack;
+        ImagePlus cytoImp = new ImagePlus(), sigImp;
         if (IJ.getInstance() == null || batchMode || protMode) {
             cytoStack = stacks[0];
             cytoSize = cytoStack.getSize();
@@ -192,8 +193,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             if (images == null) {
                 return;
             }
-            ImagePlus cytoImp = images[0];
-            ImagePlus sigImp;
+            cytoImp = images[0];
             if (images[1] != null) {
                 sigImp = images[1];
             } else {
@@ -222,11 +222,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * unique so old results are not overwritten
          */
         String parDirName = null;
-//        if (batchMode) {
-//            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
-//        } else 
-        if (!protMode) {
+        if (batchMode) {
             parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
+        } else if (!protMode) {
+            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + cytoImp.getShortTitle(), delimiter);
         }
         if (parDirName != null) {
             parDir = new File(parDirName);

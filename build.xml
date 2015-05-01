@@ -78,6 +78,7 @@
         <exec executable="perl.exe">
             <arg line="C:\Users\barry05\perl_tests\update_jar_name.pl"/>
             <arg line="${basedir}"/>
+            <arg line="1"/>
         </exec>
     </target>
 </project>
