@@ -121,6 +121,8 @@ public class GUI extends javax.swing.JDialog {
         gaussRadLabel = new javax.swing.JLabel();
         cortexDepthField = new javax.swing.JTextField();
         cortexDepthLabel = new javax.swing.JLabel();
+        visLineWidthLabel = new javax.swing.JLabel();
+        visLineWidthTextField = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         minCurveRangeLabel = new javax.swing.JLabel();
         minCurveRangeField = new javax.swing.JTextField();
@@ -479,6 +481,25 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         advancedTab.add(cortexDepthLabel, gridBagConstraints);
+
+        visLineWidthLabel.setText(StaticVariables.VIS_LINE_WIDTH);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        advancedTab.add(visLineWidthLabel, gridBagConstraints);
+
+        visLineWidthTextField.setText(String.valueOf(uv.getVisLineWidth()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        advancedTab.add(visLineWidthTextField, gridBagConstraints);
 
         jTabbedPane1.addTab("Advanced", advancedTab);
 
@@ -1004,6 +1025,7 @@ public class GUI extends javax.swing.JDialog {
             uv.setFiloSize(Double.parseDouble(filoSizeField.getText()));
             uv.setGetFluorDist(genSigDistToggleButton.isSelected());
             uv.setMorphSizeMin(Double.parseDouble(minMorphAreaTextField.getText()));
+            uv.setVisLineWidth(Integer.parseInt(visLineWidthTextField.getText()));
         } catch (NumberFormatException e) {
             IJ.error("Number formatting error " + e.toString());
             return false;
@@ -1148,5 +1170,7 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JTextField timeResField;
     private javax.swing.JLabel timeResLabel;
     private javax.swing.JToggleButton useSigThreshToggleButton;
+    private javax.swing.JLabel visLineWidthLabel;
+    private javax.swing.JTextField visLineWidthTextField;
     // End of variables declaration//GEN-END:variables
 }

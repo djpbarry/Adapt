@@ -138,6 +138,8 @@ public class StaticVariables {
     
     public static final String MIN_MORPH_AREA = "Minimum Object Size (" + IJ.micronSymbol + "m^2)";
     
+    public static final String VIS_LINE_WIDTH = "Visualisation Line Thickness";
+    
     public static final String DATA_STREAM_HEADINGS = "Time_(s), Zeroed_Time_(s), "
             + "V_(" + GenUtils.mu + "m/s), Total_Signal_(AU), Length_(" + GenUtils.mu + "m), "
             + "Total_Signal/L0, Mean_Signal, Normalised_Length";

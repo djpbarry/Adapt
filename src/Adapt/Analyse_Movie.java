@@ -680,6 +680,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         paramStream.println(StaticVariables.FILO_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSize()));
         paramStream.println(StaticVariables.GEN_SIG_DIST.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetFluorDist()));
         paramStream.println(StaticVariables.MIN_MORPH_AREA.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMorphSizeMin()));
+        paramStream.println(StaticVariables.VIS_LINE_WIDTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getVisLineWidth()));
         return true;
     }
 
@@ -826,9 +827,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         for (int t = 0; t < stackSize; t++) {
             dialog.updateProgress(t, stackSize);
             ColorProcessor velOutput = new ColorProcessor(width, height);
+            velOutput.setLineWidth(uv.getVisLineWidth());
             velOutput.setColor(Color.black);
             velOutput.fill();
             ColorProcessor curveOutput = new ColorProcessor(width, height);
+            curveOutput.setLineWidth(uv.getVisLineWidth());
             curveOutput.setColor(Color.black);
             curveOutput.fill();
             for (int n = 0; n < N; n++) {
@@ -885,6 +888,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         for (int t = 0; t < stackSize; t++) {
             dialog.updateProgress(t, stackSize);
             ColorProcessor output = new ColorProcessor(width, height);
+            output.setLineWidth(uv.getVisLineWidth());
             output.setColor(Color.black);
             output.fill();
             for (int n = 0; n < N; n++) {
@@ -965,6 +969,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             ColorProcessor trajOutput = new ColorProcessor(width, height);
             trajOutput.setColor(StaticVariables.BACKGROUND);
             trajOutput.fill();
+            int d = uv.getVisLineWidth();
+            int r = Math.floorDiv(d, 2);
             for (int n = 0; n < N; n++) {
                 trajOutput.setColor(colors[n]);
                 int start = cellData.get(n).getStartFrame();
@@ -978,8 +984,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         int c = centres.size();
                         double x = centres.get(c - 1).getPrecX();
                         double y = centres.get(c - 1).getPrecY();
-                        trajOutput.fillOval((int) Math.round(x + xc - origins[n][0]) - 1,
-                                (int) Math.round(y + yc - origins[n][1]) - 1, 3, 3);
+                        trajOutput.fillOval((int) Math.round(x + xc - origins[n][0]) - r,
+                                (int) Math.round(y + yc - origins[n][1]) - r, d, d);
                         trajStream.print(String.valueOf(x) + "," + String.valueOf(y) + ",");
                         if (t + 1 > start) {
                             Region last = allRegions[t - 1];
