@@ -970,7 +970,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             trajOutput.setColor(StaticVariables.BACKGROUND);
             trajOutput.fill();
             int d = uv.getVisLineWidth();
-            int r = Math.floorDiv(d, 2);
+            int r = (int) Math.floor(d / 2.0);
             for (int n = 0; n < N; n++) {
                 trajOutput.setColor(colors[n]);
                 int start = cellData.get(n).getStartFrame();
