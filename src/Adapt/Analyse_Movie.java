@@ -165,7 +165,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      */
     @Override
     public void run(String arg) {
-        Utilities.setLookAndFeel(GUI.class);
+//        Utilities.setLookAndFeel(GUI.class);
         TITLE = TITLE + "_v" + StaticVariables.VERSION + "." + numFormat.format(Revision.Revision.revisionNumber);
         if (IJ.getInstance() != null && WindowManager.getIDList() == null) {
             IJ.error("No Images Open.");
