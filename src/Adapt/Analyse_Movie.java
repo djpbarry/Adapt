@@ -579,10 +579,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         childDir + delimiter + "VelMap_ChangeInSigMap_CrossCorrelation.tif");
                 if (uv.isGetFluorDist()) {
                     FloatProcessor fluorMaps[] = getFluorDists(cellData.get(index), 512);
-                    IJ.saveAs(new ImagePlus("", fluorMaps[0]), "TIF", childDir + delimiter
-                            + "MeanFluorescenceIntensity.tif");
-                    IJ.saveAs(new ImagePlus("", fluorMaps[1]), "TIF", childDir + delimiter
-                            + "STDFluorescenceIntensity.tif");
+                    IJ.saveAs(new ImagePlus("", fluorMaps[0]), "text image", childDir + delimiter
+                            + "MeanFluorescenceIntensity.txt");
+                    IJ.saveAs(new ImagePlus("", fluorMaps[1]), "text image", childDir + delimiter
+                            + "STDFluorescenceIntensity.txt");
                 }
             }
         }
