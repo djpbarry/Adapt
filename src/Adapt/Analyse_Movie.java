@@ -217,6 +217,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 stacks[1] = null;
             }
         }
+        if (stacks[0].getProcessor(1) instanceof ColorProcessor
+                || (stacks[1] != null && stacks[1].getProcessor(1) instanceof ColorProcessor)) {
+            IJ.showMessage("Warning: greyscale images should be used for optimal results.");
+        }
         /*
          * Create new parent output directory - make sure directory name is
          * unique so old results are not overwritten
