@@ -42,7 +42,7 @@ public class Analyse_Batch extends Analyse_Movie {
     }
 
     public void run(String arg) {
-        Utilities.setLookAndFeel(GUI.class);
+//        Utilities.setLookAndFeel(GUI.class);
         TITLE = TITLE + "_v" + StaticVariables.VERSION + "." + numFormat.format(Revision.Revision.revisionNumber);
         File cytoImageFiles[] = null; // Obtain file list
         File sigImageFiles[] = null;
