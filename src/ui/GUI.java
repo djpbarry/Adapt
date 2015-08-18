@@ -144,6 +144,7 @@ public class GUI extends javax.swing.JDialog {
         protDurField = new javax.swing.JTextField();
         filoSizeLabel = new javax.swing.JLabel();
         filoSizeField = new javax.swing.JTextField();
+        displayPlotsToggleButton = new javax.swing.JToggleButton();
         jPanel3 = new javax.swing.JPanel();
         cytoCanvas = new ImageCanvas(cytoImp);
         previewToggleButton = new javax.swing.JToggleButton();
@@ -610,7 +611,7 @@ public class GUI extends javax.swing.JDialog {
         sigThreshFactLabel.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -621,7 +622,7 @@ public class GUI extends javax.swing.JDialog {
         sigThreshFactField.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -633,7 +634,7 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshLabel.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 12;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -644,7 +645,7 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshField.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 12;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -678,7 +679,7 @@ public class GUI extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 10;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weighty = 1.0;
@@ -788,6 +789,17 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
         jPanel4.add(filoSizeField, gridBagConstraints);
+
+        displayPlotsToggleButton.setText(StaticVariables.DISPLAY_PLOTS);
+        useSigThreshToggleButton.setEnabled(uv.isAnalyseProtrusions());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        jPanel4.add(displayPlotsToggleButton, gridBagConstraints);
 
         jTabbedPane1.addTab("Protrusion Analysis", jPanel4);
 
@@ -1078,6 +1090,7 @@ public class GUI extends javax.swing.JDialog {
             uv.setGetFluorDist(genSigDistToggleButton.isSelected());
             uv.setMorphSizeMin(Double.parseDouble(minMorphAreaTextField.getText()));
             uv.setVisLineWidth(Integer.parseInt(visLineWidthTextField.getText()));
+            uv.setDisplayPlots(displayPlotsToggleButton.isSelected());
         } catch (NumberFormatException e) {
             IJ.error("Number formatting error " + e.toString());
             return false;
@@ -1168,6 +1181,7 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JLabel cutOffLabel;
     private java.awt.Canvas cytoCanvas;
     private javax.swing.JLabel cytoLabel;
+    private javax.swing.JToggleButton displayPlotsToggleButton;
     private javax.swing.JTextField erosionField;
     private javax.swing.JLabel erosionLabel;
     private javax.swing.JRadioButton filoDetectRadioButton;

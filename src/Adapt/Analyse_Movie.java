@@ -383,8 +383,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         if (uv.isBlebDetect()) {
                             findProtrusionsBasedOnVel(cellData.get(index));
                             correlativePlot(cellData.get(index));
-                            String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL,StaticVariables.MEAN_SIGNAL,StaticVariables.TOTAL_SIGNAL_L0};
-                            (new Data_File_Averager(StaticVariables.DATA_STREAM_HEADINGS,normHeadings)).run(childDir + delimiter + BLEB_DATA_FILES);
+                            String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL, StaticVariables.MEAN_SIGNAL};
+                            (new Data_File_Averager(StaticVariables.DATA_STREAM_HEADINGS, normHeadings, uv.isDisplayPlots())).run(childDir + delimiter + BLEB_DATA_FILES);
                         } else {
                             ImageStack protStacks[] = new ImageStack[2];
                             protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(uv.getFiloSize()));
@@ -689,6 +689,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         paramStream.println(StaticVariables.GEN_SIG_DIST.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetFluorDist()));
         paramStream.println(StaticVariables.MIN_MORPH_AREA.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMorphSizeMin()));
         paramStream.println(StaticVariables.VIS_LINE_WIDTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getVisLineWidth()));
+        paramStream.println(StaticVariables.DISPLAY_PLOTS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isDisplayPlots()));
         return true;
     }
 
@@ -1813,17 +1814,15 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         double time0 = bounds.x * 60.0 / uv.getTimeRes();
                         for (int z = 0; z < meanVel.size(); z++) {
                             int t = z + bounds.x;
-                            double normFactor = bounds.height * uv.getSpatialRes() * cellData.getScaleFactors()[t];
+//                            double normFactor = bounds.height * uv.getSpatialRes() * cellData.getScaleFactors()[t];
                             double time = t * 60.0 / uv.getTimeRes();
                             double currentMeanSig;
                             currentMeanSig = sumSig.get(z) / protrusionLength.get(z);
-                            thisDataStream.print(String.valueOf(time) + ", "
-                                    + String.valueOf(time - time0) + ", "
+                            thisDataStream.print(String.valueOf(time - time0) + ", "
                                     + String.valueOf(meanVel.get(z)) + ", "
                                     + String.valueOf(sumSig.get(z)) + ", "
-                                    + String.valueOf(protrusionLength.get(z)) + ", "
-                                    + String.valueOf((sumSig.get(z) / normFactor)) + ", "
                                     + String.valueOf(currentMeanSig) + ", "
+                                    + String.valueOf(protrusionLength.get(z)) + ", "
                                     + String.valueOf(protrusionLength.get(z) / protrusionLength.get(0)));
                             thisDataStream.println();
                             blebFrameCount[t]++;

@@ -55,6 +55,7 @@ public class UserVariables {
     private boolean getFluorDist = false;
     private double morphSizeMin = 10.0;
     private int visLineWidth = 5;
+    private boolean displayPlots=false;
 
     /**
      * Get the radius of circles drawn on bleb detection output movies
@@ -540,6 +541,14 @@ public class UserVariables {
         this.visLineWidth = visLineWidth;
     }
 
+    public boolean isDisplayPlots() {
+        return displayPlots;
+    }
+
+    public void setDisplayPlots(boolean displayPlots) {
+        this.displayPlots = displayPlots;
+    }
+
     public Object clone() {
         UserVariables copy = new UserVariables();
         copy.setGreyThresh(greyThresh);
@@ -572,6 +581,7 @@ public class UserVariables {
         copy.setGetFluorDist(getFluorDist);
         copy.setMorphSizeMin(morphSizeMin);
         copy.setVisLineWidth(visLineWidth);
+        copy.setDisplayPlots(displayPlots);
         return copy;
     }
 }

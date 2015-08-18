@@ -5,6 +5,8 @@
  */
 package Adapt;
 
+import ij.IJ;
+
 /**
  *
  */
