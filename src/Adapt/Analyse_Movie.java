@@ -16,7 +16,7 @@
  */
 package Adapt;
 
-import DataProcessing.Data_File_Averager;
+import DataProcessing.DataFileAverager;
 import IAClasses.BoundaryPixel;
 import IAClasses.DSPProcessor;
 import IAClasses.DataStatistics;
@@ -384,7 +384,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             findProtrusionsBasedOnVel(cellData.get(index));
                             correlativePlot(cellData.get(index));
                             String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL, StaticVariables.MEAN_SIGNAL};
-                            (new Data_File_Averager(StaticVariables.DATA_STREAM_HEADINGS, normHeadings, uv.isDisplayPlots())).run(childDir + delimiter + BLEB_DATA_FILES);
+                            (new DataFileAverager(StaticVariables.DATA_STREAM_HEADINGS, normHeadings, uv.isDisplayPlots())).run(childDir + delimiter + BLEB_DATA_FILES);
                         } else {
                             ImageStack protStacks[] = new ImageStack[2];
                             protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(uv.getFiloSize()));

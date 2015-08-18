@@ -791,7 +791,7 @@ public class GUI extends javax.swing.JDialog {
         jPanel4.add(filoSizeField, gridBagConstraints);
 
         displayPlotsToggleButton.setText(StaticVariables.DISPLAY_PLOTS);
-        useSigThreshToggleButton.setEnabled(uv.isAnalyseProtrusions());
+        displayPlotsToggleButton.setEnabled(uv.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 9;
@@ -965,6 +965,7 @@ public class GUI extends javax.swing.JDialog {
         useSigThreshToggleButton.setEnabled(anaProtToggleButton.isSelected());
         blebDetectRadioButton.setEnabled(anaProtToggleButton.isSelected());
         filoDetectRadioButton.setEnabled(anaProtToggleButton.isSelected());
+        displayPlotsToggleButton.setEnabled(anaProtToggleButton.isSelected());
         useSigThreshToggleButtonActionPerformed(null);
         blebDetectRadioButtonActionPerformed(null);
     }//GEN-LAST:event_anaProtToggleButtonActionPerformed
