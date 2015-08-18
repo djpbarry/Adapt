@@ -16,6 +16,7 @@
  */
 package Adapt;
 
+import DataProcessing.Data_File_Averager;
 import IAClasses.BoundaryPixel;
 import IAClasses.DSPProcessor;
 import IAClasses.DataStatistics;
@@ -87,6 +88,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             velDirName, curvDirName, trajDirName, segDirName;
     private int intermediate, terminal;
     protected String TITLE = StaticVariables.TITLE;
+    final String BLEB_DATA_FILES = "Bleb_Data_Files";
     protected final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
     private final String channelLabels[] = {"Cytoplasmic channel", "Signal to be correlated"};
     /**
@@ -381,6 +383,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         if (uv.isBlebDetect()) {
                             findProtrusionsBasedOnVel(cellData.get(index));
                             correlativePlot(cellData.get(index));
+                            String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL,StaticVariables.MEAN_SIGNAL,StaticVariables.TOTAL_SIGNAL_L0};
+                            (new Data_File_Averager(StaticVariables.DATA_STREAM_HEADINGS,normHeadings)).run(childDir + delimiter + BLEB_DATA_FILES);
                         } else {
                             ImageStack protStacks[] = new ImageStack[2];
                             protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(uv.getFiloSize()));
@@ -397,17 +401,17 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 }
             }
             dialog.dispose();
-            velDirName = GenUtils.createDirectory(parDir + delimiter + "Velocity_Visualisation");
-            curvDirName = GenUtils.createDirectory(parDir + delimiter + "Curvature_Visualisation");
+            velDirName = GenUtils.createDirectory(parDir + delimiter + "Velocity_Visualisation", false);
+            curvDirName = GenUtils.createDirectory(parDir + delimiter + "Curvature_Visualisation", false);
             genCurveVelVis(cellData);
         } else {
-            segDirName = GenUtils.createDirectory(parDir + delimiter + "Segmentation_Visualisation");
+            segDirName = GenUtils.createDirectory(parDir + delimiter + "Segmentation_Visualisation", false);
             genSimpSegVis(cellData);
         }
         if (uv.isGetMorph()) {
             getMorphologyData(cellData);
         }
-        trajDirName = GenUtils.createDirectory(parDir + delimiter + "Trajectories_Visualisation");
+        trajDirName = GenUtils.createDirectory(parDir + delimiter + "Trajectories_Visualisation", false);
         generateCellTrajectories(cellData);
         File paramFile;
         PrintWriter paramStream;
@@ -1725,9 +1729,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         cellData.setVelMapWithDetections(velMapWithDetections);
         File thisMeanData, blebCount;
         PrintWriter thisDataStream, blebCountStream;
-        File plotDataDir = GenUtils.createDirectory(childDir + delimiter + "Bleb_Data_Files");
-        File detectDir = GenUtils.createDirectory(childDir + delimiter + "Detection_Visualisation");
-        File mapDir = GenUtils.createDirectory(childDir + delimiter + "Bleb_Signal_Maps");
+        File plotDataDir = GenUtils.createDirectory(childDir + delimiter + BLEB_DATA_FILES, false);
+        File detectDir = GenUtils.createDirectory(childDir + delimiter + "Detection_Visualisation", false);
+        File mapDir = GenUtils.createDirectory(childDir + delimiter + "Bleb_Signal_Maps", false);
         String pdLabel = protMode ? "Plotting filopodia data..." : "Plotting cell data...";
         ProgressDialog dialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
         dialog.setVisible(true);
@@ -1796,7 +1800,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             return;
                         }
                         thisDataStream.println(directory.getAbsolutePath() + "_" + count);
-                        thisDataStream.print(StaticVariables.DATA_STREAM_HEADINGS);
+                        for (int d = 0; d < StaticVariables.DATA_STREAM_HEADINGS.length; d++) {
+                            thisDataStream.print(StaticVariables.DATA_STREAM_HEADINGS[d] + ",");
+                        }
                         thisDataStream.println();
                         IJ.saveAs(new ImagePlus("", BlebAnalyser.drawBlebSigMap(currentBleb,
                                 uv.getSpatialRes(), uv.isUseSigThresh())),

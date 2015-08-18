@@ -20,7 +20,7 @@ public class Main {
 ////        Random r = new Random();
 ////        for (int i = 0; i < 20; i++) {
 //        UserVariables uv = new UserVariables();
-//        Analyse_Batch.readParams(uv, new File("C:\\Users\\barry05\\Desktop\\Test_Data_Sets\\adapt_test_data\\Test Data For Paper\\Adapt_v1.105_Output\\params.csv"));
+////        Analyse_Batch.readParams(uv, new File("C:\\Users\\barry05\\Desktop\\Test_Data_Sets\\adapt_test_data\\Test Data For Paper\\Adapt_v1.105_Output\\params.csv"));
 ////            uv.setCurveRange(4 + r.nextInt(3));
 ////            uv.setCortexDepth(0.48 + r.nextDouble() * 0.24);
 ////            uv.setTempFiltRad(4.0 + r.nextDouble() * 2.0);

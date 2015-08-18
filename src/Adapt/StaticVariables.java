@@ -127,22 +127,37 @@ public class StaticVariables {
     public static final String PROT_LEN_THRESH = "Minimum Protrusion Length (%)";
 
     public static final String PROT_DUR_THRESH = "Minimum Protrusion Duration (frames)";
-    
+
     public static final String DETECT_FILO = "Detect Filopodia";
 
     public static final String DETECT_BLEB = "Detect Blebs";
-    
+
     public static final String FILO_SIZE = "Filopodia Size";
-    
+
     public static final String GEN_SIG_DIST = "Generate Signal Distribution";
-    
+
     public static final String MIN_MORPH_AREA = "Minimum Object Size (" + IJ.micronSymbol + "m^2)";
-    
+
     public static final String VIS_LINE_WIDTH = "Visualisation Line Thickness";
-    
-    public static final String DATA_STREAM_HEADINGS = "Time_(s), Zeroed_Time_(s), "
-            + "V_(" + GenUtils.mu + "m/s), Total_Signal_(AU), Length_(" + GenUtils.mu + "m), "
-            + "Total_Signal/L0, Mean_Signal, Normalised_Length";
+
+    public static final String TIME = "Time_(s)";
+
+    public static final String ZEROED_TIME = "Zeroed_Time_(s)";
+
+    public static final String VELOCITY = "V_(" + GenUtils.mu + "m/s)";
+
+    public static final String TOTAL_SIGNAL = "Total_Signal_(AU)";
+
+    public static final String LENGTH = "Length_(" + GenUtils.mu + "m)";
+
+    public static final String TOTAL_SIGNAL_L0 = "Total_Signal/L0";
+
+    public static final String MEAN_SIGNAL = "Mean_Signal";
+
+    public static final String NORM_LENGTH = "Normalised_Length";
+
+    public static final String DATA_STREAM_HEADINGS[] = {TIME, ZEROED_TIME, VELOCITY,
+        TOTAL_SIGNAL, LENGTH, TOTAL_SIGNAL_L0, MEAN_SIGNAL, NORM_LENGTH};
     /**
      * Software Name
      */
