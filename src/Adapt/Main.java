@@ -10,17 +10,17 @@ package Adapt;
  */
 public class Main {
 
-    public static void main(String args[]) {
-        (new ADAPT_Bleb_Data_Averager()).run(null);
-        System.exit(0);
-    }
-
 //    public static void main(String args[]) {
-//        Analyse_Movie am = new Analyse_Movie();
-//        am.initialise();
-//        am.run(null);
+//        (new ADAPT_Bleb_Data_Averager()).run(null);
 //        System.exit(0);
 //    }
+
+    public static void main(String args[]) {
+        Analyse_Movie am = new Analyse_Movie();
+        am.initialise();
+        am.run(null);
+        System.exit(0);
+    }
 //    public static void main(String args[]) {
 ////        Random r = new Random();
 ////        for (int i = 0; i < 20; i++) {

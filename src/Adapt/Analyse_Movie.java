@@ -384,7 +384,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             findProtrusionsBasedOnVel(cellData.get(index));
                             correlativePlot(cellData.get(index));
                             String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL, StaticVariables.MEAN_SIGNAL};
-                            (new DataFileAverager(StaticVariables.DATA_STREAM_HEADINGS, normHeadings, uv.isDisplayPlots(), null, null, null)).run(childDir + delimiter + BLEB_DATA_FILES);
+                            (new DataFileAverager(StaticVariables.DATA_STREAM_HEADINGS,
+                                    normHeadings, uv.isDisplayPlots(), StaticVariables.VELOCITY,
+                                    StaticVariables.TIME,
+                                    StaticVariables.ZEROED_TIME)).run(childDir + delimiter + BLEB_DATA_FILES);
                         } else {
                             ImageStack protStacks[] = new ImageStack[2];
                             protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(uv.getFiloSize()));
