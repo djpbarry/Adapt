@@ -135,7 +135,7 @@ public class StaticVariables {
     public static final String FILO_SIZE = "Filopodia Size";
 
     public static final String GEN_SIG_DIST = "Generate Signal Distribution";
-    
+
     public static final String DISPLAY_PLOTS = "Display Plots";
 
     public static final String MIN_MORPH_AREA = "Minimum Object Size (" + IJ.micronSymbol + "m^2)";
@@ -143,6 +143,8 @@ public class StaticVariables {
     public static final String VIS_LINE_WIDTH = "Visualisation Line Thickness";
 
     public static final String TIME = "Time_(s)";
+
+    public static final String ZEROED_TIME = "Zeroed_Time_(s)";
 
     public static final String VELOCITY = "V_(" + GenUtils.mu + "m/s)";
 

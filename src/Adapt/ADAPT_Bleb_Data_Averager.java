@@ -16,6 +16,6 @@ public class ADAPT_Bleb_Data_Averager implements PlugIn {
 
     public void run(String arg) {
         String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL, StaticVariables.MEAN_SIGNAL};
-        new DataFileAverager(StaticVariables.DATA_STREAM_HEADINGS, normHeadings, false).run(null);
+        new DataFileAverager(null, normHeadings, true, StaticVariables.VELOCITY, StaticVariables.TIME, StaticVariables.ZEROED_TIME).run(null);
     }
 }
