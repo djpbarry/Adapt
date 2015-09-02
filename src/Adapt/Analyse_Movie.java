@@ -364,7 +364,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * Analyse the dynamics of each cell, represented by a series of
          * detected regions.
          */
-        if (uv.isGenVis() && !protMode) {
+        if ((uv.isGenVis() || uv.isGetFluorDist()) && !protMode) {
             String pdLabel2 = protMode ? "Generating individual filipodia outputs..." : "Generating individual cell outputs...";
             ProgressDialog dialog = new ProgressDialog(null, pdLabel2, false, TITLE, false);
             dialog.setVisible(true);
@@ -378,6 +378,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 if (length > minLength) {
                     childDir = new File(childDirName);
                     buildOutput(index, length, false);
+                    if (uv.isGetFluorDist()) {
+                        generateFluorMaps(getFluorDists(cellData.get(index), StaticVariables.FLUOR_MAP_HEIGHT));
+                    }
                     if (!protMode && uv.isAnalyseProtrusions()) {
                         calcSigThresh(cellData.get(index));
                         if (uv.isBlebDetect()) {
@@ -584,13 +587,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         + "ChangeInSignalMap.tif");
                 IJ.saveAs(velMap.periodicity2D(rateOfSigChange, greyVelMap, 100), "TIF",
                         childDir + delimiter + "VelMap_ChangeInSigMap_CrossCorrelation.tif");
-                if (uv.isGetFluorDist()) {
-                    FloatProcessor fluorMaps[] = getFluorDists(cellData.get(index), 512);
-                    IJ.saveAs(new ImagePlus("", fluorMaps[0]), "text image", childDir + delimiter
-                            + "MeanFluorescenceIntensity.txt");
-                    IJ.saveAs(new ImagePlus("", fluorMaps[1]), "text image", childDir + delimiter
-                            + "STDFluorescenceIntensity.txt");
-                }
             }
         }
     }
@@ -2066,9 +2062,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             ArrayList<Double> means = new ArrayList();
             ArrayList<Double> stds = new ArrayList();
             int index = 0;
-//            IJ.saveAs((new ImagePlus("", current.getMask())), "PNG", "C:/users/barry05/desktop/Test_Data_Sets/adapt_test_data/masks/mask_orig.png");
             while (current.shrink(2, false, index)) {
-//                IJ.saveAs((new ImagePlus("", current.getMask())), "PNG", "C:/users/barry05/desktop/Test_Data_Sets/adapt_test_data/masks/mask_" + index + ".png");
                 Pixel[] pix = current.buildMapCol(stacks[1].getProcessor(i), height, 3);
                 double pixVals[] = new double[pix.length];
                 for (int j = 0; j < height; j++) {
@@ -2092,6 +2086,29 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             stdBlitter.copyBits(stdCol.resize(1, height), i - start, 0, Blitter.COPY);
         }
         return dists;
+    }
+
+    void generateFluorMaps(FloatProcessor fluorMaps[]) {
+        File mean, std;
+        PrintWriter meanStream, stdStream;
+        try {
+            mean = new File(childDir + delimiter + "MeanFluorescenceIntensity.csv");
+            meanStream = new PrintWriter(new FileOutputStream(mean));
+            std = new File(childDir + delimiter + "STDFluorescenceIntensity.csv");
+            stdStream = new PrintWriter(new FileOutputStream(std));
+            meanStream.println("Normalised Distance from Cell Edge,Mean Fluorescence Intensity (AU)");
+            stdStream.println("Normalised Distance from Cell Edge,Standard Deviation of Fluorescence Intensity (AU)");
+            int mapHeight = fluorMaps[0].getHeight();
+            for (int y = 0; y < mapHeight; y++) {
+                String normDist = String.valueOf(((double) y) / (mapHeight - 1.0));
+                meanStream.println(normDist + "," + fluorMaps[0].getPixelValue(0, y));
+                stdStream.println(normDist + "," + fluorMaps[1].getPixelValue(0, y));
+            }
+            meanStream.close();
+            stdStream.close();
+        } catch (FileNotFoundException e) {
+            System.out.println(e.toString());
+        }
     }
 
     public ImageProcessor[] getPreviewImages() {
