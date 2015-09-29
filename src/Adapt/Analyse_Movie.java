@@ -802,20 +802,46 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         ColorProcessor colorVelMap = cellData.getColorVelMap();
         double curvatures[][] = curveMap.smoothMap(0.0, 0.0);
         double sigchanges[][] = null;
-        if (!sigNull) {
-            sigchanges = cellData.getSigMap().smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
-            greySigMap = cellData.getGreySigMap();
-        }
-        for (int i = 0; i < l; i++) {
-            for (int j = 0; j < upLength; j++) {
-                greyVelMap.putPixelValue(i, j, smoothVelocities[i][j]);
-                greyCurvMap.putPixelValue(i, j, curvatures[i][j]);
-                colorVelMap.setColor(getColor(smoothVelocities[i][j], cellData.getMaxVel(), cellData.getMinVel()));
-                colorVelMap.drawPixel(i, j);
-                if (!sigNull && greySigMap != null) {
-                    greySigMap.putPixelValue(i, j, sigchanges[i][j]);
-                }
+        File velStats;
+        PrintWriter velStatWriter;
+        try {
+            velStats = new File(childDir + delimiter + "VelocityAnalysis.csv");
+            velStatWriter = new PrintWriter(new FileOutputStream(velStats));
+            velStatWriter.println("Frame,% Protruding,% Retracting,Mean Protrusion Velocity (" + IJ.micronSymbol + "m/min), Mean Retraction Velocity (" + IJ.micronSymbol + "m/min)");
+            if (!sigNull) {
+                sigchanges = cellData.getSigMap().smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
+                greySigMap = cellData.getGreySigMap();
             }
+            for (int i = 0; i < l; i++) {
+                int neg = 0, pos = 0;
+                double negVals = 0.0, posVals = 0.0;
+                for (int j = 0; j < upLength; j++) {
+                    if (smoothVelocities[i][j] > 0.0) {
+                        pos++;
+                        posVals += smoothVelocities[i][j];
+                    } else {
+                        neg++;
+                        negVals += smoothVelocities[i][j];
+                    }
+                    greyVelMap.putPixelValue(i, j, smoothVelocities[i][j]);
+                    greyCurvMap.putPixelValue(i, j, curvatures[i][j]);
+                    colorVelMap.setColor(getColor(smoothVelocities[i][j], cellData.getMaxVel(), cellData.getMinVel()));
+                    colorVelMap.drawPixel(i, j);
+                    if (!sigNull && greySigMap != null) {
+                        greySigMap.putPixelValue(i, j, sigchanges[i][j]);
+                    }
+                }
+                double pProt = (100.0 * pos) / upLength;
+                double meanPos = pos > 0 ? posVals / pos : 0.0;
+                double meanNeg = neg > 0 ? negVals / neg : 0.0;
+                String pProtS = String.valueOf(pProt);
+                String nProtS = String.valueOf(100.0 - pProt);
+                velStatWriter.println(i + "," + pProtS + "," + nProtS + ","
+                        + String.valueOf(meanPos) + "," + String.valueOf(meanNeg));
+            }
+            velStatWriter.close();
+        } catch (FileNotFoundException e) {
+            System.out.println(e.toString());
         }
     }
 
