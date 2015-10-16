@@ -1193,7 +1193,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 mask2.invert();
                 bb.copyBits(mask2, 0, 0, Blitter.SUBTRACT);
             }
-            cyto2.addSlice(mask);
+                        double minArea = getMinArea();
+            ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES + ParticleAnalyzer.SHOW_MASKS,
+                    0, null, minArea, Double.POSITIVE_INFINITY);
+            mask.invert();
+            analyzeDetections(null, mask, analyzer);
+            ImageProcessor analyzerMask = analyzer.getOutputImage().getProcessor();
+            analyzerMask.invertLut();
+            cyto2.addSlice(analyzerMask);
         }
         return cyto2;
     }
@@ -1215,6 +1222,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             IJ.error("Protrusion analysis failed.");
 //            return;
         }
+        hideWindows();
+    }
+
+    void hideWindows() {
         if (WindowManager.getImageCount() > 0) {
             WindowManager.getImage(WindowManager.getIDList()[WindowManager.getImageCount() - 1]).hide();
         }
@@ -2020,6 +2031,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         }
                         ImageStack filoStack = findProtrusionsBasedOnMorph(cellData.get(r), (int) Math.round(uv.getFiloSize()));
                         ByteProcessor filoBin = (ByteProcessor) filoStack.getProcessor(sliceIndex);
+//                        IJ.saveAs((new ImagePlus("",filoBin)), "PNG", "C:/users/barry05/desktop/filoBin.png");
                         filoBin.outline();
                         for (int y = 0; y < filoBin.getHeight(); y++) {
                             for (int x = 0; x < filoBin.getWidth(); x++) {

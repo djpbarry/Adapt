@@ -138,10 +138,6 @@ public class GUI extends javax.swing.JDialog {
         useSigThreshToggleButton = new javax.swing.JToggleButton();
         blebDetectRadioButton = new javax.swing.JRadioButton();
         filoDetectRadioButton = new javax.swing.JRadioButton();
-        protLenLabel = new javax.swing.JLabel();
-        protDurLabel = new javax.swing.JLabel();
-        protLenField = new javax.swing.JTextField();
-        protDurField = new javax.swing.JTextField();
         filoSizeLabel = new javax.swing.JLabel();
         filoSizeField = new javax.swing.JTextField();
         displayPlotsToggleButton = new javax.swing.JToggleButton();
@@ -542,7 +538,7 @@ public class GUI extends javax.swing.JDialog {
         minCurveRangeLabel.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -553,7 +549,7 @@ public class GUI extends javax.swing.JDialog {
         minCurveRangeField.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -565,7 +561,7 @@ public class GUI extends javax.swing.JDialog {
         minCurveThreshLabel.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -576,7 +572,7 @@ public class GUI extends javax.swing.JDialog {
         minCurveThreshField.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -588,30 +584,30 @@ public class GUI extends javax.swing.JDialog {
         cutOffLabel.setEnabled(uv.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel4.add(cutOffLabel, gridBagConstraints);
 
         cutOffField.setText(String.valueOf(uv.getCutOffTime()));
         cutOffField.setEnabled(uv.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 10);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         jPanel4.add(cutOffField, gridBagConstraints);
 
         sigThreshFactLabel.setText(StaticVariables.SIG_THRESH_FACT);
         sigThreshFactLabel.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -622,7 +618,7 @@ public class GUI extends javax.swing.JDialog {
         sigThreshFactField.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -634,7 +630,7 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshLabel.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -645,7 +641,7 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshField.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -671,7 +667,7 @@ public class GUI extends javax.swing.JDialog {
 
         useSigThreshToggleButton.setText(StaticVariables.USE_SIG_THRESH);
         useSigThreshToggleButton.setSelected(uv.isUseSigThresh());
-        useSigThreshToggleButton.setEnabled(uv.isAnalyseProtrusions());
+        useSigThreshToggleButton.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
         useSigThreshToggleButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 useSigThreshToggleButtonActionPerformed(evt);
@@ -679,7 +675,7 @@ public class GUI extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weighty = 1.0;
@@ -721,57 +717,11 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
         jPanel4.add(filoDetectRadioButton, gridBagConstraints);
 
-        protLenLabel.setText(StaticVariables.PROT_LEN_THRESH);
-        protLenLabel.setEnabled(uv.isAnalyseProtrusions());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        jPanel4.add(protLenLabel, gridBagConstraints);
-
-        protDurLabel.setText(StaticVariables.PROT_DUR_THRESH);
-        protDurLabel.setEnabled(uv.isAnalyseProtrusions());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        jPanel4.add(protDurLabel, gridBagConstraints);
-
-        protLenField.setText(String.valueOf(uv.getBlebLenThresh()));
-        protLenField.setEnabled(uv.isAnalyseProtrusions());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 7;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        jPanel4.add(protLenField, gridBagConstraints);
-
-        protDurField.setText(String.valueOf(uv.getBlebDurThresh()));
-        protDurField.setEnabled(uv.isAnalyseProtrusions());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        jPanel4.add(protDurField, gridBagConstraints);
-
         filoSizeLabel.setText(StaticVariables.FILO_SIZE);
         filoSizeLabel.setEnabled(uv.isAnalyseProtrusions() && !uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -782,7 +732,7 @@ public class GUI extends javax.swing.JDialog {
         filoSizeField.setEnabled(uv.isAnalyseProtrusions() && !uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -791,10 +741,11 @@ public class GUI extends javax.swing.JDialog {
         jPanel4.add(filoSizeField, gridBagConstraints);
 
         displayPlotsToggleButton.setText(StaticVariables.DISPLAY_PLOTS);
-        displayPlotsToggleButton.setEnabled(uv.isAnalyseProtrusions());
+        displayPlotsToggleButton.setSelected(uv.isDisplayPlots());
+        displayPlotsToggleButton.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weighty = 1.0;
@@ -957,15 +908,15 @@ public class GUI extends javax.swing.JDialog {
         enableComponentOnSelect(minCurveThreshLabel, minCurveThreshField, anaProtToggleButton);
 //        enableComponentOnSelect(maxCurveThreshLabel, maxCurveThreshField, anaProtToggleButton);
         enableComponentOnSelect(cutOffLabel, cutOffField, anaProtToggleButton);
-        enableComponentOnSelect(protLenLabel, protLenField, anaProtToggleButton);
-        enableComponentOnSelect(protDurLabel, protDurField, anaProtToggleButton);
+//        enableComponentOnSelect(protLenLabel, protLenField, anaProtToggleButton);
+//        enableComponentOnSelect(protDurLabel, protDurField, anaProtToggleButton);
         enableComponentOnSelect(sigThreshFactLabel, sigThreshFactField, anaProtToggleButton);
         enableComponentOnSelect(sigRecThreshLabel, sigRecThreshField, anaProtToggleButton);
         enableComponentOnSelect(filoSizeLabel, filoSizeField, anaProtToggleButton);
-        useSigThreshToggleButton.setEnabled(anaProtToggleButton.isSelected());
+        useSigThreshToggleButton.setEnabled(anaProtToggleButton.isSelected() && blebDetectRadioButton.isSelected());
         blebDetectRadioButton.setEnabled(anaProtToggleButton.isSelected());
         filoDetectRadioButton.setEnabled(anaProtToggleButton.isSelected());
-        displayPlotsToggleButton.setEnabled(anaProtToggleButton.isSelected());
+        displayPlotsToggleButton.setEnabled(anaProtToggleButton.isSelected() && blebDetectRadioButton.isSelected());
         useSigThreshToggleButtonActionPerformed(null);
         blebDetectRadioButtonActionPerformed(null);
     }//GEN-LAST:event_anaProtToggleButtonActionPerformed
@@ -1031,8 +982,11 @@ public class GUI extends javax.swing.JDialog {
         filoDetectRadioButton.setSelected(!blebDetectRadioButton.isSelected());
         enableComponentOnSelect(minCurveRangeLabel, minCurveRangeField, blebDetectRadioButton);
         enableComponentOnSelect(minCurveThreshLabel, minCurveThreshField, blebDetectRadioButton);
+        enableComponentOnSelect(cutOffLabel, cutOffField, blebDetectRadioButton);
 //        enableComponentOnSelect(maxCurveThreshLabel, maxCurveThreshField, blebDetectRadioButton);
         enableComponentOnSelect(filoSizeLabel, filoSizeField, filoDetectRadioButton);
+        enableComponentOnSelect(null, displayPlotsToggleButton, blebDetectRadioButton);
+        enableComponentOnSelect(null, useSigThreshToggleButton, blebDetectRadioButton);
     }//GEN-LAST:event_blebDetectRadioButtonActionPerformed
 
     private void filoDetectRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filoDetectRadioButtonActionPerformed
@@ -1085,8 +1039,8 @@ public class GUI extends javax.swing.JDialog {
             uv.setLambda(Double.parseDouble(lambdaTextField.getText()));
             uv.setMinLength((int) Math.round(Double.parseDouble(minTrajTextField.getText())));
             uv.setThreshMethod(String.valueOf(threshComboBox.getSelectedItem()));
-            uv.setBlebDurThresh(Double.parseDouble(protDurField.getText()));
-            uv.setBlebLenThresh(Double.parseDouble(protLenField.getText()));
+//            uv.setBlebDurThresh(Double.parseDouble(protDurField.getText()));
+//            uv.setBlebLenThresh(Double.parseDouble(protLenField.getText()));
             uv.setFiloSize(Double.parseDouble(filoSizeField.getText()));
             uv.setGetFluorDist(genSigDistToggleButton.isSelected());
             uv.setMorphSizeMin(Double.parseDouble(minMorphAreaTextField.getText()));
@@ -1213,10 +1167,6 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JTextField previewField;
     private javax.swing.JScrollBar previewScrollBar;
     private javax.swing.JToggleButton previewToggleButton;
-    private javax.swing.JTextField protDurField;
-    private javax.swing.JLabel protDurLabel;
-    private javax.swing.JTextField protLenField;
-    private javax.swing.JLabel protLenLabel;
     private javax.swing.JButton runButton;
     private java.awt.Canvas sigCanvas;
     private javax.swing.JLabel sigLabel;
