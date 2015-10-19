@@ -300,7 +300,7 @@ public class Analyse_MovieTest {
         int reps = 0;
         Analyse_Movie instance = new Analyse_Movie();
         ImageStack expResult = null;
-        ImageStack result = instance.findProtrusionsBasedOnMorph(cellData, reps);
+        ImageStack result = instance.findProtrusionsBasedOnMorph(cellData, reps, 1, 1);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

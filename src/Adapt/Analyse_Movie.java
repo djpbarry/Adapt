@@ -246,7 +246,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         cytoStack = GenUtils.convertStackTo8Bit(stacks[0]);
         stacks[0] = cytoStack;
 //        if (IJ.getInstance() == null && !protMode) {
-//            roi = new PointRoi(256,256);
+//            roi = new PointRoi(100,256);
 //        }
         if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, roi);
@@ -393,7 +393,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                                     StaticVariables.ZEROED_TIME)).run(childDir + delimiter + BLEB_DATA_FILES);
                         } else {
                             ImageStack protStacks[] = new ImageStack[2];
-                            protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(uv.getFiloSize()));
+                            protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(uv.getFiloSize()), 1, cytoSize);
                             protStacks[1] = stacks[1];
                             UserVariables protUV = (UserVariables) uv.clone();
                             protUV.setAnalyseProtrusions(false);
@@ -1172,10 +1172,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //        Roi output[] = new Roi[rois.size()];
 //        cellData.setVelRois(rois.toArray(output));
 //    }
-    ImageStack findProtrusionsBasedOnMorph(CellData cellData, int reps) {
+    ImageStack findProtrusionsBasedOnMorph(CellData cellData, int reps, int start, int stop) {
         Region regions[] = cellData.getCellRegions();
         ImageStack cyto2 = new ImageStack(stacks[0].getWidth(), stacks[0].getHeight());
-        for (int f = 0; f < stacks[0].getSize(); f++) {
+        for (int f = start - 1; f < stacks[0].getSize() && f <= stop - 1; f++) {
             ImageProcessor mask = new ByteProcessor(stacks[0].getWidth(), stacks[0].getHeight());
             mask.setColor(Region.BACKGROUND);
             mask.fill();
@@ -1193,7 +1193,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 mask2.invert();
                 bb.copyBits(mask2, 0, 0, Blitter.SUBTRACT);
             }
-                        double minArea = getMinArea();
+            double minArea = getMinArea();
             ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES + ParticleAnalyzer.SHOW_MASKS,
                     0, null, minArea, Double.POSITIVE_INFINITY);
             mask.invert();
@@ -1542,7 +1542,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     int r = regionImage.getPixel(i, j);
                     double g = greys.getPixelValue(i, j);
                     if ((r == StaticVariables.BACKGROUND || r == intermediate) && (g > greyThresh)) {
-                        Pixel p = new Pixel(i, j, index, 1);
+                        Pixel p = new Pixel(i, j, index);
                         regionImage.drawPixel(i, j);
                         dilate = true;
                         if (!cell.getExpandedBorder().contains(p)) {
@@ -1599,7 +1599,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                          * pixel to the expandedBorder of the current region.
                          */
                         if (thisdilate) {
-                            Pixel p = new Pixel(i, j, index, 1);
+                            Pixel p = new Pixel(i, j, index);
                             regionImage.drawPixel(i, j);
                             dilate = true;
                             region.addExpandedBorderPix(p);
@@ -1653,7 +1653,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                      */
                     if (dist < minDist) {
                         minDist = dist;
-                        p = new Pixel(i, j, index, 1);
+                        p = new Pixel(i, j, index);
                         r = index;
                     }
                 }
@@ -2029,8 +2029,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         for (int i = 0; i < channels; i++) {
                             regionsOutput[i].setColor(Color.yellow);
                         }
-                        ImageStack filoStack = findProtrusionsBasedOnMorph(cellData.get(r), (int) Math.round(uv.getFiloSize()));
-                        ByteProcessor filoBin = (ByteProcessor) filoStack.getProcessor(sliceIndex);
+                        ImageStack filoStack = findProtrusionsBasedOnMorph(cellData.get(r), (int) Math.round(uv.getFiloSize()), sliceIndex, sliceIndex);
+                        ByteProcessor filoBin = (ByteProcessor) filoStack.getProcessor(1);
 //                        IJ.saveAs((new ImagePlus("",filoBin)), "PNG", "C:/users/barry05/desktop/filoBin.png");
                         filoBin.outline();
                         for (int y = 0; y < filoBin.getHeight(); y++) {
