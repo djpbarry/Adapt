@@ -245,9 +245,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          */
         cytoStack = GenUtils.convertStackTo8Bit(stacks[0]);
         stacks[0] = cytoStack;
-//        if (IJ.getInstance() == null && !protMode) {
-//            roi = new PointRoi(100,256);
-//        }
+        if (IJ.getInstance() == null && !protMode) {
+            roi = new PointRoi(100,256);
+        }
         if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, roi);
             gui.setVisible(true);
@@ -1342,6 +1342,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          */
         while (totChange) {
             totChange = false;
+            ByteProcessor expandedImage = new ByteProcessor(regionImage.getWidth(), regionImage.getHeight());
+            expandedImage.setColor(Region.BACKGROUND);
+            expandedImage.fill();
+            expandedImage.setColor(Region.FOREGROUND);
             for (i = 0; i < cellNum; i++) {
 //                ImageStack distancemapStack = new ImageStack(distancemaps[0].length, distancemaps[0][0].length);
 //                for (int n = 0; n < distancemaps.length; n++) {
@@ -1367,7 +1371,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                                     distancemaps, intermediate, i + 1) || thisChange;
                         } else {
                             thisChange = simpleDilate(regionImage,
-                                    inputImage, cell, thispix, intermediate, threshold, i + 1)
+                                    inputImage, cell, thispix, intermediate, threshold, i + 1, expandedImage)
                                     || thisChange;
                         }
                     }
@@ -1526,10 +1530,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return sdImage;
     }
 
-    private boolean simpleDilate(ByteProcessor regionImage, ImageProcessor greys, Region cell, Pixel point, int intermediate, double greyThresh, int index) {
+    private boolean simpleDilate(ByteProcessor regionImage, ImageProcessor greys, Region cell, Pixel point, int intermediate, double greyThresh, int index, ByteProcessor expandedImage) {
         int x = point.getX(), y = point.getY();
         if (regionImage.getPixel(x, y) > intermediate) {
             cell.addExpandedBorderPix(point);
+            expandedImage.drawPixel(x, y);
             return false;
         }
         boolean dilate = false, remove = true;
@@ -1545,8 +1550,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         Pixel p = new Pixel(i, j, index);
                         regionImage.drawPixel(i, j);
                         dilate = true;
-                        if (!cell.getExpandedBorder().contains(p)) {
+                        if (expandedImage.getPixel(i, j) != Region.FOREGROUND) {
                             cell.addExpandedBorderPix(p);
+                            expandedImage.drawPixel(i, j);
                         }
                     }
                     r = regionImage.getPixel(i, j);
@@ -1556,11 +1562,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         if (!remove) {
             cell.addExpandedBorderPix(point);
+            expandedImage.drawPixel(point.getX(), point.getY());
             if (x < 1 || y < 1 || x >= regionImage.getWidth() - 1 || y >= regionImage.getHeight() - 1) {
                 cell.setEdge(true);
             }
         } else if (Utils.isEdgePixel(x, y, width, height, 1)) {
             cell.addExpandedBorderPix(point);
+            expandedImage.drawPixel(point.getX(), point.getY());
         }
         return dilate;
     }
