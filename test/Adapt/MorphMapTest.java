@@ -5,6 +5,7 @@
  */
 package Adapt;
 
+import IAClasses.CrossCorrelation;
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
 import org.junit.AfterClass;
@@ -85,23 +86,6 @@ public class MorphMapTest {
         int t = 0;
         MorphMap instance = new MorphMap();
         instance.addColumn(x, y, z, t);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of periodicity2D method, of class MorphMap.
-     */
-    @Test
-    public void testPeriodicity2D() {
-        System.out.println("periodicity2D");
-        ImageProcessor mapa = null;
-        ImageProcessor mapb = null;
-        int newsize = 0;
-        MorphMap instance = new MorphMap();
-        ImagePlus expResult = null;
-        ImagePlus result = instance.periodicity2D(mapa, mapb, newsize);
-        assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }

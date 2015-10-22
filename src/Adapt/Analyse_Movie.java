@@ -18,6 +18,7 @@ package Adapt;
 
 import DataProcessing.DataFileAverager;
 import IAClasses.BoundaryPixel;
+import IAClasses.CrossCorrelation;
 import IAClasses.DSPProcessor;
 import IAClasses.DataStatistics;
 import IAClasses.Pixel;
@@ -246,7 +247,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         cytoStack = GenUtils.convertStackTo8Bit(stacks[0]);
         stacks[0] = cytoStack;
         if (IJ.getInstance() == null && !protMode) {
-            roi = new PointRoi(100,256);
+            roi = new PointRoi(100, 256);
         }
         if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, roi);
@@ -575,17 +576,17 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             IJ.saveAs(new ImagePlus("", greyVelMap), "TIF", childDir + delimiter + "VelocityMap.tif");
             IJ.saveAs(new ImagePlus("", greyCurvMap), "TIF", childDir + delimiter + "CurvatureMap.tif");
             IJ.saveAs(new ImagePlus("", colorVelMap), "PNG", childDir + delimiter + "ColorVelocityMap.png");
-            IJ.saveAs(velMap.periodicity2D(greyVelMap, greyVelMap, 100), "TIF",
+            IJ.saveAs(CrossCorrelation.periodicity2D(greyVelMap, greyVelMap, 100), "TIF",
                     childDir + delimiter + "VelMap_AutoCorrelation.tif");
             if (sigStack != null) {
                 IJ.saveAs(new ImagePlus("", greySigMap), "TIF", childDir + delimiter
                         + "SignalMap.tif");
-                IJ.saveAs(velMap.periodicity2D(greySigMap, greyVelMap, 100), "TIF",
+                IJ.saveAs(CrossCorrelation.periodicity2D(greySigMap, greyVelMap, 100), "TIF",
                         childDir + delimiter + "VelMap_SigMap_CrossCorrelation.tif");
                 ImageProcessor rateOfSigChange = sigMap.calcRateOfChange(greySigMap);
                 IJ.saveAs(new ImagePlus("", rateOfSigChange), "TIF", childDir + delimiter
                         + "ChangeInSignalMap.tif");
-                IJ.saveAs(velMap.periodicity2D(rateOfSigChange, greyVelMap, 100), "TIF",
+                IJ.saveAs(CrossCorrelation.periodicity2D(rateOfSigChange, greyVelMap, 100), "TIF",
                         childDir + delimiter + "VelMap_ChangeInSigMap_CrossCorrelation.tif");
             }
         }
