@@ -246,9 +246,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          */
         cytoStack = GenUtils.convertStackTo8Bit(stacks[0]);
         stacks[0] = cytoStack;
-        if (IJ.getInstance() == null && !protMode) {
-            roi = new PointRoi(100, 256);
-        }
+//        if (IJ.getInstance() == null && !protMode) {
+//            roi = new PointRoi(100, 256);
+//        }
         if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, roi);
             gui.setVisible(true);
@@ -294,24 +294,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             thresholds[i] = getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             int N = cellData.size();
             if (cytoImage != null) {
-                if (i > 0 && protMode) {
-                    initialiseROIs(i, allMasks, thresholds[i - 1], i + 1, cytoImage);
-                }
+//                if (i > 0 && protMode) {
                 allRegions[i] = findCellRegions(cytoImage, thresholds[i], cellData);
-                if (protMode) {
-                    allMasks = new ByteProcessor(width, height);
-                    allMasks.setColor(Region.FOREGROUND);
-                    allMasks.fill();
-                    ByteBlitter bb = new ByteBlitter(allMasks);
-                    for (int k = 0; k < allRegions[i].size(); k++) {
-                        Region current = allRegions[i].get(k);
-                        if (current != null) {
-                            ImageProcessor currentMask = current.getMask();
-                            currentMask.invert();
-                            bb.copyBits(currentMask, 0, 0, Blitter.ADD);
-                        }
-                    }
-                }
+//                if (protMode) {
+//                }
             }
             int fcount = 0;
             for (int j = 0; j < N; j++) {
@@ -345,6 +331,21 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
             if (protMode) {
                 filoStream.println(i + ", " + fcount);
+            }
+            allMasks = new ByteProcessor(width, height);
+            allMasks.setColor(Region.FOREGROUND);
+            allMasks.fill();
+            ByteBlitter bb = new ByteBlitter(allMasks);
+            for (int k = 0; k < allRegions[i].size(); k++) {
+                Region current = allRegions[i].get(k);
+                if (current != null) {
+                    ImageProcessor currentMask = current.getMask();
+                    currentMask.invert();
+                    bb.copyBits(currentMask, 0, 0, Blitter.ADD);
+                }
+            }
+            if (i > 0) {
+                initialiseROIs(i, allMasks, thresholds[i], i + 2, cytoImage);
             }
         }
         if (protMode) {
@@ -458,7 +459,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 ByteBlitter bb = new ByteBlitter(binary);
                 bb.copyBits(masks, 0, 0, Blitter.SUBTRACT);
             }
-//            (new ImagePlus("",image)).show();
+//            IJ.saveAs(new ImagePlus("", binary), "PNG", "C:/Users/barry05/Desktop/masks/"+slice);
+//            IJ.saveAs(getSeedPoints(binary, initP), "PNG", "C:/Users/barry05/Desktop/masks/" + slice);
             getSeedPoints(binary, initP);
             n = initP.size();
         }
@@ -1341,13 +1343,15 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         /*
          * Grow regions according to texture, grey levels and distance maps
          */
+//        ImageStack regionImageStack = new ImageStack(regionImage.getWidth(), regionImage.getHeight());
+//        ImageStack expandedImageStack = new ImageStack(regionImage.getWidth(), regionImage.getHeight());
         while (totChange) {
             totChange = false;
-            ByteProcessor expandedImage = new ByteProcessor(regionImage.getWidth(), regionImage.getHeight());
-            expandedImage.setColor(Region.BACKGROUND);
-            expandedImage.fill();
-            expandedImage.setColor(Region.FOREGROUND);
             for (i = 0; i < cellNum; i++) {
+                ByteProcessor expandedImage = new ByteProcessor(regionImage.getWidth(), regionImage.getHeight());
+                expandedImage.setColor(Region.BACKGROUND);
+                expandedImage.fill();
+                expandedImage.setColor(Region.FOREGROUND);
 //                ImageStack distancemapStack = new ImageStack(distancemaps[0].length, distancemaps[0][0].length);
 //                for (int n = 0; n < distancemaps.length; n++) {
 //                    FloatProcessor distanceMapImage = new FloatProcessor(distancemaps[i].length, distancemaps[i][0].length);
@@ -1375,11 +1379,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                                     inputImage, cell, thispix, intermediate, threshold, i + 1, expandedImage)
                                     || thisChange;
                         }
+//                        regionImageStack.addSlice(regionImage.duplicate());
+//                        expandedImageStack.addSlice(expandedImage.duplicate());
                     }
                     cell.setActive(thisChange);
                     totChange = thisChange || totChange;
                 }
-//                regionImageStack.addSlice(ref.duplicate());
 //                }
             }
 //            regionImageStack.addSlice(regionImage.duplicate());
@@ -1396,7 +1401,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //            Region cell = singleImageRegions.get(i);
 //            cell.clearPixels();
 //        }
-//        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\regions.tif");
+//        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\regions.tif");
+//        IJ.saveAs((new ImagePlus("", expandedImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\expandedimages.tif");
 //        IJ.saveAs(new ImagePlus("", inputImage), "TIF", "C:/users/barry05/desktop/inputImage.tif");
         return regionImage;
     }
@@ -1742,6 +1748,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 cell.expandBorder();
             }
         }
+//        IJ.saveAs((new ImagePlus("", tempRegionImage)), "PNG", "c:\\users\\barry05\\desktop\\masks\\tempRegionImage.png");
     }
 
     void expandRegions(ArrayList<Region> regions, ByteProcessor[] regionImage, int N) {
