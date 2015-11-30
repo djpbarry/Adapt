@@ -87,7 +87,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     protected File childDir, // root output directory
             parDir, // output directory for each cell
             velDirName, curvDirName, trajDirName, segDirName;
-    private int intermediate, terminal;
+    private byte intermediate, terminal;
     protected String TITLE = StaticVariables.TITLE;
     final String BLEB_DATA_FILES = "Bleb_Data_Files";
     protected final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
@@ -1299,8 +1299,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             singleImageRegions.add(region);
             outVal++;
         }
-        intermediate = singleImageRegions.size() + 1;
-        terminal = intermediate + 1;
+        intermediate = (byte) ((singleImageRegions.size() + 1) & 0xff);
+        terminal = (byte) ((intermediate + 1) & 0xff);
         /*
          * Filter image to be used as basis for region growing.
          */
@@ -1319,6 +1319,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int height = regionImage.getHeight();
         boolean totChange = true;
         boolean thisChange;
+        float inputPix[] = (float[]) inputImage.getPixels();
+        byte regionImagePix[] = (byte[]) regionImage.getPixels();
         /*
          * Image texture (and grey levels) used to control region growth.
          * Standard deviation of grey levels is used as a simple measure of
@@ -1375,8 +1377,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             thisChange = dijkstraDilate(ref, cell, thispix,
                                     distancemaps, intermediate, i + 1) || thisChange;
                         } else {
-                            thisChange = simpleDilate(regionImage,
-                                    inputImage, cell, thispix, intermediate, threshold, i + 1, expandedImage)
+                            thisChange = simpleDilate(regionImagePix,
+                                    inputPix, cell, thispix, intermediate, threshold, (byte) ((i + 1) & 0xff), expandedImage, width, height)
                                     || thisChange;
                         }
 //                        regionImageStack.addSlice(regionImage.duplicate());
@@ -1537,32 +1539,30 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return sdImage;
     }
 
-    private boolean simpleDilate(ByteProcessor regionImage, ImageProcessor greys, Region cell, Pixel point, int intermediate, double greyThresh, int index, ByteProcessor expandedImage) {
+    private boolean simpleDilate(byte[] regionImagePix, float[] greyPix, Region cell, Pixel point, byte intermediate, double greyThresh, byte index, ByteProcessor expandedImage, int width, int height) {
         int x = point.getX(), y = point.getY();
-        if (regionImage.getPixel(x, y) > intermediate) {
+        if (regionImagePix[x + y * width] > intermediate) {
             cell.addExpandedBorderPix(point);
             expandedImage.drawPixel(x, y);
             return false;
         }
         boolean dilate = false, remove = true;
-        int width = regionImage.getWidth();
-        int height = regionImage.getHeight();
-        regionImage.setValue(intermediate);
-        for (int i = x - 1; i <= x + 1; i++) {
-            for (int j = y - 1; j <= y + 1; j++) {
+        for (int j = y - 1; j <= y + 1; j++) {
+            int offset = j * width;
+            for (int i = x - 1; i <= x + 1; i++) {
                 if (!(Utils.isEdgePixel(i, j, width, height, 0))) {
-                    int r = regionImage.getPixel(i, j);
-                    double g = greys.getPixelValue(i, j);
+                    byte r = regionImagePix[i + offset];
+                    double g = greyPix[offset + i];
                     if ((r == StaticVariables.BACKGROUND || r == intermediate) && (g > greyThresh)) {
                         Pixel p = new Pixel(i, j, index);
-                        regionImage.drawPixel(i, j);
+                        regionImagePix[i + offset] = intermediate;
                         dilate = true;
                         if (expandedImage.getPixel(i, j) != Region.FOREGROUND) {
                             cell.addExpandedBorderPix(p);
                             expandedImage.drawPixel(i, j);
                         }
                     }
-                    r = regionImage.getPixel(i, j);
+                    r = regionImagePix[i + offset];
                     remove = (r == intermediate || r == index) && remove;
                 }
             }
@@ -1570,7 +1570,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (!remove) {
             cell.addExpandedBorderPix(point);
             expandedImage.drawPixel(point.getX(), point.getY());
-            if (x < 1 || y < 1 || x >= regionImage.getWidth() - 1 || y >= regionImage.getHeight() - 1) {
+            if (x < 1 || y < 1 || x >= width - 1 || y >= height - 1) {
                 cell.setEdge(true);
             }
         } else if (Utils.isEdgePixel(x, y, width, height, 1)) {
