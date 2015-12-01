@@ -173,11 +173,11 @@ public class StaticVariables {
     /**
      * Background values in generated mask images
      */
-    public static final int BACKGROUND = 0;
+//    public static final int BACKGROUND = 0;
     /**
      * Foreground values in generated mask images
      */
-    public static final int FOREGROUND = 255;
+//    public static final int FOREGROUND = 255;
     /**
      * Program version number
      */

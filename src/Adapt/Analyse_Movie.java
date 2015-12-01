@@ -1004,7 +1004,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             trajStream.print(String.valueOf(t) + "," + String.valueOf(t * uv.getTimeRes() / 60.0) + ",");
             dialog.updateProgress(t, stackSize);
             ColorProcessor trajOutput = new ColorProcessor(width, height);
-            trajOutput.setColor(StaticVariables.BACKGROUND);
+            trajOutput.setColor(Region.FOREGROUND);
             trajOutput.fill();
             int d = uv.getVisLineWidth();
             int r = (int) Math.floor(d / 2.0);
@@ -1284,7 +1284,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * using centroids.
          */
         ByteProcessor indexedRegions = new ByteProcessor(width, height);
-        indexedRegions.setValue(StaticVariables.BACKGROUND);
+        indexedRegions.setValue(Region.FOREGROUND);
         indexedRegions.fill();
         indexedRegions.setColor(outVal);
         ByteBlitter bb = new ByteBlitter(indexedRegions);
@@ -1553,7 +1553,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 if (!(Utils.isEdgePixel(i, j, width, height, 0))) {
                     byte r = regionImagePix[i + offset];
                     double g = greyPix[offset + i];
-                    if ((r == StaticVariables.BACKGROUND || r == intermediate) && (g > greyThresh)) {
+                    if ((r == Region.FOREGROUND || r == intermediate) && (g > greyThresh)) {
                         Pixel p = new Pixel(i, j, index);
                         regionImagePix[i + offset] = intermediate;
                         dilate = true;
@@ -1596,7 +1596,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         for (int i = x - 1; i <= x + 1; i++) {
             for (int j = y - 1; j <= y + 1; j++) {
                 if (!(Utils.isEdgePixel(i, j, width, height, 0))) {
-                    if (regionImage.getPixel(i, j) == StaticVariables.BACKGROUND && distanceMaps[index - 1][i][j] < Float.MAX_VALUE) {
+                    if (regionImage.getPixel(i, j) == Region.FOREGROUND && distanceMaps[index - 1][i][j] < Float.MAX_VALUE) {
                         boolean thisdilate = true;
                         for (int k = 0; k < N; k++) {
                             if (k != index - 1) {
@@ -1660,7 +1660,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 /*
                  * Dilation considered if grey-level threshold exceeded
                  */
-                if (r == StaticVariables.BACKGROUND && (g > thresh)) {
+                if (r == Region.FOREGROUND && (g > thresh)) {
                     float dist = calcDistance(point, i, j, gradient);
                     /*
                      * Dilation will only occur at point minimally distant from
@@ -1715,7 +1715,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      */
     void expandRegions(ArrayList<Region> regions, ByteProcessor regionImage, int N, int terminal) {
         ByteProcessor tempRegionImage = new ByteProcessor(regionImage.getWidth(), regionImage.getHeight());
-        tempRegionImage.setValue(StaticVariables.BACKGROUND);
+        tempRegionImage.setValue(Region.FOREGROUND);
         tempRegionImage.fill();
         for (int i = 0; i < N; i++) {
             Region cell = regions.get(i);
