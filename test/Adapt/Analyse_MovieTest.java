@@ -558,7 +558,7 @@ public class Analyse_MovieTest {
         ByteProcessor binary = null;
         ArrayList<Pixel> pixels = null;
         Analyse_Movie instance = new Analyse_Movie();
-        instance.getSeedPoints(binary, pixels);
+        instance.getSeedPoints(binary, pixels, getMinArea());
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }

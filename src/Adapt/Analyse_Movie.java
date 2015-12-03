@@ -43,6 +43,7 @@ import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
 import ij.process.AutoThresholder;
+import ij.process.BinaryProcessor;
 import ij.process.Blitter;
 import ij.process.ByteBlitter;
 import ij.process.ByteProcessor;
@@ -310,10 +311,18 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                      */
                     ImageProcessor mask = current.getMask();
                     current.calcCentroid(mask);
+                    Rectangle bounds = current.getBounds();
+                    bounds.grow(2, 2);
+//                    ImageProcessor mask2 = mask.duplicate();
+//                    mask2.setValue(127);
+//                    mask2.drawRoi(new Roi(bounds));
+//                    IJ.saveAs((new ImagePlus("", mask2)), "PNG", "c:/users/barry05/desktop/masks/omask_" + i + "_" + j);
+                    mask.setRoi(bounds);
                     int e = uv.getErosion();
                     for (int k = 0; k < e; k++) {
                         mask.erode();
                     }
+//                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "c:/users/barry05/desktop/masks/erodedmask_" + i + "_" + j);
                     Pixel seed = current.findSeed(mask);
                     if (seed != null) {
                         Region temp;
@@ -461,7 +470,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
 //            IJ.saveAs(new ImagePlus("", binary), "PNG", "C:/Users/barry05/Desktop/masks/"+slice);
 //            IJ.saveAs(getSeedPoints(binary, initP), "PNG", "C:/Users/barry05/Desktop/masks/" + slice);
-            getSeedPoints(binary, initP);
+            getSeedPoints(binary, initP, getMinArea());
             n = initP.size();
         }
         int s = cellData.size();
@@ -1382,6 +1391,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                                     || thisChange;
                         }
 //                        regionImageStack.addSlice(regionImage.duplicate());
+//                        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\regions.tif");
 //                        expandedImageStack.addSlice(expandedImage.duplicate());
                     }
                     cell.setActive(thisChange);
@@ -1390,7 +1400,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //                }
             }
 //            regionImageStack.addSlice(regionImage.duplicate());
-//            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\regions.tif");
+//            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\regions.tif");
             if (simple) {
                 expandRegions(singleImageRegions, regionImage, cellNum, terminal);
             } else {
@@ -2065,7 +2075,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         previewImages = regionsOutput;
     }
 
-    void getSeedPoints(ByteProcessor binary, ArrayList<Pixel> pixels) {
+    void getSeedPoints(ByteProcessor binary, ArrayList<Pixel> pixels, double minArea) {
         binary.invert();
         if (binary.isInvertedLut()) {
             binary.invertLut();
@@ -2073,7 +2083,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         ResultsTable rt = Analyzer.getResultsTable();
         rt.reset();
         Prefs.blackBackground = false;
-        double minArea = getMinArea();
         ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES,
                 Measurements.CENTROID, rt, minArea, Double.POSITIVE_INFINITY);
         analyzeDetections(null, binary, analyzer);
