@@ -43,7 +43,6 @@ import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
 import ij.process.AutoThresholder;
-import ij.process.BinaryProcessor;
 import ij.process.Blitter;
 import ij.process.ByteBlitter;
 import ij.process.ByteProcessor;
@@ -1359,10 +1358,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         while (totChange) {
             totChange = false;
             for (i = 0; i < cellNum; i++) {
-                ByteProcessor expandedImage = new ByteProcessor(regionImage.getWidth(), regionImage.getHeight());
-                expandedImage.setColor(Region.BACKGROUND);
-                expandedImage.fill();
-                expandedImage.setColor(Region.FOREGROUND);
 //                ImageStack distancemapStack = new ImageStack(distancemaps[0].length, distancemaps[0][0].length);
 //                for (int n = 0; n < distancemaps.length; n++) {
 //                    FloatProcessor distanceMapImage = new FloatProcessor(distancemaps[i].length, distancemaps[i][0].length);
@@ -1377,6 +1372,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 ByteProcessor ref = (ByteProcessor) regionImages[i].duplicate();
                 Region cell = singleImageRegions.get(i);
                 if (cell != null) {
+                    ByteProcessor expandedImage = new ByteProcessor(regionImage.getWidth(), regionImage.getHeight());
+                    expandedImage.setColor(Region.BACKGROUND);
+                    Rectangle r = cell.getBounds();
+                    r.grow(6, 6);
+                    expandedImage.setRoi(r);
+                    expandedImage.fill();
+                    expandedImage.setColor(Region.FOREGROUND);
                     LinkedList<Pixel> borderPix = cell.getBorderPix();
                     int borderLength = borderPix.size();
                     thisChange = false;
