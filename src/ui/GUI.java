@@ -111,10 +111,6 @@ public class GUI extends javax.swing.JDialog {
         spatFiltRadField = new javax.swing.JTextField();
         tempFiltRadLabel = new javax.swing.JLabel();
         tempFiltRadField = new javax.swing.JTextField();
-        simpSegRadioButton = new javax.swing.JRadioButton();
-        advSegRadioButton = new javax.swing.JRadioButton();
-        lambdaLabel = new javax.swing.JLabel();
-        lambdaTextField = new javax.swing.JTextField();
         threshComboBox = new javax.swing.JComboBox();
         threshLabel = new javax.swing.JLabel();
         gaussRadField = new javax.swing.JTextField();
@@ -387,59 +383,6 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         advancedTab.add(tempFiltRadField, gridBagConstraints);
-
-        simpSegRadioButton.setText(StaticVariables.SIMP_SEG);
-        simpSegRadioButton.setSelected(uv.isSimple());
-        simpSegRadioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                simpSegRadioButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
-        advancedTab.add(simpSegRadioButton, gridBagConstraints);
-
-        advSegRadioButton.setText(StaticVariables.ADV_SEG);
-        advSegRadioButton.setSelected(!uv.isSimple());
-        advSegRadioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                advSegRadioButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
-        advancedTab.add(advSegRadioButton, gridBagConstraints);
-
-        lambdaLabel.setText(StaticVariables.LAMBDA);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        advancedTab.add(lambdaLabel, gridBagConstraints);
-
-        lambdaTextField.setText(String.valueOf(uv.getLambda()));
-        lambdaTextField.setEnabled(advSegRadioButton.isSelected());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        advancedTab.add(lambdaTextField, gridBagConstraints);
 
         threshComboBox.setModel(new DefaultComboBoxModel(AutoThresholder.Method.values()));
         threshComboBox.setSelectedItem(AutoThresholder.Method.valueOf(uv.getThreshMethod()));
@@ -968,16 +911,6 @@ public class GUI extends javax.swing.JDialog {
         }
     }
 
-    private void simpSegRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simpSegRadioButtonActionPerformed
-        advSegRadioButton.setSelected(!simpSegRadioButton.isSelected());
-        updateLambdaTextField();
-    }//GEN-LAST:event_simpSegRadioButtonActionPerformed
-
-    private void advSegRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advSegRadioButtonActionPerformed
-        simpSegRadioButton.setSelected(!advSegRadioButton.isSelected());
-        updateLambdaTextField();
-    }//GEN-LAST:event_advSegRadioButtonActionPerformed
-
     private void blebDetectRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_blebDetectRadioButtonActionPerformed
         filoDetectRadioButton.setSelected(!blebDetectRadioButton.isSelected());
         enableComponentOnSelect(minCurveRangeLabel, minCurveRangeField, blebDetectRadioButton);
@@ -993,10 +926,6 @@ public class GUI extends javax.swing.JDialog {
         blebDetectRadioButton.setSelected(!filoDetectRadioButton.isSelected());
         blebDetectRadioButtonActionPerformed(evt);
     }//GEN-LAST:event_filoDetectRadioButtonActionPerformed
-
-    private void updateLambdaTextField() {
-        lambdaTextField.setEnabled(advSegRadioButton.isSelected());
-    }
 
     private void disableComponentOnSelect(JComponent c1, JComponent c2, JToggleButton button) {
         c2.setEnabled(!(button.isSelected() && button.isEnabled()));
@@ -1035,8 +964,8 @@ public class GUI extends javax.swing.JDialog {
             uv.setBlebDetect(blebDetectRadioButton.isSelected());
             uv.setSigRecoveryThresh(Double.parseDouble(sigRecThreshField.getText()));
             uv.setGaussRad(Double.parseDouble(gaussRadField.getText()));
-            uv.setSimple(simpSegRadioButton.isSelected());
-            uv.setLambda(Double.parseDouble(lambdaTextField.getText()));
+//            uv.setSimple(simpSegRadioButton.isSelected());
+//            uv.setLambda(Double.parseDouble(lambdaTextField.getText()));
             uv.setMinLength((int) Math.round(Double.parseDouble(minTrajTextField.getText())));
             uv.setThreshMethod(String.valueOf(threshComboBox.getSelectedItem()));
 //            uv.setBlebDurThresh(Double.parseDouble(protDurField.getText()));
@@ -1124,7 +1053,6 @@ public class GUI extends javax.swing.JDialog {
 //    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JRadioButton advSegRadioButton;
     private javax.swing.JPanel advancedTab;
     private javax.swing.JToggleButton anaProtToggleButton;
     private javax.swing.JToggleButton autoThreshToggleButton;
@@ -1154,8 +1082,6 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JLabel lambdaLabel;
-    private javax.swing.JTextField lambdaTextField;
     private javax.swing.JTextField minCurveRangeField;
     private javax.swing.JLabel minCurveRangeLabel;
     private javax.swing.JTextField minCurveThreshField;
@@ -1174,7 +1100,6 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JLabel sigRecThreshLabel;
     private javax.swing.JTextField sigThreshFactField;
     private javax.swing.JLabel sigThreshFactLabel;
-    private javax.swing.JRadioButton simpSegRadioButton;
     private javax.swing.JPanel simpleTab;
     private javax.swing.JTextField spatFiltRadField;
     private javax.swing.JLabel spatFiltRadLabel;

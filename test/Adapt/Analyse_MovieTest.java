@@ -26,14 +26,14 @@ import static org.junit.Assert.*;
  * @author David Barry <david.barry at cancer.org.uk>
  */
 public class Analyse_MovieTest {
-    
+
     public Analyse_MovieTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
@@ -395,10 +395,11 @@ public class Analyse_MovieTest {
         Pixel point = null;
         int x = 0;
         int y = 0;
+        double lambda = 0.0;
         ImageProcessor gradient = null;
         Analyse_Movie instance = new Analyse_Movie();
         float expResult = 0.0F;
-        float result = instance.calcDistance(point, x, y, gradient);
+        float result = instance.calcDistance(point, x, y, gradient, lambda);
         assertEquals(expResult, result, 0.0);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -451,12 +452,12 @@ public class Analyse_MovieTest {
         Region region = null;
         Pixel point = null;
         float[][] distancemap = null;
-        double thresh = 0.0;
+        double thresh = 0.0, lambda = 0.0;
         ImageProcessor gradient = null;
         int index = 0;
         Analyse_Movie instance = new Analyse_Movie();
         boolean expResult = false;
-        boolean result = instance.buildDistanceMaps(regionImage, greys, region, point, distancemap, thresh, gradient, index);
+        boolean result = instance.buildDistanceMaps(regionImage, greys, region, point, distancemap, thresh, gradient, index, lambda);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -548,7 +549,6 @@ public class Analyse_MovieTest {
 //        // TODO review the generated test code and remove the default call to fail.
 //        fail("The test case is a prototype.");
 //    }
-
     /**
      * Test of getSeedPoints method, of class Analyse_Movie.
      */
@@ -611,5 +611,5 @@ public class Analyse_MovieTest {
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
-    
+
 }

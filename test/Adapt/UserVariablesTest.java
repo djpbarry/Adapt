@@ -596,33 +596,6 @@ public class UserVariablesTest {
     }
 
     /**
-     * Test of isSimple method, of class UserVariables.
-     */
-    @Test
-    public void testIsSimple() {
-        System.out.println("isSimple");
-        UserVariables instance = new UserVariables();
-        boolean expResult = false;
-        boolean result = instance.isSimple();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of setSimple method, of class UserVariables.
-     */
-    @Test
-    public void testSetSimple() {
-        System.out.println("setSimple");
-        boolean simple = false;
-        UserVariables instance = new UserVariables();
-        instance.setSimple(simple);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
      * Test of getLambda method, of class UserVariables.
      */
     @Test

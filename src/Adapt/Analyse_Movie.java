@@ -692,8 +692,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         paramStream.println(StaticVariables.USE_SIG_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isUseSigThresh()));
         paramStream.println(StaticVariables.SIG_THRESH_FACT.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigThreshFact()));
         paramStream.println(StaticVariables.SIG_REC_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigRecoveryThresh()));
-        paramStream.println(StaticVariables.SIMP_SEG.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isSimple()));
-        paramStream.println(StaticVariables.LAMBDA.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getLambda()));
+//        paramStream.println(StaticVariables.SIMP_SEG.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isSimple()));
+//        paramStream.println(StaticVariables.LAMBDA.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getLambda()));
         paramStream.println(StaticVariables.MIN_TRAJ_LENGTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinLength()));
         paramStream.println(StaticVariables.FILO_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSize()));
         paramStream.println(StaticVariables.GEN_SIG_DIST.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetFluorDist()));
@@ -1313,7 +1313,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * Filter image to be used as basis for region growing.
          */
 //        (new GaussianBlur()).blurGaussian(inputDup, uv.getGaussRad(), uv.getGaussRad(), 0.01);
-        growRegions(indexedRegions, inputDup, singleImageRegions, uv.isSimple(), threshold);
+        growRegions(indexedRegions, inputDup, singleImageRegions, threshold);
         return singleImageRegions;
     }
 
@@ -1321,7 +1321,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * Conditional dilate the regions in regionImage based on the information in
      * inputImage.
      */
-    private ByteProcessor growRegions(ByteProcessor regionImage, ImageProcessor inputImage, ArrayList<Region> singleImageRegions, boolean simple, double threshold) {
+    private ByteProcessor growRegions(ByteProcessor regionImage, ImageProcessor inputImage, ArrayList<Region> singleImageRegions, double threshold) {
         int i, j;
         int width = regionImage.getWidth();
         int height = regionImage.getHeight();
@@ -1335,21 +1335,21 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * texture.
          */
         int cellNum = singleImageRegions.size();
-        float distancemaps[][][] = null;
-        if (!simple) {
-            distancemaps = new float[cellNum][width][height];
-        }
-        ByteProcessor regionImages[] = new ByteProcessor[cellNum];
-        if (!simple) {
-            initDistanceMaps(inputImage, regionImage, singleImageRegions, distancemaps,
-                    regionImages, width, 1.0, threshold);
-        }
+//        float distancemaps[][][] = null;
+//        if (!simple) {
+//            distancemaps = new float[cellNum][width][height];
+//        }
+//        ByteProcessor regionImages[] = new ByteProcessor[cellNum];
+//        if (!simple) {
+//            initDistanceMaps(inputImage, regionImage, singleImageRegions, distancemaps,
+//                    regionImages, width, 1.0, threshold);
+//        }
         /*
          * Reset regionImages
          */
-        for (int n = 0; n < cellNum; n++) {
-            regionImages[n] = (ByteProcessor) regionImage.duplicate();
-        }
+//        for (int n = 0; n < cellNum; n++) {
+//            regionImages[n] = (ByteProcessor) regionImage.duplicate();
+//        }
         /*
          * Grow regions according to texture, grey levels and distance maps
          */
@@ -1369,7 +1369,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //                    distancemapStack.addSlice(distanceMapImage);
 //                }
 //                IJ.saveAs(new ImagePlus("", distanceMapImage), "TIF", "C:/users/barry05/desktop/distanceMapImage_" + i + ".tif");}
-                ByteProcessor ref = (ByteProcessor) regionImages[i].duplicate();
+//                ByteProcessor ref = (ByteProcessor) regionImages[i].duplicate();
                 Region cell = singleImageRegions.get(i);
                 if (cell != null) {
                     ByteProcessor expandedImage = new ByteProcessor(regionImage.getWidth(), regionImage.getHeight());
@@ -1384,14 +1384,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     thisChange = false;
                     for (j = 0; j < borderLength; j++) {
                         Pixel thispix = borderPix.get(j);
-                        if (!simple) {
-                            thisChange = dijkstraDilate(ref, cell, thispix,
-                                    distancemaps, intermediate, i + 1) || thisChange;
-                        } else {
+//                        if (!simple) {
+//                            thisChange = dijkstraDilate(ref, cell, thispix,
+//                                    distancemaps, intermediate, i + 1) || thisChange;
+//                        } else {
                             thisChange = simpleDilate(regionImagePix,
                                     inputPix, cell, thispix, intermediate, threshold, (byte) ((i + 1) & 0xff), expandedImage, width, height)
                                     || thisChange;
-                        }
+//                        }
 //                        regionImageStack.addSlice(regionImage.duplicate());
 //                        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\regions.tif");
 //                        expandedImageStack.addSlice(expandedImage.duplicate());
@@ -1403,11 +1403,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
 //            regionImageStack.addSlice(regionImage.duplicate());
 //            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\regions.tif");
-            if (simple) {
+//            if (simple) {
                 expandRegions(singleImageRegions, regionImage, cellNum, terminal);
-            } else {
-                expandRegions(singleImageRegions, regionImages, cellNum);
-            }
+//            } else {
+//                expandRegions(singleImageRegions, regionImages, cellNum);
+//            }
 //            regionImageStack.addSlice(regionImage.duplicate());
 //            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\regions.tif");
         }
@@ -1495,7 +1495,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                              * border pixel.
                              */
                             thisChange = buildDistanceMaps(tempRef, inputImage, cell,
-                                    thispix, distancemaps[i], thresh, texture, i + 1) || thisChange;
+                                    thispix, distancemaps[i], thresh, texture, i + 1, uv.getLambda()) || thisChange;
                         }
                         cell.setActive(thisChange);
                         totChange = thisChange || totChange; // if all regions cease growing, while loop will exit
@@ -1510,9 +1510,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-    float calcDistance(Pixel point, int x, int y, ImageProcessor gradient) {
+    float calcDistance(Pixel point, int x, int y, ImageProcessor gradient, double lambda) {
         return (float) ((Math.pow(gradient.getPixelValue(point.getX(), point.getY())
-                - gradient.getPixelValue(x, y), 2.0) + uv.getLambda()) / (1.0 + uv.getLambda()));
+                - gradient.getPixelValue(x, y), 2.0) + lambda) / (1.0 + lambda));
     }
     /*
      * Returns an image which illustrates the standard deviation at each point
@@ -1657,7 +1657,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * Values are added to distanceMaps in the neighbourhood of the specified
      * point. Returns false if no values added, true otherwise.
      */
-    boolean buildDistanceMaps(ByteProcessor regionImage, ImageProcessor greys, Region region, Pixel point, float[][] distancemap, double thresh, ImageProcessor gradient, int index) {
+    boolean buildDistanceMaps(ByteProcessor regionImage, ImageProcessor greys, Region region, Pixel point, float[][] distancemap, double thresh, ImageProcessor gradient, int index, double lambda) {
         int x = point.getX();
         int y = point.getY();
         boolean dilate = false;
@@ -1673,7 +1673,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                  * Dilation considered if grey-level threshold exceeded
                  */
                 if (r == Region.FOREGROUND && (g > thresh)) {
-                    float dist = calcDistance(point, i, j, gradient);
+                    float dist = calcDistance(point, i, j, gradient, lambda);
                     /*
                      * Dilation will only occur at point minimally distant from
                      * seed

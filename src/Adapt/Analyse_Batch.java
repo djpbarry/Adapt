@@ -140,8 +140,8 @@ public class Analyse_Batch extends Analyse_Movie {
             uv.setUseSigThresh(new Scanner(br.readLine()).useDelimiter(p).nextBoolean());
             uv.setSigThreshFact(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
             uv.setSigRecoveryThresh(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
-            uv.setSimple(new Scanner(br.readLine()).useDelimiter(p).nextBoolean());
-            uv.setLambda(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
+//            uv.setSimple(new Scanner(br.readLine()).useDelimiter(p).nextBoolean());
+//            uv.setLambda(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
             uv.setMinLength(new Scanner(br.readLine()).useDelimiter(p).nextInt());
             uv.setFiloSize(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
             uv.setGetFluorDist(new Scanner(br.readLine()).useDelimiter(p).nextBoolean());

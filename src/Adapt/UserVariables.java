@@ -46,7 +46,7 @@ public class UserVariables {
     private double gaussRad = 1.0;
     private final boolean usedSmoothedVels = true;
     private final int ovalRadius = 2;
-    private boolean simple = true;
+//    private boolean simple = true;
     private double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
     private int minLength = 0;
     private String threshMethod = AutoThresholder.Method.Triangle.toString();
@@ -454,13 +454,13 @@ public class UserVariables {
         this.gaussRad = gaussRad;
     }
 
-    public boolean isSimple() {
-        return simple;
-    }
-
-    public void setSimple(boolean simple) {
-        this.simple = simple;
-    }
+//    public boolean isSimple() {
+//        return simple;
+//    }
+//
+//    public void setSimple(boolean simple) {
+//        this.simple = simple;
+//    }
 
     public double getLambda() {
         return lambda;
@@ -572,8 +572,8 @@ public class UserVariables {
         copy.setAnalyseProtrusions(analyseProtrusions);
         copy.setSigRecoveryThresh(sigRecoveryThresh);
         copy.setGaussRad(gaussRad);
-        copy.setSimple(simple);
-        copy.setLambda(lambda);
+//        copy.setSimple(simple);
+//        copy.setLambda(lambda);
         copy.setMinLength(minLength);
         copy.setThreshMethod(threshMethod);
         copy.setBlebDetect(blebDetect);
