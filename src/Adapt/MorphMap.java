@@ -233,12 +233,12 @@ public class MorphMap {
         for (int i = startframe; i - startframe < zVals.length; i++) {
             Region current = regions[i - 1];
             int index = i - startframe;
-            ArrayList<Pixel> centres = current.getCentres();
-            Pixel centre = centres.get(centres.size() - 1);
+            ArrayList<float[]> centres = current.getCentres();
+            float[] centre = centres.get(centres.size() - 1);
             double maxDist = -Double.MAX_VALUE;
             int offset = 0;
             for (int j = 0; j < zVals[index].length; j++) {
-                double dist = Utils.calcDistance(centre.getPrecX(), centre.getPrecY(),
+                double dist = Utils.calcDistance(centre[0], centre[1],
                         xCoords[index][j], yCoords[index][j]);
                 if (dist > maxDist) {
                     maxDist = dist;

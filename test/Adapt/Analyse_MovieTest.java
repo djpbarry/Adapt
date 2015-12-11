@@ -367,25 +367,25 @@ public class Analyse_MovieTest {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of initDistanceMaps method, of class Analyse_Movie.
-     */
-    @Test
-    public void testInitDistanceMaps() {
-        System.out.println("initDistanceMaps");
-        ImageProcessor inputImage = null;
-        ByteProcessor regionImage = null;
-        ArrayList<Region> singleImageRegions = null;
-        float[][][] distancemaps = null;
-        ByteProcessor[] regionImages = null;
-        int width = 0;
-        double filtRad = 0.0;
-        double thresh = 0.0;
-        Analyse_Movie instance = new Analyse_Movie();
-        instance.initDistanceMaps(inputImage, regionImage, singleImageRegions, distancemaps, regionImages, width, filtRad, thresh);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+//    /**
+//     * Test of initDistanceMaps method, of class Analyse_Movie.
+//     */
+//    @Test
+//    public void testInitDistanceMaps() {
+//        System.out.println("initDistanceMaps");
+//        ImageProcessor inputImage = null;
+//        ByteProcessor regionImage = null;
+//        ArrayList<Region> singleImageRegions = null;
+//        float[][][] distancemaps = null;
+//        ByteProcessor[] regionImages = null;
+//        int width = 0;
+//        double filtRad = 0.0;
+//        double thresh = 0.0;
+//        Analyse_Movie instance = new Analyse_Movie();
+//        instance.initDistanceMaps(inputImage, regionImage, singleImageRegions, distancemaps, regionImages, width, filtRad, thresh);
+//        // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
+//    }
 
     /**
      * Test of calcDistance method, of class Analyse_Movie.
@@ -393,7 +393,7 @@ public class Analyse_MovieTest {
     @Test
     public void testCalcDistance() {
         System.out.println("calcDistance");
-        Pixel point = null;
+        short[] point = null;
         int x = 0;
         int y = 0;
         double lambda = 0.0;
@@ -422,47 +422,47 @@ public class Analyse_MovieTest {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of dijkstraDilate method, of class Analyse_Movie.
-     */
-    @Test
-    public void testDijkstraDilate() {
-        System.out.println("dijkstraDilate");
-        ByteProcessor regionImage = null;
-        Region region = null;
-        Pixel point = null;
-        float[][][] distanceMaps = null;
-        int intermediate = 0;
-        int index = 0;
-        Analyse_Movie instance = new Analyse_Movie();
-        boolean expResult = false;
-        boolean result = instance.dijkstraDilate(regionImage, region, point, distanceMaps, intermediate, index);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+//    /**
+//     * Test of dijkstraDilate method, of class Analyse_Movie.
+//     */
+//    @Test
+//    public void testDijkstraDilate() {
+//        System.out.println("dijkstraDilate");
+//        ByteProcessor regionImage = null;
+//        Region region = null;
+//        Pixel point = null;
+//        float[][][] distanceMaps = null;
+//        int intermediate = 0;
+//        int index = 0;
+//        Analyse_Movie instance = new Analyse_Movie();
+//        boolean expResult = false;
+//        boolean result = instance.dijkstraDilate(regionImage, region, point, distanceMaps, intermediate, index);
+//        assertEquals(expResult, result);
+//        // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
+//    }
 
-    /**
-     * Test of buildDistanceMaps method, of class Analyse_Movie.
-     */
-    @Test
-    public void testBuildDistanceMaps() {
-        System.out.println("buildDistanceMaps");
-        ByteProcessor regionImage = null;
-        ImageProcessor greys = null;
-        Region region = null;
-        Pixel point = null;
-        float[][] distancemap = null;
-        double thresh = 0.0, lambda = 0.0;
-        ImageProcessor gradient = null;
-        int index = 0;
-        Analyse_Movie instance = new Analyse_Movie();
-        boolean expResult = false;
-        boolean result = instance.buildDistanceMaps(regionImage, greys, region, point, distancemap, thresh, gradient, index, lambda);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+//    /**
+//     * Test of buildDistanceMaps method, of class Analyse_Movie.
+//     */
+//    @Test
+//    public void testBuildDistanceMaps() {
+//        System.out.println("buildDistanceMaps");
+//        ByteProcessor regionImage = null;
+//        ImageProcessor greys = null;
+//        Region region = null;
+//        Pixel point = null;
+//        float[][] distancemap = null;
+//        double thresh = 0.0, lambda = 0.0;
+//        ImageProcessor gradient = null;
+//        int index = 0;
+//        Analyse_Movie instance = new Analyse_Movie();
+//        boolean expResult = false;
+//        boolean result = instance.buildDistanceMaps(regionImage, greys, region, point, distancemap, thresh, gradient, index, lambda);
+//        assertEquals(expResult, result);
+//        // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
+//    }
 
     /**
      * Test of sigmoidFilter method, of class Analyse_Movie.
@@ -494,20 +494,20 @@ public class Analyse_MovieTest {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of expandRegions method, of class Analyse_Movie.
-     */
-    @Test
-    public void testExpandRegions_3args() {
-        System.out.println("expandRegions");
-        ArrayList<Region> regions = null;
-        ByteProcessor[] regionImage = null;
-        int N = 0;
-        Analyse_Movie instance = new Analyse_Movie();
-        instance.expandRegions(regions, regionImage, N);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+//    /**
+//     * Test of expandRegions method, of class Analyse_Movie.
+//     */
+//    @Test
+//    public void testExpandRegions_3args() {
+//        System.out.println("expandRegions");
+//        ArrayList<Region> regions = null;
+//        ByteProcessor[] regionImage = null;
+//        int N = 0;
+//        Analyse_Movie instance = new Analyse_Movie();
+//        instance.expandRegions(regions, regionImage, N);
+//        // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
+//    }
 
     /**
      * Test of correlativePlot method, of class Analyse_Movie.
@@ -557,7 +557,7 @@ public class Analyse_MovieTest {
     public void testGetSeedPoints() {
         System.out.println("getSeedPoints");
         ByteProcessor binary = null;
-        ArrayList<Pixel> pixels = null;
+        ArrayList<short[]> pixels = null;
         Analyse_Movie instance = new Analyse_Movie();
         double minArea = instance.getMinArea();
         instance.getSeedPoints(binary, pixels, minArea);
