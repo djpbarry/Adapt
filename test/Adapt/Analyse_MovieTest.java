@@ -13,6 +13,7 @@ import ij.plugin.frame.RoiManager;
 import ij.process.ByteProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
 import java.awt.Color;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -484,9 +485,9 @@ public class Analyse_MovieTest {
     public void testExpandRegions_4args() {
         System.out.println("expandRegions");
         ArrayList<Region> regions = null;
-        ByteProcessor regionImage = null;
+        ShortProcessor regionImage = null;
         int N = 0;
-        int terminal = 0;
+        short terminal = 0;
         Analyse_Movie instance = new Analyse_Movie();
         instance.expandRegions(regions, regionImage, N, terminal);
         // TODO review the generated test code and remove the default call to fail.

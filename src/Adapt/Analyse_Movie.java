@@ -52,6 +52,8 @@ import ij.process.FloatBlitter;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
+import ij.process.ShortBlitter;
+import ij.process.ShortProcessor;
 import ij.process.TypeConverter;
 import java.awt.Color;
 import java.awt.Font;
@@ -87,7 +89,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     protected File childDir, // root output directory
             parDir, // output directory for each cell
             velDirName, curvDirName, trajDirName, segDirName;
-    private byte intermediate, terminal;
+    private short intermediate, terminal;
     protected String TITLE = StaticVariables.TITLE;
     final String BLEB_DATA_FILES = "Bleb_Data_Files";
     protected final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
@@ -355,6 +357,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             if (i > 0) {
                 initialiseROIs(i, allMasks, thresholds[i], i + 2, cytoImage);
             }
+//            System.out.println(IJ.freeMemory());
         }
         if (protMode) {
             filoStream.close();
@@ -1291,24 +1294,24 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * Create image depicting regions to be "grown". Regions initialised
          * using centroids.
          */
-        ByteProcessor indexedRegions = new ByteProcessor(width, height);
+        ShortProcessor indexedRegions = new ShortProcessor(width, height);
         indexedRegions.setValue(Region.FOREGROUND);
         indexedRegions.fill();
         indexedRegions.setColor(outVal);
-        ByteBlitter bb = new ByteBlitter(indexedRegions);
+        ShortBlitter bb = new ShortBlitter(indexedRegions);
         for (int i = 0; i < n; i++) {
             Region region = cellData.get(i).getInitialRegion();
             if (region != null) {
-                ImageProcessor mask = region.getMask();
+                ShortProcessor mask = (ShortProcessor) (new TypeConverter(region.getMask(), false)).convertToShort();
                 mask.invert();
-                mask.multiply((i + 1) / 255.0);
+                mask.multiply((i + 1) / Region.BACKGROUND);
                 bb.copyBits(mask, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
             }
             singleImageRegions.add(region);
             outVal++;
         }
-        intermediate = (byte) ((singleImageRegions.size() + 1) & 0xff);
-        terminal = (byte) ((intermediate + 1) & 0xff);
+        intermediate = (short) (singleImageRegions.size() + 1);
+        terminal = (short) (intermediate + 1);
         /*
          * Filter image to be used as basis for region growing.
          */
@@ -1321,14 +1324,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * Conditional dilate the regions in regionImage based on the information in
      * inputImage.
      */
-    private ByteProcessor growRegions(ByteProcessor regionImage, ImageProcessor inputImage, ArrayList<Region> singleImageRegions, double threshold) {
+    private ShortProcessor growRegions(ShortProcessor regionImage, ImageProcessor inputImage, ArrayList<Region> singleImageRegions, double threshold) {
         int i, j;
         int width = regionImage.getWidth();
         int height = regionImage.getHeight();
         boolean totChange = true;
         boolean thisChange;
         float inputPix[] = (float[]) inputImage.getPixels();
-        byte regionImagePix[] = (byte[]) regionImage.getPixels();
+        short regionImagePix[] = (short[]) regionImage.getPixels();
         /*
          * Image texture (and grey levels) used to control region growth.
          * Standard deviation of grey levels is used as a simple measure of
@@ -1371,11 +1374,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //                IJ.saveAs(new ImagePlus("", distanceMapImage), "TIF", "C:/users/barry05/desktop/distanceMapImage_" + i + ".tif");}
 //                ByteProcessor ref = (ByteProcessor) regionImages[i].duplicate();
                 Region cell = singleImageRegions.get(i);
-                if (cell != null) {
-                    ByteProcessor expandedImage = new ByteProcessor(regionImage.getWidth(), regionImage.getHeight());
+                if (cell != null && cell.isActive()) {
+                    ShortProcessor expandedImage = new ShortProcessor(regionImage.getWidth(), regionImage.getHeight());
                     expandedImage.setColor(Region.BACKGROUND);
                     Rectangle r = cell.getBounds();
                     r.grow(6, 6);
+                    r = cell.checkBounds(r);
                     expandedImage.setRoi(r);
                     expandedImage.fill();
                     expandedImage.setColor(Region.FOREGROUND);
@@ -1388,9 +1392,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //                            thisChange = dijkstraDilate(ref, cell, thispix,
 //                                    distancemaps, intermediate, i + 1) || thisChange;
 //                        } else {
-                            thisChange = simpleDilate(regionImagePix,
-                                    inputPix, cell, thispix, intermediate, threshold, (byte) ((i + 1) & 0xff), expandedImage, width, height)
-                                    || thisChange;
+                        thisChange = simpleDilate(regionImagePix,
+                                inputPix, cell, thispix, intermediate, threshold, (short) (i + 1), expandedImage, width, height)
+                                || thisChange;
 //                        }
 //                        regionImageStack.addSlice(regionImage.duplicate());
 //                        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\regions.tif");
@@ -1404,7 +1408,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //            regionImageStack.addSlice(regionImage.duplicate());
 //            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\regions.tif");
 //            if (simple) {
-                expandRegions(singleImageRegions, regionImage, cellNum, terminal);
+            expandRegions(singleImageRegions, regionImage, cellNum, terminal);
 //            } else {
 //                expandRegions(singleImageRegions, regionImages, cellNum);
 //            }
@@ -1551,7 +1555,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return sdImage;
     }
 
-    private boolean simpleDilate(byte[] regionImagePix, float[] greyPix, Region cell, Pixel point, byte intermediate, double greyThresh, byte index, ByteProcessor expandedImage, int width, int height) {
+    private boolean simpleDilate(short[] regionImagePix, float[] greyPix, Region cell, Pixel point, short intermediate, double greyThresh, short index, ShortProcessor expandedImage, int width, int height) {
         int x = point.getX(), y = point.getY();
         if (regionImagePix[x + y * width] > intermediate) {
             cell.addExpandedBorderPix(point);
@@ -1563,7 +1567,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             int offset = j * width;
             for (int i = x - 1; i <= x + 1; i++) {
                 if (!(Utils.isEdgePixel(i, j, width, height, 0))) {
-                    byte r = regionImagePix[i + offset];
+                    short r = regionImagePix[i + offset];
                     double g = greyPix[offset + i];
                     if ((r == Region.FOREGROUND || r == intermediate) && (g > greyThresh)) {
                         Pixel p = new Pixel(i, j, index);
@@ -1725,8 +1729,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * When complete, borders are dilated to expanded borders and expanded
      * borders are set to null.
      */
-    void expandRegions(ArrayList<Region> regions, ByteProcessor regionImage, int N, int terminal) {
-        ByteProcessor tempRegionImage = new ByteProcessor(regionImage.getWidth(), regionImage.getHeight());
+    void expandRegions(ArrayList<Region> regions, ShortProcessor regionImage, int N, short terminal) {
+        ShortProcessor tempRegionImage = new ShortProcessor(regionImage.getWidth(), regionImage.getHeight());
         tempRegionImage.setValue(Region.FOREGROUND);
         tempRegionImage.fill();
         for (int i = 0; i < N; i++) {
