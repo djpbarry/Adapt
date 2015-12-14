@@ -352,12 +352,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     ImageProcessor currentMask = current.getMask();
                     currentMask.invert();
                     bb.copyBits(currentMask, 0, 0, Blitter.ADD);
+                    current.setFinalMask();
                 }
             }
             if (i > 0) {
                 initialiseROIs(i, allMasks, thresholds[i], i + 2, cytoImage);
             }
-            System.out.println(IJ.freeMemory());
         }
         if (protMode) {
             filoStream.close();
@@ -2100,7 +2100,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             float x[] = rt.getColumn(rt.getColumnIndex("X"));
             float y[] = rt.getColumn(rt.getColumnIndex("Y"));
             for (int i = 0; i < count; i++) {
-                pixels.add(new short[]{(short)Math.round(x[i]), (short)Math.round(y[i])});
+                pixels.add(new short[]{(short) Math.round(x[i]), (short) Math.round(y[i])});
             }
         }
     }
