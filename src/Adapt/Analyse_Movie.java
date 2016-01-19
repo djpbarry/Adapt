@@ -2160,6 +2160,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             meanBlitter.copyBits(meanCol.resize(1, height), i - start, 0, Blitter.COPY);
             stdBlitter.copyBits(stdCol.resize(1, height), i - start, 0, Blitter.COPY);
         }
+        dialog.dispose();
         return dists;
     }
 
