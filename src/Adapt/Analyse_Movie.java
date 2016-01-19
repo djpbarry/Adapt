@@ -2129,7 +2129,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         FloatBlitter stdBlitter = new FloatBlitter(dists[1]);
         Mean mean = new Mean();
         StandardDeviation std = new StandardDeviation();
+        ProgressDialog dialog = new ProgressDialog(null, "Generating Fluorescence Distribution...", false, TITLE, false);
+        dialog.setVisible(true);
         for (int i = start; i <= end; i++) {
+            dialog.updateProgress(i, end);
             Region current = (Region) regions[i - 1].clone();
             ArrayList<Double> means = new ArrayList();
             ArrayList<Double> stds = new ArrayList();
@@ -2171,10 +2174,17 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             meanStream.println("Normalised Distance from Cell Edge,Mean Fluorescence Intensity (AU)");
             stdStream.println("Normalised Distance from Cell Edge,Standard Deviation of Fluorescence Intensity (AU)");
             int mapHeight = fluorMaps[0].getHeight();
+            int mapWidth = fluorMaps[0].getWidth();
             for (int y = 0; y < mapHeight; y++) {
                 String normDist = String.valueOf(((double) y) / (mapHeight - 1.0));
-                meanStream.println(normDist + "," + fluorMaps[0].getPixelValue(0, y));
-                stdStream.println(normDist + "," + fluorMaps[1].getPixelValue(0, y));
+                meanStream.print(normDist + ",");
+                stdStream.print(normDist + ",");
+                for (int x = 0; x < mapWidth; x++) {
+                    meanStream.print(fluorMaps[0].getPixelValue(x, y) + ",");
+                    stdStream.print(fluorMaps[1].getPixelValue(x, y) + ",");
+                }
+                meanStream.println();
+                stdStream.println();
             }
             meanStream.close();
             stdStream.close();
