@@ -130,37 +130,39 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * For debugging - images loaded from file
      */
     void initialise() {
-        directory = Utilities.getFolder(directory, null, true);
-        if (directory == null) {
-            return;
-        }
-        File cytoImageFiles[] = (new File(directory.getPath() + delimiter + StaticVariables.CYTO)).listFiles(); // Obtain file list
-        int cytoSize = cytoImageFiles.length;
-        File sigImageFiles[] = (new File(directory.getPath() + delimiter + StaticVariables.SIG)).listFiles(); // Obtain file list
-        int sigSize = sigImageFiles.length;
-        Arrays.sort(cytoImageFiles);
-        Arrays.sort(sigImageFiles);
-
-        //Load first image to get dimensions
-        ImageProcessor cip = new ImagePlus(directory + delimiter + StaticVariables.CYTO + delimiter
-                + cytoImageFiles[0].getName()).getProcessor();
-        ImageStack cytoStack = new ImageStack(cip.getWidth(), cip.getHeight());
-        ImageStack sigStack;
-        if (cytoSize == sigSize) {
-            ImageProcessor sip = new ImagePlus(directory + delimiter + StaticVariables.SIG + delimiter
-                    + sigImageFiles[0].getName()).getProcessor();
-            sigStack = new ImageStack(sip.getWidth(), sip.getHeight());
-        } else {
-            sigStack = null;
-        }
-        for (int i = 0; i < cytoSize; i++) {
-            cytoStack.addSlice("", new ImagePlus(cytoImageFiles[i].getAbsolutePath()).getProcessor());
-            if (sigStack != null) {
-                sigStack.addSlice("", new ImagePlus(sigImageFiles[i].getAbsolutePath()).getProcessor());
-            }
-        }
-        stacks[0] = cytoStack;
-        stacks[1] = sigStack;
+//        directory = Utilities.getFolder(directory, null, true);
+//        if (directory == null) {
+//            return;
+//        }
+//        File cytoImageFiles[] = (new File(directory.getPath() + delimiter + StaticVariables.CYTO)).listFiles(); // Obtain file list
+//        int cytoSize = cytoImageFiles.length;
+//        File sigImageFiles[] = (new File(directory.getPath() + delimiter + StaticVariables.SIG)).listFiles(); // Obtain file list
+//        int sigSize = sigImageFiles.length;
+//        Arrays.sort(cytoImageFiles);
+//        Arrays.sort(sigImageFiles);
+//
+//        //Load first image to get dimensions
+//        ImageProcessor cip = new ImagePlus(directory + delimiter + StaticVariables.CYTO + delimiter
+//                + cytoImageFiles[0].getName()).getProcessor();
+//        ImageStack cytoStack = new ImageStack(cip.getWidth(), cip.getHeight());
+//        ImageStack sigStack;
+//        if (cytoSize == sigSize) {
+//            ImageProcessor sip = new ImagePlus(directory + delimiter + StaticVariables.SIG + delimiter
+//                    + sigImageFiles[0].getName()).getProcessor();
+//            sigStack = new ImageStack(sip.getWidth(), sip.getHeight());
+//        } else {
+//            sigStack = null;
+//        }
+//        for (int i = 0; i < cytoSize; i++) {
+//            cytoStack.addSlice("", new ImagePlus(cytoImageFiles[i].getAbsolutePath()).getProcessor());
+//            if (sigStack != null) {
+//                sigStack.addSlice("", new ImagePlus(sigImageFiles[i].getAbsolutePath()).getProcessor());
+//            }
+//        }
+//        stacks[0] = cytoStack;
+//        stacks[1] = sigStack;
+        stacks[0] = IJ.openImage().getImageStack();
+        stacks[1] = IJ.openImage().getImageStack();
     }
 
     /**
@@ -226,6 +228,27 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 || (stacks[1] != null && stacks[1].getProcessor(1) instanceof ColorProcessor)) {
             IJ.showMessage("Warning: greyscale images should be used for optimal results.");
         }
+//        if (stacks[0].getProcessor(1).isInvertedLut()) {
+//            ImageStack newStacks[] = new ImageStack[2];
+//            newStacks[0] = new ImageStack(stacks[0].getWidth(), stacks[0].getHeight());
+//            if (stacks[1] != null) {
+//                newStacks[1] = new ImageStack(stacks[1].getWidth(), stacks[1].getHeight());
+//            }
+//            for (int i = 1; i <= cytoSize; i++) {
+//                ImageProcessor ip = stacks[0].getProcessor(i);
+//                ip.invertLut();
+//                ip.invert();
+//                newStacks[0].addSlice(ip);
+//                if (stacks[1] != null) {
+//                    ImageProcessor ip2 = stacks[1].getProcessor(i);
+//                    ip2.invertLut();
+//                    ip2.invert();
+//                    newStacks[1].addSlice(ip2);
+//                }
+//            }
+//            stacks[0] = newStacks[0];
+//            stacks[1] = newStacks[1];
+//        }
         /*
          * Create new parent output directory - make sure directory name is
          * unique so old results are not overwritten
@@ -267,6 +290,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         ImageProcessor cytoImage = cytoStack.getProcessor(1).duplicate();
         (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         if (initialiseROIs(1, null, -1, 1, cytoImage) < 1) {
+            IJ.error(TITLE, "No cells detected!");
+            segDialog.dispose();
             return;
         }
         roi = null;
