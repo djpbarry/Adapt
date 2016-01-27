@@ -21,7 +21,6 @@ import IAClasses.BoundaryPixel;
 import IAClasses.CrossCorrelation;
 import IAClasses.DSPProcessor;
 import IAClasses.DataStatistics;
-//import IAClasses.Pixel;
 import IAClasses.ProgressDialog;
 import IAClasses.Region;
 import IAClasses.Utils;
@@ -84,7 +83,6 @@ import ui.GUI;
  */
 public class Analyse_Movie extends NotificationThread implements PlugIn {
 
-//    private final double scaleFactor = 60.0 / 216.0;
     protected static File directory; // root directory
     protected File childDir, // root output directory
             parDir, // output directory for each cell
@@ -94,13 +92,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     final String BLEB_DATA_FILES = "Bleb_Data_Files";
     protected final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
     private final String channelLabels[] = {"Cytoplasmic channel", "Signal to be correlated"};
-    /**
-     * Determines the format of printed results
-     */
     protected DecimalFormat numFormat = StaticVariables.numFormat; // For formatting results
     protected PointRoi roi = null; // Points used as seeds for cell detection
     private ArrayList<CellData> cellData;
-//    private CellData parentCellData;
     protected ImageStack stacks[] = new ImageStack[2];
     private final double trajMin = 5.0;
     protected boolean batchMode = false;
@@ -123,44 +117,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         this.uv = uv;
         this.parDir = parDir;
         this.roi = roi;
-//        this.parentCellData = parentCellData;
     }
 
     /*
      * For debugging - images loaded from file
      */
     void initialise() {
-//        directory = Utilities.getFolder(directory, null, true);
-//        if (directory == null) {
-//            return;
-//        }
-//        File cytoImageFiles[] = (new File(directory.getPath() + delimiter + StaticVariables.CYTO)).listFiles(); // Obtain file list
-//        int cytoSize = cytoImageFiles.length;
-//        File sigImageFiles[] = (new File(directory.getPath() + delimiter + StaticVariables.SIG)).listFiles(); // Obtain file list
-//        int sigSize = sigImageFiles.length;
-//        Arrays.sort(cytoImageFiles);
-//        Arrays.sort(sigImageFiles);
-//
-//        //Load first image to get dimensions
-//        ImageProcessor cip = new ImagePlus(directory + delimiter + StaticVariables.CYTO + delimiter
-//                + cytoImageFiles[0].getName()).getProcessor();
-//        ImageStack cytoStack = new ImageStack(cip.getWidth(), cip.getHeight());
-//        ImageStack sigStack;
-//        if (cytoSize == sigSize) {
-//            ImageProcessor sip = new ImagePlus(directory + delimiter + StaticVariables.SIG + delimiter
-//                    + sigImageFiles[0].getName()).getProcessor();
-//            sigStack = new ImageStack(sip.getWidth(), sip.getHeight());
-//        } else {
-//            sigStack = null;
-//        }
-//        for (int i = 0; i < cytoSize; i++) {
-//            cytoStack.addSlice("", new ImagePlus(cytoImageFiles[i].getAbsolutePath()).getProcessor());
-//            if (sigStack != null) {
-//                sigStack.addSlice("", new ImagePlus(sigImageFiles[i].getAbsolutePath()).getProcessor());
-//            }
-//        }
-//        stacks[0] = cytoStack;
-//        stacks[1] = sigStack;
         stacks[0] = IJ.openImage().getImageStack();
         stacks[1] = IJ.openImage().getImageStack();
     }
@@ -172,7 +134,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      */
     @Override
     public void run(String arg) {
-//        Utilities.setLookAndFeel(GUI.class);
         TITLE = TITLE + "_v" + StaticVariables.VERSION + "." + numFormat.format(Revision.Revision.revisionNumber);
         if (IJ.getInstance() != null && WindowManager.getIDList() == null) {
             IJ.error("No Images Open.");
@@ -228,27 +189,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 || (stacks[1] != null && stacks[1].getProcessor(1) instanceof ColorProcessor)) {
             IJ.showMessage("Warning: greyscale images should be used for optimal results.");
         }
-//        if (stacks[0].getProcessor(1).isInvertedLut()) {
-//            ImageStack newStacks[] = new ImageStack[2];
-//            newStacks[0] = new ImageStack(stacks[0].getWidth(), stacks[0].getHeight());
-//            if (stacks[1] != null) {
-//                newStacks[1] = new ImageStack(stacks[1].getWidth(), stacks[1].getHeight());
-//            }
-//            for (int i = 1; i <= cytoSize; i++) {
-//                ImageProcessor ip = stacks[0].getProcessor(i);
-//                ip.invertLut();
-//                ip.invert();
-//                newStacks[0].addSlice(ip);
-//                if (stacks[1] != null) {
-//                    ImageProcessor ip2 = stacks[1].getProcessor(i);
-//                    ip2.invertLut();
-//                    ip2.invert();
-//                    newStacks[1].addSlice(ip2);
-//                }
-//            }
-//            stacks[0] = newStacks[0];
-//            stacks[1] = newStacks[1];
-//        }
         /*
          * Create new parent output directory - make sure directory name is
          * unique so old results are not overwritten
@@ -271,9 +211,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          */
         cytoStack = GenUtils.convertStackTo8Bit(stacks[0]);
         stacks[0] = cytoStack;
-//        if (IJ.getInstance() == null && !protMode) {
-//            roi = new PointRoi(100, 256);
-//        }
         if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, roi);
             gui.setVisible(true);
@@ -321,10 +258,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             thresholds[i] = getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             int N = cellData.size();
             if (cytoImage != null) {
-//                if (i > 0 && protMode) {
                 allRegions[i] = findCellRegions(cytoImage, thresholds[i], cellData);
-//                if (protMode) {
-//                }
             }
             int fcount = 0;
             for (int j = 0; j < N; j++) {
@@ -339,16 +273,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     current.calcCentroid(mask);
                     Rectangle bounds = current.getBounds();
                     bounds.grow(2, 2);
-//                    ImageProcessor mask2 = mask.duplicate();
-//                    mask2.setValue(127);
-//                    mask2.drawRoi(new Roi(bounds));
-//                    IJ.saveAs((new ImagePlus("", mask2)), "PNG", "c:/users/barry05/desktop/masks/omask_" + i + "_" + j);
                     mask.setRoi(bounds);
                     int e = uv.getErosion();
                     for (int k = 0; k < e; k++) {
                         mask.erode();
                     }
-//                    IJ.saveAs((new ImagePlus("", mask)), "PNG", "c:/users/barry05/desktop/masks/erodedmask_" + i + "_" + j);
                     short seed[] = current.findSeed(mask);
                     if (seed != null) {
                         Region temp;
@@ -484,8 +413,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 return -1;
             }
         } else {
-//            ByteProcessor image = (ByteProcessor) (new TypeConverter((stacks[0].getProcessor(slice)).duplicate(), true)).convertToByte();
-//            (new GaussianBlur()).blurGaussian(input, uv.getGaussRad(), uv.getGaussRad(), 0.01);
             if (threshold < 0) {
                 threshold = getThreshold(input, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             }
@@ -495,8 +422,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 ByteBlitter bb = new ByteBlitter(binary);
                 bb.copyBits(masks, 0, 0, Blitter.SUBTRACT);
             }
-//            IJ.saveAs(new ImagePlus("", binary), "PNG", "C:/Users/barry05/Desktop/masks/"+slice);
-//            IJ.saveAs(getSeedPoints(binary, initP), "PNG", "C:/Users/barry05/Desktop/masks/" + slice);
             getSeedPoints(binary, initP, getMinArea());
             n = initP.size();
         }
@@ -631,7 +556,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     void getMorphologyData(ArrayList<CellData> cellData) {
-//        int measures = Integer.MAX_VALUE;
         ResultsTable rt = Analyzer.getResultsTable();
         Prefs.blackBackground = false;
         double minArea = getMinArea();
@@ -714,7 +638,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         paramStream.println(StaticVariables.DETECT_BLEB.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isBlebDetect()));
         paramStream.println(StaticVariables.MIN_CURVE_RANGE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCurveRange()));
         paramStream.println(StaticVariables.MIN_CURVE_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinCurveThresh()));
-//        paramStream.println(StaticVariables.MAX_CURVE_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMaxCurveThresh()));
         paramStream.println(StaticVariables.PROT_LEN_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebLenThresh()));
         paramStream.println(StaticVariables.PROT_DUR_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebDurThresh()));
         paramStream.println(StaticVariables.CUT_OFF.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCutOffTime()));
@@ -722,8 +645,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         paramStream.println(StaticVariables.USE_SIG_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isUseSigThresh()));
         paramStream.println(StaticVariables.SIG_THRESH_FACT.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigThreshFact()));
         paramStream.println(StaticVariables.SIG_REC_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigRecoveryThresh()));
-//        paramStream.println(StaticVariables.SIMP_SEG.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isSimple()));
-//        paramStream.println(StaticVariables.LAMBDA.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getLambda()));
         paramStream.println(StaticVariables.MIN_TRAJ_LENGTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinLength()));
         paramStream.println(StaticVariables.FILO_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSize()));
         paramStream.println(StaticVariables.GEN_SIG_DIST.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetFluorDist()));
@@ -788,14 +709,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 sigMap.addColumn(upX, upY, smz, i);
             }
         }
-//        if (protMode) {
-//            sigMap.allignMapMaxDistToPoint(sigMap.getHeight() / 2, parentCellData);
-//        }
     }
 
     private void buildCurveMap(Region[] allRegions, CellData cellData) {
         MorphMap curveMap = cellData.getCurveMap();
-//        int width = curveMap.getWidth();
         int height = curveMap.getHeight();
         int start = cellData.getStartFrame();
         int end = cellData.getEndFrame();
@@ -829,7 +746,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     uv.getCurveRange()), height, false), index);
             cellData.getScaleFactors()[index] = ((double) height) / vmPoints.length;
         }
-//        curveMap.allignMap();
     }
 
     void generateMaps(double[][] smoothVelocities, CellData cellData, int index, int total) {
@@ -1185,34 +1101,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         cellData.setVelRois(manager.getRoisAsArray());
     }
 
-//    void findProtrusionsBasedOnCurve(CellData cellData) {
-////        double minDuration = uv.getBlebDurThresh() / 1.0 / (uv.getTimeRes() / 60.0);
-//        ArrayList<BoundaryPixel>[] curvatureMaxima = CurveMapAnalyser.findAllCurvatureExtrema(cellData,
-//                cellData.getStartFrame(), cellData.getEndFrame(), false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv);
-//        int length = curvatureMaxima.length;
-//        ArrayList<Roi> rois = new ArrayList();
-//        ArrayList<Integer> indices = new ArrayList();
-//        for (int i = 0; i < length; i++) {
-//            ArrayList<BoundaryPixel> currentMax = curvatureMaxima[i];
-//            if (currentMax != null) {
-//                int size = currentMax.size();
-//                for (int j = 0; j < size; j++) {
-//                    BoundaryPixel pix = currentMax.get(j);
-//                    int id = pix.getID();
-//                    if (!indices.contains(id)) {
-//                        indices.add(id);
-//                        int x = pix.getTime();
-//                        int y = pix.getPos();
-//                        int hh = CurveMapAnalyser.calcScaledCurveRange(CurveMapAnalyser.curveSearchRangeFactor * uv.getCurveRange(),
-//                                cellData.getScaleFactors()[x]);
-//                        rois.add(new Roi(x, y - hh, 1, 2 * hh + 1));
-//                    }
-//                }
-//            }
-//        }
-//        Roi output[] = new Roi[rois.size()];
-//        cellData.setVelRois(rois.toArray(output));
-//    }
     ImageStack findProtrusionsBasedOnMorph(CellData cellData, int reps, int start, int stop) {
         Region regions[] = cellData.getCellRegions();
         ImageStack cyto2 = new ImageStack(stacks[0].getWidth(), stacks[0].getHeight());
@@ -1261,7 +1149,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         ParticleAnalyzer.setRoiManager(manager);
         if (!analyzer.analyze(new ImagePlus("", binmap))) {
             IJ.error("Protrusion analysis failed.");
-//            return;
         }
         hideWindows();
     }
@@ -1342,7 +1229,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         /*
          * Filter image to be used as basis for region growing.
          */
-//        (new GaussianBlur()).blurGaussian(inputDup, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         growRegions(indexedRegions, inputDup, singleImageRegions, threshold);
         return singleImageRegions;
     }
@@ -1816,9 +1702,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      */
     void correlativePlot(CellData cellData) {
         cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), true, uv.getMinCurveThresh(), uv.getCurveRange(), uv, trajMin));
-//        cellData.setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), false, uv.getMaxCurveThresh(), uv.getCurveRange(), uv, trajMin));
-//        CurveMapAnalyser.drawAllExtrema(cellData, uv.getTimeRes(), uv.getSpatialRes(),
-//                stacks[0], cellData.getStartFrame(), cellData.getEndFrame(), 0.0);
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
         cellData.getGreyVelMap().resetRoi();
         cellData.setVelMapWithDetections(velMapWithDetections);
@@ -1908,7 +1791,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         double time0 = bounds.x * 60.0 / uv.getTimeRes();
                         for (int z = 0; z < meanVel.size(); z++) {
                             int t = z + bounds.x;
-//                            double normFactor = bounds.height * uv.getSpatialRes() * cellData.getScaleFactors()[t];
                             double time = t * 60.0 / uv.getTimeRes();
                             double currentMeanSig;
                             currentMeanSig = sumSig.get(z) / protrusionLength.get(z);
@@ -1944,10 +1826,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int duration = currentBleb.getBlebPerimSigs().size();
         ArrayList<Polygon> polys = currentBleb.getPolys();
         ImageStack detectionStack = currentBleb.getDetectionStack();
-//        Random r = new Random();
-//        int red = r.nextInt(256);
-//        int green = r.nextInt(256);
-//        int blue = r.nextInt(256);
         for (int timeIndex = bounds.x; timeIndex - bounds.x < duration && timeIndex < detectionStack.getSize(); timeIndex++) {
             ColorProcessor detectionSlice = (ColorProcessor) detectionStack.getProcessor(timeIndex + 1);
             Polygon poly = polys.get(timeIndex - bounds.x);
@@ -1955,16 +1833,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             blebMask.invert();
             blebMask.outline();
             blebMask.invert();
-//            ImageStack redC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
-//            redC.addSlice(blebMask.duplicate());
-//            redC.getProcessor(1).multiply(red / 255.0);
-//            ImageStack greenC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
-//            greenC.addSlice(blebMask.duplicate());
-//            greenC.getProcessor(1).multiply(green / 255.0);
-//            ImageStack blueC = new ImageStack(blebMask.getWidth(), blebMask.getHeight());
-//            blueC.addSlice(blebMask.duplicate());
-//            blueC.getProcessor(1).multiply(blue / 255.0);
-//            ImageStack merged = RGBStackMerge.mergeStacks(redC, greenC, blueC, false);
             ColorBlitter blitter = new ColorBlitter(detectionSlice);
             blitter.copyBits(blebMask, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
             Rectangle box = poly.getBounds();
@@ -1999,9 +1867,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 cellData.get(i).setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData.get(i),
                         sliceIndex, sliceIndex, true, uv.getMinCurveThresh(),
                         uv.getCurveRange(), uv, 0.0));
-//                cellData.get(i).setCurvatureMaxima(CurveMapAnalyser.findAllCurvatureExtrema(cellData.get(i),
-//                        sliceIndex, sliceIndex, false, uv.getMaxCurveThresh(),
-//                        uv.getCurveRange(), uv, 0.0));
             }
         }
 
@@ -2062,7 +1927,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 if (uv.isAnalyseProtrusions()) {
                     if (uv.isBlebDetect()) {
                         ArrayList<BoundaryPixel> minPos[] = cellData.get(r).getCurvatureMinima();
-//                        ArrayList<BoundaryPixel> maxPos[] = cellData.get(r).getCurvatureMaxima();
                         for (int i = 0; i < channels; i++) {
                             if (minPos[0] != null) {
                                 regionsOutput[i].setColor(Color.yellow);
@@ -2073,16 +1937,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                                     int y = (int) Math.round(currentMin.getPrecY());
                                     regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
                                 }
-//                                if (maxPos[0] != null) {
-//                                    regionsOutput[i].setColor(Color.MAGENTA);
-//                                    int maxpSize = maxPos[0].size();
-//                                    for (int j = 0; j < maxpSize; j++) {
-//                                        BoundaryPixel currentMax = maxPos[0].get(j);
-//                                        int x = (int) Math.round(currentMax.getPrecX());
-//                                        int y = (int) Math.round(currentMax.getPrecY());
-//                                        regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
-//                                    }
-//                                }
                             }
                         }
                     } else {
@@ -2091,7 +1945,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         }
                         ImageStack filoStack = findProtrusionsBasedOnMorph(cellData.get(r), (int) Math.round(uv.getFiloSize()), sliceIndex, sliceIndex);
                         ByteProcessor filoBin = (ByteProcessor) filoStack.getProcessor(1);
-//                        IJ.saveAs((new ImagePlus("",filoBin)), "PNG", "C:/users/barry05/desktop/filoBin.png");
                         filoBin.outline();
                         for (int y = 0; y < filoBin.getHeight(); y++) {
                             for (int x = 0; x < filoBin.getWidth(); x++) {
