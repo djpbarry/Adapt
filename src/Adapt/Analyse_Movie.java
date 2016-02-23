@@ -360,7 +360,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                                     StaticVariables.ZEROED_TIME)).run(childDir + delimiter + BLEB_DATA_FILES);
                         } else {
                             ImageStack protStacks[] = new ImageStack[2];
-                            protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(uv.getFiloSize()), 1, cytoSize);
+                            protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(getMaxFilArea()), 1, cytoSize);
                             protStacks[1] = stacks[1];
                             UserVariables protUV = (UserVariables) uv.clone();
                             protUV.setAnalyseProtrusions(false);
@@ -422,7 +422,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 ByteBlitter bb = new ByteBlitter(binary);
                 bb.copyBits(masks, 0, 0, Blitter.SUBTRACT);
             }
-            getSeedPoints(binary, initP, getMinArea());
+            double minArea = protMode ? getMinFilArea() : getMinCellArea();
+            getSeedPoints(binary, initP, minArea);
             n = initP.size();
         }
         int s = cellData.size();
@@ -558,7 +559,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     void getMorphologyData(ArrayList<CellData> cellData) {
         ResultsTable rt = Analyzer.getResultsTable();
         Prefs.blackBackground = false;
-        double minArea = getMinArea();
+        double minArea = getMinCellArea();
         File morph;
         PrintWriter morphStream = null;
         try {
@@ -646,7 +647,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         paramStream.println(StaticVariables.SIG_THRESH_FACT.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigThreshFact()));
         paramStream.println(StaticVariables.SIG_REC_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigRecoveryThresh()));
         paramStream.println(StaticVariables.MIN_TRAJ_LENGTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinLength()));
-        paramStream.println(StaticVariables.FILO_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSize()));
+        paramStream.println(StaticVariables.FILO_MAX_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSizeMax()));
+        paramStream.println(StaticVariables.FILO_MIN_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSizeMin()));
         paramStream.println(StaticVariables.GEN_SIG_DIST.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetFluorDist()));
         paramStream.println(StaticVariables.MIN_MORPH_AREA.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMorphSizeMin()));
         paramStream.println(StaticVariables.VIS_LINE_WIDTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getVisLineWidth()));
@@ -1122,7 +1124,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 mask2.invert();
                 bb.copyBits(mask2, 0, 0, Blitter.SUBTRACT);
             }
-            double minArea = getMinArea();
+            double minArea = getMinFilArea();
             ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES + ParticleAnalyzer.SHOW_MASKS,
                     0, null, minArea, Double.POSITIVE_INFINITY);
             mask.invert();
@@ -1943,7 +1945,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         for (int i = 0; i < channels; i++) {
                             regionsOutput[i].setColor(Color.yellow);
                         }
-                        ImageStack filoStack = findProtrusionsBasedOnMorph(cellData.get(r), (int) Math.round(uv.getFiloSize()), sliceIndex, sliceIndex);
+                        ImageStack filoStack = findProtrusionsBasedOnMorph(cellData.get(r), (int) Math.round(getMaxFilArea()), sliceIndex, sliceIndex);
                         ByteProcessor filoBin = (ByteProcessor) filoStack.getProcessor(1);
                         filoBin.outline();
                         for (int y = 0; y < filoBin.getHeight(); y++) {
@@ -1991,8 +1993,16 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-    double getMinArea() {
+    double getMinCellArea() {
         return uv.getMorphSizeMin() / (Math.pow(uv.getSpatialRes(), 2.0));
+    }
+    
+    double getMinFilArea() {
+        return uv.getFiloSizeMin() / (Math.pow(uv.getSpatialRes(), 2.0));
+    }
+    
+    double getMaxFilArea() {
+        return Math.sqrt(uv.getFiloSizeMax() / (Math.pow(uv.getSpatialRes(), 2.0)));
     }
 
     FloatProcessor[] getFluorDists(CellData cellData, int height) {

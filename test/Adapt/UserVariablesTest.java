@@ -711,7 +711,7 @@ public class UserVariablesTest {
         System.out.println("getFiloSize");
         UserVariables instance = new UserVariables();
         double expResult = 0.0;
-        double result = instance.getFiloSize();
+        double result = instance.getFiloSizeMax();
         assertEquals(expResult, result, 0.0);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -725,7 +725,7 @@ public class UserVariablesTest {
         System.out.println("setFiloSize");
         double filoSize = 0.0;
         UserVariables instance = new UserVariables();
-        instance.setFiloSize(filoSize);
+        instance.setFiloSizeMax(filoSize);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }

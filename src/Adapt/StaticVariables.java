@@ -132,7 +132,9 @@ public class StaticVariables {
 
     public static final String DETECT_BLEB = "Detect Blebs";
 
-    public static final String FILO_SIZE = "Filopodia Size";
+    public static final String FILO_MAX_SIZE = "Max Filopodia Size (" + IJ.micronSymbol + "m^2)";
+
+    public static final String FILO_MIN_SIZE = "Min Filopodia Size (" + IJ.micronSymbol + "m^2)";
 
     public static final String GEN_SIG_DIST = "Generate Signal Distribution";
 

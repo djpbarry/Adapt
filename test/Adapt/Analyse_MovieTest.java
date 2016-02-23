@@ -559,7 +559,7 @@ public class Analyse_MovieTest {
         ByteProcessor binary = null;
         ArrayList<short[]> pixels = null;
         Analyse_Movie instance = new Analyse_Movie();
-        double minArea = instance.getMinArea();
+        double minArea = instance.getMinCellArea();
         instance.getSeedPoints(binary, pixels, minArea);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -591,7 +591,7 @@ public class Analyse_MovieTest {
         System.out.println("getMinArea");
         Analyse_Movie instance = new Analyse_Movie();
         double expResult = 0.0;
-        double result = instance.getMinArea();
+        double result = instance.getMinCellArea();
         assertEquals(expResult, result, 0.0);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

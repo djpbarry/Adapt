@@ -137,6 +137,8 @@ public class GUI extends javax.swing.JDialog {
         filoSizeLabel = new javax.swing.JLabel();
         filoSizeField = new javax.swing.JTextField();
         displayPlotsToggleButton = new javax.swing.JToggleButton();
+        filoMinSizeLabel = new javax.swing.JLabel();
+        filoMinSizeTextField = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         cytoCanvas = new ImageCanvas(cytoImp);
         previewToggleButton = new javax.swing.JToggleButton();
@@ -481,7 +483,7 @@ public class GUI extends javax.swing.JDialog {
         minCurveRangeLabel.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -492,7 +494,7 @@ public class GUI extends javax.swing.JDialog {
         minCurveRangeField.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -504,7 +506,7 @@ public class GUI extends javax.swing.JDialog {
         minCurveThreshLabel.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -515,7 +517,7 @@ public class GUI extends javax.swing.JDialog {
         minCurveThreshField.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -527,7 +529,7 @@ public class GUI extends javax.swing.JDialog {
         cutOffLabel.setEnabled(uv.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -538,7 +540,7 @@ public class GUI extends javax.swing.JDialog {
         cutOffField.setEnabled(uv.isAnalyseProtrusions());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -550,7 +552,7 @@ public class GUI extends javax.swing.JDialog {
         sigThreshFactLabel.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -561,7 +563,7 @@ public class GUI extends javax.swing.JDialog {
         sigThreshFactField.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -573,7 +575,7 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshLabel.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 10;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -584,7 +586,7 @@ public class GUI extends javax.swing.JDialog {
         sigRecThreshField.setEnabled(uv.isAnalyseProtrusions() && uv.isUseSigThresh());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 10;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
@@ -618,7 +620,7 @@ public class GUI extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weighty = 1.0;
@@ -660,7 +662,7 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
         jPanel4.add(filoDetectRadioButton, gridBagConstraints);
 
-        filoSizeLabel.setText(StaticVariables.FILO_SIZE);
+        filoSizeLabel.setText(StaticVariables.FILO_MAX_SIZE);
         filoSizeLabel.setEnabled(uv.isAnalyseProtrusions() && !uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -668,10 +670,10 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
         jPanel4.add(filoSizeLabel, gridBagConstraints);
 
-        filoSizeField.setText(String.valueOf(uv.getFiloSize()));
+        filoSizeField.setText(String.valueOf(uv.getFiloSizeMax()));
         filoSizeField.setEnabled(uv.isAnalyseProtrusions() && !uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -680,7 +682,7 @@ public class GUI extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 10);
         jPanel4.add(filoSizeField, gridBagConstraints);
 
         displayPlotsToggleButton.setText(StaticVariables.DISPLAY_PLOTS);
@@ -688,12 +690,35 @@ public class GUI extends javax.swing.JDialog {
         displayPlotsToggleButton.setEnabled(uv.isAnalyseProtrusions() && uv.isBlebDetect());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         jPanel4.add(displayPlotsToggleButton, gridBagConstraints);
+
+        filoMinSizeLabel.setText(StaticVariables.FILO_MIN_SIZE);
+        filoMinSizeLabel.setEnabled(uv.isAnalyseProtrusions() && !uv.isBlebDetect());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 10, 0);
+        jPanel4.add(filoMinSizeLabel, gridBagConstraints);
+
+        filoMinSizeTextField.setText(String.valueOf(uv.getFiloSizeMin()));
+        filoMinSizeTextField.setEnabled(uv.isAnalyseProtrusions() && !uv.isBlebDetect());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 10);
+        jPanel4.add(filoMinSizeTextField, gridBagConstraints);
 
         jTabbedPane1.addTab("Protrusion Analysis", jPanel4);
 
@@ -856,6 +881,7 @@ public class GUI extends javax.swing.JDialog {
         enableComponentOnSelect(sigThreshFactLabel, sigThreshFactField, anaProtToggleButton);
         enableComponentOnSelect(sigRecThreshLabel, sigRecThreshField, anaProtToggleButton);
         enableComponentOnSelect(filoSizeLabel, filoSizeField, anaProtToggleButton);
+        enableComponentOnSelect(filoMinSizeLabel, filoMinSizeTextField, filoDetectRadioButton);
         useSigThreshToggleButton.setEnabled(anaProtToggleButton.isSelected() && blebDetectRadioButton.isSelected());
         blebDetectRadioButton.setEnabled(anaProtToggleButton.isSelected());
         filoDetectRadioButton.setEnabled(anaProtToggleButton.isSelected());
@@ -918,6 +944,7 @@ public class GUI extends javax.swing.JDialog {
         enableComponentOnSelect(cutOffLabel, cutOffField, blebDetectRadioButton);
 //        enableComponentOnSelect(maxCurveThreshLabel, maxCurveThreshField, blebDetectRadioButton);
         enableComponentOnSelect(filoSizeLabel, filoSizeField, filoDetectRadioButton);
+        enableComponentOnSelect(filoMinSizeLabel, filoMinSizeTextField, filoDetectRadioButton);
         enableComponentOnSelect(null, displayPlotsToggleButton, blebDetectRadioButton);
         enableComponentOnSelect(null, useSigThreshToggleButton, blebDetectRadioButton);
     }//GEN-LAST:event_blebDetectRadioButtonActionPerformed
@@ -970,11 +997,12 @@ public class GUI extends javax.swing.JDialog {
             uv.setThreshMethod(String.valueOf(threshComboBox.getSelectedItem()));
 //            uv.setBlebDurThresh(Double.parseDouble(protDurField.getText()));
 //            uv.setBlebLenThresh(Double.parseDouble(protLenField.getText()));
-            uv.setFiloSize(Double.parseDouble(filoSizeField.getText()));
+            uv.setFiloSizeMax(Double.parseDouble(filoSizeField.getText()));
             uv.setGetFluorDist(genSigDistToggleButton.isSelected());
             uv.setMorphSizeMin(Double.parseDouble(minMorphAreaTextField.getText()));
             uv.setVisLineWidth(Integer.parseInt(visLineWidthTextField.getText()));
             uv.setDisplayPlots(displayPlotsToggleButton.isSelected());
+            uv.setFiloSizeMin(Double.parseDouble(filoMinSizeTextField.getText()));
         } catch (NumberFormatException e) {
             IJ.error("Number formatting error " + e.toString());
             return false;
@@ -1068,6 +1096,8 @@ public class GUI extends javax.swing.JDialog {
     private javax.swing.JTextField erosionField;
     private javax.swing.JLabel erosionLabel;
     private javax.swing.JRadioButton filoDetectRadioButton;
+    private javax.swing.JLabel filoMinSizeLabel;
+    private javax.swing.JTextField filoMinSizeTextField;
     private javax.swing.JTextField filoSizeField;
     private javax.swing.JLabel filoSizeLabel;
     private javax.swing.JTextField gaussRadField;

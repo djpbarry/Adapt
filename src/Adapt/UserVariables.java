@@ -51,9 +51,10 @@ public class UserVariables {
     private int minLength = 0;
     private String threshMethod = AutoThresholder.Method.Triangle.toString();
     private boolean blebDetect = false;
-    private double filoSize = 4;
+    private double filoSizeMax = 4;
     private boolean getFluorDist = false;
     private double morphSizeMin = 500.0;
+    private double filoSizeMin = 1.0;
     private int visLineWidth = 1;
     private boolean displayPlots=false;
 
@@ -509,12 +510,12 @@ public class UserVariables {
         this.blebDetect = velDetect;
     }
 
-    public double getFiloSize() {
-        return filoSize;
+    public double getFiloSizeMax() {
+        return filoSizeMax;
     }
 
-    public void setFiloSize(double filoSize) {
-        this.filoSize = filoSize;
+    public void setFiloSizeMax(double filoSizeMax) {
+        this.filoSizeMax = filoSizeMax;
     }
 
     public boolean isGetFluorDist() {
@@ -549,6 +550,14 @@ public class UserVariables {
         this.displayPlots = displayPlots;
     }
 
+    public double getFiloSizeMin() {
+        return filoSizeMin;
+    }
+
+    public void setFiloSizeMin(double filoSizeMin) {
+        this.filoSizeMin = filoSizeMin;
+    }
+
     public Object clone() {
         UserVariables copy = new UserVariables();
         copy.setGreyThresh(greyThresh);
@@ -577,7 +586,7 @@ public class UserVariables {
         copy.setMinLength(minLength);
         copy.setThreshMethod(threshMethod);
         copy.setBlebDetect(blebDetect);
-        copy.setFiloSize(filoSize);
+        copy.setFiloSizeMax(filoSizeMax);
         copy.setGetFluorDist(getFluorDist);
         copy.setMorphSizeMin(morphSizeMin);
         copy.setVisLineWidth(visLineWidth);
