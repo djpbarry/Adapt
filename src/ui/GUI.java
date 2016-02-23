@@ -862,37 +862,24 @@ public class GUI extends javax.swing.JDialog {
 
     private void autoThreshToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoThreshToggleButtonActionPerformed
         disableComponentOnSelect(greyThreshLabel, greyThreshField, autoThreshToggleButton);
-        enableComponentOnSelect(threshLabel, threshComboBox, autoThreshToggleButton);
+        enableComponentOnSelect(threshLabel, threshComboBox, autoThreshToggleButton, autoThreshToggleButton.isEnabled());
     }//GEN-LAST:event_autoThreshToggleButtonActionPerformed
 
     private void previewToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previewToggleButtonActionPerformed
         previewScrollBar.setEnabled(previewToggleButton.isSelected());
-        enableComponentOnSelect(null, previewField, previewToggleButton);
+        enableComponentOnSelect(null, previewField, previewToggleButton, previewToggleButton.isEnabled());
         previewScrollBarAdjustmentValueChanged(null);
     }//GEN-LAST:event_previewToggleButtonActionPerformed
 
     private void anaProtToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anaProtToggleButtonActionPerformed
-        enableComponentOnSelect(minCurveRangeLabel, minCurveRangeField, anaProtToggleButton);
-        enableComponentOnSelect(minCurveThreshLabel, minCurveThreshField, anaProtToggleButton);
-//        enableComponentOnSelect(maxCurveThreshLabel, maxCurveThreshField, anaProtToggleButton);
-        enableComponentOnSelect(cutOffLabel, cutOffField, anaProtToggleButton);
-//        enableComponentOnSelect(protLenLabel, protLenField, anaProtToggleButton);
-//        enableComponentOnSelect(protDurLabel, protDurField, anaProtToggleButton);
-        enableComponentOnSelect(sigThreshFactLabel, sigThreshFactField, anaProtToggleButton);
-        enableComponentOnSelect(sigRecThreshLabel, sigRecThreshField, anaProtToggleButton);
-        enableComponentOnSelect(filoSizeLabel, filoSizeField, anaProtToggleButton);
-        enableComponentOnSelect(filoMinSizeLabel, filoMinSizeTextField, filoDetectRadioButton);
-        useSigThreshToggleButton.setEnabled(anaProtToggleButton.isSelected() && blebDetectRadioButton.isSelected());
         blebDetectRadioButton.setEnabled(anaProtToggleButton.isSelected());
         filoDetectRadioButton.setEnabled(anaProtToggleButton.isSelected());
-        displayPlotsToggleButton.setEnabled(anaProtToggleButton.isSelected() && blebDetectRadioButton.isSelected());
-        useSigThreshToggleButtonActionPerformed(null);
-        blebDetectRadioButtonActionPerformed(null);
+        filoDetectRadioButtonActionPerformed(null);
     }//GEN-LAST:event_anaProtToggleButtonActionPerformed
 
     private void useSigThreshToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useSigThreshToggleButtonActionPerformed
-        enableComponentOnSelect(sigThreshFactLabel, sigThreshFactField, useSigThreshToggleButton);
-        enableComponentOnSelect(sigRecThreshLabel, sigRecThreshField, useSigThreshToggleButton);
+        enableComponentOnSelect(sigThreshFactLabel, sigThreshFactField, useSigThreshToggleButton, anaProtToggleButton.isSelected() && useSigThreshToggleButton.isEnabled());
+        enableComponentOnSelect(sigRecThreshLabel, sigRecThreshField, useSigThreshToggleButton, anaProtToggleButton.isSelected() && useSigThreshToggleButton.isEnabled());
     }//GEN-LAST:event_useSigThreshToggleButtonActionPerformed
 
     private void previewScrollBarAdjustmentValueChanged(java.awt.event.AdjustmentEvent evt) {//GEN-FIRST:event_previewScrollBarAdjustmentValueChanged
@@ -939,14 +926,18 @@ public class GUI extends javax.swing.JDialog {
 
     private void blebDetectRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_blebDetectRadioButtonActionPerformed
         filoDetectRadioButton.setSelected(!blebDetectRadioButton.isSelected());
-        enableComponentOnSelect(minCurveRangeLabel, minCurveRangeField, blebDetectRadioButton);
-        enableComponentOnSelect(minCurveThreshLabel, minCurveThreshField, blebDetectRadioButton);
-        enableComponentOnSelect(cutOffLabel, cutOffField, blebDetectRadioButton);
-//        enableComponentOnSelect(maxCurveThreshLabel, maxCurveThreshField, blebDetectRadioButton);
-        enableComponentOnSelect(filoSizeLabel, filoSizeField, filoDetectRadioButton);
-        enableComponentOnSelect(filoMinSizeLabel, filoMinSizeTextField, filoDetectRadioButton);
-        enableComponentOnSelect(null, displayPlotsToggleButton, blebDetectRadioButton);
-        enableComponentOnSelect(null, useSigThreshToggleButton, blebDetectRadioButton);
+        boolean enabledB = anaProtToggleButton.isSelected() && blebDetectRadioButton.isEnabled();
+        boolean enabledF = anaProtToggleButton.isSelected() && filoDetectRadioButton.isEnabled();
+        enableComponentOnSelect(minCurveRangeLabel, minCurveRangeField, blebDetectRadioButton, enabledB);
+        enableComponentOnSelect(minCurveThreshLabel, minCurveThreshField, blebDetectRadioButton, enabledB);
+        enableComponentOnSelect(cutOffLabel, cutOffField, blebDetectRadioButton, enabledB);
+        enableComponentOnSelect(filoSizeLabel, filoSizeField, filoDetectRadioButton, enabledF);
+        enableComponentOnSelect(filoMinSizeLabel, filoMinSizeTextField, filoDetectRadioButton, enabledF);
+        enableComponentOnSelect(null, displayPlotsToggleButton, blebDetectRadioButton, enabledB);
+        enableComponentOnSelect(null, useSigThreshToggleButton, blebDetectRadioButton, enabledB);
+        useSigThreshToggleButton.setEnabled(anaProtToggleButton.isSelected() && blebDetectRadioButton.isSelected());
+        displayPlotsToggleButton.setEnabled(anaProtToggleButton.isSelected() && blebDetectRadioButton.isSelected());
+        useSigThreshToggleButtonActionPerformed(null);
     }//GEN-LAST:event_blebDetectRadioButtonActionPerformed
 
     private void filoDetectRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filoDetectRadioButtonActionPerformed
@@ -961,10 +952,10 @@ public class GUI extends javax.swing.JDialog {
         }
     }
 
-    private void enableComponentOnSelect(JComponent c1, JComponent c2, JToggleButton button) {
-        c2.setEnabled(button.isSelected() && button.isEnabled());
+    private void enableComponentOnSelect(JComponent c1, JComponent c2, JToggleButton button, boolean enabled) {
+        c2.setEnabled(button.isSelected() && enabled);
         if (c1 != null) {
-            c1.setEnabled(button.isSelected() && button.isEnabled());
+            c1.setEnabled(button.isSelected() && enabled);
         }
     }
 
