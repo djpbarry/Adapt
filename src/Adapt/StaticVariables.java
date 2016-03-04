@@ -18,6 +18,7 @@ package Adapt;
 
 import UtilClasses.GenUtils;
 import ij.IJ;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 
 /**
@@ -186,4 +187,6 @@ public class StaticVariables {
     public static final int VERSION = 1;
 
     public static final int FLUOR_MAP_HEIGHT = 512;
+    
+    public static final Charset UTF8 = Charset.forName("UTF-8");
 }

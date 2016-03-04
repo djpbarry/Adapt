@@ -74,11 +74,13 @@
         <exec executable="perl.exe">
             <arg line="C:\Users\barry05\perl_tests\get_mercurial_revision_number.pl"/>
             <arg line="${basedir}"/>
+            <arg line="0"/>
         </exec>
         <exec executable="perl.exe">
             <arg line="C:\Users\barry05\perl_tests\update_jar_name.pl"/>
             <arg line="${basedir}"/>
             <arg line="1"/>
+            <arg line="0"/>
         </exec>
     </target>
 </project>

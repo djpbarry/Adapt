@@ -63,6 +63,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -352,12 +353,15 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         calcSigThresh(cellData.get(index));
                         if (uv.isBlebDetect()) {
                             findProtrusionsBasedOnVel(cellData.get(index));
-                            correlativePlot(cellData.get(index));
+                            try {
+                                correlativePlot(cellData.get(index));
+                            } catch (IOException e) {
+                                IJ.log(e.toString());
+                            }
                             String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL, StaticVariables.MEAN_SIGNAL};
                             (new DataFileAverager(StaticVariables.DATA_STREAM_HEADINGS,
                                     normHeadings, uv.isDisplayPlots(), StaticVariables.VELOCITY,
-                                    StaticVariables.TIME,
-                                    StaticVariables.ZEROED_TIME)).run(childDir + delimiter + BLEB_DATA_FILES);
+                                    StaticVariables.TIME, StaticVariables.UTF8)).run(childDir + delimiter + BLEB_DATA_FILES);
                         } else {
                             ImageStack protStacks[] = new ImageStack[2];
                             protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(getMaxFilArea()), 1, cytoSize);
@@ -566,7 +570,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             morph = new File(parDir.getAbsolutePath() + delimiter + "morphology.csv");
             morphStream = new PrintWriter(new FileOutputStream(morph));
         } catch (IOException e) {
-            IJ.error("Could not save morphological data file.");
+            IJ.log("Could not save morphological data file.");
         }
         for (int index = 0; index < cellData.size(); index++) {
             int length = cellData.get(index).getLength();
@@ -1150,7 +1154,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     void analyzeDetections(RoiManager manager, ImageProcessor binmap, ParticleAnalyzer analyzer) {
         ParticleAnalyzer.setRoiManager(manager);
         if (!analyzer.analyze(new ImagePlus("", binmap))) {
-            IJ.error("Protrusion analysis failed.");
+            IJ.log("Protrusion analysis failed.");
         }
         hideWindows();
     }
@@ -1433,12 +1437,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return (float) ((Math.pow(gradient.getPixelValue(point[0], point[1])
                 - gradient.getPixelValue(x, y), 2.0) + lambda) / (1.0 + lambda));
     }
+
     /*
      * Returns an image which illustrates the standard deviation at each point
      * in image. The standard deviation is evaluated in a square neighbourhood
      * of size 2 * window + 1 about each point.
      */
-
     ImageProcessor sdImage(ImageProcessor image, int window) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -1702,13 +1706,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * Correlates data in velImage and sigImage within the Roi's specified in
      * sigrois and velrois.
      */
-    void correlativePlot(CellData cellData) {
+    void correlativePlot(CellData cellData) throws IOException, FileNotFoundException {
         cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), true, uv.getMinCurveThresh(), uv.getCurveRange(), uv, trajMin));
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
         cellData.getGreyVelMap().resetRoi();
         cellData.setVelMapWithDetections(velMapWithDetections);
         File thisMeanData, blebCount;
-        PrintWriter thisDataStream, blebCountStream;
+        OutputStreamWriter thisDataStream, blebCountStream;
         File plotDataDir = GenUtils.createDirectory(childDir + delimiter + BLEB_DATA_FILES, false);
         File detectDir = GenUtils.createDirectory(childDir + delimiter + "Detection_Visualisation", false);
         File mapDir = GenUtils.createDirectory(childDir + delimiter + "Bleb_Signal_Maps", false);
@@ -1729,14 +1733,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * Cycle through all sigrois and calculate, as functions of time, mean
          * velocity, mean signal strength for all sigrois (all protrusions).
          */
-        try {
-            blebCount = new File(childDir + delimiter + "BlebsVersusTime.csv");
-            blebCountStream = new PrintWriter(new FileOutputStream(blebCount));
-            blebCountStream.println("Frame,Number of Blebs");
-        } catch (FileNotFoundException e) {
-            System.out.println(e.toString());
-            return;
-        }
+        blebCount = new File(childDir + delimiter + "BlebsVersusTime.csv");
+        blebCountStream = new OutputStreamWriter(new FileOutputStream(blebCount), StaticVariables.UTF8);
+        blebCountStream.write("Frame,Number of Blebs\n");
         int blebFrameCount[] = new int[stacks[0].getSize()];
         Arrays.fill(blebFrameCount, 0);
         int count = 0;
@@ -1772,18 +1771,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         /*
                          * Open files to save data for current protrusion
                          */
-                        try {
-                            thisMeanData = new File(plotDataDir + delimiter + "bleb_data_" + count + ".csv");
-                            thisDataStream = new PrintWriter(new FileOutputStream(thisMeanData));
-                        } catch (FileNotFoundException e) {
-                            System.out.println(e.toString());
-                            return;
-                        }
-                        thisDataStream.println(directory.getAbsolutePath() + "_" + count);
+                        thisMeanData = new File(plotDataDir + delimiter + "bleb_data_" + count + ".csv");
+                        thisDataStream = new OutputStreamWriter(new FileOutputStream(thisMeanData), StaticVariables.UTF8);
+                        thisDataStream.write(directory.getAbsolutePath() + "_" + count + "\n");
                         for (int d = 0; d < StaticVariables.DATA_STREAM_HEADINGS.length; d++) {
-                            thisDataStream.print(StaticVariables.DATA_STREAM_HEADINGS[d] + ",");
+                            thisDataStream.write(StaticVariables.DATA_STREAM_HEADINGS[d] + ",");
                         }
-                        thisDataStream.println();
+                        thisDataStream.write("\n");
                         IJ.saveAs(new ImagePlus("", BlebAnalyser.drawBlebSigMap(currentBleb,
                                 uv.getSpatialRes(), uv.isUseSigThresh())),
                                 "TIF", mapDir + delimiter + "detection_" + numFormat.format(count) + "_map.tif");
@@ -1796,13 +1790,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             double time = t * 60.0 / uv.getTimeRes();
                             double currentMeanSig;
                             currentMeanSig = sumSig.get(z) / protrusionLength.get(z);
-                            thisDataStream.print(String.valueOf(time - time0) + ", "
+                            thisDataStream.write(String.valueOf(time - time0) + ", "
                                     + String.valueOf(meanVel.get(z)) + ", "
                                     + String.valueOf(sumSig.get(z)) + ", "
                                     + String.valueOf(currentMeanSig) + ", "
                                     + String.valueOf(protrusionLength.get(z)) + ", "
                                     + String.valueOf(protrusionLength.get(z) / protrusionLength.get(0)));
-                            thisDataStream.println();
+                            thisDataStream.write("\n");
                             blebFrameCount[t]++;
                         }
                         thisDataStream.close();
@@ -1813,7 +1807,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         for (int b = 0; b < blebFrameCount.length; b++) {
-            blebCountStream.println(b + "," + blebFrameCount[b]);
+            blebCountStream.write(b + "," + blebFrameCount[b] + "\n");
         }
         blebCountStream.close();
         Utils.saveStackAsSeries(detectionStack, detectDir + delimiter, "JPEG", numFormat);
@@ -1996,11 +1990,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     double getMinCellArea() {
         return uv.getMorphSizeMin() / (Math.pow(uv.getSpatialRes(), 2.0));
     }
-    
+
     double getMinFilArea() {
         return uv.getFiloSizeMin() / (Math.pow(uv.getSpatialRes(), 2.0));
     }
-    
+
     double getMaxFilArea() {
         return Math.sqrt(uv.getFiloSizeMax() / (Math.pow(uv.getSpatialRes(), 2.0)));
     }
