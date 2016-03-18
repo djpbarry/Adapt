@@ -9,9 +9,9 @@ package Adapt;
  *
  */
 public class Main {
-
+//
 //    public static void main(String args[]) {
-//        (new ADAPT_Bleb_Data_Averager()).run(null);
+//        (new Bleb_Data_Analysis()).run(null);
 //        System.exit(0);
 //    }
 

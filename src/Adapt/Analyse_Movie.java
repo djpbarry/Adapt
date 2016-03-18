@@ -124,8 +124,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * For debugging - images loaded from file
      */
     void initialise() {
-        stacks[0] = IJ.openImage().getImageStack();
-        stacks[1] = IJ.openImage().getImageStack();
+        ImagePlus imp1 = IJ.openImage();
+        stacks[0] = imp1.getImageStack();
+        ImagePlus imp2 = IJ.openImage();
+        if (imp2 != null) {
+            stacks[1] = imp2.getImageStack();
+        }
     }
 
     /**
@@ -389,7 +393,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             getMorphologyData(cellData);
         }
         trajDirName = GenUtils.createDirectory(parDir + delimiter + "Trajectories_Visualisation", false);
-        generateCellTrajectories(cellData);
+        try {
+            generateCellTrajectories(cellData);
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: Failed to create cell trajectories file.\n");
+            System.out.println(e.toString());
+        }
         File paramFile;
         PrintWriter paramStream;
         try {
@@ -916,7 +925,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         dialog.dispose();
     }
 
-    void generateCellTrajectories(ArrayList<CellData> cellDatas) {
+    void generateCellTrajectories(ArrayList<CellData> cellDatas) throws FileNotFoundException {
         int N = cellDatas.size();
         ImageStack cytoStack = stacks[0];
         String pdLabel = protMode ? "Building Filopodia Trajectories..." : "Building Cell Trajectories...";
@@ -935,16 +944,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         Arrays.fill(distances, 0.0);
         int xc = width / 2;
         int yc = height / 2;
-        File trajFile;
-        PrintWriter trajStream;
-        try {
-            trajFile = new File(trajDirName + delimiter + "trajectory.csv");
-            trajStream = new PrintWriter(new FileOutputStream(trajFile));
-        } catch (FileNotFoundException e) {
-            System.out.println("Error: Failed to create cell trajectories file.\n");
-            System.out.println(e.toString());
-            return;
-        }
+        File trajFile = new File(trajDirName + delimiter + "trajectory.csv");
+        PrintWriter trajStream = new PrintWriter(new FileOutputStream(trajFile));
         trajStream.print("Frame,Time (s),");
         for (int n = 0; n < N; n++) {
             colors[n] = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
@@ -1000,14 +1001,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + numFormat.format(t));
             trajStream.println();
         }
-        trajStream.print("\nMean Velocity (" + IJ.micronSymbol + "m/min):,");
+        trajStream.print("\nMean Velocity (" + IJ.micronSymbol + "m/min):,,");
         for (int n = 0; n < N; n++) {
             int l = cellData.get(n).getLength();
             if (l > minLength) {
                 trajStream.print(String.valueOf(distances[n] * uv.getTimeRes() / l) + ",,");
             }
         }
-        trajStream.print("\nDirectionality:,");
+        trajStream.print("\nDirectionality:,,");
         for (int n = 0; n < N; n++) {
             int l = cellData.get(n).getLength();
             if (l > minLength) {
