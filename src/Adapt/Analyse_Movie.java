@@ -390,7 +390,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             genSimpSegVis(cellData);
         }
         if (uv.isGetMorph()) {
-            getMorphologyData(cellData);
+            try {
+                getMorphologyData(cellData);
+            } catch (IOException e) {
+                IJ.log("Could not save morphological data file.");
+            }
         }
         trajDirName = GenUtils.createDirectory(parDir + delimiter + "Trajectories_Visualisation", false);
         try {
@@ -569,18 +573,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-    void getMorphologyData(ArrayList<CellData> cellData) {
+    void getMorphologyData(ArrayList<CellData> cellData) throws IOException {
         ResultsTable rt = Analyzer.getResultsTable();
         Prefs.blackBackground = false;
         double minArea = getMinCellArea();
-        File morph;
-        PrintWriter morphStream = null;
-        try {
-            morph = new File(parDir.getAbsolutePath() + delimiter + "morphology.csv");
-            morphStream = new PrintWriter(new FileOutputStream(morph));
-        } catch (IOException e) {
-            IJ.log("Could not save morphological data file.");
-        }
+        File morph = new File(parDir.getAbsolutePath() + delimiter + "morphology.txt");
+        PrintWriter morphStream = new PrintWriter(new FileOutputStream(morph));
         for (int index = 0; index < cellData.size(); index++) {
             int length = cellData.get(index).getLength();
             if (length > minLength) {
