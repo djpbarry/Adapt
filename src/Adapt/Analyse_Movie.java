@@ -948,8 +948,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         for (int n = 0; n < N; n++) {
             colors[n] = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
             if (cellData.get(n).getLength() > minLength) {
-                trajStream.print("Cell_" + String.valueOf(n + 1) + "_X,");
-                trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y,");
+                trajStream.print("Cell_" + String.valueOf(n + 1) + "_X (" + IJ.micronSymbol + "m),");
+                trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y (" + IJ.micronSymbol + "m),");
                 Region[] allRegions = cellData.get(n).getCellRegions();
                 Region current = allRegions[cellData.get(n).getStartFrame() - 1];
                 ArrayList<float[]> centres = current.getCentres();
@@ -960,7 +960,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         trajStream.println();
         for (int t = 0; t < stackSize; t++) {
-            trajStream.print(String.valueOf(t) + "," + String.valueOf(t * uv.getTimeRes() / 60.0) + ",");
+            trajStream.print(String.valueOf(t) + "," + String.valueOf(t * 60.0 / uv.getTimeRes()) + ",");
             dialog.updateProgress(t, stackSize);
             ColorProcessor trajOutput = new ColorProcessor(width, height);
             trajOutput.setColor(Region.FOREGROUND);
@@ -982,7 +982,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         double y = centres.get(c - 1)[1];
                         trajOutput.fillOval((int) Math.round(x + xc - origins[n][0]) - r,
                                 (int) Math.round(y + yc - origins[n][1]) - r, d, d);
-                        trajStream.print(String.valueOf(x) + "," + String.valueOf(y) + ",");
+                        trajStream.print(String.valueOf(x * uv.getSpatialRes()) + "," + String.valueOf(y * uv.getSpatialRes()) + ",");
                         if (t + 1 > start) {
                             Region last = allRegions[t - 1];
                             ArrayList<float[]> lastCentres = last.getCentres();
