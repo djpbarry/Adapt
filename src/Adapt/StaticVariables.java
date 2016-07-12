@@ -173,6 +173,10 @@ public class StaticVariables {
      * Formatting of floating-point results
      */
     protected static DecimalFormat floatFormat = new DecimalFormat("0.000"); // For formatting results
+    
+    public static final String MIN_VEL = "Minimum Display Velocity  (" + GenUtils.mu + "m/min)";
+    
+    public static final String MAX_VEL = "Maximum Display Velocity (" + GenUtils.mu + "m/min)";
     /**
      * Background values in generated mask images
      */

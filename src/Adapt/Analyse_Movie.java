@@ -542,14 +542,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             FloatProcessor greyCurvMap = new FloatProcessor(curvatures.length, upLength);
             FloatProcessor greySigMap = new FloatProcessor(sigchanges.length, upLength);
             ColorProcessor colorVelMap = new ColorProcessor(smoothVelocities.length, upLength);
-            DataStatistics velstats = new DataStatistics(0.05, smoothVelocities, smoothVelocities.length * smoothVelocities[0].length);
-            double maxvel = velstats.getUpper99(); // Max and min velocity values (for colourmap) based on upper.lower 99th percentile boundaries
-            double minvel = velstats.getLower99();
-            generateScaleBar(maxvel, minvel);
+//            DataStatistics velstats = new DataStatistics(0.05, smoothVelocities, smoothVelocities.length * smoothVelocities[0].length);
+//            double maxvel = velstats.getUpper99(); // Max and min velocity values (for colourmap) based on upper.lower 99th percentile boundaries
+//            double minvel = velstats.getLower99();
+            generateScaleBar(uv.getMaxVel(), uv.getMinVel());
             cellData.get(index).setGreyVelMap(greyVelMap);
             cellData.get(index).setGreyCurveMap(greyCurvMap);
-            cellData.get(index).setMaxVel(maxvel);
-            cellData.get(index).setMinVel(minvel);
+            cellData.get(index).setMaxVel(uv.getMaxVel());
+            cellData.get(index).setMinVel(uv.getMinVel());
             cellData.get(index).setGreySigMap(greySigMap);
             cellData.get(index).setColorVelMap(colorVelMap);
             cellData.get(index).setSmoothVelocities(smoothVelocities);

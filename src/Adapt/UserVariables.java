@@ -56,7 +56,9 @@ public class UserVariables {
     private double morphSizeMin = 500.0;
     private double filoSizeMin = 1.0;
     private int visLineWidth = 1;
-    private boolean displayPlots=true;
+    private boolean displayPlots = true;
+    private double maxVel = 1.0;
+    private double minVel = -1.0;
 
     /**
      * Get the radius of circles drawn on bleb detection output movies
@@ -462,7 +464,6 @@ public class UserVariables {
 //    public void setSimple(boolean simple) {
 //        this.simple = simple;
 //    }
-
     public double getLambda() {
         return lambda;
     }
@@ -493,7 +494,6 @@ public class UserVariables {
 //    public void setMaxCurveThresh(double maxCurveThresh) {
 //        this.maxCurveThresh = maxCurveThresh;
 //    }
-
     public String getThreshMethod() {
         return threshMethod;
     }
@@ -556,6 +556,22 @@ public class UserVariables {
 
     public void setFiloSizeMin(double filoSizeMin) {
         this.filoSizeMin = filoSizeMin;
+    }
+
+    public double getMaxVel() {
+        return maxVel;
+    }
+
+    public void setMaxVel(double maxVel) {
+        this.maxVel = maxVel;
+    }
+
+    public double getMinVel() {
+        return minVel;
+    }
+
+    public void setMinVel(double minVel) {
+        this.minVel = minVel;
     }
 
     public Object clone() {
