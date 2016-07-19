@@ -962,12 +962,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         for (int t = 0; t < stackSize; t++) {
             trajStream.print(String.valueOf(t) + "," + String.valueOf(t * 60.0 / uv.getTimeRes()) + ",");
             dialog.updateProgress(t, stackSize);
-            ColorProcessor trajOutput = new ColorProcessor(width, height);
-            trajOutput.setColor(Region.FOREGROUND);
-            trajOutput.fill();
+            ColorProcessor trajOutputCommonOrigin = new ColorProcessor(width, height);
+            trajOutputCommonOrigin.setColor(Region.FOREGROUND);
+            trajOutputCommonOrigin.fill();
+            ColorProcessor trajOutput = (ColorProcessor) trajOutputCommonOrigin.duplicate();
             int d = uv.getVisLineWidth();
             int r = (int) Math.floor(d / 2.0);
             for (int n = 0; n < N; n++) {
+                trajOutputCommonOrigin.setColor(colors[n]);
                 trajOutput.setColor(colors[n]);
                 int start = cellData.get(n).getStartFrame();
                 int end = cellData.get(n).getEndFrame();
@@ -980,8 +982,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         int c = centres.size();
                         double x = centres.get(c - 1)[0];
                         double y = centres.get(c - 1)[1];
-                        trajOutput.fillOval((int) Math.round(x + xc - origins[n][0]) - r,
+                        trajOutputCommonOrigin.fillOval((int) Math.round(x + xc - origins[n][0]) - r,
                                 (int) Math.round(y + yc - origins[n][1]) - r, d, d);
+                        trajOutput.fillOval((int) Math.round(x - r), (int) Math.round(y - r), d, d);
                         trajStream.print(String.valueOf(x * uv.getSpatialRes()) + "," + String.valueOf(y * uv.getSpatialRes()) + ",");
                         if (t + 1 > start) {
                             Region last = allRegions[t - 1];
@@ -996,7 +999,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     }
                 }
             }
-            IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + numFormat.format(t));
+            IJ.saveAs((new ImagePlus("", trajOutputCommonOrigin)), "PNG", trajDirName.getAbsolutePath() + delimiter + "CommonOrigin_T" + numFormat.format(t));
+            IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + "Unmodified_T" + numFormat.format(t));
             trajStream.println();
         }
         trajStream.print("\nMean Velocity (" + IJ.micronSymbol + "m/min):,,");
