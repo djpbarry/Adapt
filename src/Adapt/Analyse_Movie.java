@@ -433,8 +433,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             if (threshold < 0) {
                 threshold = getThreshold(input, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             }
-            input.threshold(threshold);
             ByteProcessor binary = (ByteProcessor) input.duplicate();
+            binary.threshold(threshold);
             if (masks != null) {
                 ByteBlitter bb = new ByteBlitter(binary);
                 bb.copyBits(masks, 0, 0, Blitter.SUBTRACT);
@@ -1849,7 +1849,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      */
     public void generatePreview(int sliceIndex) {
         cellData = new ArrayList();
-        ImageProcessor cytoProc = GenUtils.convertStackTo8Bit(stacks[0]).getProcessor(sliceIndex);
+        ImageProcessor cytoProc = stacks[0].getProcessor(sliceIndex).duplicate();
         (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         int threshold = getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
         int nCell = initialiseROIs(sliceIndex, null, -1, sliceIndex, cytoProc);
@@ -1877,6 +1877,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         for (int i = 0; i < channels; i++) {
             TypeConverter outToColor = new TypeConverter(stacks[i].getProcessor(sliceIndex).duplicate(), true);
             regionsOutput[i] = outToColor.convertToRGB();
+            regionsOutput[i].setLineWidth(uv.getVisLineWidth());
         }
         for (int r = 0; r < nCell; r++) {
             Region region = detectedRegions.get(r);
