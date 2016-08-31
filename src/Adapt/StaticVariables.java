@@ -193,4 +193,6 @@ public class StaticVariables {
     public static final int FLUOR_MAP_HEIGHT = 512;
     
     public static final Charset UTF8 = Charset.forName("UTF-8");
+    
+    public static final Charset ISO = Charset.forName("ISO-8859-1");
 }

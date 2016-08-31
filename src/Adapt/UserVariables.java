@@ -24,11 +24,11 @@ import ij.process.AutoThresholder;
 public class UserVariables {
 
     private double greyThresh = 0.95; // user-specified grey-level threshold used in conditional region dilation
-    private boolean genVis = true;
+    private boolean genVis = false;
     private double blebDurThresh = 0.0; // minimum duration (in frames) of bleb to be considered in analysis
     private int curveRange = 10;
     private boolean useSigThresh = false;
-    private double spatialRes = 0.132; //timeRes in frames/minute, spatialRes in microns/pixel;
+    private double spatialRes = 0.161; //timeRes in frames/minute, spatialRes in microns/pixel;
     private double cutOffTime = 120.0;
     private double cortexDepth = 1.0;
     private boolean autoThreshold = true; // User-specifed threshold is used if set to false
@@ -36,26 +36,26 @@ public class UserVariables {
     private double sigThreshFact = 0.0;
     private double spatFiltRad = 5.0; // radius of Gaussian filters used to smooth velocity and signal maps
     private int erosion = 4;
-    private boolean getMorph = true;
+    private boolean getMorph = false;
     private double timeRes = 60.0; // temporal resolution in frames per minute
     private double blebLenThresh = 0.0; // minimum normalised length of bleb to be considered in analysis
     private double minCurveThresh = 0.0;
 //    private double maxCurveThresh = 0.0;
-    private boolean analyseProtrusions = true;
+    private boolean analyseProtrusions = false;
     private double sigRecoveryThresh = 0.25;
-    private double gaussRad = 1.0;
+    private double gaussRad = 5.0;
     private final boolean usedSmoothedVels = true;
     private final int ovalRadius = 2;
 //    private boolean simple = true;
     private double lambda = 10000.0; // parameter used in construction of Voronoi manifolds. See Jones et al., 2005: dx.doi.org/10.1007/11569541_54
     private int minLength = 0;
-    private String threshMethod = AutoThresholder.Method.Default.toString();
+    private String threshMethod = AutoThresholder.Method.Intermodes.toString();
     private boolean blebDetect = true;
     private double filoSizeMax = 4;
-    private boolean getFluorDist = false;
+    private boolean getFluorDist = true;
     private double morphSizeMin = 500.0;
     private double filoSizeMin = 1.0;
-    private int visLineWidth = 1;
+    private int visLineWidth = 5;
     private boolean displayPlots = true;
     private double maxVel = 1.0;
     private double minVel = -1.0;

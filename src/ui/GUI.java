@@ -293,6 +293,7 @@ public class GUI extends javax.swing.JDialog {
         simpleTab.add(minTrajTextField, gridBagConstraints);
 
         genSigDistToggleButton.setText(StaticVariables.GEN_SIG_DIST);
+        genSigDistToggleButton.setSelected(uv.isGetFluorDist());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 8;

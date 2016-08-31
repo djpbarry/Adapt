@@ -20,7 +20,6 @@ import DataProcessing.DataFileAverager;
 import IAClasses.BoundaryPixel;
 import IAClasses.CrossCorrelation;
 import IAClasses.DSPProcessor;
-import IAClasses.DataStatistics;
 import IAClasses.ProgressDialog;
 import IAClasses.Region;
 import IAClasses.Utils;
@@ -70,6 +69,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
@@ -231,11 +232,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         cellData = new ArrayList();
         ImageProcessor cytoImage = cytoStack.getProcessor(1).duplicate();
         (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
-        if (initialiseROIs(1, null, -1, 1, cytoImage) < 1) {
-            IJ.error(TITLE, "No cells detected!");
-            segDialog.dispose();
-            return;
-        }
+        initialiseROIs(1, null, -1, 1, cytoImage);
+//        if (initialiseROIs(1, null, -1, 1, cytoImage) < 1) {
+//            IJ.error(TITLE, "No cells detected!");
+//            segDialog.dispose();
+//            return;
+//        }
         roi = null;
         /*
          * Cycle through all images in stack and detect cells in each. All
@@ -352,6 +354,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     buildOutput(index, length, false);
                     if (uv.isGetFluorDist()) {
                         generateFluorMaps(getFluorDists(cellData.get(index), StaticVariables.FLUOR_MAP_HEIGHT));
+                        File fluorFile = new File(parDir + delimiter + "fluorescence.csv");
+                        try {
+                            CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(fluorFile), StaticVariables.ISO), CSVFormat.EXCEL);
+                            RegionFluorescenceQuantifier rfq = new RegionFluorescenceQuantifier(cellData.get(index).getCellRegions(), stacks[1], printer);
+                            rfq.doQuantification();
+                            printer.close();
+                        } catch (Exception e) {
+                        }
                     }
                     if (!protMode && uv.isAnalyseProtrusions()) {
                         calcSigThresh(cellData.get(index));
@@ -1341,7 +1351,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //            Region cell = singleImageRegions.get(i);
 //            cell.clearPixels();
 //        }
-//        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\regions.tif");
+//        IJ.saveAs((new ImagePlus("", regionImage)), "TIF", "C:\\Users\\barry05\\adapt_debug\\regions.tif");
 //        IJ.saveAs((new ImagePlus("", expandedImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\expandedimages.tif");
 //        IJ.saveAs(new ImagePlus("", inputImage), "TIF", "C:/users/barry05/desktop/inputImage.tif");
         return regionImage;
