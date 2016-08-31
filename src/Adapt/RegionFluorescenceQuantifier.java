@@ -34,7 +34,7 @@ public class RegionFluorescenceQuantifier {
     public void doQuantification() throws IOException {
         int length = stack.size();
         String headings = FluorescenceAnalyser.PARAM_HEADINGS;
-        printer.printRecord(headings);
+        printer.printRecord(headings.replace('\t', ','));
         for (int i = 1; i <= length; i++) {
             if (regions[i - 1] != null) {
                 ImageProcessor mask = regions[i - 1].getMask();
