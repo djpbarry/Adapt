@@ -185,8 +185,8 @@ public class CurveMapAnalyser {
                 detectionSlice.setColor(Color.red);
                 for (int j = 0; j < mpSize; j++) {
                     BoundaryPixel currentMin = minPos[i].get(j);
-                    int x = currentMin.getX();
-                    int y = currentMin.getY();
+                    int x = currentMin.getRoundedX();
+                    int y = currentMin.getRoundedY();
                     detectionSlice.drawString(String.valueOf(currentMin.getID()), x, y);
                 }
             }
@@ -195,8 +195,8 @@ public class CurveMapAnalyser {
                 detectionSlice.setColor(Color.magenta);
                 for (int j = 0; j < mpSize; j++) {
                     BoundaryPixel currentMax = maxPos[i].get(j);
-                    int x = currentMax.getX();
-                    int y = currentMax.getY();
+                    int x = currentMax.getRoundedX();
+                    int y = currentMax.getRoundedY();
                     detectionSlice.drawString(String.valueOf(currentMax.getID()), x, y);
                 }
             }

@@ -22,6 +22,7 @@ import IAClasses.CrossCorrelation;
 import IAClasses.DSPProcessor;
 import IAClasses.ProgressDialog;
 import IAClasses.Region;
+import static IAClasses.Region.MASK_FOREGROUND;
 import IAClasses.Utils;
 import UtilClasses.Utilities;
 import UtilClasses.GenUtils;
@@ -304,7 +305,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 filoStream.println(i + ", " + fcount);
             }
             allMasks = new ByteProcessor(width, height);
-            allMasks.setColor(Region.FOREGROUND);
+            allMasks.setColor(Region.MASK_FOREGROUND);
             allMasks.fill();
             ByteBlitter bb = new ByteBlitter(allMasks);
             for (int k = 0; k < allRegions[i].size(); k++) {
@@ -468,9 +469,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
             if (!Utils.isEdgePixel(init[0], init[1], stacks[0].getWidth(), stacks[0].getHeight(), 1)) {
                 ByteProcessor mask = new ByteProcessor(stacks[0].getWidth(), stacks[0].getHeight());
-                mask.setColor(Region.BACKGROUND);
+                mask.setColor(Region.MASK_BACKGROUND);
                 mask.fill();
-                mask.setColor(Region.FOREGROUND);
+                mask.setColor(Region.MASK_FOREGROUND);
                 mask.drawPixel(init[0], init[1]);
                 cellData.get(i).setInitialRegion(new Region(mask, init));
                 cellData.get(i).setEndFrame(stacks[0].getSize());
@@ -973,7 +974,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             trajStream.print(String.valueOf(t) + "," + String.valueOf(t * 60.0 / uv.getTimeRes()) + ",");
             dialog.updateProgress(t, stackSize);
             ColorProcessor trajOutputCommonOrigin = new ColorProcessor(width, height);
-            trajOutputCommonOrigin.setColor(Region.FOREGROUND);
+            trajOutputCommonOrigin.setColor(Region.MASK_FOREGROUND);
             trajOutputCommonOrigin.fill();
             ColorProcessor trajOutput = (ColorProcessor) trajOutputCommonOrigin.duplicate();
             int d = uv.getVisLineWidth();
@@ -1125,7 +1126,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         ImageStack cyto2 = new ImageStack(stacks[0].getWidth(), stacks[0].getHeight());
         for (int f = start - 1; f < stacks[0].getSize() && f <= stop - 1; f++) {
             ImageProcessor mask = new ByteProcessor(stacks[0].getWidth(), stacks[0].getHeight());
-            mask.setColor(Region.BACKGROUND);
+            mask.setColor(Region.MASK_BACKGROUND);
             mask.fill();
             if (regions[f] != null) {
                 mask = regions[f].getMask();
@@ -1228,7 +1229,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * using centroids.
          */
         ShortProcessor indexedRegions = new ShortProcessor(width, height);
-        indexedRegions.setValue(Region.FOREGROUND);
+        indexedRegions.setValue(Region.MASK_FOREGROUND);
         indexedRegions.fill();
         indexedRegions.setColor(outVal);
         ShortBlitter bb = new ShortBlitter(indexedRegions);
@@ -1237,7 +1238,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             if (region != null) {
                 ShortProcessor mask = (ShortProcessor) (new TypeConverter(region.getMask(), false)).convertToShort();
                 mask.invert();
-                mask.multiply((i + 1) / Region.BACKGROUND);
+                mask.multiply((i + 1) / Region.MASK_BACKGROUND);
                 bb.copyBits(mask, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
             }
             singleImageRegions.add(region);
@@ -1260,10 +1261,16 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int i, j;
         int width = regionImage.getWidth();
         int height = regionImage.getHeight();
+        int widthheight = width * height;
         boolean totChange = true;
         boolean thisChange;
         float inputPix[] = (float[]) inputImage.getPixels();
         short regionImagePix[] = (short[]) regionImage.getPixels();
+        short[] checkImagePix = new short[widthheight];
+        short[] tempRegionPix = new short[widthheight];
+        short[] countImagePix = new short[widthheight];
+        Arrays.fill(checkImagePix, MASK_FOREGROUND);
+        Arrays.fill(countImagePix, MASK_FOREGROUND);
         /*
          * Image texture (and grey levels) used to control region growth.
          * Standard deviation of grey levels is used as a simple measure of
@@ -1308,25 +1315,28 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 Region cell = singleImageRegions.get(i);
                 if (cell != null && cell.isActive()) {
                     ShortProcessor expandedImage = new ShortProcessor(regionImage.getWidth(), regionImage.getHeight());
-                    expandedImage.setColor(Region.BACKGROUND);
-                    Rectangle r = cell.getBounds();
-                    r.grow(6, 6);
-                    r = cell.checkBounds(r);
-                    expandedImage.setRoi(r);
+                    expandedImage.setColor(Region.MASK_BACKGROUND);
                     expandedImage.fill();
-                    expandedImage.setColor(Region.FOREGROUND);
+                    expandedImage.setColor(Region.MASK_FOREGROUND);
+                    Arrays.fill(tempRegionPix, MASK_FOREGROUND);
                     LinkedList<short[]> borderPix = cell.getBorderPix();
                     int borderLength = borderPix.size();
                     thisChange = false;
                     for (j = 0; j < borderLength; j++) {
                         short[] thispix = borderPix.get(j);
+                        int offset = thispix[1] * width;
 //                        if (!simple) {
 //                            thisChange = dijkstraDilate(ref, cell, thispix,
 //                                    distancemaps, intermediate, i + 1) || thisChange;
 //                        } else {
-                        thisChange = simpleDilate(regionImagePix,
-                                inputPix, cell, thispix, intermediate, threshold, (short) (i + 1), expandedImage, width, height)
-                                || thisChange;
+                        if (checkImagePix[thispix[0] + offset] == MASK_FOREGROUND) {
+                            boolean thisResult = simpleDilate(regionImagePix,
+                                    inputPix, cell, thispix, intermediate, threshold, (short) (i + 1), expandedImage, width, height, countImagePix, tempRegionPix);
+                            thisChange = thisResult || thisChange;
+                            if (!thisResult) {
+                                checkImagePix[thispix[0] + offset]++;
+                            }
+                        }
 //                        }
 //                        regionImageStack.addSlice(regionImage.duplicate());
 //                        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\regions.tif");
@@ -1338,9 +1348,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //                }
             }
 //            regionImageStack.addSlice(regionImage.duplicate());
-//            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\regions.tif");
+//            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "/Users/Dave/Desktop/EMSeg Test Output/regions.tif");
 //            if (simple) {
-            expandRegions(singleImageRegions, regionImage, cellNum, terminal);
+            expandRegions(singleImageRegions, regionImage, cellNum, terminal, tempRegionPix);
 //            } else {
 //                expandRegions(singleImageRegions, regionImages, cellNum);
 //            }
@@ -1351,7 +1361,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //            Region cell = singleImageRegions.get(i);
 //            cell.clearPixels();
 //        }
-//        IJ.saveAs((new ImagePlus("", regionImage)), "TIF", "C:\\Users\\barry05\\adapt_debug\\regions.tif");
+//        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "/Users/Dave/Desktop/regions.tif");
 //        IJ.saveAs((new ImagePlus("", expandedImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\expandedimages.tif");
 //        IJ.saveAs(new ImagePlus("", inputImage), "TIF", "C:/users/barry05/desktop/inputImage.tif");
         return regionImage;
@@ -1487,30 +1497,34 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return sdImage;
     }
 
-    private boolean simpleDilate(short[] regionImagePix, float[] greyPix, Region cell, short[] point, short intermediate, double greyThresh, short index, ShortProcessor expandedImage, int width, int height) {
+    private boolean simpleDilate(short[] regionImagePix, float[] greyPix, Region cell, short[] point, short intermediate, double greyThresh, short index, ShortProcessor expandedImage, int width, int height, short[] countPix, short[] tempImagePix) {
         int x = point[0], y = point[1];
-        if (regionImagePix[x + y * width] > intermediate) {
+        int yOffset = y * width;
+        if (regionImagePix[x + yOffset] > intermediate) {
             cell.addExpandedBorderPix(point);
             expandedImage.drawPixel(x, y);
+            tempImagePix[x + yOffset]++;
             return false;
         }
         boolean dilate = false, remove = true;
-        for (int j = y - 1; j <= y + 1; j++) {
-            int offset = j * width;
-            for (int i = x - 1; i <= x + 1; i++) {
-                if (!(Utils.isEdgePixel(i, j, width, height, 0))) {
-                    short r = regionImagePix[i + offset];
-                    double g = greyPix[offset + i];
-                    if ((r == Region.FOREGROUND || r == intermediate) && (g > greyThresh)) {
+        for (int j = y > 0 ? y - 1 : 0; j < height && j <= y + 1; j++) {
+            int jOffset = j * width;
+            for (int i = x > 0 ? x - 1 : 0; i < width && i <= x + 1; i++) {
+                if (countPix[i + jOffset] == 0) {
+                    countPix[i + jOffset]++;
+                    short r = regionImagePix[i + jOffset];
+                    double g = greyPix[jOffset + i];
+                    if ((r == Region.MASK_FOREGROUND || r == intermediate) && (g > greyThresh)) {
                         short[] p = new short[]{(short) i, (short) j};
-                        regionImagePix[i + offset] = intermediate;
+                        regionImagePix[i + jOffset] = intermediate;
                         dilate = true;
-                        if (expandedImage.getPixel(i, j) != Region.FOREGROUND) {
+                        if (expandedImage.getPixel(i, j) != Region.MASK_FOREGROUND) {
                             cell.addExpandedBorderPix(p);
                             expandedImage.drawPixel(i, j);
+                            tempImagePix[x + yOffset]++;
                         }
                     }
-                    r = regionImagePix[i + offset];
+                    r = regionImagePix[i + jOffset];
                     remove = (r == intermediate || r == index) && remove;
                 }
             }
@@ -1518,12 +1532,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (!remove) {
             cell.addExpandedBorderPix(point);
             expandedImage.drawPixel(point[0], point[1]);
+            tempImagePix[x + yOffset]++;
             if (x < 1 || y < 1 || x >= width - 1 || y >= height - 1) {
                 cell.setEdge(true);
             }
         } else if (Utils.isEdgePixel(x, y, width, height, 1)) {
             cell.addExpandedBorderPix(point);
             expandedImage.drawPixel(point[0], point[1]);
+            tempImagePix[x + yOffset]++;
         }
         return dilate;
     }
@@ -1660,10 +1676,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * When complete, borders are dilated to expanded borders and expanded
      * borders are set to null.
      */
-    void expandRegions(ArrayList<Region> regions, ShortProcessor regionImage, int N, short terminal) {
-        ShortProcessor tempRegionImage = new ShortProcessor(regionImage.getWidth(), regionImage.getHeight());
-        tempRegionImage.setValue(Region.FOREGROUND);
-        tempRegionImage.fill();
+    void expandRegions(ArrayList<Region> regions, ShortProcessor regionImage, int N, short terminal, short[] tempRegionPix) {
+        int width = regionImage.getWidth();
         for (int i = 0; i < N; i++) {
             Region cell = regions.get(i);
             if (cell != null) {
@@ -1673,20 +1687,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     short[] current = pixels.get(j);
                     int x = current[0];
                     int y = current[1];
-                    tempRegionImage.putPixelValue(x, y, tempRegionImage.getPixel(x, y) + 1);
-                }
-            }
-        }
-        for (int i = 0; i < N; i++) {
-            Region cell = regions.get(i);
-            if (cell != null) {
-                LinkedList<short[]> pixels = cell.getExpandedBorder();
-                int borderLength = pixels.size();
-                for (int j = 0; j < borderLength; j++) {
-                    short[] current = pixels.get(j);
-                    int x = current[0];
-                    int y = current[1];
-                    if (tempRegionImage.getPixel(x, y) > 1) {
+                    int yOffset = y * width;
+                    if (tempRegionPix[x + yOffset] > 1) {
                         regionImage.putPixelValue(x, y, terminal);
                     } else {
                         regionImage.putPixelValue(x, y, i + 1);
@@ -1895,12 +1897,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 ArrayList<float[]> centres = region.getCentres();
                 float[] c = centres.get(centres.size() - 1);
                 short[] centre = new short[]{(short) Math.round(c[0]), (short) Math.round(c[1])};
-                LinkedList<short[]> border = region.getBorderPix();
+                PolygonRoi roi = region.getPolygonRoi(region.getMask());
                 for (int i = 0; i < channels; i++) {
                     regionsOutput[i].setColor(Color.red);
-                    for (short[] current : border) {
-                        regionsOutput[i].drawDot(current[0], current[1]);
-                    }
+                    regionsOutput[i].drawRoi(roi);
                 }
                 for (int i = 0; i < channels; i++) {
                     regionsOutput[i].setColor(Color.blue);
@@ -1943,8 +1943,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                                 int minpSize = minPos[0].size();
                                 for (int j = 0; j < minpSize; j++) {
                                     BoundaryPixel currentMin = minPos[0].get(j);
-                                    int x = (int) Math.round(currentMin.getPrecX());
-                                    int y = (int) Math.round(currentMin.getPrecY());
+                                    int x = (int) Math.round(currentMin.getX());
+                                    int y = (int) Math.round(currentMin.getY());
                                     regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
                                 }
                             }
@@ -1958,7 +1958,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         filoBin.outline();
                         for (int y = 0; y < filoBin.getHeight(); y++) {
                             for (int x = 0; x < filoBin.getWidth(); x++) {
-                                if (filoBin.getPixel(x, y) < Region.BACKGROUND) {
+                                if (filoBin.getPixel(x, y) < Region.MASK_BACKGROUND) {
                                     for (int i = 0; i < channels; i++) {
                                         regionsOutput[i].drawPixel(x, y);
                                     }
