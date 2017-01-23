@@ -1861,6 +1861,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     public void generatePreview(int sliceIndex) {
         cellData = new ArrayList();
         ImageProcessor cytoProc = stacks[0].getProcessor(sliceIndex).duplicate();
+        int width = cytoProc.getWidth();
+        int height = cytoProc.getHeight();
         (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         int threshold = getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
         int nCell = initialiseROIs(sliceIndex, null, -1, sliceIndex, cytoProc);
@@ -1896,10 +1898,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 ArrayList<float[]> centres = region.getCentres();
                 float[] c = centres.get(centres.size() - 1);
                 short[] centre = new short[]{(short) Math.round(c[0]), (short) Math.round(c[1])};
-                PolygonRoi roi = region.getPolygonRoi(region.getMask());
+                short[][] borderPix = region.getOrderedBoundary(width, height, region.getMask(), centre);
                 for (int i = 0; i < channels; i++) {
                     regionsOutput[i].setColor(Color.red);
-                    regionsOutput[i].drawRoi(roi);
+                    for (short[] b : borderPix) {
+                        regionsOutput[i].drawDot(b[0], b[1]);
+                    }
                 }
                 for (int i = 0; i < channels; i++) {
                     regionsOutput[i].setColor(Color.blue);
@@ -1916,19 +1920,19 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         enlargedMask.dilate();
                     }
                     Region shrunkRegion = new Region(shrunkMask, centre);
-                    LinkedList<short[]> shrunkBorder = shrunkRegion.getBorderPix();
+                    short[][] shrunkBorder = shrunkRegion.getOrderedBoundary(width, height, shrunkMask, centre);
                     Region enlargedRegion = new Region(enlargedMask, centre);
-                    LinkedList<short[]> enlargedBorder = enlargedRegion.getBorderPix();
+                    short[][] enlargedBorder = enlargedRegion.getOrderedBoundary(width, height, enlargedMask, centre);
                     for (int i = 0; i < channels; i++) {
                         regionsOutput[i].setColor(Color.green);
                         for (short[] sCurrent : shrunkBorder) {
                             regionsOutput[i].drawDot(sCurrent[0], sCurrent[1]);
                         }
                     }
-                    int esize = enlargedBorder.size();
+                    int esize = enlargedBorder.length;
                     for (int i = 0; i < channels; i++) {
                         for (int eb = 0; eb < esize; eb++) {
-                            short[] eCurrent = enlargedBorder.get(eb);
+                            short[] eCurrent = enlargedBorder[eb];
                             regionsOutput[i].drawDot(eCurrent[0], eCurrent[1]);
                         }
                     }
