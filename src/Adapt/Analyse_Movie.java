@@ -2039,13 +2039,15 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             int index = 0;
             while (current.shrink(2, false, index)) {
                 float[][] pix = current.buildMapCol(stacks[1].getProcessor(i), height, 3);
-                double pixVals[] = new double[pix.length];
-                for (int j = 0; j < height; j++) {
-                    pixVals[j] = pix[j][2];
+                if (pix != null) {
+                    double pixVals[] = new double[pix.length];
+                    for (int j = 0; j < height; j++) {
+                        pixVals[j] = pix[j][2];
+                    }
+                    means.add(mean.evaluate(pixVals, 0, height));
+                    stds.add(std.evaluate(pixVals));
+                    index++;
                 }
-                means.add(mean.evaluate(pixVals, 0, height));
-                stds.add(std.evaluate(pixVals));
-                index++;
             }
             FloatProcessor meanCol = new FloatProcessor(1, means.size());
             FloatProcessor stdCol = new FloatProcessor(1, stds.size());
