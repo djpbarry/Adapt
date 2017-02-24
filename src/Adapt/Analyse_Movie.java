@@ -2032,7 +2032,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         dialog.setVisible(true);
         for (int i = start; i <= end; i++) {
             dialog.updateProgress(i, end);
-            Region current = (Region) regions[i - 1].clone();
+            Region r = (Region) regions[i - 1];
+            Region current = new Region(r.getMask(), r.getCentre());
             ArrayList<Double> means = new ArrayList();
             ArrayList<Double> stds = new ArrayList();
             int index = 0;
@@ -2071,10 +2072,16 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             meanStream = new PrintWriter(new FileOutputStream(mean));
             std = new File(childDir + delimiter + "STDFluorescenceIntensity.csv");
             stdStream = new PrintWriter(new FileOutputStream(std));
-            meanStream.println("Normalised Distance from Cell Edge,Mean Fluorescence Intensity (AU)");
-            stdStream.println("Normalised Distance from Cell Edge,Standard Deviation of Fluorescence Intensity (AU)");
+            meanStream.print("Normalised Distance from Cell Edge,");
+            stdStream.print("Normalised Distance from Cell Edge,");
             int mapHeight = fluorMaps[0].getHeight();
             int mapWidth = fluorMaps[0].getWidth();
+            for (int x = 0; x < mapWidth; x++) {
+                meanStream.print("Mean Fluorescence Intensity (AU) Frame " + x + ",");
+                stdStream.print("Standard Deviation of Fluorescence Intensity (AU) Frame " + x + ",");
+            }
+            meanStream.println();
+            stdStream.println();
             for (int y = 0; y < mapHeight; y++) {
                 String normDist = String.valueOf(((double) y) / (mapHeight - 1.0));
                 meanStream.print(normDist + ",");
