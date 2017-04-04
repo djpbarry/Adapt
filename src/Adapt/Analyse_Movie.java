@@ -77,6 +77,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import ui.GUI;
+import UtilClasses.GenVariables;
 
 /**
  * Analyse_Movie is designed to quantify cell membrane dynamics and correlate
@@ -217,7 +218,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         /*
          Convert cyto channel to 8-bit for faster segmentation
          */
-        cytoStack = GenUtils.convertStackTo8Bit(stacks[0]);
+        cytoStack = GenUtils.convertStack(stacks[0], 8);
         stacks[0] = cytoStack;
         if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, roi);
@@ -358,7 +359,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         generateFluorMaps(getFluorDists(cellData.get(index), StaticVariables.FLUOR_MAP_HEIGHT));
                         File fluorFile = new File(parDir + delimiter + "fluorescence.csv");
                         try {
-                            CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(fluorFile), StaticVariables.ISO), CSVFormat.EXCEL);
+                            CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(fluorFile), GenVariables.ISO), CSVFormat.EXCEL);
                             RegionFluorescenceQuantifier rfq = new RegionFluorescenceQuantifier(cellData.get(index).getCellRegions(), stacks[1], printer);
                             rfq.doQuantification();
                             printer.close();
@@ -377,7 +378,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL, StaticVariables.MEAN_SIGNAL};
                             (new DataFileAverager(StaticVariables.DATA_STREAM_HEADINGS,
                                     normHeadings, uv.isDisplayPlots(), StaticVariables.VELOCITY,
-                                    StaticVariables.TIME, StaticVariables.UTF8)).run(childDir + delimiter + BLEB_DATA_FILES);
+                                    StaticVariables.TIME, GenVariables.UTF8)).run(childDir + delimiter + BLEB_DATA_FILES);
                         } else {
                             ImageStack protStacks[] = new ImageStack[2];
                             protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(getMaxFilArea()), 1, cytoSize);
@@ -1748,7 +1749,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * velocity, mean signal strength for all sigrois (all protrusions).
          */
         blebCount = new File(childDir + delimiter + "BlebsVersusTime.csv");
-        blebCountStream = new OutputStreamWriter(new FileOutputStream(blebCount), StaticVariables.UTF8);
+        blebCountStream = new OutputStreamWriter(new FileOutputStream(blebCount), GenVariables.UTF8);
         blebCountStream.write("Frame,Number of Blebs\n");
         int blebFrameCount[] = new int[stacks[0].getSize()];
         Arrays.fill(blebFrameCount, 0);
@@ -1786,7 +1787,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                          * Open files to save data for current protrusion
                          */
                         thisMeanData = new File(plotDataDir + delimiter + "bleb_data_" + count + ".csv");
-                        thisDataStream = new OutputStreamWriter(new FileOutputStream(thisMeanData), StaticVariables.UTF8);
+                        thisDataStream = new OutputStreamWriter(new FileOutputStream(thisMeanData), GenVariables.UTF8);
                         thisDataStream.write(directory.getAbsolutePath() + "_" + count + "\n");
                         for (int d = 0; d < StaticVariables.DATA_STREAM_HEADINGS.length; d++) {
                             thisDataStream.write(StaticVariables.DATA_STREAM_HEADINGS[d] + ",");

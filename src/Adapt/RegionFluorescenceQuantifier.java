@@ -28,7 +28,7 @@ public class RegionFluorescenceQuantifier {
 
     public RegionFluorescenceQuantifier(Region[] regions, ImageStack stack, CSVPrinter printer) {
         this.regions = regions;
-        this.stack = GenUtils.convertStackTo8Bit(stack);
+        this.stack = GenUtils.convertStack(stack, 8);
         this.printer = printer;
     }
 

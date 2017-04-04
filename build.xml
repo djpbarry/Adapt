@@ -75,7 +75,6 @@
             <arg line="C:\Users\barryd\Perl_Scripts\get_mercurial_revision_number.pl"/>
             <arg line="${basedir}"/>
             <arg line="1"/>
-            <arg line="$"/>
         </exec>
     </target>
 </project>

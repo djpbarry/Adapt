@@ -17,6 +17,7 @@
 package Adapt;
 
 import DataProcessing.DataFileAverager;
+import UtilClasses.GenVariables;
 import ij.plugin.PlugIn;
 
 public class Bleb_Data_Analysis implements PlugIn {
@@ -24,6 +25,6 @@ public class Bleb_Data_Analysis implements PlugIn {
     public void run(String arg) {
         String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL, StaticVariables.MEAN_SIGNAL};
         new DataFileAverager(StaticVariables.DATA_STREAM_HEADINGS, normHeadings,
-                true, StaticVariables.VELOCITY, StaticVariables.TIME, StaticVariables.UTF8).run(null);
+                true, StaticVariables.VELOCITY, StaticVariables.TIME, GenVariables.UTF8).run(null);
     }
 }
