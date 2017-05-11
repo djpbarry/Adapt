@@ -28,7 +28,8 @@ public class RegionFluorescenceQuantifier {
 
     public RegionFluorescenceQuantifier(Region[] regions, ImageStack stack, CSVPrinter printer) {
         this.regions = regions;
-        this.stack = GenUtils.convertStack(stack, 8);
+//        this.stack = GenUtils.convertStack(stack, 8);
+        this.stack = stack;
         this.printer = printer;
     }
 
@@ -40,7 +41,7 @@ public class RegionFluorescenceQuantifier {
             if (regions[i - 1] != null) {
                 ImageProcessor mask = regions[i - 1].getMask();
                 mask.invert();
-                FluorescenceAnalyser fa = new FluorescenceAnalyser(new ImagePlus("", stack), mask, 1);
+                FluorescenceAnalyser fa = new FluorescenceAnalyser(new ImagePlus("", stack.getProcessor(i).convertToByteProcessor(true)), mask, 1);
                 fa.doAnalysis();
                 printer.printRecord(fa.getContrast(), fa.getHomogeneity(), fa.getEnergy(), fa.getMean(), fa.getStd(), fa.getSkew(), fa.getKurt());
                 tw.append(fa.getContrast() + "\t" + fa.getHomogeneity() + "\t" + fa.getEnergy() + "\t" + fa.getMean() + "\t" + fa.getStd() + "\t" + fa.getSkew() + "\t" + fa.getKurt());

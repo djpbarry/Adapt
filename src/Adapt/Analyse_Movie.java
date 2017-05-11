@@ -450,7 +450,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             if (threshold < 0) {
                 threshold = getThreshold(input, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             }
-            ByteProcessor binary = (ByteProcessor) input.duplicate();
+            ByteProcessor binary = (ByteProcessor) input.convertToByteProcessor(true);
             binary.threshold(threshold);
             if (masks != null) {
                 ByteBlitter bb = new ByteBlitter(binary);
