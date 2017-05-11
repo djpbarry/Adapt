@@ -592,6 +592,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 
     void getMorphologyData(ArrayList<CellData> cellData) throws IOException {
         ResultsTable rt = Analyzer.getResultsTable();
+        rt.reset();
+        boolean headings = false;
         Prefs.blackBackground = false;
         double minArea = getMinCellArea();
         File morph = new File(parDir.getAbsolutePath() + delimiter + "morphology.txt");
@@ -599,7 +601,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         for (int index = 0; index < cellData.size(); index++) {
             int length = cellData.get(index).getLength();
             if (length > minLength) {
-                rt.reset();
                 Region[] allRegions = cellData.get(index).getCellRegions();
                 int start = cellData.get(index).getStartFrame();
                 int end = cellData.get(index).getEndFrame();
@@ -612,7 +613,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     analyzer.analyze(maskImp);
                 }
                 int N = rt.getCounter();
-                morphStream.println(rt.getColumnHeadings());
+                if (!headings) {
+                    morphStream.println(rt.getColumnHeadings());
+                    headings = true;
+                }
                 morphStream.println("Cell_" + String.valueOf(index));
                 for (int i = 0; i < N; i++) {
                     morphStream.println(rt.getRowAsString(i));
