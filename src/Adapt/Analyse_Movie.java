@@ -1928,17 +1928,22 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     short[][] shrunkBorder = shrunkRegion.getOrderedBoundary(width, height, shrunkMask, centre);
                     Region enlargedRegion = new Region(enlargedMask, centre);
                     short[][] enlargedBorder = enlargedRegion.getOrderedBoundary(width, height, enlargedMask, centre);
-                    for (int i = 0; i < channels; i++) {
-                        regionsOutput[i].setColor(Color.green);
-                        for (short[] sCurrent : shrunkBorder) {
-                            regionsOutput[i].drawDot(sCurrent[0], sCurrent[1]);
+                    if (shrunkBorder != null) {
+                        for (int i = 0; i < channels; i++) {
+                            regionsOutput[i].setColor(Color.green);
+                            for (short[] sCurrent : shrunkBorder) {
+                                regionsOutput[i].drawDot(sCurrent[0], sCurrent[1]);
+                            }
                         }
                     }
-                    int esize = enlargedBorder.length;
-                    for (int i = 0; i < channels; i++) {
-                        for (int eb = 0; eb < esize; eb++) {
-                            short[] eCurrent = enlargedBorder[eb];
-                            regionsOutput[i].drawDot(eCurrent[0], eCurrent[1]);
+                    if (enlargedBorder != null) {
+                        int esize = enlargedBorder.length;
+                        for (int i = 0; i < channels; i++) {
+                            regionsOutput[i].setColor(Color.green);
+                            for (int eb = 0; eb < esize; eb++) {
+                                short[] eCurrent = enlargedBorder[eb];
+                                regionsOutput[i].drawDot(eCurrent[0], eCurrent[1]);
+                            }
                         }
                     }
                 }
@@ -2054,18 +2059,20 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     index++;
                 }
             }
-            FloatProcessor meanCol = new FloatProcessor(1, means.size());
-            FloatProcessor stdCol = new FloatProcessor(1, stds.size());
-            for (int k = 0; k < meanCol.getHeight(); k++) {
-                meanCol.putPixelValue(0, k, means.get(k));
-                stdCol.putPixelValue(0, k, stds.get(k));
+            if (index > 0) {
+                FloatProcessor meanCol = new FloatProcessor(1, means.size());
+                FloatProcessor stdCol = new FloatProcessor(1, stds.size());
+                for (int k = 0; k < meanCol.getHeight(); k++) {
+                    meanCol.putPixelValue(0, k, means.get(k));
+                    stdCol.putPixelValue(0, k, stds.get(k));
+                }
+                meanCol.setInterpolate(true);
+                meanCol.setInterpolationMethod(ImageProcessor.BILINEAR);
+                stdCol.setInterpolate(true);
+                stdCol.setInterpolationMethod(ImageProcessor.BILINEAR);
+                meanBlitter.copyBits(meanCol.resize(1, height), i - start, 0, Blitter.COPY);
+                stdBlitter.copyBits(stdCol.resize(1, height), i - start, 0, Blitter.COPY);
             }
-            meanCol.setInterpolate(true);
-            meanCol.setInterpolationMethod(ImageProcessor.BILINEAR);
-            stdCol.setInterpolate(true);
-            stdCol.setInterpolationMethod(ImageProcessor.BILINEAR);
-            meanBlitter.copyBits(meanCol.resize(1, height), i - start, 0, Blitter.COPY);
-            stdBlitter.copyBits(stdCol.resize(1, height), i - start, 0, Blitter.COPY);
         }
         dialog.dispose();
         return dists;
