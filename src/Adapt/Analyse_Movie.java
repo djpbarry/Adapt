@@ -148,8 +148,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             IJ.error("No Images Open.");
             return;
         }
-        if (!batchMode) {
-            directory = Utilities.getFolder(directory, "Specify directory for output files...", true); // Specify directory for output
+        try {
+            if (!batchMode) {
+                directory = Utilities.getFolder(directory, "Specify directory for output files...", true); // Specify directory for output
+            }
+        } catch (Exception e) {
+            IJ.log(e.toString());
         }
         if (directory == null) {
             return;
@@ -204,9 +208,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          */
         String parDirName = null;
         if (batchMode) {
-            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + FilenameUtils.getBaseName(imageName), delimiter);
+            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + FilenameUtils.getBaseName(imageName));
         } else if (!protMode) {
-            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + cytoImp.getShortTitle(), delimiter);
+            parDirName = GenUtils.openResultsDirectory(directory + delimiter + TITLE + delimiter + cytoImp.getShortTitle());
         }
         if (parDirName != null) {
             parDir = new File(parDirName);
@@ -350,7 +354,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                  * Create child directory for current cell
                  */
                 dialog.updateProgress(index, cellData.size());
-                String childDirName = GenUtils.openResultsDirectory(parDir + delimiter + index, delimiter);
+                String childDirName = GenUtils.openResultsDirectory(parDir + delimiter + index);
                 int length = cellData.get(index).getLength();
                 if (length > minLength) {
                     childDir = new File(childDirName);
@@ -388,7 +392,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             protUV.setErosion(2);
                             Analyse_Movie protAM = new Analyse_Movie(protStacks,
                                     true, false, protUV,
-                                    new File(GenUtils.openResultsDirectory(childDir + delimiter + "Protrusions", delimiter)), roi);
+                                    new File(GenUtils.openResultsDirectory(childDir + delimiter + "Protrusions")), roi);
                             protAM.analyse(null);
                         }
                     }

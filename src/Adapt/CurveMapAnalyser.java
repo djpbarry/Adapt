@@ -18,10 +18,10 @@ package Adapt;
 
 import UtilClasses.Utilities;
 import IAClasses.BoundaryPixel;
-import IAClasses.IsoGaussian;
+import Particle.IsoGaussian;
 import IAClasses.Utils;
-import ParticleTracking.Particle;
-import ParticleTracking.ParticleArray;
+import Particle.Particle;
+import Particle.ParticleArray;
 import ParticleTracking.ParticleTrajectory;
 import ParticleTracking.TrajectoryBuilder;
 import ij.IJ;
@@ -115,9 +115,9 @@ public class CurveMapAnalyser {
                 for (int pos = 0; pos < posLength; pos++) {
                     if (CurveMapAnalyser.isLocalCurvatureExtreme(pos, range, curveVals[currentIndex], threshold, min) == 0) {
                         extrema.addDetection(currentIndex,
-                                new Particle(t - 1, new IsoGaussian(xvals[currentIndex][pos] * uv.getSpatialRes(),
+                                new IsoGaussian(t - 1, xvals[currentIndex][pos] * uv.getSpatialRes(),
                                                 yvals[currentIndex][pos] * uv.getSpatialRes(), 1.0,
-                                                1.0, 1.0, 1.0), null, null, pos));
+                                                1.0, 1.0, 1.0, null, pos, null));
                     }
                 }
             }
