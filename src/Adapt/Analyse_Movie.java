@@ -78,6 +78,7 @@ import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import ui.GUI;
 import UtilClasses.GenVariables;
+import java.util.Scanner;
 
 /**
  * Analyse_Movie is designed to quantify cell membrane dynamics and correlate
@@ -239,7 +240,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         cellData = new ArrayList();
         ImageProcessor cytoImage = cytoStack.getProcessor(1).duplicate();
         (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
-        initialiseROIs(1, null, -1, 1, cytoImage);
+        initialiseROIs(null, -1, 1, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize());
 //        if (initialiseROIs(1, null, -1, 1, cytoImage) < 1) {
 //            IJ.error(TITLE, "No cells detected!");
 //            segDialog.dispose();
@@ -324,7 +325,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 }
             }
             if (i > 0) {
-                initialiseROIs(i, allMasks, thresholds[i], i + 2, cytoImage);
+                initialiseROIs(allMasks, thresholds[i], i + 2, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize());
             }
         }
         if (protMode) {
@@ -408,7 +409,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         if (uv.isGetMorph()) {
             try {
-                getMorphologyData(cellData);
+                getMorphologyData(cellData, true, -1, null, 0.0);
             } catch (IOException e) {
                 IJ.log("Could not save morphological data file.");
             }
@@ -436,7 +437,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         paramStream.close();
     }
 
-    int initialiseROIs(int slice, ByteProcessor masks, int threshold, int start, ImageProcessor input) {
+    public int initialiseROIs(ByteProcessor masks, int threshold, int start, ImageProcessor input, PointRoi roi, int width, int height, int size) {
         ArrayList<short[]> initP = new ArrayList();
         int n;
         if (roi != null) {
@@ -460,12 +461,15 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             getSeedPoints(binary, initP, minArea);
             n = initP.size();
         }
+        if (cellData == null) {
+            cellData = new ArrayList();
+        }
         int s = cellData.size();
         int N = s + n;
         for (int i = s; i < N; i++) {
             cellData.add(new CellData(start));
-            cellData.get(i).setImageWidth(stacks[0].getWidth());
-            cellData.get(i).setImageHeight(stacks[0].getHeight());
+            cellData.get(i).setImageWidth(width);
+            cellData.get(i).setImageHeight(height);
             short[] init;
             if (roi != null) {
                 init = new short[]{(short) (roi.getXCoordinates()[i] + roi.getBounds().x),
@@ -473,14 +477,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             } else {
                 init = initP.get(i - s);
             }
-            if (!Utils.isEdgePixel(init[0], init[1], stacks[0].getWidth(), stacks[0].getHeight(), 1)) {
-                ByteProcessor mask = new ByteProcessor(stacks[0].getWidth(), stacks[0].getHeight());
+            if (!Utils.isEdgePixel(init[0], init[1], width, height, 1)) {
+                ByteProcessor mask = new ByteProcessor(width, height);
                 mask.setColor(Region.MASK_BACKGROUND);
                 mask.fill();
                 mask.setColor(Region.MASK_FOREGROUND);
                 mask.drawPixel(init[0], init[1]);
                 cellData.get(i).setInitialRegion(new Region(mask, init));
-                cellData.get(i).setEndFrame(stacks[0].getSize());
+                cellData.get(i).setEndFrame(size);
             } else {
                 cellData.get(i).setInitialRegion(null);
                 cellData.get(i).setEndFrame(0);
@@ -590,14 +594,27 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-    void getMorphologyData(ArrayList<CellData> cellData) throws IOException {
+    public void getMorphologyData(ArrayList<CellData> cellData, boolean saveFile, int measurements, ImageProcessor redirectImage, double blurRadius) throws IOException {
         ResultsTable rt = Analyzer.getResultsTable();
+        if (redirectImage != null) {
+            new GaussianBlur().blurGaussian(redirectImage, blurRadius);
+            redirectImage.subtract(redirectImage.getMin());
+            redirectImage.multiply(1.0 / redirectImage.getMax());
+            Analyzer.setRedirectImage(new ImagePlus("", redirectImage));
+        }
         rt.reset();
         boolean headings = false;
         Prefs.blackBackground = false;
         double minArea = getMinCellArea();
-        File morph = new File(parDir.getAbsolutePath() + delimiter + "morphology.txt");
-        PrintWriter morphStream = new PrintWriter(new FileOutputStream(morph));
+        File morph;
+        PrintWriter morphStream = null;
+        if (measurements < 0) {
+            measurements = Analyzer.getMeasurements();
+        }
+        if (saveFile) {
+            morph = new File(parDir.getAbsolutePath() + delimiter + "morphology.txt");
+            morphStream = new PrintWriter(new FileOutputStream(morph));
+        }
         for (int index = 0; index < cellData.size(); index++) {
             int length = cellData.get(index).getLength();
             if (length > minLength) {
@@ -607,23 +624,36 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 for (int h = start - 1; h < end; h++) {
                     Region current = allRegions[h];
                     ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.SHOW_RESULTS,
-                            Analyzer.getMeasurements(), rt, minArea, Double.POSITIVE_INFINITY);
+                            measurements, rt, minArea, Double.POSITIVE_INFINITY);
                     ImagePlus maskImp = new ImagePlus(String.valueOf(index) + "_" + String.valueOf(h),
                             current.getMask());
                     analyzer.analyze(maskImp);
+                    saveRegionMorph(current, rt);
                 }
-                int N = rt.getCounter();
-                if (!headings) {
-                    morphStream.println(rt.getColumnHeadings());
-                    headings = true;
-                }
-                morphStream.println("Cell_" + String.valueOf(index));
-                for (int i = 0; i < N; i++) {
-                    morphStream.println(rt.getRowAsString(i));
+                if (saveFile) {
+                    int N = rt.getCounter();
+                    if (!headings) {
+                        morphStream.println(rt.getColumnHeadings());
+                        headings = true;
+                    }
+                    morphStream.println("Cell_" + String.valueOf(index));
+                    for (int i = 0; i < N; i++) {
+                        morphStream.println(rt.getRowAsString(i));
+                    }
                 }
             }
         }
         morphStream.close();
+    }
+
+    void saveRegionMorph(Region region, ResultsTable rt) {
+        String result = rt.getRowAsString(0);
+        Scanner scan = new Scanner(result).useDelimiter("\t");
+        while (scan.hasNext()) {
+            if (!region.addMorphMeasure(scan.nextDouble())) {
+                IJ.log("Morph value not saved.");
+            }
+        }
     }
 
     int getMaxBoundaryLength(CellData cellData, Region[] allRegions, int index) {
@@ -1226,7 +1256,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * Detects the cells in the specified image and, if showPreview is true,
      * returns an image illustrating the detected boundary.
      */
-    private ArrayList<Region> findCellRegions(ImageProcessor inputProc, double threshold, ArrayList<CellData> cellData) {
+    public ArrayList<Region> findCellRegions(ImageProcessor inputProc, double threshold, ArrayList<CellData> cellData) {
         int outVal = 1;
         ImageProcessor inputFloatProc = (new TypeConverter(inputProc, true)).convertToFloat(null);
         ImageProcessor inputDup = inputFloatProc.duplicate();
@@ -1369,7 +1399,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //            Region cell = singleImageRegions.get(i);
 //            cell.clearPixels();
 //        }
-//        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "/Users/Dave/Desktop/regions.tif");
+//        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "C:\\Users\\barryd\\Debugging\\particle_tracker_debug\\regions.tif");
 //        IJ.saveAs((new ImagePlus("", expandedImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\expandedimages.tif");
 //        IJ.saveAs(new ImagePlus("", inputImage), "TIF", "C:/users/barry05/desktop/inputImage.tif");
         return regionImage;
@@ -1874,7 +1904,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int height = cytoProc.getHeight();
         (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         int threshold = getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
-        int nCell = initialiseROIs(sliceIndex, null, -1, sliceIndex, cytoProc);
+        int nCell = initialiseROIs(null, -1, sliceIndex, cytoProc, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize());
         Region[][] allRegions = new Region[nCell][stacks[0].getSize()];
         ArrayList<Region> detectedRegions = findCellRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
@@ -2010,7 +2040,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-    int getThreshold(ImageProcessor image, boolean auto, double thresh, String method) {
+    public int getThreshold(ImageProcessor image, boolean auto, double thresh, String method) {
         if (auto) {
             return (new AutoThresholder()).getThreshold(method, image.getStatistics().histogram);
         } else {
@@ -2019,7 +2049,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     double getMinCellArea() {
-        return uv.getMorphSizeMin() / (Math.pow(uv.getSpatialRes(), 2.0));
+        if (uv != null) {
+            return uv.getMorphSizeMin() / (Math.pow(uv.getSpatialRes(), 2.0));
+        }
+        return 0.0;
     }
 
     double getMinFilArea() {
@@ -2130,4 +2163,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     public void doWork() {
         generatePreview(previewSlice);
     }
+
+    public ArrayList<CellData> getCellData() {
+        return cellData;
+    }
+
 }

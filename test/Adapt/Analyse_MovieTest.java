@@ -90,7 +90,7 @@ public class Analyse_MovieTest {
         ImageProcessor input = null;
         Analyse_Movie instance = new Analyse_Movie();
         int expResult = 0;
-        int result = instance.initialiseROIs(slice, masks, threshold, start, input);
+        int result = instance.initialiseROIs(masks, threshold, start, input, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize());
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -119,7 +119,7 @@ public class Analyse_MovieTest {
         System.out.println("getMorphologyData");
         ArrayList<CellData> cellData = null;
         Analyse_Movie instance = new Analyse_Movie();
-        instance.getMorphologyData(cellData);
+        instance.getMorphologyData(cellData, true, -1, redirectImage, Userv);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
