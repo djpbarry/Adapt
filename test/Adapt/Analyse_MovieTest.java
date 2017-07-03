@@ -90,7 +90,7 @@ public class Analyse_MovieTest {
         ImageProcessor input = null;
         Analyse_Movie instance = new Analyse_Movie();
         int expResult = 0;
-        int result = instance.initialiseROIs(masks, threshold, start, input, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize());
+        int result = instance.initialiseROIs(masks, threshold, start, input, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -559,7 +559,7 @@ public class Analyse_MovieTest {
         ByteProcessor binary = null;
         ArrayList<short[]> pixels = null;
         Analyse_Movie instance = new Analyse_Movie();
-        double minArea = instance.getMinCellArea();
+        double minArea = instance.getMinCellArea(uv);
         instance.getSeedPoints(binary, pixels, minArea);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -591,7 +591,7 @@ public class Analyse_MovieTest {
         System.out.println("getMinArea");
         Analyse_Movie instance = new Analyse_Movie();
         double expResult = 0.0;
-        double result = instance.getMinCellArea();
+        double result = instance.getMinCellArea(uv);
         assertEquals(expResult, result, 0.0);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

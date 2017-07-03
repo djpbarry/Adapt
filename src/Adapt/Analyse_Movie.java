@@ -93,7 +93,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     protected File childDir, // root output directory
             parDir, // output directory for each cell
             velDirName, curvDirName, trajDirName, segDirName;
-    private short intermediate, terminal;
+    private static short intermediate, terminal;
     protected String TITLE = StaticVariables.TITLE;
     final String BLEB_DATA_FILES = "Bleb_Data_Files";
     protected final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
@@ -240,7 +240,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         cellData = new ArrayList();
         ImageProcessor cytoImage = cytoStack.getProcessor(1).duplicate();
         (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
-        initialiseROIs(null, -1, 1, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize());
+        initialiseROIs(null, -1, 1, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
 //        if (initialiseROIs(1, null, -1, 1, cytoImage) < 1) {
 //            IJ.error(TITLE, "No cells detected!");
 //            segDialog.dispose();
@@ -325,7 +325,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 }
             }
             if (i > 0) {
-                initialiseROIs(allMasks, thresholds[i], i + 2, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize());
+                initialiseROIs(allMasks, thresholds[i], i + 2, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
             }
         }
         if (protMode) {
@@ -437,7 +437,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         paramStream.close();
     }
 
-    public int initialiseROIs(ByteProcessor masks, int threshold, int start, ImageProcessor input, PointRoi roi, int width, int height, int size) {
+    public static int initialiseROIs(ByteProcessor masks, int threshold, int start, ImageProcessor input, PointRoi roi, int width, int height, int size, ArrayList<CellData> cellData, UserVariables uv, boolean protMode) {
         ArrayList<short[]> initP = new ArrayList();
         int n;
         if (roi != null) {
@@ -457,7 +457,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 ByteBlitter bb = new ByteBlitter(binary);
                 bb.copyBits(masks, 0, 0, Blitter.SUBTRACT);
             }
-            double minArea = protMode ? getMinFilArea() : getMinCellArea();
+            double minArea = protMode ? getMinFilArea(uv) : getMinCellArea(uv);
             getSeedPoints(binary, initP, minArea);
             n = initP.size();
         }
@@ -605,7 +605,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         rt.reset();
         boolean headings = false;
         Prefs.blackBackground = false;
-        double minArea = getMinCellArea();
+        double minArea = getMinCellArea(uv);
         File morph;
         PrintWriter morphStream = null;
         if (measurements < 0) {
@@ -1182,7 +1182,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 mask2.invert();
                 bb.copyBits(mask2, 0, 0, Blitter.SUBTRACT);
             }
-            double minArea = getMinFilArea();
+            double minArea = getMinFilArea(uv);
             ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES + ParticleAnalyzer.SHOW_MASKS,
                     0, null, minArea, Double.POSITIVE_INFINITY);
             mask.invert();
@@ -1205,7 +1205,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-    void analyzeDetections(RoiManager manager, ImageProcessor binmap, ParticleAnalyzer analyzer) {
+    static void analyzeDetections(RoiManager manager, ImageProcessor binmap, ParticleAnalyzer analyzer) {
         ParticleAnalyzer.setRoiManager(manager);
         if (!analyzer.analyze(new ImagePlus("", binmap))) {
             IJ.log("Protrusion analysis failed.");
@@ -1213,7 +1213,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         hideWindows();
     }
 
-    void hideWindows() {
+    static void hideWindows() {
         if (WindowManager.getImageCount() > 0) {
             WindowManager.getImage(WindowManager.getIDList()[WindowManager.getImageCount() - 1]).hide();
         }
@@ -1252,11 +1252,26 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
+    public static ArrayList<Region> findCellRegions(ImageProcessor inputProc, Roi[] rois, double t, String method) {
+        PointRoi proi = null;
+        for (Roi r : rois) {
+            double[] centroid = r.getContourCentroid();
+            if (proi == null) {
+                proi = new PointRoi(centroid[0], centroid[1]);
+            } else {
+                proi.addPoint(centroid[0], centroid[1]);
+            }
+        }
+        ArrayList<CellData> cells = new ArrayList();
+        initialiseROIs(null, -1, 0, inputProc, proi, inputProc.getWidth(), inputProc.getHeight(), 1, cells, null, false);
+        return findCellRegions(inputProc, getThreshold(inputProc, true, t, method), cells);
+    }
+
     /*
      * Detects the cells in the specified image and, if showPreview is true,
      * returns an image illustrating the detected boundary.
      */
-    public ArrayList<Region> findCellRegions(ImageProcessor inputProc, double threshold, ArrayList<CellData> cellData) {
+    public static ArrayList<Region> findCellRegions(ImageProcessor inputProc, double threshold, ArrayList<CellData> cellData) {
         int outVal = 1;
         ImageProcessor inputFloatProc = (new TypeConverter(inputProc, true)).convertToFloat(null);
         ImageProcessor inputDup = inputFloatProc.duplicate();
@@ -1289,7 +1304,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         /*
          * Filter image to be used as basis for region growing.
          */
-        growRegions(indexedRegions, inputDup, singleImageRegions, threshold);
+        IJ.saveAs(new ImagePlus("", growRegions(indexedRegions, inputDup, singleImageRegions, threshold)), "TIF", "C:\\Users\\barryd\\Debugging\\particle_mapper_debug");
         return singleImageRegions;
     }
 
@@ -1297,7 +1312,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * Conditional dilate the regions in regionImage based on the information in
      * inputImage.
      */
-    private ShortProcessor growRegions(ShortProcessor regionImage, ImageProcessor inputImage, ArrayList<Region> singleImageRegions, double threshold) {
+    private static ShortProcessor growRegions(ShortProcessor regionImage, ImageProcessor inputImage, ArrayList<Region> singleImageRegions, double threshold) {
         int i, j;
         int width = regionImage.getWidth();
         int height = regionImage.getHeight();
@@ -1535,7 +1550,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return sdImage;
     }
 
-    private boolean simpleDilate(short[] regionImagePix, float[] greyPix, Region cell, short[] point, short intermediate, double greyThresh, short index, short[] expandedImagePix, int width, int height, short[] countPix, short[] tempImagePix) {
+    private static boolean simpleDilate(short[] regionImagePix, float[] greyPix, Region cell, short[] point, short intermediate, double greyThresh, short index, short[] expandedImagePix, int width, int height, short[] countPix, short[] tempImagePix) {
         int x = point[0], y = point[1];
         int yOffset = y * width;
         if (regionImagePix[x + yOffset] > intermediate) {
@@ -1714,7 +1729,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * When complete, borders are dilated to expanded borders and expanded
      * borders are set to null.
      */
-    void expandRegions(ArrayList<Region> regions, ShortProcessor regionImage, int N, short terminal, short[] tempRegionPix) {
+    static void expandRegions(ArrayList<Region> regions, ShortProcessor regionImage, int N, short terminal, short[] tempRegionPix) {
         int width = regionImage.getWidth();
         for (int i = 0; i < N; i++) {
             Region cell = regions.get(i);
@@ -1904,7 +1919,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int height = cytoProc.getHeight();
         (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         int threshold = getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
-        int nCell = initialiseROIs(null, -1, sliceIndex, cytoProc, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize());
+        int nCell = initialiseROIs(null, -1, sliceIndex, cytoProc, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
         Region[][] allRegions = new Region[nCell][stacks[0].getSize()];
         ArrayList<Region> detectedRegions = findCellRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
@@ -2019,7 +2034,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         previewImages = regionsOutput;
     }
 
-    void getSeedPoints(ByteProcessor binary, ArrayList<short[]> pixels, double minArea) {
+    static void getSeedPoints(ByteProcessor binary, ArrayList<short[]> pixels, double minArea) {
         binary.invert();
         if (binary.isInvertedLut()) {
             binary.invertLut();
@@ -2040,7 +2055,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-    public int getThreshold(ImageProcessor image, boolean auto, double thresh, String method) {
+    public static int getThreshold(ImageProcessor image, boolean auto, double thresh, String method) {
         if (auto) {
             return (new AutoThresholder()).getThreshold(method, image.getStatistics().histogram);
         } else {
@@ -2048,14 +2063,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-    double getMinCellArea() {
+    static double getMinCellArea(UserVariables uv) {
         if (uv != null) {
             return uv.getMorphSizeMin() / (Math.pow(uv.getSpatialRes(), 2.0));
         }
         return 0.0;
     }
 
-    double getMinFilArea() {
+    static double getMinFilArea(UserVariables uv) {
         return uv.getFiloSizeMin() / (Math.pow(uv.getSpatialRes(), 2.0));
     }
 
