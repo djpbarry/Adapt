@@ -5,6 +5,8 @@
  */
 package Adapt;
 
+import UserVariables.UserVariables;
+import Cell.CellData;
 import ij.ImageStack;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;

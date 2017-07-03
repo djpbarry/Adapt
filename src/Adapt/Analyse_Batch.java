@@ -5,6 +5,7 @@
  */
 package Adapt;
 
+import UserVariables.UserVariables;
 import UtilClasses.Utilities;
 import ij.IJ;
 import ij.ImagePlus;

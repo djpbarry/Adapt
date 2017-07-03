@@ -5,6 +5,8 @@
  */
 package Adapt;
 
+import Cell.MorphMap;
+import Cell.CellData;
 import IAClasses.CrossCorrelation;
 import ij.ImagePlus;
 import ij.process.ImageProcessor;

@@ -19,7 +19,7 @@ package ui;
 import Adapt.Analyse_Movie;
 import Adapt.StaticVariables;
 import Adapt.TaskListener;
-import Adapt.UserVariables;
+import UserVariables.UserVariables;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;

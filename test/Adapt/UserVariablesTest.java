@@ -5,6 +5,7 @@
  */
 package Adapt;
 
+import UserVariables.UserVariables;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

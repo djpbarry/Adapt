@@ -16,6 +16,9 @@
  */
 package Adapt;
 
+import Cell.MorphMap;
+import UserVariables.UserVariables;
+import Cell.CellData;
 import UtilClasses.Utilities;
 import IAClasses.BoundaryPixel;
 import Particle.IsoGaussian;
@@ -124,7 +127,7 @@ public class CurveMapAnalyser {
         }
         ArrayList<ParticleTrajectory> trajectories = new ArrayList();
         if (tLength > 1) {
-           TrajectoryBuilder.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false, 1.0, trajectories);
+           TrajectoryBuilder.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false, 1.0, trajectories, false);
         } else {
             ArrayList<Particle> particles = extrema.getLevel(0);
             trajectories = new ArrayList();

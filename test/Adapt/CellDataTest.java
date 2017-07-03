@@ -5,6 +5,8 @@
  */
 package Adapt;
 
+import Cell.MorphMap;
+import Cell.CellData;
 import IAClasses.Region;
 import ij.gui.Roi;
 import ij.process.ColorProcessor;

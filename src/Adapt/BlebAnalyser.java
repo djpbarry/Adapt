@@ -16,6 +16,9 @@
  */
 package Adapt;
 
+import Cell.MorphMap;
+import UserVariables.UserVariables;
+import Cell.CellData;
 import UtilClasses.GenUtils;
 import ij.ImageStack;
 import ij.process.ByteProcessor;

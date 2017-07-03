@@ -16,15 +16,17 @@
  */
 package Adapt;
 
+import Cell.MorphMap;
+import UserVariables.UserVariables;
+import Cell.CellData;
 import DataProcessing.DataFileAverager;
 import IAClasses.BoundaryPixel;
 import IAClasses.CrossCorrelation;
 import IAClasses.DSPProcessor;
 import IAClasses.ProgressDialog;
 import IAClasses.Region;
-import static IAClasses.Region.MASK_BACKGROUND;
-import static IAClasses.Region.MASK_FOREGROUND;
 import IAClasses.Utils;
+import Segmentation.RegionGrower;
 import UtilClasses.Utilities;
 import UtilClasses.GenUtils;
 import ij.IJ;
@@ -42,7 +44,6 @@ import ij.plugin.filter.Analyzer;
 import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
-import ij.process.AutoThresholder;
 import ij.process.Blitter;
 import ij.process.ByteBlitter;
 import ij.process.ByteProcessor;
@@ -52,8 +53,6 @@ import ij.process.FloatBlitter;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
-import ij.process.ShortBlitter;
-import ij.process.ShortProcessor;
 import ij.process.TypeConverter;
 import java.awt.Color;
 import java.awt.Font;
@@ -69,7 +68,6 @@ import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.Random;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -93,7 +91,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     protected File childDir, // root output directory
             parDir, // output directory for each cell
             velDirName, curvDirName, trajDirName, segDirName;
-    private static short intermediate, terminal;
     protected String TITLE = StaticVariables.TITLE;
     final String BLEB_DATA_FILES = "Bleb_Data_Files";
     protected final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
@@ -240,7 +237,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         cellData = new ArrayList();
         ImageProcessor cytoImage = cytoStack.getProcessor(1).duplicate();
         (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
-        initialiseROIs(null, -1, 1, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
+        RegionGrower.initialiseROIs(null, -1, 1, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
 //        if (initialiseROIs(1, null, -1, 1, cytoImage) < 1) {
 //            IJ.error(TITLE, "No cells detected!");
 //            segDialog.dispose();
@@ -270,10 +267,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             segDialog.updateProgress(i, cytoSize);
             cytoImage = cytoStack.getProcessor(i + 1).duplicate();
             (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
-            thresholds[i] = getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
+            thresholds[i] = RegionGrower.getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             int N = cellData.size();
             if (cytoImage != null) {
-                allRegions[i] = findCellRegions(cytoImage, thresholds[i], cellData);
+                allRegions[i] = RegionGrower.findCellRegions(cytoImage, thresholds[i], cellData);
             }
             int fcount = 0;
             for (int j = 0; j < N; j++) {
@@ -325,7 +322,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 }
             }
             if (i > 0) {
-                initialiseROIs(allMasks, thresholds[i], i + 2, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
+                RegionGrower.initialiseROIs(allMasks, thresholds[i], i + 2, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
             }
         }
         if (protMode) {
@@ -435,62 +432,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             return;
         }
         paramStream.close();
-    }
-
-    public static int initialiseROIs(ByteProcessor masks, int threshold, int start, ImageProcessor input, PointRoi roi, int width, int height, int size, ArrayList<CellData> cellData, UserVariables uv, boolean protMode) {
-        ArrayList<short[]> initP = new ArrayList();
-        int n;
-        if (roi != null) {
-            if (roi.getType() == Roi.POINT) {
-                n = roi.getNCoordinates();
-            } else {
-                IJ.error("Point selection required.");
-                return -1;
-            }
-        } else {
-            if (threshold < 0) {
-                threshold = getThreshold(input, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
-            }
-            ByteProcessor binary = (ByteProcessor) input.convertToByteProcessor(true);
-            binary.threshold(threshold);
-            if (masks != null) {
-                ByteBlitter bb = new ByteBlitter(binary);
-                bb.copyBits(masks, 0, 0, Blitter.SUBTRACT);
-            }
-            double minArea = protMode ? getMinFilArea(uv) : getMinCellArea(uv);
-            getSeedPoints(binary, initP, minArea);
-            n = initP.size();
-        }
-        if (cellData == null) {
-            cellData = new ArrayList();
-        }
-        int s = cellData.size();
-        int N = s + n;
-        for (int i = s; i < N; i++) {
-            cellData.add(new CellData(start));
-            cellData.get(i).setImageWidth(width);
-            cellData.get(i).setImageHeight(height);
-            short[] init;
-            if (roi != null) {
-                init = new short[]{(short) (roi.getXCoordinates()[i] + roi.getBounds().x),
-                    (short) (roi.getYCoordinates()[i] + roi.getBounds().y)};
-            } else {
-                init = initP.get(i - s);
-            }
-            if (!Utils.isEdgePixel(init[0], init[1], width, height, 1)) {
-                ByteProcessor mask = new ByteProcessor(width, height);
-                mask.setColor(Region.MASK_BACKGROUND);
-                mask.fill();
-                mask.setColor(Region.MASK_FOREGROUND);
-                mask.drawPixel(init[0], init[1]);
-                cellData.get(i).setInitialRegion(new Region(mask, init));
-                cellData.get(i).setEndFrame(size);
-            } else {
-                cellData.get(i).setInitialRegion(null);
-                cellData.get(i).setEndFrame(0);
-            }
-        }
-        return n;
     }
 
     /*
@@ -605,7 +546,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         rt.reset();
         boolean headings = false;
         Prefs.blackBackground = false;
-        double minArea = getMinCellArea(uv);
+        double minArea = RegionGrower.getMinCellArea(uv);
         File morph;
         PrintWriter morphStream = null;
         if (measurements < 0) {
@@ -1151,12 +1092,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.ADD_TO_MANAGER
                 + ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES + ParticleAnalyzer.SHOW_MASKS,
                 0, null, 0.0, Double.POSITIVE_INFINITY);
-        analyzeDetections(manager, binmap, analyzer);
+        RegionGrower.analyzeDetections(manager, binmap, analyzer);
         ByteProcessor binmapnoedge = (ByteProcessor) analyzer.getOutputImage().getProcessor();
         ByteProcessor flippedBinMap = new ByteProcessor(binmap.getWidth(), binmap.getHeight());
         int offset = constructFlippedBinMap(binmap, binmapnoedge, flippedBinMap);
         RoiManager manager2 = new RoiManager(true);
-        analyzeDetections(manager2, flippedBinMap, analyzer);
+        RegionGrower.analyzeDetections(manager2, flippedBinMap, analyzer);
         copyRoisWithOffset(manager, manager2, offset);
         cellData.setVelRois(manager.getRoisAsArray());
     }
@@ -1182,11 +1123,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 mask2.invert();
                 bb.copyBits(mask2, 0, 0, Blitter.SUBTRACT);
             }
-            double minArea = getMinFilArea(uv);
+            double minArea = RegionGrower.getMinFilArea(uv);
             ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES + ParticleAnalyzer.SHOW_MASKS,
                     0, null, minArea, Double.POSITIVE_INFINITY);
             mask.invert();
-            analyzeDetections(null, mask, analyzer);
+            RegionGrower.analyzeDetections(null, mask, analyzer);
             ImageProcessor analyzerMask = analyzer.getOutputImage().getProcessor();
             analyzerMask.invertLut();
             cyto2.addSlice(analyzerMask);
@@ -1205,19 +1146,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-    static void analyzeDetections(RoiManager manager, ImageProcessor binmap, ParticleAnalyzer analyzer) {
-        ParticleAnalyzer.setRoiManager(manager);
-        if (!analyzer.analyze(new ImagePlus("", binmap))) {
-            IJ.log("Protrusion analysis failed.");
-        }
-        hideWindows();
-    }
 
-    static void hideWindows() {
-        if (WindowManager.getImageCount() > 0) {
-            WindowManager.getImage(WindowManager.getIDList()[WindowManager.getImageCount() - 1]).hide();
-        }
-    }
 
     int constructFlippedBinMap(ByteProcessor input1, ByteProcessor input2, ByteProcessor output) {
         ByteBlitter blitter1 = new ByteBlitter(input1);
@@ -1250,174 +1179,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
             manager.addRoi(new PolygonRoi(xp, yp, n, Roi.POLYGON));
         }
-    }
-
-    public static ArrayList<Region> findCellRegions(ImageProcessor inputProc, Roi[] rois, double t, String method) {
-        PointRoi proi = null;
-        for (Roi r : rois) {
-            double[] centroid = r.getContourCentroid();
-            if (proi == null) {
-                proi = new PointRoi(centroid[0], centroid[1]);
-            } else {
-                proi.addPoint(centroid[0], centroid[1]);
-            }
-        }
-        ArrayList<CellData> cells = new ArrayList();
-        initialiseROIs(null, -1, 0, inputProc, proi, inputProc.getWidth(), inputProc.getHeight(), 1, cells, null, false);
-        return findCellRegions(inputProc, getThreshold(inputProc, true, t, method), cells);
-    }
-
-    /*
-     * Detects the cells in the specified image and, if showPreview is true,
-     * returns an image illustrating the detected boundary.
-     */
-    public static ArrayList<Region> findCellRegions(ImageProcessor inputProc, double threshold, ArrayList<CellData> cellData) {
-        int outVal = 1;
-        ImageProcessor inputFloatProc = (new TypeConverter(inputProc, true)).convertToFloat(null);
-        ImageProcessor inputDup = inputFloatProc.duplicate();
-        int width = inputDup.getWidth();
-        int height = inputDup.getHeight();
-        int n = cellData.size();
-        ArrayList<Region> singleImageRegions = new ArrayList<Region>();
-        /*
-         * Create image depicting regions to be "grown". Regions initialised
-         * using centroids.
-         */
-        ShortProcessor indexedRegions = new ShortProcessor(width, height);
-        indexedRegions.setValue(Region.MASK_FOREGROUND);
-        indexedRegions.fill();
-        indexedRegions.setColor(outVal);
-        ShortBlitter bb = new ShortBlitter(indexedRegions);
-        for (int i = 0; i < n; i++) {
-            Region region = cellData.get(i).getInitialRegion();
-            if (region != null) {
-                ShortProcessor mask = (ShortProcessor) (new TypeConverter(region.getMask(), false)).convertToShort();
-                mask.invert();
-                mask.multiply((i + 1) / Region.MASK_BACKGROUND);
-                bb.copyBits(mask, 0, 0, Blitter.COPY_ZERO_TRANSPARENT);
-            }
-            singleImageRegions.add(region);
-            outVal++;
-        }
-        intermediate = (short) (singleImageRegions.size() + 1);
-        terminal = (short) (intermediate + 1);
-        /*
-         * Filter image to be used as basis for region growing.
-         */
-        IJ.saveAs(new ImagePlus("", growRegions(indexedRegions, inputDup, singleImageRegions, threshold)), "TIF", "C:\\Users\\barryd\\Debugging\\particle_mapper_debug");
-        return singleImageRegions;
-    }
-
-    /*
-     * Conditional dilate the regions in regionImage based on the information in
-     * inputImage.
-     */
-    private static ShortProcessor growRegions(ShortProcessor regionImage, ImageProcessor inputImage, ArrayList<Region> singleImageRegions, double threshold) {
-        int i, j;
-        int width = regionImage.getWidth();
-        int height = regionImage.getHeight();
-        int widthheight = width * height;
-        boolean totChange = true;
-        boolean thisChange;
-        float inputPix[] = (float[]) inputImage.getPixels();
-        short regionImagePix[] = (short[]) regionImage.getPixels();
-        short[] checkImagePix = new short[widthheight];
-        short[] tempRegionPix = new short[widthheight];
-        short[] countImagePix = new short[widthheight];
-        short[] expandedImagePix = new short[widthheight];
-        Arrays.fill(checkImagePix, MASK_FOREGROUND);
-        Arrays.fill(countImagePix, MASK_FOREGROUND);
-        /*
-         * Image texture (and grey levels) used to control region growth.
-         * Standard deviation of grey levels is used as a simple measure of
-         * texture.
-         */
-        int cellNum = singleImageRegions.size();
-//        float distancemaps[][][] = null;
-//        if (!simple) {
-//            distancemaps = new float[cellNum][width][height];
-//        }
-//        ByteProcessor regionImages[] = new ByteProcessor[cellNum];
-//        if (!simple) {
-//            initDistanceMaps(inputImage, regionImage, singleImageRegions, distancemaps,
-//                    regionImages, width, 1.0, threshold);
-//        }
-        /*
-         * Reset regionImages
-         */
-//        for (int n = 0; n < cellNum; n++) {
-//            regionImages[n] = (ByteProcessor) regionImage.duplicate();
-//        }
-        /*
-         * Grow regions according to texture, grey levels and distance maps
-         */
-//        ImageStack regionImageStack = new ImageStack(regionImage.getWidth(), regionImage.getHeight());
-//        ImageStack expandedImageStack = new ImageStack(regionImage.getWidth(), regionImage.getHeight());
-        while (totChange) {
-            totChange = false;
-            for (i = 0; i < cellNum; i++) {
-//                ImageStack distancemapStack = new ImageStack(distancemaps[0].length, distancemaps[0][0].length);
-//                for (int n = 0; n < distancemaps.length; n++) {
-//                    FloatProcessor distanceMapImage = new FloatProcessor(distancemaps[i].length, distancemaps[i][0].length);
-//                    for (int x = 0; x < distancemaps[i].length; x++) {
-//                        for (int y = 0; y < distancemaps[i][x].length; y++) {
-//                            distanceMapImage.putPixelValue(x, y, distancemaps[i][x][y]);
-//                        }
-//                    }
-//                    distancemapStack.addSlice(distanceMapImage);
-//                }
-//                IJ.saveAs(new ImagePlus("", distanceMapImage), "TIF", "C:/users/barry05/desktop/distanceMapImage_" + i + ".tif");}
-//                ByteProcessor ref = (ByteProcessor) regionImages[i].duplicate();
-                Region cell = singleImageRegions.get(i);
-                if (cell != null && cell.isActive()) {
-                    Arrays.fill(expandedImagePix, MASK_BACKGROUND);
-                    Arrays.fill(tempRegionPix, MASK_FOREGROUND);
-                    LinkedList<short[]> borderPix = cell.getBorderPix();
-                    int borderLength = borderPix.size();
-                    thisChange = false;
-                    for (j = 0; j < borderLength; j++) {
-                        short[] thispix = borderPix.get(j);
-                        int offset = thispix[1] * width;
-//                        if (!simple) {
-//                            thisChange = dijkstraDilate(ref, cell, thispix,
-//                                    distancemaps, intermediate, i + 1) || thisChange;
-//                        } else {
-                        if (checkImagePix[thispix[0] + offset] == MASK_FOREGROUND) {
-                            boolean thisResult = simpleDilate(regionImagePix,
-                                    inputPix, cell, thispix, intermediate, threshold, (short) (i + 1), expandedImagePix, width, height, countImagePix, tempRegionPix);
-                            thisChange = thisResult || thisChange;
-                            if (!thisResult) {
-                                checkImagePix[thispix[0] + offset]++;
-                            }
-                        }
-//                        }
-//                        regionImageStack.addSlice(regionImage.duplicate());
-//                        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\regions.tif");
-//                        expandedImageStack.addSlice(expandedImage.duplicate());
-                    }
-                    cell.setActive(thisChange);
-                    totChange = thisChange || totChange;
-                }
-//                }
-            }
-//            regionImageStack.addSlice(regionImage.duplicate());
-//            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "/Users/Dave/Desktop/EMSeg Test Output/regions.tif");
-//            if (simple) {
-            expandRegions(singleImageRegions, regionImage, cellNum, terminal, tempRegionPix);
-//            } else {
-//                expandRegions(singleImageRegions, regionImages, cellNum);
-//            }
-//            regionImageStack.addSlice(regionImage.duplicate());
-//            IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "c:\\users\\barry05\\desktop\\regions.tif");
-        }
-//        for (i = 0; i < cellNum; i++) {
-//            Region cell = singleImageRegions.get(i);
-//            cell.clearPixels();
-//        }
-//        IJ.saveAs((new ImagePlus("", regionImageStack)), "TIF", "C:\\Users\\barryd\\Debugging\\particle_tracker_debug\\regions.tif");
-//        IJ.saveAs((new ImagePlus("", expandedImageStack)), "TIF", "c:\\users\\barry05\\desktop\\masks\\expandedimages.tif");
-//        IJ.saveAs(new ImagePlus("", inputImage), "TIF", "C:/users/barry05/desktop/inputImage.tif");
-        return regionImage;
     }
 
 //    void initDistanceMaps(ImageProcessor inputImage, ByteProcessor regionImage, ArrayList<Region> singleImageRegions, float[][][] distancemaps, ByteProcessor[] regionImages, int width, double filtRad, double thresh) {
@@ -1550,53 +1311,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return sdImage;
     }
 
-    private static boolean simpleDilate(short[] regionImagePix, float[] greyPix, Region cell, short[] point, short intermediate, double greyThresh, short index, short[] expandedImagePix, int width, int height, short[] countPix, short[] tempImagePix) {
-        int x = point[0], y = point[1];
-        int yOffset = y * width;
-        if (regionImagePix[x + yOffset] > intermediate) {
-            cell.addExpandedBorderPix(point);
-            expandedImagePix[x + yOffset] = MASK_FOREGROUND;
-            tempImagePix[x + yOffset]++;
-            return false;
-        }
-        boolean dilate = false, remove = true;
-        for (int j = y > 0 ? y - 1 : 0; j < height && j <= y + 1; j++) {
-            int jOffset = j * width;
-            for (int i = x > 0 ? x - 1 : 0; i < width && i <= x + 1; i++) {
-                if (countPix[i + jOffset] == 0) {
-                    countPix[i + jOffset]++;
-                    short r = regionImagePix[i + jOffset];
-                    double g = greyPix[jOffset + i];
-                    if ((r == Region.MASK_FOREGROUND || r == intermediate) && (g > greyThresh)) {
-                        short[] p = new short[]{(short) i, (short) j};
-                        regionImagePix[i + jOffset] = intermediate;
-                        dilate = true;
-                        if (expandedImagePix[i + jOffset] != Region.MASK_FOREGROUND) {
-                            cell.addExpandedBorderPix(p);
-                            expandedImagePix[i + jOffset] = MASK_FOREGROUND;
-                            tempImagePix[x + yOffset]++;
-                        }
-                    }
-                    r = regionImagePix[i + jOffset];
-                    remove = (r == intermediate || r == index) && remove;
-                }
-            }
-        }
-        if (!remove) {
-            cell.addExpandedBorderPix(point);
-            expandedImagePix[x + yOffset] = MASK_FOREGROUND;
-            tempImagePix[x + yOffset]++;
-            if (x < 1 || y < 1 || x >= width - 1 || y >= height - 1) {
-                cell.setEdge(true);
-            }
-        } else if (Utils.isEdgePixel(x, y, width, height, 1)) {
-            cell.addExpandedBorderPix(point);
-            expandedImagePix[x + yOffset] = MASK_FOREGROUND;
-            tempImagePix[x + yOffset]++;
-        }
-        return dilate;
-    }
-
 //    /*
 //     * Dilate region at current point according to grey levels, texture,
 //     * gradient and Dijkstra distance map.
@@ -1722,35 +1436,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 image.putPixelValue(x, y, newval);
             }
         }
-    }
-
-    /*
-     * Updates regionImages according to the expanded border sets in regions.
-     * When complete, borders are dilated to expanded borders and expanded
-     * borders are set to null.
-     */
-    static void expandRegions(ArrayList<Region> regions, ShortProcessor regionImage, int N, short terminal, short[] tempRegionPix) {
-        int width = regionImage.getWidth();
-        for (int i = 0; i < N; i++) {
-            Region cell = regions.get(i);
-            if (cell != null) {
-                LinkedList<short[]> pixels = cell.getExpandedBorder();
-                int borderLength = pixels.size();
-                for (int j = 0; j < borderLength; j++) {
-                    short[] current = pixels.get(j);
-                    int x = current[0];
-                    int y = current[1];
-                    int yOffset = y * width;
-                    if (tempRegionPix[x + yOffset] > 1) {
-                        regionImage.putPixelValue(x, y, terminal);
-                    } else {
-                        regionImage.putPixelValue(x, y, i + 1);
-                    }
-                }
-                cell.expandBorder();
-            }
-        }
-//        IJ.saveAs((new ImagePlus("", tempRegionImage)), "PNG", "c:\\users\\barry05\\desktop\\masks\\tempRegionImage.png");
     }
 
 //    void expandRegions(ArrayList<Region> regions, ByteProcessor[] regionImage, int N) {
@@ -1918,10 +1603,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int width = cytoProc.getWidth();
         int height = cytoProc.getHeight();
         (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);
-        int threshold = getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
-        int nCell = initialiseROIs(null, -1, sliceIndex, cytoProc, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
+        int threshold = RegionGrower.getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
+        int nCell = RegionGrower.initialiseROIs(null, -1, sliceIndex, cytoProc, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
         Region[][] allRegions = new Region[nCell][stacks[0].getSize()];
-        ArrayList<Region> detectedRegions = findCellRegions(cytoProc, threshold, cellData);
+        ArrayList<Region> detectedRegions = RegionGrower.findCellRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
             allRegions[k][sliceIndex - 1] = detectedRegions.get(k);
             cellData.get(k).setCellRegions(allRegions[k]);
@@ -2032,46 +1717,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         previewImages = regionsOutput;
-    }
-
-    static void getSeedPoints(ByteProcessor binary, ArrayList<short[]> pixels, double minArea) {
-        binary.invert();
-        if (binary.isInvertedLut()) {
-            binary.invertLut();
-        }
-        ResultsTable rt = Analyzer.getResultsTable();
-        rt.reset();
-        Prefs.blackBackground = false;
-        ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES,
-                Measurements.CENTROID, rt, minArea, Double.POSITIVE_INFINITY);
-        analyzeDetections(null, binary, analyzer);
-        int count = rt.getCounter();
-        if (count > 0) {
-            float x[] = rt.getColumn(rt.getColumnIndex("X"));
-            float y[] = rt.getColumn(rt.getColumnIndex("Y"));
-            for (int i = 0; i < count; i++) {
-                pixels.add(new short[]{(short) Math.round(x[i]), (short) Math.round(y[i])});
-            }
-        }
-    }
-
-    public static int getThreshold(ImageProcessor image, boolean auto, double thresh, String method) {
-        if (auto) {
-            return (new AutoThresholder()).getThreshold(method, image.getStatistics().histogram);
-        } else {
-            return (int) Math.round(Utils.getPercentileThresh(image, thresh));
-        }
-    }
-
-    static double getMinCellArea(UserVariables uv) {
-        if (uv != null) {
-            return uv.getMorphSizeMin() / (Math.pow(uv.getSpatialRes(), 2.0));
-        }
-        return 0.0;
-    }
-
-    static double getMinFilArea(UserVariables uv) {
-        return uv.getFiloSizeMin() / (Math.pow(uv.getSpatialRes(), 2.0));
     }
 
     double getMaxFilArea() {

@@ -5,6 +5,7 @@
  */
 package Adapt;
 
+import UserVariables.UserVariables;
 import java.io.File;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
