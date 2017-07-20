@@ -20,6 +20,7 @@ import Cell.MorphMap;
 import UserVariables.UserVariables;
 import Cell.CellData;
 import DataProcessing.DataFileAverager;
+import Fluorescence.FluorescenceAnalyser;
 import IAClasses.BoundaryPixel;
 import IAClasses.CrossCorrelation;
 import IAClasses.DSPProcessor;
@@ -49,7 +50,6 @@ import ij.process.ByteBlitter;
 import ij.process.ByteProcessor;
 import ij.process.ColorBlitter;
 import ij.process.ColorProcessor;
-import ij.process.FloatBlitter;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
@@ -72,8 +72,6 @@ import java.util.Random;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.math3.stat.descriptive.moment.Mean;
-import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import ui.GUI;
 import UtilClasses.GenVariables;
 import java.util.Scanner;
@@ -358,7 +356,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     childDir = new File(childDirName);
                     buildOutput(index, length, false);
                     if (uv.isGetFluorDist()) {
-                        generateFluorMaps(getFluorDists(cellData.get(index), StaticVariables.FLUOR_MAP_HEIGHT));
+                        generateFluorMaps(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, stacks[1], ImageProcessor.MAX, Integer.MAX_VALUE, 2, cellData.get(index).getCellRegions(),cellData.get(index).getStartFrame(),cellData.get(index).getEndFrame()));
                         File fluorFile = new File(parDir + delimiter + "fluorescence.csv");
                         try {
                             CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(fluorFile), GenVariables.ISO), CSVFormat.EXCEL);
@@ -1723,57 +1721,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return Math.sqrt(uv.getFiloSizeMax() / (Math.pow(uv.getSpatialRes(), 2.0)));
     }
 
-    FloatProcessor[] getFluorDists(CellData cellData, int height) {
-        Region[] regions = cellData.getCellRegions();
-        FloatProcessor dists[] = new FloatProcessor[2];
-        int start = cellData.getStartFrame();
-        int end = cellData.getEndFrame();
-        int width = 1 + end - start;
-        dists[0] = new FloatProcessor(width, height);
-        dists[1] = new FloatProcessor(width, height);
-        FloatBlitter meanBlitter = new FloatBlitter(dists[0]);
-        FloatBlitter stdBlitter = new FloatBlitter(dists[1]);
-        Mean mean = new Mean();
-        StandardDeviation std = new StandardDeviation();
-        ProgressDialog dialog = new ProgressDialog(null, "Generating Fluorescence Distribution...", false, TITLE, false);
-        dialog.setVisible(true);
-        for (int i = start; i <= end; i++) {
-            dialog.updateProgress(i, end);
-            Region r = (Region) regions[i - 1];
-            Region current = new Region(r.getMask(), r.getCentre());
-            ArrayList<Double> means = new ArrayList();
-            ArrayList<Double> stds = new ArrayList();
-            int index = 0;
-            while (current.shrink(2, false, index)) {
-                float[][] pix = current.buildMapCol(stacks[1].getProcessor(i), height, 3);
-                if (pix != null) {
-                    double pixVals[] = new double[pix.length];
-                    for (int j = 0; j < height; j++) {
-                        pixVals[j] = pix[j][2];
-                    }
-                    means.add(mean.evaluate(pixVals, 0, height));
-                    stds.add(std.evaluate(pixVals));
-                    index++;
-                }
-            }
-            if (index > 0) {
-                FloatProcessor meanCol = new FloatProcessor(1, means.size());
-                FloatProcessor stdCol = new FloatProcessor(1, stds.size());
-                for (int k = 0; k < meanCol.getHeight(); k++) {
-                    meanCol.putPixelValue(0, k, means.get(k));
-                    stdCol.putPixelValue(0, k, stds.get(k));
-                }
-                meanCol.setInterpolate(true);
-                meanCol.setInterpolationMethod(ImageProcessor.BILINEAR);
-                stdCol.setInterpolate(true);
-                stdCol.setInterpolationMethod(ImageProcessor.BILINEAR);
-                meanBlitter.copyBits(meanCol.resize(1, height), i - start, 0, Blitter.COPY);
-                stdBlitter.copyBits(stdCol.resize(1, height), i - start, 0, Blitter.COPY);
-            }
-        }
-        dialog.dispose();
-        return dists;
-    }
 
     void generateFluorMaps(FloatProcessor fluorMaps[]) {
         File mean, std;

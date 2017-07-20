@@ -24,7 +24,7 @@ public class RegionFluorescenceQuantifier {
     Region[] regions;
     ImageStack stack;
     CSVPrinter printer;
-    static TextWindow tw = new TextWindow("Fluorescence Distribution", FluorescenceAnalyser.PARAM_HEADINGS, new ArrayList(), 640, 480);
+    static TextWindow tw = new TextWindow("Fluorescence Distribution", FluorescenceDistAnalyser.PARAM_HEADINGS, new ArrayList(), 640, 480);
 
     public RegionFluorescenceQuantifier(Region[] regions, ImageStack stack, CSVPrinter printer) {
         this.regions = regions;
@@ -35,13 +35,13 @@ public class RegionFluorescenceQuantifier {
 
     public void doQuantification() throws IOException {
         int length = stack.size();
-        String headings = FluorescenceAnalyser.PARAM_HEADINGS;
+        String headings = FluorescenceDistAnalyser.PARAM_HEADINGS;
         printer.printRecord(headings.replace('\t', ','));
         for (int i = 1; i <= length; i++) {
             if (regions[i - 1] != null) {
                 ImageProcessor mask = regions[i - 1].getMask();
                 mask.invert();
-                FluorescenceAnalyser fa = new FluorescenceAnalyser(new ImagePlus("", stack.getProcessor(i).convertToByteProcessor(true)), mask, 1);
+                FluorescenceDistAnalyser fa = new FluorescenceDistAnalyser(new ImagePlus("", stack.getProcessor(i).convertToByteProcessor(true)), mask, 1);
                 fa.doAnalysis();
                 printer.printRecord(fa.getContrast(), fa.getHomogeneity(), fa.getEnergy(), fa.getMean(), fa.getStd(), fa.getSkew(), fa.getKurt());
                 tw.append(fa.getContrast() + "\t" + fa.getHomogeneity() + "\t" + fa.getEnergy() + "\t" + fa.getMean() + "\t" + fa.getStd() + "\t" + fa.getSkew() + "\t" + fa.getKurt());

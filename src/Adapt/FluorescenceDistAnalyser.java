@@ -16,7 +16,7 @@ import java.util.Arrays;
  *
  * @author David Barry <david.barry at crick.ac.uk>
  */
-public class FluorescenceAnalyser {
+public class FluorescenceDistAnalyser {
 
     ImagePlus imp;
     ImageProcessor mask;
@@ -26,7 +26,7 @@ public class FluorescenceAnalyser {
     double contrast, homogeneity, energy, mean, std, skew, kurt;
     public static final String PARAM_HEADINGS = "Contrast\tHomogeneity\tEnergy\tMean\tStandard Deviation\tSkewness\tKurtosis";
 
-    public FluorescenceAnalyser(ImagePlus imp, ImageProcessor mask, int offset) {
+    public FluorescenceDistAnalyser(ImagePlus imp, ImageProcessor mask, int offset) {
         this.imp = imp;
         this.mask = mask;
         this.offset = offset;

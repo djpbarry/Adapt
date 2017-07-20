@@ -609,7 +609,7 @@ public class Analyse_MovieTest {
         int height = 0;
         Analyse_Movie instance = new Analyse_Movie();
         FloatProcessor[] expResult = null;
-        FloatProcessor[] result = instance.getFluorDists(cellData, height);
+        FloatProcessor[] result = instance.getFluorDists(cellData, height, stacks[1]);
         assertArrayEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
