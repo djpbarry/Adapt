@@ -356,7 +356,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     childDir = new File(childDirName);
                     buildOutput(index, length, false);
                     if (uv.isGetFluorDist()) {
-                        generateFluorMaps(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, stacks[1], ImageProcessor.MAX, Integer.MAX_VALUE, 2, cellData.get(index).getCellRegions(),cellData.get(index).getStartFrame(),cellData.get(index).getEndFrame()));
+                        FluorescenceAnalyser.generateFluorMapsPerCellOverTime(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, stacks[1], ImageProcessor.MAX, Integer.MAX_VALUE, 2, cellData.get(index).getCellRegions(),cellData.get(index).getStartFrame(),cellData.get(index).getEndFrame()), childDir);
                         File fluorFile = new File(parDir + delimiter + "fluorescence.csv");
                         try {
                             CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(fluorFile), GenVariables.ISO), CSVFormat.EXCEL);
@@ -1722,41 +1722,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
 
-    void generateFluorMaps(FloatProcessor fluorMaps[]) {
-        File mean, std;
-        PrintWriter meanStream, stdStream;
-        try {
-            mean = new File(childDir + delimiter + "MeanFluorescenceIntensity.csv");
-            meanStream = new PrintWriter(new FileOutputStream(mean));
-            std = new File(childDir + delimiter + "STDFluorescenceIntensity.csv");
-            stdStream = new PrintWriter(new FileOutputStream(std));
-            meanStream.print("Normalised Distance from Cell Edge,");
-            stdStream.print("Normalised Distance from Cell Edge,");
-            int mapHeight = fluorMaps[0].getHeight();
-            int mapWidth = fluorMaps[0].getWidth();
-            for (int x = 0; x < mapWidth; x++) {
-                meanStream.print("Mean Fluorescence Intensity (AU) Frame " + x + ",");
-                stdStream.print("Standard Deviation of Fluorescence Intensity (AU) Frame " + x + ",");
-            }
-            meanStream.println();
-            stdStream.println();
-            for (int y = 0; y < mapHeight; y++) {
-                String normDist = String.valueOf(((double) y) / (mapHeight - 1.0));
-                meanStream.print(normDist + ",");
-                stdStream.print(normDist + ",");
-                for (int x = 0; x < mapWidth; x++) {
-                    meanStream.print(fluorMaps[0].getPixelValue(x, y) + ",");
-                    stdStream.print(fluorMaps[1].getPixelValue(x, y) + ",");
-                }
-                meanStream.println();
-                stdStream.println();
-            }
-            meanStream.close();
-            stdStream.close();
-        } catch (FileNotFoundException e) {
-            System.out.println(e.toString());
-        }
-    }
 
     public ImageProcessor[] getPreviewImages() {
         return previewImages;
