@@ -105,6 +105,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private double minLength;
     private int previewSlice;
     private ImageProcessor[] previewImages;
+    private boolean selectiveOutput = false;
 
     /**
      * Default constructor
@@ -119,6 +120,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         this.uv = uv;
         this.parDir = parDir;
         this.roi = roi;
+        this.selectiveOutput = this.roi != null;
     }
 
     /*
@@ -167,6 +169,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (IJ.getInstance() == null || batchMode || protMode) {
             cytoStack = stacks[0];
             cytoSize = cytoStack.getSize();
+            roi = new PointRoi(new float[]{288, 244, 956}, new float[]{532, 346, 364});
         } else {
             ImagePlus images[] = GenUtils.specifyInputs(channelLabels);
             if (images == null) {
@@ -179,6 +182,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 sigImp = null;
             }
             roi = (PointRoi) cytoImp.getRoi(); // Points specified by the user indicate cells of interest
+
             cytoStack = cytoImp.getImageStack();
             cytoSize = cytoImp.getImageStackSize();
             if (sigImp != null) {
@@ -195,6 +199,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             } else {
                 stacks[1] = null;
             }
+        }
+        if (roi != null) {
+            selectiveOutput = true;
         }
         if (stacks[0].getProcessor(1) instanceof ColorProcessor
                 || (stacks[1] != null && stacks[1].getProcessor(1) instanceof ColorProcessor)) {
@@ -237,7 +244,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         cellData = new ArrayList();
         ImageProcessor cytoImage = cytoStack.getProcessor(1).duplicate();
         (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
-        RegionGrower.initialiseROIs(null, -1, 1, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
+        RegionGrower.initialiseROIs(null, -1, 1, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
 //        if (initialiseROIs(1, null, -1, 1, cytoImage) < 1) {
 //            IJ.error(TITLE, "No cells detected!");
 //            segDialog.dispose();
@@ -322,7 +329,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 }
             }
             if (i > 0) {
-                RegionGrower.initialiseROIs(allMasks, thresholds[i], i + 2, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
+                RegionGrower.initialiseROIs(allMasks, thresholds[i], i + 2, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
             }
         }
         if (protMode) {
@@ -339,6 +346,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             cellData.get(i).setGreyThresholds(thresholds);
         }
         segDialog.dispose();
+        if (selectiveOutput) {
+            ArrayList<CellData> filteredCells = filterCells(cellData);
+            cellData = null;
+            cellData = filteredCells;
+        }
         /*
          * Analyse the dynamics of each cell, represented by a series of
          * detected regions.
@@ -358,7 +370,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     childDir = new File(childDirName);
                     buildOutput(index, length, false);
                     if (uv.isGetFluorDist()) {
-                        FluorescenceAnalyser.generateFluorMapsPerCellOverTime(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, stacks[1], ImageProcessor.MAX, Integer.MAX_VALUE, 2, cellData.get(index).getCellRegions(),cellData.get(index).getStartFrame(),cellData.get(index).getEndFrame()), childDir);
+                        FluorescenceAnalyser.generateFluorMapsPerCellOverTime(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, stacks[1], ImageProcessor.MAX, Integer.MAX_VALUE, 2, cellData.get(index).getCellRegions(), cellData.get(index).getStartFrame(), cellData.get(index).getEndFrame()), childDir);
                         File fluorFile = new File(parDir + delimiter + "fluorescence.csv");
                         try {
                             CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(fluorFile), GenVariables.ISO), CSVFormat.EXCEL);
@@ -432,6 +444,16 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             return;
         }
         paramStream.close();
+    }
+
+     ArrayList<CellData> filterCells(ArrayList<CellData> originalCells) {
+        ArrayList<CellData> filteredCells = new ArrayList();
+        for (CellData cell : originalCells) {
+            if (cell.isOutput()) {
+                filteredCells.add(cell);
+            }
+        }
+        return filteredCells;
     }
 
     /*
@@ -1146,8 +1168,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-
-
     int constructFlippedBinMap(ByteProcessor input1, ByteProcessor input2, ByteProcessor output) {
         ByteBlitter blitter1 = new ByteBlitter(input1);
         blitter1.copyBits(input2, 0, 0, Blitter.SUBTRACT);
@@ -1604,7 +1624,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int height = cytoProc.getHeight();
         (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         int threshold = RegionGrower.getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
-        int nCell = RegionGrower.initialiseROIs(null, -1, sliceIndex, cytoProc, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
+        int nCell = RegionGrower.initialiseROIs(null, -1, sliceIndex, cytoProc, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
         Region[][] allRegions = new Region[nCell][stacks[0].getSize()];
         ArrayList<Region> detectedRegions = RegionGrower.findCellRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
@@ -1722,8 +1742,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     double getMaxFilArea() {
         return Math.sqrt(uv.getFiloSizeMax() / (Math.pow(uv.getSpatialRes(), 2.0)));
     }
-
-
 
     public ImageProcessor[] getPreviewImages() {
         return previewImages;

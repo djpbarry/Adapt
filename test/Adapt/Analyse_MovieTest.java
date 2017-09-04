@@ -92,7 +92,7 @@ public class Analyse_MovieTest {
         ImageProcessor input = null;
         Analyse_Movie instance = new Analyse_Movie();
         int expResult = 0;
-        int result = RegionGrower.initialiseROIs(masks, threshold, start, input, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode);
+        int result = RegionGrower.initialiseROIs(masks, threshold, start, input, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
