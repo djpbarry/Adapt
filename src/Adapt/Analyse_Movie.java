@@ -256,7 +256,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * detected regions are stored (in order) in stackRegions.
          */
         int thresholds[] = new int[cytoSize];
-        ArrayList<Region>[] allRegions = new ArrayList[cytoSize];
+        ArrayList<ArrayList<Region>> allRegions = new ArrayList<>();
         ByteProcessor allMasks = null;
         File filoData;
         PrintWriter filoStream = null;
@@ -277,11 +277,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             thresholds[i] = RegionGrower.getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             int N = cellData.size();
             if (cytoImage != null) {
-                allRegions[i] = RegionGrower.findCellRegions(cytoImage, thresholds[i], cellData);
+                allRegions.add(RegionGrower.findCellRegions(cytoImage, thresholds[i], cellData));
             }
             int fcount = 0;
             for (int j = 0; j < N; j++) {
-                Region current = allRegions[i].get(j);
+                Region current = allRegions.get(i).get(j);
                 if (current != null) {
                     fcount++;
                     /*
@@ -319,8 +319,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             allMasks.setColor(Region.MASK_FOREGROUND);
             allMasks.fill();
             ByteBlitter bb = new ByteBlitter(allMasks);
-            for (int k = 0; k < allRegions[i].size(); k++) {
-                Region current = allRegions[i].get(k);
+            for (int k = 0; k < allRegions.get(i).size(); k++) {
+                Region current = allRegions.get(i).get(k);
                 if (current != null) {
                     ImageProcessor currentMask = current.getMask();
                     currentMask.invert();
@@ -338,8 +338,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         for (int i = 0; i < cellData.size(); i++) {
             Region regions[] = new Region[cytoSize];
             for (int j = 0; j < cytoSize; j++) {
-                if (allRegions[j].size() > i) {
-                    regions[j] = allRegions[j].get(i);
+                if (allRegions.get(j).size() > i) {
+                    regions[j] = allRegions.get(j).get(i);
                 }
             }
             cellData.get(i).setCellRegions(regions);
@@ -1702,13 +1702,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 }
                 if (uv.isAnalyseProtrusions()) {
                     if (uv.isBlebDetect()) {
-                        ArrayList<BoundaryPixel> minPos[] = cellData.get(r).getCurvatureMinima();
+                        ArrayList<ArrayList<BoundaryPixel>> minPos = cellData.get(r).getCurvatureMinima();
                         for (int i = 0; i < channels; i++) {
-                            if (minPos[0] != null) {
+                            if (minPos.get(0) != null) {
                                 regionsOutput[i].setColor(Color.yellow);
-                                int minpSize = minPos[0].size();
+                                int minpSize = minPos.get(0).size();
                                 for (int j = 0; j < minpSize; j++) {
-                                    BoundaryPixel currentMin = minPos[0].get(j);
+                                    BoundaryPixel currentMin = minPos.get(0).get(j);
                                     int x = (int) Math.round(currentMin.getX());
                                     int y = (int) Math.round(currentMin.getY());
                                     regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);

@@ -103,7 +103,7 @@ public class CurveMapAnalyser {
      * @param minDuration the minimum duration (in seconds) for which a minima
      * must exist in order to be stored
      */
-    public static ArrayList<BoundaryPixel>[] findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, boolean min, double threshold, double curveRange, UserVariables uv, double minDuration) {
+    public static ArrayList<ArrayList<BoundaryPixel>> findAllCurvatureExtrema(CellData cellData, int startFrame, int endFrame, boolean min, double threshold, double curveRange, UserVariables uv, double minDuration) {
         MorphMap curveMap = cellData.getCurveMap();
         double[][] curveVals = curveMap.smoothMap(0.0, 0.0);
         double[][] xvals = curveMap.getxCoords();
@@ -137,7 +137,7 @@ public class CurveMapAnalyser {
                 trajectories.add(traj);
             }
         }
-        ArrayList<BoundaryPixel> extPos[] = new ArrayList[tLength];
+        ArrayList<ArrayList<BoundaryPixel>> extPos = new ArrayList<>(tLength);
         int tSize = trajectories.size();
         for (int j = 0; j < tSize; j++) {
             ParticleTrajectory currentTraj = trajectories.get(j);
@@ -149,15 +149,15 @@ public class CurveMapAnalyser {
                     int frame = currentParticle.getTimePoint() + 1;
                     for (int k = lastFrame - 1; k >= frame; k--) {
                         int currentIndex = k - startFrame;
-                        if (extPos[currentIndex] == null) {
-                            extPos[currentIndex] = new ArrayList<BoundaryPixel>();
+                        if (extPos.get(currentIndex) == null) {
+                            extPos.add(new ArrayList<>());
                         }
                         double x = currentParticle.getX() / uv.getSpatialRes();
                         double y = currentParticle.getY() / uv.getSpatialRes();
                         int pos = currentParticle.getiD();
                         BoundaryPixel currentPos = new BoundaryPixel(x,
                                 y, pos, j, currentIndex);
-                        extPos[currentIndex].add(currentPos);
+                        extPos.get(currentIndex).add(currentPos);
                     }
                     currentParticle = currentParticle.getLink();
                     lastFrame = frame;
@@ -178,26 +178,26 @@ public class CurveMapAnalyser {
         MorphMap curveMap = cellData.getCurveMap();
         double[][] xvals = curveMap.getxCoords();
         double[][] yvals = curveMap.getyCoords();
-        ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
-        ArrayList<BoundaryPixel> maxPos[] = cellData.getCurvatureMaxima();
+        ArrayList<ArrayList<BoundaryPixel>> minPos = cellData.getCurvatureMinima();
+        ArrayList<ArrayList<BoundaryPixel>> maxPos = cellData.getCurvatureMaxima();
         for (int i = 0; i < tLength; i++) {
             ImageProcessor detectionSlice = (new TypeConverter(cytoStack.getProcessor(i + 1), true)).convertToRGB();
             detectionSlice.setLineWidth(8);
-            if (minPos[i] != null) {
-                int mpSize = minPos[i].size();
+            if (minPos.get(i) != null) {
+                int mpSize = minPos.get(i).size();
                 detectionSlice.setColor(Color.red);
                 for (int j = 0; j < mpSize; j++) {
-                    BoundaryPixel currentMin = minPos[i].get(j);
+                    BoundaryPixel currentMin = minPos.get(i).get(j);
                     int x = currentMin.getRoundedX();
                     int y = currentMin.getRoundedY();
                     detectionSlice.drawString(String.valueOf(currentMin.getID()), x, y);
                 }
             }
-            if (maxPos[i] != null) {
-                int mpSize = maxPos[i].size();
+            if (maxPos.get(i) != null) {
+                int mpSize = maxPos.get(i).size();
                 detectionSlice.setColor(Color.magenta);
                 for (int j = 0; j < mpSize; j++) {
-                    BoundaryPixel currentMax = maxPos[i].get(j);
+                    BoundaryPixel currentMax = maxPos.get(i).get(j);
                     int x = currentMax.getRoundedX();
                     int y = currentMax.getRoundedY();
                     detectionSlice.drawString(String.valueOf(currentMax.getID()), x, y);
@@ -211,36 +211,36 @@ public class CurveMapAnalyser {
     }
 
     private static void findNearestMinTraj(int time, int anchor[], int maxRange, CellData cellData) {
-        ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
+        ArrayList<ArrayList<BoundaryPixel>> minPos = cellData.getCurvatureMinima();
         MorphMap curveMap = cellData.getCurveMap();
-        if (minPos[time] == null) {
+        if (minPos.get(time) == null) {
             return;
         }
-        int size = minPos[time].size();
+        int size = minPos.get(time).size();
         double minDist = Double.MAX_VALUE;
         double xvals[] = curveMap.getxCoords()[time];
         double yvals[] = curveMap.getyCoords()[time];
         double x1 = xvals[anchor[0]];
         double y1 = yvals[anchor[0]];
         for (int i = 0; i < size; i++) {
-            int thisPos = minPos[time].get(i).getPos();
+            int thisPos = minPos.get(time).get(i).getPos();
             double x2 = xvals[thisPos];
             double y2 = yvals[thisPos];
             double dist = Utils.calcDistance(x1, y1, x2, y2);
             if (dist < minDist) {
                 minDist = dist;
                 if (dist < maxRange) {
-                    anchor[1] = minPos[time].get(i).getID();
+                    anchor[1] = minPos.get(time).get(i).getID();
                 }
             }
         }
     }
 
-    private static void findMinTrajPos(ArrayList<BoundaryPixel>[] minPos, int time, int anchor[], int maxRange) {
+    private static void findMinTrajPos(ArrayList<ArrayList<BoundaryPixel>> minPos, int time, int anchor[], int maxRange) {
         if (!(anchor[1] > -1)) {
             return;
         }
-        ArrayList<BoundaryPixel> poss = minPos[time];
+        ArrayList<BoundaryPixel> poss = minPos.get(time);
         if (poss != null) {
             int size = poss.size();
             for (int i = 0; i < size; i++) {
@@ -264,7 +264,7 @@ public class CurveMapAnalyser {
      * locations
      */
     public static void updateAnchorPoint(int time, int anchor[], int maxRange, CellData cellData) {
-        ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
+        ArrayList<ArrayList<BoundaryPixel>> minPos = cellData.getCurvatureMinima();
         findTraj(minPos, time, anchor);
         if (!(anchor[1] > -1)) {
             findNearestMinTraj(time, anchor, maxRange, cellData);
@@ -272,13 +272,13 @@ public class CurveMapAnalyser {
         findMinTrajPos(minPos, time, anchor, maxRange);
     }
 
-    private static void findTraj(ArrayList<BoundaryPixel>[] minPos, int time, int anchor[]) {
-        int length = minPos.length;
+    private static void findTraj(ArrayList<ArrayList<BoundaryPixel>> minPos, int time, int anchor[]) {
+        int length = minPos.size();
         for (int t = time; t < length; t++) {
-            if (minPos[t] != null) {
-                int size = minPos[t].size();
+            if (minPos.get(t) != null) {
+                int size = minPos.get(t).size();
                 for (int i = 0; i < size; i++) {
-                    if (minPos[t].get(i).getID() == anchor[1]) {
+                    if (minPos.get(t).get(i).getID() == anchor[1]) {
                         return;
                     }
                 }
