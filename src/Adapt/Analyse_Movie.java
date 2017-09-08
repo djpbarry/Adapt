@@ -169,7 +169,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (IJ.getInstance() == null || batchMode || protMode) {
             cytoStack = stacks[0];
             cytoSize = cytoStack.getSize();
-            roi = new PointRoi(new float[]{288, 244, 956}, new float[]{532, 346, 364});
+//            roi = new PointRoi(new float[]{288, 244, 956}, new float[]{532, 346, 364});
         } else {
             ImagePlus images[] = GenUtils.specifyInputs(channelLabels);
             if (images == null) {
@@ -241,7 +241,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         String pdLabel = protMode ? "Segmenting Filopodia..." : "Segmenting Cells...";
         ProgressDialog segDialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
         segDialog.setVisible(true);
-        cellData = new ArrayList();
+        cellData = new ArrayList<>();
         ImageProcessor cytoImage = cytoStack.getProcessor(1).duplicate();
         (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         RegionGrower.initialiseROIs(null, -1, 1, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
@@ -348,7 +348,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         segDialog.dispose();
         if (selectiveOutput) {
             ArrayList<CellData> filteredCells = filterCells(cellData);
-            cellData = null;
             cellData = filteredCells;
         }
         /*
@@ -447,7 +446,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
      ArrayList<CellData> filterCells(ArrayList<CellData> originalCells) {
-        ArrayList<CellData> filteredCells = new ArrayList();
+        ArrayList<CellData> filteredCells = new ArrayList<>();
         for (CellData cell : originalCells) {
             if (cell.isOutput()) {
                 filteredCells.add(cell);
@@ -1618,7 +1617,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * @param sliceIndex Frame number of stack to be previewed
      */
     public void generatePreview(int sliceIndex) {
-        cellData = new ArrayList();
+        cellData = new ArrayList<>();
         ImageProcessor cytoProc = stacks[0].getProcessor(sliceIndex).duplicate();
         int width = cytoProc.getWidth();
         int height = cytoProc.getHeight();

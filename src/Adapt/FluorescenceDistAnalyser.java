@@ -12,10 +12,6 @@ import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 import java.util.Arrays;
 
-/**
- *
- * @author David Barry <david.barry at crick.ac.uk>
- */
 public class FluorescenceDistAnalyser {
 
     ImagePlus imp;

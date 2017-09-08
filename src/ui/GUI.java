@@ -51,7 +51,7 @@ public class GUI extends javax.swing.JDialog {
     private boolean wasOKed = false;
     private final int MAX_DIM = 512;
     private static UserVariables uv = new UserVariables();
-    ArrayList<Thread> previewThreads = new ArrayList();
+    ArrayList<Thread> previewThreads = new ArrayList<>();
     private PointRoi roi;
 
     /**
@@ -943,7 +943,7 @@ public class GUI extends javax.swing.JDialog {
 //                return;
 //            }
         }
-        previewThreads = new ArrayList();
+        previewThreads = new ArrayList<>();
         previewField.setText(String.valueOf(previewScrollBar.getValue()));
         final Analyse_Movie previewAnalyser = new Analyse_Movie(stacks, false, false, uv, null, roi);
         previewAnalyser.preparePreview(previewScrollBar.getValue(), (UserVariables) uv.clone());

@@ -66,7 +66,7 @@ public class Protrusion {
 
     /**
      * Get a list of values corresponding to the sum of signal pixel values along
-     * the protrusion periphery (to a depth of {@link UserVariables#cortexDepth cortexDepth}}
+     * the protrusion periphery (to a depth of {@link UserVariables.UserVariables#cortexDepth cortexDepth}}
      * 
      * @return list of time-varying signal values for this protrusion
      */

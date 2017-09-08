@@ -6,7 +6,6 @@
 package Adapt;
 
 import IAClasses.Region;
-import UtilClasses.GenUtils;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
@@ -15,10 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import org.apache.commons.csv.CSVPrinter;
 
-/**
- *
- * @author David Barry <david.barry at crick.ac.uk>
- */
 public class RegionFluorescenceQuantifier {
 
     Region[] regions;
