@@ -41,7 +41,7 @@ import java.util.ArrayList;
 public class CurveMapAnalyser {
 
     public final static int curveSearchRangeFactor = 4;
-    private final static double maxTrajScore = 5.0;
+    private final static double maxTrajScore = 0.5;
 
     /**
      * Determines whether the coordinate (pos, timePoint) represents a local
@@ -119,15 +119,15 @@ public class CurveMapAnalyser {
                     if (CurveMapAnalyser.isLocalCurvatureExtreme(pos, range, curveVals[currentIndex], threshold, min) == 0) {
                         extrema.addDetection(currentIndex,
                                 new IsoGaussian(t - 1, xvals[currentIndex][pos] * uv.getSpatialRes(),
-                                                yvals[currentIndex][pos] * uv.getSpatialRes(), 1.0,
-                                                1.0, 1.0, 1.0, null, pos, null));
+                                        yvals[currentIndex][pos] * uv.getSpatialRes(), 1.0,
+                                        1.0, 1.0, 1.0, null, pos, null));
                     }
                 }
             }
         }
         ArrayList<ParticleTrajectory> trajectories = new ArrayList<>();
         if (tLength > 1) {
-           TrajectoryBuilder.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false, 1.0, trajectories, false);
+            TrajectoryBuilder.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false, 1.0, trajectories, false);
         } else {
             ArrayList<Particle> particles = extrema.getLevel(0);
             trajectories = new ArrayList<>();
@@ -137,7 +137,10 @@ public class CurveMapAnalyser {
                 trajectories.add(traj);
             }
         }
-        ArrayList<ArrayList<BoundaryPixel>> extPos = new ArrayList<>(tLength);
+        ArrayList<ArrayList<BoundaryPixel>> extPos = new ArrayList<>();
+        for (int t = 0; t < tLength; t++) {
+            extPos.add(new ArrayList());
+        }
         int tSize = trajectories.size();
         for (int j = 0; j < tSize; j++) {
             ParticleTrajectory currentTraj = trajectories.get(j);
@@ -149,9 +152,9 @@ public class CurveMapAnalyser {
                     int frame = currentParticle.getTimePoint() + 1;
                     for (int k = lastFrame - 1; k >= frame; k--) {
                         int currentIndex = k - startFrame;
-                        if (extPos.get(currentIndex) == null) {
-                            extPos.add(new ArrayList<>());
-                        }
+//                        if (extPos.get(currentIndex) == null) {
+//                            extPos.add(new ArrayList<>());
+//                        }
                         double x = currentParticle.getX() / uv.getSpatialRes();
                         double y = currentParticle.getY() / uv.getSpatialRes();
                         int pos = currentParticle.getiD();
@@ -213,7 +216,7 @@ public class CurveMapAnalyser {
     private static void findNearestMinTraj(int time, int anchor[], int maxRange, CellData cellData) {
         ArrayList<ArrayList<BoundaryPixel>> minPos = cellData.getCurvatureMinima();
         MorphMap curveMap = cellData.getCurveMap();
-        if (minPos.get(time) == null) {
+        if (minPos == null || minPos.get(time) == null) {
             return;
         }
         int size = minPos.get(time).size();

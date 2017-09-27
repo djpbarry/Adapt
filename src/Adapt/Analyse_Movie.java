@@ -445,7 +445,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         paramStream.close();
     }
 
-     ArrayList<CellData> filterCells(ArrayList<CellData> originalCells) {
+    ArrayList<CellData> filterCells(ArrayList<CellData> originalCells) {
         ArrayList<CellData> filteredCells = new ArrayList<>();
         for (CellData cell : originalCells) {
             if (cell.isOutput()) {
@@ -1704,7 +1704,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     if (uv.isBlebDetect()) {
                         ArrayList<ArrayList<BoundaryPixel>> minPos = cellData.get(r).getCurvatureMinima();
                         for (int i = 0; i < channels; i++) {
-                            if (minPos.get(0) != null) {
+                            if (minPos != null && minPos.get(0) != null) {
                                 regionsOutput[i].setColor(Color.yellow);
                                 int minpSize = minPos.get(0).size();
                                 for (int j = 0; j < minpSize; j++) {
