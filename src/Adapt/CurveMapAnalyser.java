@@ -127,7 +127,7 @@ public class CurveMapAnalyser {
         }
         ArrayList<ParticleTrajectory> trajectories = new ArrayList<>();
         if (tLength > 1) {
-            TrajectoryBuilder.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), false, 1.0, trajectories, false);
+            TrajectoryBuilder.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), 1.0, trajectories, false);
         } else {
             ArrayList<Particle> particles = extrema.getLevel(0);
             trajectories = new ArrayList<>();
@@ -147,9 +147,9 @@ public class CurveMapAnalyser {
             int cSize = currentTraj.getSize();
             if (!(cSize < minDuration)) {
                 Particle currentParticle = currentTraj.getEnd();
-                int lastFrame = currentParticle.getTimePoint() + 2;
+                int lastFrame = currentParticle.getFrameNumber() + 2;
                 while (currentParticle != null) {
-                    int frame = currentParticle.getTimePoint() + 1;
+                    int frame = currentParticle.getFrameNumber() + 1;
                     for (int k = lastFrame - 1; k >= frame; k--) {
                         int currentIndex = k - startFrame;
 //                        if (extPos.get(currentIndex) == null) {
