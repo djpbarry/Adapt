@@ -27,7 +27,6 @@ import IAClasses.DSPProcessor;
 import IAClasses.ProgressDialog;
 import IAClasses.Region;
 import IAClasses.Utils;
-import MacroWriter.MacroWriter;
 import Segmentation.RegionGrower;
 import UtilClasses.Utilities;
 import UtilClasses.GenUtils;
@@ -142,7 +141,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      */
     @Override
     public void run(String arg) {
-        MacroWriter.write();
+//        MacroWriter.write();
         TITLE = TITLE + "_v" + StaticVariables.VERSION + "." + numFormat.format(Revision.Revision.revisionNumber);
         if (IJ.getInstance() != null && WindowManager.getIDList() == null) {
             IJ.error("No Images Open.");
