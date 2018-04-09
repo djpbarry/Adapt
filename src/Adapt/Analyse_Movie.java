@@ -19,6 +19,7 @@ package Adapt;
 import Cell.MorphMap;
 import UserVariables.UserVariables;
 import Cell.CellData;
+import Curvature.CurveAnalyser;
 import DataProcessing.DataFileAverager;
 import Fluorescence.FluorescenceAnalyser;
 import IAClasses.BoundaryPixel;
@@ -767,7 +768,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
              */
             double upX[] = DSPProcessor.upScale(x, height, false);
             double upY[] = DSPProcessor.upScale(y, height, false);
-            curveMap.addColumn(upX, upY, DSPProcessor.upScale(Region.calcCurvature(vmPoints,
+            curveMap.addColumn(upX, upY, DSPProcessor.upScale(CurveAnalyser.calcCurvature(vmPoints,
                     uv.getCurveRange()), height, false), index);
             cellData.getScaleFactors()[index] = ((double) height) / vmPoints.length;
         }
