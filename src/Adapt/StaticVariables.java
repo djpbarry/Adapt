@@ -168,7 +168,7 @@ public class StaticVariables {
     /**
      * Formatting of integer results
      */
-    protected static DecimalFormat numFormat = new DecimalFormat("000"); // For formatting results
+    public static DecimalFormat numFormat = new DecimalFormat("000"); // For formatting results
     /**
      * Formatting of floating-point results
      */

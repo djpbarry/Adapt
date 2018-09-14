@@ -75,7 +75,9 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FilenameUtils;
 import ui.GUI;
 import UtilClasses.GenVariables;
+import Visualisation.MultiThreadedVisualisationGenerator;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
 
 /**
  * Analyse_Movie is designed to quantify cell membrane dynamics and correlate
@@ -86,7 +88,7 @@ import java.util.Scanner;
  */
 public class Analyse_Movie extends NotificationThread implements PlugIn {
 
-    protected static File directory; // root directory
+    protected static File directory = new File("D:\\debugging\\adapt_debug\\output"); // root directory
     protected File childDir, // root output directory
             parDir, // output directory for each cell
             velDirName, curvDirName, trajDirName, segDirName;
@@ -271,6 +273,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         for (int i = 0; i < cytoSize; i++) {
+//            if (allMasks != null) {
+//                IJ.saveAs(new ImagePlus("", allMasks), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d.png", "AllMasksPreErode", i));
+//            }
             segDialog.updateProgress(i, cytoSize);
             cytoImage = cytoStack.getProcessor(i + 1).duplicate();
             (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
@@ -289,6 +294,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                      * segmentation
                      */
                     ImageProcessor mask = current.getMask();
+//                    IJ.saveAs(new ImagePlus("", mask), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d_%d.png", "MaskPreErode", i, j));
                     current.calcCentroid(mask);
                     Rectangle bounds = current.getBounds();
                     bounds.grow(2, 2);
@@ -297,6 +303,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     for (int k = 0; k < e; k++) {
                         mask.erode();
                     }
+//                    IJ.saveAs(new ImagePlus("", mask), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d_%d.png", "MaskPostErode", i, j));
                     short seed[] = current.findSeed(mask);
                     if (seed != null) {
                         Region temp;
@@ -323,11 +330,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 Region current = allRegions.get(i).get(k);
                 if (current != null) {
                     ImageProcessor currentMask = current.getMask();
+//                    IJ.saveAs(new ImagePlus("", currentMask), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d_%d.png", "MaskPostErode2", i, k));
                     currentMask.invert();
                     bb.copyBits(currentMask, 0, 0, Blitter.ADD);
                     current.setFinalMask();
                 }
             }
+//                IJ.saveAs(new ImagePlus("", allMasks), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d.png", "AllMasksPostErode", i));
             if (i > 0) {
                 RegionGrower.initialiseROIs(allMasks, thresholds[i], i + 2, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
             }
@@ -829,65 +838,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     void genCurveVelVis(ArrayList<CellData> cellDatas) {
-        int N = cellDatas.size();
-        ImageStack cytoStack = stacks[0];
-        String pdLabel = protMode ? "Building Filopodia Visualisations..." : "Building Cell Visualisations...";
-        ProgressDialog dialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
-        dialog.setVisible(true);
-        /*
-         * Generate various visualisations for output
-         */
-        int width = cytoStack.getWidth();
-        int height = cytoStack.getHeight();
-        int stackSize = cytoStack.getSize();
-        double mincurve = -50.0, maxcurve = 50.0;
-        for (int t = 0; t < stackSize; t++) {
-            dialog.updateProgress(t, stackSize);
-            ColorProcessor velOutput = new ColorProcessor(width, height);
-            velOutput.setLineWidth(uv.getVisLineWidth());
-            velOutput.setColor(Color.black);
-            velOutput.fill();
-            ColorProcessor curveOutput = new ColorProcessor(width, height);
-            curveOutput.setLineWidth(uv.getVisLineWidth());
-            curveOutput.setColor(Color.black);
-            curveOutput.fill();
-            for (int n = 0; n < N; n++) {
-                int start = cellData.get(n).getStartFrame();
-                int end = cellData.get(n).getEndFrame();
-                int length = cellData.get(n).getLength();
-                if (length > minLength && t + 1 >= start && t < end) {
-                    int index = t + 1 - start;
-                    double[][] smoothVelocities = cellData.get(n).getSmoothVelocities();
-                    Region[] allRegions = cellData.get(n).getCellRegions();
-                    MorphMap curveMap = cellData.get(n).getCurveMap();
-                    int upLength = curveMap.getHeight();
-                    double maxvel = cellData.get(n).getMaxVel();
-                    double minvel = cellData.get(n).getMinVel();
-                    double xCoords[][] = curveMap.getxCoords();
-                    double yCoords[][] = curveMap.getyCoords();
-                    double curvatures[][] = curveMap.getzVals();
-                    for (int j = 0; j < upLength; j++) {
-                        int x = (int) Math.round(xCoords[index][j]);
-                        int y = (int) Math.round(yCoords[index][j]);
-                        velOutput.setColor(getColor(smoothVelocities[index][j], maxvel, minvel));
-                        velOutput.drawDot(x, y);
-                        curveOutput.setColor(getColor(curvatures[index][j], maxcurve, mincurve));
-                        curveOutput.drawDot(x, y);
-                    }
-                    velOutput.setColor(Color.blue);
-                    Region current = allRegions[t];
-                    ArrayList<float[]> centres = current.getCentres();
-                    int cl = centres.size();
-                    int xc = (int) Math.round(centres.get(cl - 1)[0]);
-                    int yc = (int) Math.round(centres.get(cl - 1)[1]);
-                    velOutput.fillOval(xc - 1, yc - 1, 3, 3);
-                    velOutput.drawString(String.valueOf(n + 1), xc + 2, yc + 2);
-                }
-            }
-            IJ.saveAs((new ImagePlus("", velOutput)), "PNG", velDirName.getAbsolutePath() + delimiter + numFormat.format(t));
-            IJ.saveAs((new ImagePlus("", curveOutput)), "PNG", curvDirName.getAbsolutePath() + delimiter + numFormat.format(t));
-        }
-        dialog.dispose();
+        (new MultiThreadedVisualisationGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()),
+                cellData, protMode, stacks[0], uv, velDirName, curvDirName)).run();
     }
 
     void genSimpSegVis(ArrayList<CellData> cellDatas) {
