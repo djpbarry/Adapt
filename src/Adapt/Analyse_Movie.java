@@ -20,14 +20,13 @@ import Cell.MorphMap;
 import UserVariables.UserVariables;
 import Cell.CellData;
 import Curvature.CurveAnalyser;
-import DataProcessing.DataFileAverager;
-import Fluorescence.FluorescenceAnalyser;
 import IAClasses.BoundaryPixel;
 import IAClasses.CrossCorrelation;
 import IAClasses.DSPProcessor;
 import IAClasses.ProgressDialog;
 import IAClasses.Region;
 import IAClasses.Utils;
+import Output.MultiThreadedOutputGenerator;
 import Segmentation.RegionGrower;
 import UtilClasses.Utilities;
 import UtilClasses.GenUtils;
@@ -70,8 +69,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FilenameUtils;
 import ui.GUI;
 import UtilClasses.GenVariables;
@@ -164,7 +161,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         IJ.showStatus(TITLE + " done.");
     }
 
-    protected void analyse(String imageName) {
+    public void analyse(String imageName) {
         int cytoSize, sigSize;
         ImageStack cytoStack;
         ImagePlus cytoImp = new ImagePlus(), sigImp;
@@ -364,59 +361,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * detected regions.
          */
         if ((uv.isGenVis() || uv.isGetFluorDist()) && !protMode) {
-            String pdLabel2 = protMode ? "Generating individual filipodia outputs..." : "Generating individual cell outputs...";
-            ProgressDialog dialog = new ProgressDialog(null, pdLabel2, false, TITLE, false);
-            dialog.setVisible(true);
-            for (int index = 0; index < cellData.size(); index++) {
-                /*
-                 * Create child directory for current cell
-                 */
-                dialog.updateProgress(index, cellData.size());
-                String childDirName = GenUtils.openResultsDirectory(parDir + delimiter + index);
-                int length = cellData.get(index).getLength();
-                if (length > minLength) {
-                    childDir = new File(childDirName);
-                    buildOutput(index, length, false);
-                    if (uv.isGetFluorDist()) {
-                        FluorescenceAnalyser.generateFluorMapsPerCellOverTime(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, stacks[1], ImageProcessor.MAX, Integer.MAX_VALUE, 2, cellData.get(index).getCellRegions(), cellData.get(index).getStartFrame(), cellData.get(index).getEndFrame()), childDir);
-                        File fluorFile = new File(parDir + delimiter + "fluorescence.csv");
-                        try {
-                            CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(fluorFile), GenVariables.ISO), CSVFormat.EXCEL);
-                            RegionFluorescenceQuantifier rfq = new RegionFluorescenceQuantifier(cellData.get(index).getCellRegions(), stacks[1], printer);
-                            rfq.doQuantification();
-                            printer.close();
-                        } catch (Exception e) {
-                        }
-                    }
-                    if (!protMode && uv.isAnalyseProtrusions()) {
-                        calcSigThresh(cellData.get(index));
-                        if (uv.isBlebDetect()) {
-                            findProtrusionsBasedOnVel(cellData.get(index));
-                            try {
-                                correlativePlot(cellData.get(index));
-                            } catch (IOException e) {
-                                IJ.log(e.toString());
-                            }
-                            String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL, StaticVariables.MEAN_SIGNAL};
-                            (new DataFileAverager(StaticVariables.DATA_STREAM_HEADINGS,
-                                    normHeadings, uv.isDisplayPlots(), StaticVariables.VELOCITY,
-                                    StaticVariables.TIME, GenVariables.UTF8)).run(childDir + delimiter + BLEB_DATA_FILES);
-                        } else {
-                            ImageStack protStacks[] = new ImageStack[2];
-                            protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(getMaxFilArea()), 1, cytoSize);
-                            protStacks[1] = stacks[1];
-                            UserVariables protUV = (UserVariables) uv.clone();
-                            protUV.setAnalyseProtrusions(false);
-                            protUV.setErosion(2);
-                            Analyse_Movie protAM = new Analyse_Movie(protStacks,
-                                    true, false, protUV,
-                                    new File(GenUtils.openResultsDirectory(childDir + delimiter + "Protrusions")), roi);
-                            protAM.analyse(null);
-                        }
-                    }
-                }
-            }
-            dialog.dispose();
+            (new MultiThreadedOutputGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()), cellData,
+                    parDir.getAbsolutePath(), protMode, uv, childDir, stacks[1],
+                    stacks[0], directory, roi)).run();
             velDirName = GenUtils.createDirectory(parDir + delimiter + "Velocity_Visualisation", false);
             curvDirName = GenUtils.createDirectory(parDir + delimiter + "Curvature_Visualisation", false);
             genCurveVelVis(cellData);
