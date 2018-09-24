@@ -71,10 +71,6 @@ import java.util.Arrays;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-/**
- *
- * @author David Barry <david.barry at crick dot ac dot uk>
- */
 public class RunnableOutputGenerator extends RunnableProcess {
 
     private ArrayList<CellData> cellData;

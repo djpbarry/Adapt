@@ -26,10 +26,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 
-/**
- *
- * @author David Barry <david.barry at crick dot ac dot uk>
- */
 public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
 
     private ArrayList<CellData> cellData;
@@ -45,7 +41,7 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
     public MultiThreadedOutputGenerator(ExecutorService exec, ArrayList<CellData> cellData,
             String parDir, boolean protMode, UserVariables uv, File childDir, ImageStack sigStack,
             ImageStack cytoStack, File directory, PointRoi roi) {
-        super(null, exec);
+        super(null);
         this.cellData = cellData;
         this.parDir = parDir;
         this.protMode = protMode;

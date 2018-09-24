@@ -411,10 +411,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return filteredCells;
     }
 
-    /*
-     * Build velocity and signal maps and generate output visualisations for
-     * cell corresponding to index
-     */
+    @Deprecated
     void buildOutput(int index, int length, boolean preview) {
         Region[] allRegions = cellData.get(index).getCellRegions();
         ImageStack sigStack = stacks[1];
@@ -574,6 +571,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
+    @Deprecated
     int getMaxBoundaryLength(CellData cellData, Region[] allRegions, int index) {
         int size = allRegions.length;
         int maxBoundary = 0;
@@ -593,6 +591,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return maxBoundary;
     }
 
+    @Deprecated
     boolean prepareOutputFiles(PrintWriter trajStream, PrintWriter segStream, int size, int dim) {
         segStream.println("FRAMES " + String.valueOf(size));
         segStream.println("DIM " + String.valueOf(dim));
@@ -636,6 +635,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return true;
     }
 
+    @Deprecated
     void buildVelSigMaps(int index, Region[] allRegions, PrintWriter trajStream, PrintWriter segStream, CellData cellData, int total) {
         ImageStack cytoStack = stacks[0];
         ImageStack sigStack = stacks[1];
@@ -693,6 +693,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
+    @Deprecated
     private void buildCurveMap(Region[] allRegions, CellData cellData) {
         MorphMap curveMap = cellData.getCurveMap();
         int height = curveMap.getHeight();
@@ -730,6 +731,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
+    @Deprecated
     void generateMaps(double[][] smoothVelocities, CellData cellData, int index, int total) {
         boolean sigNull = (cellData.getSigMap() == null);
         int l = smoothVelocities.length;
@@ -940,6 +942,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     /*
      * Generate graphic scalebar and output to child directory
      */
+    @Deprecated
     void generateScaleBar(double max, double min) {
         ColorProcessor scaleBar = new ColorProcessor(90, 480);
         scaleBar.setColor(Color.white);
@@ -965,6 +968,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * will range somewhere between red for retmax, green for promax and yellow
      * if val=0.
      */
+    @Deprecated
     Color getColor(double val, double promax, double retmax) {
         Color colour = Color.black;
         int r, g;
@@ -988,6 +992,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return colour;
     }
 
+    @Deprecated
     void findProtrusionsBasedOnVel(CellData cellData) {
         /*
          * Protrusion events are identified by thresholding velMapImage.
@@ -1022,6 +1027,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         cellData.setVelRois(manager.getRoisAsArray());
     }
 
+    @Deprecated
     ImageStack findProtrusionsBasedOnMorph(CellData cellData, int reps, int start, int stop) {
         Region regions[] = cellData.getCellRegions();
         ImageStack cyto2 = new ImageStack(stacks[0].getWidth(), stacks[0].getHeight());
@@ -1055,6 +1061,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return cyto2;
     }
 
+    @Deprecated
     void calcSigThresh(CellData cellData) {
         if (uv.isUseSigThresh()) {
             ImageProcessor scaledSigMap = cellData.getGreySigMap().duplicate();
@@ -1066,6 +1073,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
+    @Deprecated
     int constructFlippedBinMap(ByteProcessor input1, ByteProcessor input2, ByteProcessor output) {
         ByteBlitter blitter1 = new ByteBlitter(input1);
         blitter1.copyBits(input2, 0, 0, Blitter.SUBTRACT);
@@ -1084,6 +1092,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return bottomROI.y;
     }
 
+    @Deprecated
     void copyRoisWithOffset(RoiManager manager, RoiManager manager2, int offset) {
         Roi preAdjusted[] = manager2.getRoisAsArray();
         for (Roi r : preAdjusted) {
@@ -1377,6 +1386,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * Correlates data in velImage and sigImage within the Roi's specified in
      * sigrois and velrois.
      */
+    @Deprecated
     void correlativePlot(CellData cellData) throws IOException, FileNotFoundException {
         cellData.setCurvatureMinima(CurveMapAnalyser.findAllCurvatureExtrema(cellData, cellData.getStartFrame(), cellData.getEndFrame(), true, uv.getMinCurveThresh(), uv.getCurveRange(), uv, trajMin));
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
@@ -1487,6 +1497,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         IJ.saveAs(new ImagePlus("", velMapWithDetections), "PNG", childDir + delimiter + "Velocity_Map_with_Detected_Regions.png");
     }
 
+    @Deprecated
     void generateDetectionStack(Bleb currentBleb, int index) {
         int cortexRad = (int) Math.round(uv.getCortexDepth() / uv.getSpatialRes());
         Rectangle bounds = currentBleb.getBounds();
@@ -1637,6 +1648,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         previewImages = regionsOutput;
     }
 
+    @Deprecated
     double getMaxFilArea() {
         return Math.sqrt(uv.getFiloSizeMax() / (Math.pow(uv.getSpatialRes(), 2.0)));
     }

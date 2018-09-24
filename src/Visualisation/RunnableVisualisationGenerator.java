@@ -30,10 +30,6 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-/**
- *
- * @author David Barry <david.barry at crick dot ac dot uk>
- */
 public class RunnableVisualisationGenerator extends RunnableProcess {
 
     ArrayList<CellData> cellData;

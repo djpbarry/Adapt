@@ -26,10 +26,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 
-/**
- *
- * @author David Barry <david.barry at crick dot ac dot uk>
- */
 public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
 
     ArrayList<CellData> cellData;
@@ -41,7 +37,7 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
     protected DecimalFormat numFormat = StaticVariables.numFormat;
 
     public MultiThreadedVisualisationGenerator(ExecutorService exec, ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, File velDirName, File curvDirName) {
-        super(null, exec);
+        super(null);
         this.cellData = cellData;
         this.protMode = protMode;
         this.cytoStack = cytoStack;
