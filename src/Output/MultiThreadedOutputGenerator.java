@@ -38,10 +38,14 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
     File directory;
     PointRoi roi;
 
+    public void setup(){
+        
+    }
+    
     public MultiThreadedOutputGenerator(ExecutorService exec, ArrayList<CellData> cellData,
             String parDir, boolean protMode, UserVariables uv, File childDir, ImageStack sigStack,
             ImageStack cytoStack, File directory, PointRoi roi) {
-        super(null);
+        super(null, null);
         this.cellData = cellData;
         this.parDir = parDir;
         this.protMode = protMode;

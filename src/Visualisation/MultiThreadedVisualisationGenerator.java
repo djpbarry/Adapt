@@ -36,8 +36,12 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
     File curvDirName;
     protected DecimalFormat numFormat = StaticVariables.numFormat;
 
+    public void setup(){
+        
+    }
+    
     public MultiThreadedVisualisationGenerator(ExecutorService exec, ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, File velDirName, File curvDirName) {
-        super(null);
+        super(null, null);
         this.cellData = cellData;
         this.protMode = protMode;
         this.cytoStack = cytoStack;
