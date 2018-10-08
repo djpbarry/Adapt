@@ -26,6 +26,7 @@ import IAClasses.DSPProcessor;
 import IAClasses.ProgressDialog;
 import IAClasses.Region;
 import IAClasses.Utils;
+import IO.DataWriter;
 import Output.MultiThreadedOutputGenerator;
 import Segmentation.RegionGrower;
 import UtilClasses.Utilities;
@@ -73,6 +74,7 @@ import org.apache.commons.io.FilenameUtils;
 import ui.GUI;
 import UtilClasses.GenVariables;
 import Visualisation.MultiThreadedVisualisationGenerator;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 
@@ -518,17 +520,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             Analyzer.setRedirectImage(new ImagePlus("", redirectImage));
         }
         rt.reset();
-        boolean headings = false;
         Prefs.blackBackground = false;
         double minArea = RegionGrower.getMinCellArea(uv);
-        File morph;
-        PrintWriter morphStream = null;
         if (measurements < 0) {
-            measurements = Analyzer.getMeasurements();
-        }
-        if (saveFile) {
-            morph = new File(parDir.getAbsolutePath() + delimiter + "morphology.txt");
-            morphStream = new PrintWriter(new FileOutputStream(morph));
+            measurements = Integer.MAX_VALUE;
         }
         for (int index = 0; index < cellData.size(); index++) {
             int length = cellData.get(index).getLength();
@@ -544,29 +539,25 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             current.getMask());
                     analyzer.analyze(maskImp);
                     saveRegionMorph(current, rt);
-                }
-                if (saveFile) {
-                    int N = rt.getCounter();
-                    if (!headings) {
-                        morphStream.println(rt.getColumnHeadings());
-                        headings = true;
-                    }
-                    morphStream.println("Cell_" + String.valueOf(index));
-                    for (int i = 0; i < N; i++) {
-                        morphStream.println(rt.getRowAsString(i));
-                    }
+                    rt.addValue("Cell_ID", index);
+                    rt.addValue("Frame", h);
                 }
             }
         }
-        morphStream.close();
+        if (saveFile) {
+            DataWriter.saveResultsTable(rt, new File(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "morphology.csv")));
+        }
     }
 
     void saveRegionMorph(Region region, ResultsTable rt) {
         String result = rt.getRowAsString(0);
         Scanner scan = new Scanner(result).useDelimiter("\t");
         while (scan.hasNext()) {
-            if (!region.addMorphMeasure(scan.nextDouble())) {
-                IJ.log("Morph value not saved.");
+            try {
+                region.addMorphMeasure(scan.nextDouble());
+            } catch (InputMismatchException e) {
+                scan.next();
+                region.addMorphMeasure(Double.NaN);
             }
         }
     }
