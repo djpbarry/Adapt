@@ -383,9 +383,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         trajDirName = GenUtils.createDirectory(parDir + delimiter + "Trajectories_Visualisation", false);
         try {
             generateCellTrajectories(cellData);
-        } catch (FileNotFoundException e) {
-            System.out.println("Error: Failed to create cell trajectories file.\n");
-            System.out.println(e.toString());
+        } catch (Exception e) {
+            GenUtils.logError(e, "Error: Failed to create cell trajectories file.");
         }
         File paramFile;
         PrintWriter paramStream;
@@ -417,8 +416,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     void buildOutput(int index, int length, boolean preview) {
         Region[] allRegions = cellData.get(index).getCellRegions();
         ImageStack sigStack = stacks[1];
-        File trajFile, segPointsFile;
-        PrintWriter trajStream, segStream;
+        File segPointsFile;
+        PrintWriter segStream;
         double scaleFactors[] = new double[length];
 
         /*
@@ -447,23 +446,23 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
              * cell centroids.
              */
             try {
-                trajFile = new File(childDir + delimiter + "trajectory.csv");
+//                trajFile = new File(childDir + delimiter + "trajectory.csv");
                 segPointsFile = new File(childDir + delimiter + "cell_boundary_points.csv");
-                trajStream = new PrintWriter(new FileOutputStream(trajFile));
+//                trajStream = new PrintWriter(new FileOutputStream(trajFile));
                 segStream = new PrintWriter(new FileOutputStream(segPointsFile));
             } catch (FileNotFoundException e) {
                 System.out.println("Error: Failed to create parameter files.\n");
                 System.out.println(e.toString());
                 return;
             }
-            if (!prepareOutputFiles(trajStream, segStream, length, 3)) {
+            if (!prepareOutputFiles(null, segStream, length, 3)) {
                 return;
             }
             cellData.get(index).setVelMap(velMap);
             cellData.get(index).setSigMap(sigMap);
             cellData.get(index).setScaleFactors(scaleFactors);
-            buildVelSigMaps(index, allRegions, trajStream, segStream, cellData.get(index), cellData.size());
-            trajStream.close();
+            buildVelSigMaps(index, allRegions, null, segStream, cellData.get(index), cellData.size());
+//            trajStream.close();
             segStream.close();
             double smoothVelocities[][] = velMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes()); // Gaussian smoothing in time and space
             double curvatures[][] = curveMap.smoothMap(0.0, 0.0);
@@ -586,7 +585,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     boolean prepareOutputFiles(PrintWriter trajStream, PrintWriter segStream, int size, int dim) {
         segStream.println("FRAMES " + String.valueOf(size));
         segStream.println("DIM " + String.valueOf(dim));
-        trajStream.println("Time(s), X (" + String.valueOf(GenUtils.mu) + "m), Y (" + String.valueOf(GenUtils.mu) + "m)");
+//        trajStream.println("Time(s), X (" + String.valueOf(GenUtils.mu) + "m), Y (" + String.valueOf(GenUtils.mu) + "m)");
         return true;
     }
 
@@ -636,12 +635,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int height = velMap.getHeight();
         for (int i = cellData.getStartFrame() - 1; i < width; i++) {
             Region current = allRegions[i];
-            ArrayList<float[]> centres = current.getCentres();
-            double xc = centres.get(0)[0];
-            double yc = centres.get(0)[1];
-            trajStream.println(String.valueOf(i * 60.0 / uv.getTimeRes())
-                    + ", " + String.valueOf(xc * uv.getSpatialRes())
-                    + ", " + String.valueOf(yc * uv.getSpatialRes()));
+//            ArrayList<float[]> centres = current.getCentres();
+//            double xc = centres.get(0)[0];
+//            double yc = centres.get(0)[1];
+//            trajStream.println(String.valueOf(i * 60.0 / uv.getTimeRes())
+//                    + ", " + String.valueOf(xc * uv.getSpatialRes())
+//                    + ", " + String.valueOf(yc * uv.getSpatialRes()));
             /*
              * Get points for one column (time-point) of map
              */
@@ -828,7 +827,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         dialog.dispose();
     }
 
-    void generateCellTrajectories(ArrayList<CellData> cellDatas) throws FileNotFoundException {
+    void generateCellTrajectories(ArrayList<CellData> cellDatas) throws FileNotFoundException, IOException {
         int N = cellDatas.size();
         ImageStack cytoStack = stacks[0];
         String pdLabel = protMode ? "Building Filopodia Trajectories..." : "Building Cell Trajectories...";
@@ -847,14 +846,16 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         Arrays.fill(distances, 0.0);
         int xc = width / 2;
         int yc = height / 2;
-        File trajFile = new File(trajDirName + delimiter + "trajectory.csv");
-        PrintWriter trajStream = new PrintWriter(new FileOutputStream(trajFile));
-        trajStream.print("Frame,Time (s),");
+        ArrayList<ArrayList<Double>> trajData = new ArrayList();
+        String[] trajDataHeadings = new String[5];
+        trajDataHeadings[0] = "Frame";
+        trajDataHeadings[1] = "Time (s)";
+        trajDataHeadings[2] = "Cell ID";
+        trajDataHeadings[3] = String.format("Cell_X (%cm)", IJ.micronSymbol);
+        trajDataHeadings[4] = String.format("Cell_Y (%cm)", IJ.micronSymbol);
         for (int n = 0; n < N; n++) {
             colors[n] = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
             if (cellData.get(n).getLength() > minLength) {
-                trajStream.print("Cell_" + String.valueOf(n + 1) + "_X (" + IJ.micronSymbol + "m),");
-                trajStream.print("Cell_" + String.valueOf(n + 1) + "_Y (" + IJ.micronSymbol + "m),");
                 Region[] allRegions = cellData.get(n).getCellRegions();
                 Region current = allRegions[cellData.get(n).getStartFrame() - 1];
                 ArrayList<float[]> centres = current.getCentres();
@@ -863,9 +864,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 origins[n][1] = (int) Math.round(centres.get(cl - 1)[1]);
             }
         }
-        trajStream.println();
         for (int t = 0; t < stackSize; t++) {
-            trajStream.print(String.valueOf(t) + "," + String.valueOf(t * 60.0 / uv.getTimeRes()) + ",");
             dialog.updateProgress(t, stackSize);
             ColorProcessor trajOutputCommonOrigin = new ColorProcessor(width, height);
             trajOutputCommonOrigin.setColor(Region.MASK_FOREGROUND);
@@ -880,6 +879,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 int end = cellData.get(n).getEndFrame();
                 int length = cellData.get(n).getLength();
                 if (length > minLength) {
+                    while (trajData.size() < 5) {
+                        trajData.add(new ArrayList());
+                    }
                     if (t + 1 >= start && t < end) {
                         Region[] allRegions = cellData.get(n).getCellRegions();
                         Region current = allRegions[t];
@@ -890,7 +892,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         trajOutputCommonOrigin.fillOval((int) Math.round(x + xc - origins[n][0]) - r,
                                 (int) Math.round(y + yc - origins[n][1]) - r, d, d);
                         trajOutput.fillOval((int) Math.round(x - r), (int) Math.round(y - r), d, d);
-                        trajStream.print(String.valueOf(x * uv.getSpatialRes()) + "," + String.valueOf(y * uv.getSpatialRes()) + ",");
+                        trajData.get(0).add((double) t);
+                        trajData.get(1).add(t * 60.0 / uv.getTimeRes());
+                        trajData.get(2).add((double) n);
+                        trajData.get(3).add(x * uv.getSpatialRes());
+                        trajData.get(4).add(y * uv.getSpatialRes());
                         if (t + 1 > start) {
                             Region last = allRegions[t - 1];
                             ArrayList<float[]> lastCentres = last.getCentres();
@@ -900,34 +906,15 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             distances[n] += Utils.calcDistance(x, y, lx, ly) * uv.getSpatialRes();
                         }
                     } else {
-                        trajStream.print(",,");
                     }
+
                 }
             }
             IJ.saveAs((new ImagePlus("", trajOutputCommonOrigin)), "PNG", trajDirName.getAbsolutePath() + delimiter + "CommonOrigin_T" + numFormat.format(t));
             IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + "Unmodified_T" + numFormat.format(t));
-            trajStream.println();
         }
-        trajStream.print("\nMean Velocity (" + IJ.micronSymbol + "m/min):,,");
-        for (int n = 0; n < N; n++) {
-            int l = cellData.get(n).getLength();
-            if (l > minLength) {
-                trajStream.print(String.valueOf(distances[n] * uv.getTimeRes() / l) + ",,");
-            }
-        }
-        trajStream.print("\nDirectionality:,,");
-        for (int n = 0; n < N; n++) {
-            int l = cellData.get(n).getLength();
-            if (l > minLength) {
-                Region current = cellData.get(n).getCellRegions()[cellData.get(n).getEndFrame() - 1];
-                ArrayList<float[]> centres = current.getCentres();
-                float[] centre = centres.get(centres.size() - 1);
-                trajStream.print(String.valueOf(uv.getSpatialRes() * Utils.calcDistance(origins[n][0], origins[n][1], centre[0], centre[1])
-                        / distances[n]) + ",,");
-            }
-        }
+        DataWriter.saveValues(trajData, new File(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "trajectories.csv")), trajDataHeadings, null, false);
         dialog.dispose();
-        trajStream.close();
     }
 
     /*
