@@ -520,7 +520,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         rt.reset();
         Prefs.blackBackground = false;
-        double minArea = RegionGrower.getMinCellArea(uv);
         if (measurements < 0) {
             measurements = Integer.MAX_VALUE;
         }
@@ -533,7 +532,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 for (int h = start - 1; h < end; h++) {
                     Region current = allRegions[h];
                     ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.SHOW_RESULTS,
-                            measurements, rt, minArea, Double.POSITIVE_INFINITY);
+                            measurements, rt, 0.0, Double.POSITIVE_INFINITY);
                     ImagePlus maskImp = new ImagePlus(String.valueOf(index) + "_" + String.valueOf(h),
                             current.getMask());
                     analyzer.analyze(maskImp);
