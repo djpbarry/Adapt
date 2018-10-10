@@ -18,6 +18,7 @@ package Visualisation;
 
 import Adapt.StaticVariables;
 import Cell.CellData;
+import Lut.LUTCreator;
 import Overlay.OverlayToRoi;
 import Process.MultiThreadedProcess;
 import UserVariables.UserVariables;
@@ -25,6 +26,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Overlay;
 import ij.plugin.frame.RoiManager;
+import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -60,8 +62,9 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
     public void run() {
 
         int stackSize = cytoStack.getSize();
+        IndexColorModel lut = (new LUTCreator()).getRedGreen();
         for (int t = 0; t < stackSize; t++) {
-            exec.submit(new RunnableVisualisationGenerator(cellData, protMode, cytoStack, uv, velDirName, curvDirName, numFormat, t, labels));
+            exec.submit(new RunnableVisualisationGenerator(cellData, protMode, cytoStack, uv, velDirName, curvDirName, numFormat, t, labels, lut));
         }
         terminate("Error generating visualisations.");
         saveOverlays();

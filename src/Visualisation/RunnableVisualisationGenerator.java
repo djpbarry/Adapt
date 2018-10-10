@@ -28,6 +28,7 @@ import ij.ImageStack;
 import ij.gui.Overlay;
 import ij.gui.TextRoi;
 import ij.process.FloatProcessor;
+import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -43,8 +44,9 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
     protected DecimalFormat numFormat;
     int t;
     private Overlay labels;
+    private final IndexColorModel lut;
 
-    public RunnableVisualisationGenerator(ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, File velDirName, File curvDirName, DecimalFormat numFormat, int t, Overlay labels) {
+    public RunnableVisualisationGenerator(ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, File velDirName, File curvDirName, DecimalFormat numFormat, int t, Overlay labels, IndexColorModel lut) {
         super(null);
         this.cellData = cellData;
         this.protMode = protMode;
@@ -55,6 +57,7 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
         this.numFormat = numFormat;
         this.t = t;
         this.labels = labels;
+        this.lut = lut;
     }
 
     @Override
@@ -104,9 +107,9 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
         String curveFileName = String.format("%s%s%s.tiff", curvDirName.getAbsolutePath(), File.separator, numFormat.format(t));
         try {
             IJ.log(String.format("Saving %s", velFileName));
-            BioFormatsImageWriter.saveImage(velOutput, new File(velFileName));
+            BioFormatsImageWriter.saveImage(velOutput, new File(velFileName), lut);
             IJ.log(String.format("Saving %s", curveFileName));
-            BioFormatsImageWriter.saveImage(curveOutput, new File(curveFileName));
+            BioFormatsImageWriter.saveImage(curveOutput, new File(curveFileName), lut);
         } catch (Exception e) {
             GenUtils.logError(e, "Failed to saved visualisation image.");
         }
