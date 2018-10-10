@@ -24,13 +24,10 @@ import Process.RunnableProcess;
 import UserVariables.UserVariables;
 import UtilClasses.GenUtils;
 import ij.IJ;
-import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Overlay;
 import ij.gui.TextRoi;
-import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
-import java.awt.Color;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -66,13 +63,13 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
         double minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
         int width = cytoStack.getWidth();
         int height = cytoStack.getHeight();
-        double mincurve = -50.0, maxcurve = 50.0;
         FloatProcessor velOutput = new FloatProcessor(width, height);
+        velOutput.setLineWidth(uv.getVisLineWidth());
         velOutput.setValue(0.0);
         velOutput.fill();
-        ColorProcessor curveOutput = new ColorProcessor(width, height);
+        FloatProcessor curveOutput = new FloatProcessor(width, height);
         curveOutput.setLineWidth(uv.getVisLineWidth());
-        curveOutput.setColor(Color.black);
+        curveOutput.setValue(0.0);
         curveOutput.fill();
         for (int n = 0; n < N; n++) {
             int start = cellData.get(n).getStartFrame();
@@ -91,7 +88,7 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
                     int x = (int) Math.round(xCoords[index][j]);
                     int y = (int) Math.round(yCoords[index][j]);
                     velOutput.putPixelValue(x, y, smoothVelocities[index][j]);
-                    curveOutput.drawDot(x, y);
+                    curveOutput.putPixelValue(x, y, curvatures[index][j]);
                 }
                 Region current = allRegions[t];
                 ArrayList<float[]> centres = current.getCentres();
@@ -104,14 +101,14 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
             }
         }
         String velFileName = String.format("%s%s%s.tiff", velDirName.getAbsolutePath(), File.separator, numFormat.format(t));
-        String curveFileName = String.format("%s%s%s", curvDirName.getAbsolutePath(), File.separator, numFormat.format(t));
-        IJ.log(String.format("Saving %s", velFileName));
+        String curveFileName = String.format("%s%s%s.tiff", curvDirName.getAbsolutePath(), File.separator, numFormat.format(t));
         try {
+            IJ.log(String.format("Saving %s", velFileName));
             BioFormatsImageWriter.saveImage(velOutput, new File(velFileName));
+            IJ.log(String.format("Saving %s", curveFileName));
+            BioFormatsImageWriter.saveImage(curveOutput, new File(curveFileName));
         } catch (Exception e) {
             GenUtils.logError(e, "Failed to saved visualisation image.");
         }
-        IJ.log(String.format("Saving %s", curveFileName));
-        IJ.saveAs((new ImagePlus("", curveOutput)), "PNG", curveFileName);
     }
 }
