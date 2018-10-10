@@ -26,7 +26,7 @@ import UtilClasses.GenUtils;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.gui.Roi;
+import ij.gui.Overlay;
 import ij.gui.TextRoi;
 import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
@@ -34,7 +34,6 @@ import java.awt.Color;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class RunnableVisualisationGenerator extends RunnableProcess {
 
@@ -46,8 +45,9 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
     File curvDirName;
     protected DecimalFormat numFormat;
     int t;
+    private Overlay labels;
 
-    public RunnableVisualisationGenerator(ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, File velDirName, File curvDirName, DecimalFormat numFormat, int t) {
+    public RunnableVisualisationGenerator(ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, File velDirName, File curvDirName, DecimalFormat numFormat, int t, Overlay labels) {
         super(null);
         this.cellData = cellData;
         this.protMode = protMode;
@@ -57,6 +57,7 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
         this.curvDirName = curvDirName;
         this.numFormat = numFormat;
         this.t = t;
+        this.labels = labels;
     }
 
     @Override
@@ -67,15 +68,12 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
         int height = cytoStack.getHeight();
         double mincurve = -50.0, maxcurve = 50.0;
         FloatProcessor velOutput = new FloatProcessor(width, height);
-//        velOutput.setLineWidth(uv.getVisLineWidth());
         velOutput.setValue(0.0);
         velOutput.fill();
         ColorProcessor curveOutput = new ColorProcessor(width, height);
         curveOutput.setLineWidth(uv.getVisLineWidth());
         curveOutput.setColor(Color.black);
         curveOutput.fill();
-        Roi[] cellLabels = new Roi[N];
-        Arrays.fill(cellLabels, null);
         for (int n = 0; n < N; n++) {
             int start = cellData.get(n).getStartFrame();
             int end = cellData.get(n).getEndFrame();
@@ -86,39 +84,33 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
                 Region[] allRegions = cellData.get(n).getCellRegions();
                 MorphMap curveMap = cellData.get(n).getCurveMap();
                 int upLength = curveMap.getHeight();
-                double maxvel = cellData.get(n).getMaxVel();
-                double minvel = cellData.get(n).getMinVel();
                 double xCoords[][] = curveMap.getxCoords();
                 double yCoords[][] = curveMap.getyCoords();
                 double curvatures[][] = curveMap.getzVals();
                 for (int j = 0; j < upLength; j++) {
                     int x = (int) Math.round(xCoords[index][j]);
                     int y = (int) Math.round(yCoords[index][j]);
-//                    velOutput.setColor(getColor(smoothVelocities[index][j], maxvel, minvel));
                     velOutput.putPixelValue(x, y, smoothVelocities[index][j]);
-//                    curveOutput.setColor(getColor(curvatures[index][j], maxcurve, mincurve));
                     curveOutput.drawDot(x, y);
                 }
-//                velOutput.setColor(Color.blue);
                 Region current = allRegions[t];
                 ArrayList<float[]> centres = current.getCentres();
                 int cl = centres.size();
                 int xc = (int) Math.round(centres.get(cl - 1)[0]);
                 int yc = (int) Math.round(centres.get(cl - 1)[1]);
-//                velOutput.fillOval(xc - 1, yc - 1, 3, 3);
-//                velOutput.drawString(String.valueOf(n + 1), xc + 2, yc + 2);
-                cellLabels[n] = new TextRoi(xc + 2, yc + 2, String.valueOf(n + 1));
+                TextRoi label = new TextRoi(xc + 2, yc + 2, String.valueOf(n + 1));
+                label.setPosition(t + 1);
+                labels.add(label);
             }
         }
         String velFileName = String.format("%s%s%s.tiff", velDirName.getAbsolutePath(), File.separator, numFormat.format(t));
         String curveFileName = String.format("%s%s%s", curvDirName.getAbsolutePath(), File.separator, numFormat.format(t));
         IJ.log(String.format("Saving %s", velFileName));
         try {
-            BioFormatsImageWriter.saveImage(velOutput, new File(velFileName), cellLabels);
+            BioFormatsImageWriter.saveImage(velOutput, new File(velFileName));
         } catch (Exception e) {
             GenUtils.logError(e, "Failed to saved visualisation image.");
         }
-//        IJ.saveAs((new ImagePlus("", velOutput)), "PNG", velFileName);
         IJ.log(String.format("Saving %s", curveFileName));
         IJ.saveAs((new ImagePlus("", curveOutput)), "PNG", curveFileName);
     }
