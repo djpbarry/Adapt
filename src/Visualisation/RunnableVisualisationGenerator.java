@@ -19,16 +19,22 @@ package Visualisation;
 import Cell.CellData;
 import Cell.MorphMap;
 import IAClasses.Region;
+import IO.BioFormats.BioFormatsImageWriter;
 import Process.RunnableProcess;
 import UserVariables.UserVariables;
+import UtilClasses.GenUtils;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.Roi;
+import ij.gui.TextRoi;
 import ij.process.ColorProcessor;
+import ij.process.FloatProcessor;
 import java.awt.Color;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class RunnableVisualisationGenerator extends RunnableProcess {
 
@@ -60,14 +66,16 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
         int width = cytoStack.getWidth();
         int height = cytoStack.getHeight();
         double mincurve = -50.0, maxcurve = 50.0;
-        ColorProcessor velOutput = new ColorProcessor(width, height);
-        velOutput.setLineWidth(uv.getVisLineWidth());
-        velOutput.setColor(Color.black);
+        FloatProcessor velOutput = new FloatProcessor(width, height);
+//        velOutput.setLineWidth(uv.getVisLineWidth());
+        velOutput.setValue(0.0);
         velOutput.fill();
         ColorProcessor curveOutput = new ColorProcessor(width, height);
         curveOutput.setLineWidth(uv.getVisLineWidth());
         curveOutput.setColor(Color.black);
         curveOutput.fill();
+        Roi[] cellLabels = new Roi[N];
+        Arrays.fill(cellLabels, null);
         for (int n = 0; n < N; n++) {
             int start = cellData.get(n).getStartFrame();
             int end = cellData.get(n).getEndFrame();
@@ -86,54 +94,32 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
                 for (int j = 0; j < upLength; j++) {
                     int x = (int) Math.round(xCoords[index][j]);
                     int y = (int) Math.round(yCoords[index][j]);
-                    velOutput.setColor(getColor(smoothVelocities[index][j], maxvel, minvel));
-                    velOutput.drawDot(x, y);
-                    curveOutput.setColor(getColor(curvatures[index][j], maxcurve, mincurve));
+//                    velOutput.setColor(getColor(smoothVelocities[index][j], maxvel, minvel));
+                    velOutput.putPixelValue(x, y, smoothVelocities[index][j]);
+//                    curveOutput.setColor(getColor(curvatures[index][j], maxcurve, mincurve));
                     curveOutput.drawDot(x, y);
                 }
-                velOutput.setColor(Color.blue);
+//                velOutput.setColor(Color.blue);
                 Region current = allRegions[t];
                 ArrayList<float[]> centres = current.getCentres();
                 int cl = centres.size();
                 int xc = (int) Math.round(centres.get(cl - 1)[0]);
                 int yc = (int) Math.round(centres.get(cl - 1)[1]);
-                velOutput.fillOval(xc - 1, yc - 1, 3, 3);
-                velOutput.drawString(String.valueOf(n + 1), xc + 2, yc + 2);
+//                velOutput.fillOval(xc - 1, yc - 1, 3, 3);
+//                velOutput.drawString(String.valueOf(n + 1), xc + 2, yc + 2);
+                cellLabels[n] = new TextRoi(xc + 2, yc + 2, String.valueOf(n + 1));
             }
         }
-        String velFileName = String.format("%s%s%s", velDirName.getAbsolutePath(), File.separator, numFormat.format(t));
+        String velFileName = String.format("%s%s%s.tiff", velDirName.getAbsolutePath(), File.separator, numFormat.format(t));
         String curveFileName = String.format("%s%s%s", curvDirName.getAbsolutePath(), File.separator, numFormat.format(t));
         IJ.log(String.format("Saving %s", velFileName));
-        IJ.saveAs((new ImagePlus("", velOutput)), "PNG", velFileName);
+        try {
+            BioFormatsImageWriter.saveImage(velOutput, new File(velFileName), cellLabels);
+        } catch (Exception e) {
+            GenUtils.logError(e, "Failed to saved visualisation image.");
+        }
+//        IJ.saveAs((new ImagePlus("", velOutput)), "PNG", velFileName);
         IJ.log(String.format("Saving %s", curveFileName));
         IJ.saveAs((new ImagePlus("", curveOutput)), "PNG", curveFileName);
-    }
-
-    /*
-     * Essentially acts as a look-up table, calculated 'on the fly'. The output
-     * will range somewhere between red for retmax, green for promax and yellow
-     * if val=0.
-     */
-    Color getColor(double val, double promax, double retmax) {
-        Color colour = Color.black;
-        int r, g;
-        if (val >= 0.0) {
-            r = 255 - (int) Math.round(255 * val / promax);
-            if (r < 0) {
-                r = 0;
-            } else if (r > 255) {
-                r = 255;
-            }
-            colour = new Color(r, 255, 0);
-        } else if (val < 0.0) {
-            g = 255 - (int) Math.round(255 * val / retmax);
-            if (g < 0) {
-                g = 0;
-            } else if (g > 255) {
-                g = 255;
-            }
-            colour = new Color(255, g, 0);
-        }
-        return colour;
     }
 }
