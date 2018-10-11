@@ -27,6 +27,7 @@ import IAClasses.ProgressDialog;
 import IAClasses.Region;
 import IAClasses.Utils;
 import IO.DataWriter;
+import IO.PropertyWriter;
 import Output.MultiThreadedOutputGenerator;
 import Segmentation.RegionGrower;
 import UtilClasses.Utilities;
@@ -75,6 +76,7 @@ import ui.GUI;
 import UtilClasses.GenVariables;
 import Visualisation.MultiThreadedVisualisationGenerator;
 import java.util.InputMismatchException;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 
@@ -107,6 +109,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private int previewSlice;
     private ImageProcessor[] previewImages;
     private boolean selectiveOutput = false;
+    private Properties props;
 
     /**
      * Default constructor
@@ -160,6 +163,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             return;
         }
         analyse(arg);
+        try {
+            PropertyWriter.printProperties(props, parDir.getAbsolutePath(), TITLE, true);
+        } catch (IOException e) {
+            IJ.log("Failed to create properties file.");
+        }
         IJ.showStatus(TITLE + " done.");
     }
 
@@ -237,6 +245,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 return;
             }
             uv = GUI.getUv();
+            props = gui.getProperties();
         }
         minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
         String pdLabel = protMode ? "Segmenting Filopodia..." : "Segmenting Cells...";
@@ -386,20 +395,20 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         } catch (Exception e) {
             GenUtils.logError(e, "Error: Failed to create cell trajectories file.");
         }
-        File paramFile;
-        PrintWriter paramStream;
-        try {
-            paramFile = new File(parDir + delimiter + "params.csv");
-            paramStream = new PrintWriter(new FileOutputStream(paramFile));
-        } catch (FileNotFoundException e) {
-            System.out.println("Error: Failed to create parameter file.\n");
-            System.out.println(e.toString());
-            return;
-        }
-        if (!printParamFile(paramStream)) {
-            return;
-        }
-        paramStream.close();
+//        File paramFile;
+//        PrintWriter paramStream;
+//        try {
+//            paramFile = new File(parDir + delimiter + "params.csv");
+//            paramStream = new PrintWriter(new FileOutputStream(paramFile));
+//        } catch (FileNotFoundException e) {
+//            System.out.println("Error: Failed to create parameter file.\n");
+//            System.out.println(e.toString());
+//            return;
+//        }
+//        if (!printParamFile(paramStream)) {
+//            return;
+//        }
+//        paramStream.close();
     }
 
     ArrayList<CellData> filterCells(ArrayList<CellData> originalCells) {
@@ -588,41 +597,41 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return true;
     }
 
-    boolean printParamFile(PrintWriter paramStream) {
-        paramStream.println(TITLE);
-        paramStream.println(Utilities.getDate("dd/MM/yyyy HH:mm:ss"));
-        paramStream.println();
-        paramStream.println(StaticVariables.AUTO_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isAutoThreshold()));
-        paramStream.println(StaticVariables.THRESH_METHOD.replaceAll("\\s", "_") + ", " + uv.getThreshMethod());
-        paramStream.println(StaticVariables.GREY_SENS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getGreyThresh()));
-        paramStream.println(StaticVariables.SPAT_RES.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSpatialRes()));
-        paramStream.println(StaticVariables.TIME_RES.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getTimeRes()));
-        paramStream.println(StaticVariables.EROSION.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getErosion()));
-        paramStream.println(StaticVariables.SPAT_FILT_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSpatFiltRad()));
-        paramStream.println(StaticVariables.TEMP_FILT_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getTempFiltRad()));
-        paramStream.println(StaticVariables.GAUSS_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getGaussRad()));
-        paramStream.println(StaticVariables.GEN_VIS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGenVis()));
-        paramStream.println(StaticVariables.GET_MORPH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetMorph()));
-        paramStream.println(StaticVariables.ANA_PROT.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isAnalyseProtrusions()));
-        paramStream.println(StaticVariables.DETECT_BLEB.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isBlebDetect()));
-        paramStream.println(StaticVariables.MIN_CURVE_RANGE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCurveRange()));
-        paramStream.println(StaticVariables.MIN_CURVE_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinCurveThresh()));
-        paramStream.println(StaticVariables.PROT_LEN_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebLenThresh()));
-        paramStream.println(StaticVariables.PROT_DUR_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebDurThresh()));
-        paramStream.println(StaticVariables.CUT_OFF.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCutOffTime()));
-        paramStream.println(StaticVariables.CORTEX_DEPTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCortexDepth()));
-        paramStream.println(StaticVariables.USE_SIG_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isUseSigThresh()));
-        paramStream.println(StaticVariables.SIG_THRESH_FACT.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigThreshFact()));
-        paramStream.println(StaticVariables.SIG_REC_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigRecoveryThresh()));
-        paramStream.println(StaticVariables.MIN_TRAJ_LENGTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinLength()));
-        paramStream.println(StaticVariables.FILO_MAX_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSizeMax()));
-        paramStream.println(StaticVariables.FILO_MIN_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSizeMin()));
-        paramStream.println(StaticVariables.GEN_SIG_DIST.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetFluorDist()));
-        paramStream.println(StaticVariables.MIN_MORPH_AREA.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMorphSizeMin()));
-        paramStream.println(StaticVariables.VIS_LINE_WIDTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getVisLineWidth()));
-        paramStream.println(StaticVariables.DISPLAY_PLOTS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isDisplayPlots()));
-        return true;
-    }
+//    boolean printParamFile(PrintWriter paramStream) {
+//        paramStream.println(TITLE);
+//        paramStream.println(Utilities.getDate("dd/MM/yyyy HH:mm:ss"));
+//        paramStream.println();
+//        paramStream.println(StaticVariables.AUTO_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isAutoThreshold()));
+//        paramStream.println(StaticVariables.THRESH_METHOD.replaceAll("\\s", "_") + ", " + uv.getThreshMethod());
+//        paramStream.println(StaticVariables.GREY_SENS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getGreyThresh()));
+//        paramStream.println(StaticVariables.SPAT_RES.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSpatialRes()));
+//        paramStream.println(StaticVariables.TIME_RES.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getTimeRes()));
+//        paramStream.println(StaticVariables.EROSION.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getErosion()));
+//        paramStream.println(StaticVariables.SPAT_FILT_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSpatFiltRad()));
+//        paramStream.println(StaticVariables.TEMP_FILT_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getTempFiltRad()));
+//        paramStream.println(StaticVariables.GAUSS_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getGaussRad()));
+//        paramStream.println(StaticVariables.GEN_VIS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGenVis()));
+//        paramStream.println(StaticVariables.GET_MORPH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetMorph()));
+//        paramStream.println(StaticVariables.ANA_PROT.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isAnalyseProtrusions()));
+//        paramStream.println(StaticVariables.DETECT_BLEB.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isBlebDetect()));
+//        paramStream.println(StaticVariables.MIN_CURVE_RANGE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCurveRange()));
+//        paramStream.println(StaticVariables.MIN_CURVE_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinCurveThresh()));
+//        paramStream.println(StaticVariables.PROT_LEN_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebLenThresh()));
+//        paramStream.println(StaticVariables.PROT_DUR_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebDurThresh()));
+//        paramStream.println(StaticVariables.CUT_OFF.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCutOffTime()));
+//        paramStream.println(StaticVariables.CORTEX_DEPTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCortexDepth()));
+//        paramStream.println(StaticVariables.USE_SIG_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isUseSigThresh()));
+//        paramStream.println(StaticVariables.SIG_THRESH_FACT.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigThreshFact()));
+//        paramStream.println(StaticVariables.SIG_REC_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigRecoveryThresh()));
+//        paramStream.println(StaticVariables.MIN_TRAJ_LENGTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinLength()));
+//        paramStream.println(StaticVariables.FILO_MAX_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSizeMax()));
+//        paramStream.println(StaticVariables.FILO_MIN_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSizeMin()));
+//        paramStream.println(StaticVariables.GEN_SIG_DIST.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetFluorDist()));
+//        paramStream.println(StaticVariables.MIN_MORPH_AREA.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMorphSizeMin()));
+//        paramStream.println(StaticVariables.VIS_LINE_WIDTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getVisLineWidth()));
+//        paramStream.println(StaticVariables.DISPLAY_PLOTS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isDisplayPlots()));
+//        return true;
+//    }
 
     @Deprecated
     void buildVelSigMaps(int index, Region[] allRegions, PrintWriter trajStream, PrintWriter segStream, CellData cellData, int total) {
