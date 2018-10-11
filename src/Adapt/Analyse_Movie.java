@@ -854,7 +854,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         Arrays.fill(distances, 0.0);
         int xc = width / 2;
         int yc = height / 2;
-        ArrayList<ArrayList<Double>> trajData = new ArrayList();
+        ArrayList<ArrayList<Double>> trajData = new ArrayList<ArrayList<Double>>();
         String[] trajDataHeadings = new String[5];
         trajDataHeadings[0] = "Frame";
         trajDataHeadings[1] = "Time (s)";
@@ -888,7 +888,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 int length = cellData.get(n).getLength();
                 if (length > minLength) {
                     while (trajData.size() < 5) {
-                        trajData.add(new ArrayList());
+                        trajData.add(new ArrayList<Double>());
                     }
                     if (t + 1 >= start && t < end) {
                         Region[] allRegions = cellData.get(n).getCellRegions();

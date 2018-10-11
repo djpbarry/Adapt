@@ -125,21 +125,21 @@ public class CurveMapAnalyser {
                 }
             }
         }
-        ArrayList<ParticleTrajectory> trajectories = new ArrayList<>();
+        ArrayList<ParticleTrajectory> trajectories = new ArrayList<ParticleTrajectory>();
         if (tLength > 1) {
             TrajectoryBuilder.updateTrajectories(extrema, uv.getTimeRes(), maxTrajScore, uv.getSpatialRes(), 1.0, trajectories, false);
         } else {
             ArrayList<Particle> particles = extrema.getLevel(0);
-            trajectories = new ArrayList<>();
+            trajectories = new ArrayList<ParticleTrajectory>();
             for (int i = 0; i < particles.size(); i++) {
                 ParticleTrajectory traj = new ParticleTrajectory(uv.getTimeRes(), uv.getSpatialRes());
                 traj.addPoint(particles.get(i));
                 trajectories.add(traj);
             }
         }
-        ArrayList<ArrayList<BoundaryPixel>> extPos = new ArrayList<>();
+        ArrayList<ArrayList<BoundaryPixel>> extPos = new ArrayList<ArrayList<BoundaryPixel>>();
         for (int t = 0; t < tLength; t++) {
-            extPos.add(new ArrayList());
+            extPos.add(new ArrayList<BoundaryPixel>());
         }
         int tSize = trajectories.size();
         for (int j = 0; j < tSize; j++) {

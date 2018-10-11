@@ -109,14 +109,15 @@ public class RunnableOutputGenerator extends RunnableProcess {
         IJ.log(String.format("Building outputs for cell %d", index));
         buildOutput(index, length, false);
         if (uv.isGetFluorDist()) {
-            FluorescenceAnalyser.generateFluorMapsPerCellOverTime(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, sigStack, ImageProcessor.MAX, Integer.MAX_VALUE, 2, cellData.get(index).getCellRegions(), cellData.get(index).getStartFrame(), cellData.get(index).getEndFrame()), childDir);
-            File fluorFile = new File(parDir + File.separator + "fluorescence.csv");
             try {
+                FluorescenceAnalyser.generateFluorMapsPerCellOverTime(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, sigStack, ImageProcessor.MAX, Integer.MAX_VALUE, 2, cellData.get(index).getCellRegions(), cellData.get(index).getStartFrame(), cellData.get(index).getEndFrame()), childDir);
+                File fluorFile = new File(parDir + File.separator + "fluorescence.csv");
                 CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(fluorFile), GenVariables.ISO), CSVFormat.EXCEL);
                 RegionFluorescenceQuantifier rfq = new RegionFluorescenceQuantifier(cellData.get(index).getCellRegions(), sigStack, printer);
                 rfq.doQuantification();
                 printer.close();
             } catch (Exception e) {
+                GenUtils.logError(e, "Error during fluorescence distribution quantification.");
             }
         }
         if (!protMode && uv.isAnalyseProtrusions()) {
@@ -535,7 +536,6 @@ public class RunnableOutputGenerator extends RunnableProcess {
 //        scaleBar.drawString(decformat.format(min), x, scaleBar.getHeight());
 //        IJ.saveAs(new ImagePlus("", scaleBar), "PNG", childDir + File.separator + "VelocityScaleBar.png");
 //    }
-
     void generateMaps(double[][] smoothVelocities, CellData cellData, int index, int total) {
         boolean sigNull = (cellData.getSigMap() == null);
         int l = smoothVelocities.length;

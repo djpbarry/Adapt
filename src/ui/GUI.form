@@ -69,7 +69,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="greyThreshLabel.setEnabled(!uv.isAutoThreshold());&#xa;greyThreshLabel.setLabelFor(greyThreshField);"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="greyThreshLabel.setEnabled(!UV.isAutoThreshold());&#xa;greyThreshLabel.setLabelFor(greyThreshField);"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -80,11 +80,11 @@
                 <Component class="javax.swing.JTextField" name="greyThreshField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getGreyThresh())" type="code"/>
+                      <Connection code="String.valueOf(UV.getGreyThresh())" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="greyThreshField.setEnabled(!uv.isAutoThreshold());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="greyThreshField.setEnabled(!UV.isAutoThreshold());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -110,7 +110,7 @@
                 <Component class="javax.swing.JTextField" name="spatResField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getSpatialRes())" type="code"/>
+                      <Connection code="String.valueOf(UV.getSpatialRes())" type="code"/>
                     </Property>
                   </Properties>
                   <Constraints>
@@ -137,7 +137,7 @@
                 <Component class="javax.swing.JTextField" name="timeResField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getTimeRes())" type="code"/>
+                      <Connection code="String.valueOf(UV.getTimeRes())" type="code"/>
                     </Property>
                   </Properties>
                   <Constraints>
@@ -156,7 +156,7 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="autoThreshToggleButtonActionPerformed"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="autoThreshToggleButton.setSelected(uv.isAutoThreshold());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="autoThreshToggleButton.setSelected(UV.isAutoThreshold());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -171,7 +171,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="genVisToggleButton.setSelected(uv.isGenVis());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="genVisToggleButton.setSelected(UV.isGenVis());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -186,7 +186,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="genMorphToggleButton.setSelected(uv.isGetMorph());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="genMorphToggleButton.setSelected(UV.isGetMorph());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -212,7 +212,7 @@
                 <Component class="javax.swing.JTextField" name="minTrajTextField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getMinLength())" type="code"/>
+                      <Connection code="String.valueOf(UV.getMinLength())" type="code"/>
                     </Property>
                   </Properties>
                   <Constraints>
@@ -228,7 +228,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="genSigDistToggleButton.setSelected(uv.isGetFluorDist());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="genSigDistToggleButton.setSelected(UV.isGetFluorDist());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -254,7 +254,7 @@
                 <Component class="javax.swing.JTextField" name="minMorphAreaTextField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getMorphSizeMin())" type="code"/>
+                      <Connection code="String.valueOf(UV.getMorphSizeMin())" type="code"/>
                     </Property>
                   </Properties>
                   <Constraints>
@@ -279,7 +279,7 @@
                 <Component class="javax.swing.JTextField" name="erosionField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getErosion())" type="code"/>
+                      <Connection code="String.valueOf(UV.getErosion())" type="code"/>
                     </Property>
                   </Properties>
                   <Constraints>
@@ -321,7 +321,7 @@
                 <Component class="javax.swing.JTextField" name="spatFiltRadField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getSpatFiltRad())" type="code"/>
+                      <Connection code="String.valueOf(UV.getSpatFiltRad())" type="code"/>
                     </Property>
                   </Properties>
                   <Constraints>
@@ -348,7 +348,7 @@
                 <Component class="javax.swing.JTextField" name="tempFiltRadField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getTempFiltRad())" type="code"/>
+                      <Connection code="String.valueOf(UV.getTempFiltRad())" type="code"/>
                     </Property>
                   </Properties>
                   <Constraints>
@@ -364,7 +364,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="threshComboBox.setSelectedItem(AutoThresholder.Method.valueOf(uv.getThreshMethod()));&#xa;threshComboBox.setEnabled(uv.isAutoThreshold());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="threshComboBox.setSelectedItem(AutoThresholder.Method.valueOf(UV.getThreshMethod()));&#xa;threshComboBox.setEnabled(UV.isAutoThreshold());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -379,7 +379,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="threshLabel.setEnabled(uv.isAutoThreshold());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="threshLabel.setEnabled(UV.isAutoThreshold());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -390,7 +390,7 @@
                 <Component class="javax.swing.JTextField" name="gaussRadField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getGaussRad())" type="code"/>
+                      <Connection code="String.valueOf(UV.getGaussRad())" type="code"/>
                     </Property>
                   </Properties>
                   <Constraints>
@@ -417,7 +417,7 @@
                 <Component class="javax.swing.JTextField" name="cortexDepthField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getCortexDepth())" type="code"/>
+                      <Connection code="String.valueOf(UV.getCortexDepth())" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -462,7 +462,7 @@
                 <Component class="javax.swing.JTextField" name="visLineWidthTextField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getVisLineWidth())" type="code"/>
+                      <Connection code="String.valueOf(UV.getVisLineWidth())" type="code"/>
                     </Property>
                   </Properties>
                   <Constraints>
@@ -491,7 +491,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveRangeLabel.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; uv.isBlebDetect());&#xa;minCurveRangeLabel.setLabelFor(minCurveRangeField);"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveRangeLabel.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; UV.isBlebDetect());&#xa;minCurveRangeLabel.setLabelFor(minCurveRangeField);"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -502,11 +502,11 @@
                 <Component class="javax.swing.JTextField" name="minCurveRangeField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getCurveRange())" type="code"/>
+                      <Connection code="String.valueOf(UV.getCurveRange())" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveRangeField.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; uv.isBlebDetect());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveRangeField.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; UV.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -521,7 +521,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveThreshLabel.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; uv.isBlebDetect());&#xa;minCurveThreshLabel.setLabelFor(minCurveThreshField);"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveThreshLabel.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; UV.isBlebDetect());&#xa;minCurveThreshLabel.setLabelFor(minCurveThreshField);"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -532,11 +532,11 @@
                 <Component class="javax.swing.JTextField" name="minCurveThreshField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getMinCurveThresh())" type="code"/>
+                      <Connection code="String.valueOf(UV.getMinCurveThresh())" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveThreshField.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; uv.isBlebDetect());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="minCurveThreshField.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; UV.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -551,7 +551,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="cutOffLabel.setEnabled(uv.isAnalyseProtrusions());&#xa;cutOffLabel.setLabelFor(cutOffField);"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="cutOffLabel.setEnabled(UV.isAnalyseProtrusions());&#xa;cutOffLabel.setLabelFor(cutOffField);"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -562,11 +562,11 @@
                 <Component class="javax.swing.JTextField" name="cutOffField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getCutOffTime())" type="code"/>
+                      <Connection code="String.valueOf(UV.getCutOffTime())" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="cutOffField.setEnabled(uv.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="cutOffField.setEnabled(UV.isAnalyseProtrusions());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -581,7 +581,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="sigThreshFactLabel.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; uv.isUseSigThresh());&#xa;sigThreshFactLabel.setLabelFor(sigThreshFactField);"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="sigThreshFactLabel.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; UV.isUseSigThresh());&#xa;sigThreshFactLabel.setLabelFor(sigThreshFactField);"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -592,11 +592,11 @@
                 <Component class="javax.swing.JTextField" name="sigThreshFactField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getSigThreshFact())" type="code"/>
+                      <Connection code="String.valueOf(UV.getSigThreshFact())" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="sigThreshFactField.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; uv.isUseSigThresh());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="sigThreshFactField.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; UV.isUseSigThresh());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -611,7 +611,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="sigRecThreshLabel.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; uv.isUseSigThresh());&#xa;sigRecThreshLabel.setLabelFor(sigRecThreshField);"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="sigRecThreshLabel.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; UV.isUseSigThresh());&#xa;sigRecThreshLabel.setLabelFor(sigRecThreshField);"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -622,11 +622,11 @@
                 <Component class="javax.swing.JTextField" name="sigRecThreshField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getSigRecoveryThresh())" type="code"/>
+                      <Connection code="String.valueOf(UV.getSigRecoveryThresh())" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="sigRecThreshField.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; uv.isUseSigThresh());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="sigRecThreshField.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; UV.isUseSigThresh());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -644,7 +644,7 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="anaProtToggleButtonActionPerformed"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="anaProtToggleButton.setSelected(uv.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="anaProtToggleButton.setSelected(UV.isAnalyseProtrusions());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -662,7 +662,7 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useSigThreshToggleButtonActionPerformed"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="useSigThreshToggleButton.setSelected(uv.isUseSigThresh());&#xa;useSigThreshToggleButton.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; uv.isBlebDetect());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="useSigThreshToggleButton.setSelected(UV.isUseSigThresh());&#xa;useSigThreshToggleButton.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; UV.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -680,7 +680,7 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="blebDetectRadioButtonActionPerformed"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="blebDetectRadioButton.setSelected(uv.isBlebDetect());&#xa;blebDetectRadioButton.setEnabled(uv.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="blebDetectRadioButton.setSelected(UV.isBlebDetect());&#xa;blebDetectRadioButton.setEnabled(UV.isAnalyseProtrusions());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -698,7 +698,7 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="filoDetectRadioButtonActionPerformed"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoDetectRadioButton.setSelected(!uv.isBlebDetect());&#xa;filoDetectRadioButton.setEnabled(uv.isAnalyseProtrusions());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoDetectRadioButton.setSelected(!UV.isBlebDetect());&#xa;filoDetectRadioButton.setEnabled(UV.isAnalyseProtrusions());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -713,7 +713,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoSizeLabel.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; !uv.isBlebDetect());&#xa;filoSizeLabel.setLabelFor(filoSizeField);"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoSizeLabel.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; !UV.isBlebDetect());&#xa;filoSizeLabel.setLabelFor(filoSizeField);"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -724,11 +724,11 @@
                 <Component class="javax.swing.JTextField" name="filoSizeField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getFiloSizeMax())" type="code"/>
+                      <Connection code="String.valueOf(UV.getFiloSizeMax())" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoSizeField.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; !uv.isBlebDetect());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoSizeField.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; !UV.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -743,7 +743,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="displayPlotsToggleButton.setSelected(uv.isDisplayPlots());&#xa;displayPlotsToggleButton.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; uv.isBlebDetect());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="displayPlotsToggleButton.setSelected(UV.isDisplayPlots());&#xa;displayPlotsToggleButton.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; UV.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -758,7 +758,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoMinSizeLabel.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; !uv.isBlebDetect());&#xa;filoMinSizeLabel.setLabelFor(filoMinSizeTextField);"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoMinSizeLabel.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; !UV.isBlebDetect());&#xa;filoMinSizeLabel.setLabelFor(filoMinSizeTextField);"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -769,11 +769,11 @@
                 <Component class="javax.swing.JTextField" name="filoMinSizeTextField">
                   <Properties>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="String.valueOf(uv.getFiloSizeMin())" type="code"/>
+                      <Connection code="String.valueOf(UV.getFiloSizeMin())" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoMinSizeTextField.setEnabled(uv.isAnalyseProtrusions() &amp;&amp; !uv.isBlebDetect());"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="filoMinSizeTextField.setEnabled(UV.isAnalyseProtrusions() &amp;&amp; !UV.isBlebDetect());"/>
                   </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
