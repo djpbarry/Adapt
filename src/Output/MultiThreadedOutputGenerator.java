@@ -37,11 +37,12 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
     ImageStack cytoStack;
     File directory;
     PointRoi roi;
+    private final ArrayList<ArrayList<ArrayList<Double>>> fluorData;
 
-    public void setup(){
-        
+    public void setup() {
+
     }
-    
+
     public MultiThreadedOutputGenerator(ExecutorService exec, ArrayList<CellData> cellData,
             String parDir, boolean protMode, UserVariables uv, File childDir, ImageStack sigStack,
             ImageStack cytoStack, File directory, PointRoi roi) {
@@ -55,6 +56,7 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
         this.cytoStack = cytoStack;
         this.directory = directory;
         this.roi = roi;
+        this.fluorData = new ArrayList();
     }
 
     @Override
@@ -63,13 +65,20 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
         for (int index = 0; index < cellData.size(); index++) {
             String childDirName = GenUtils.openResultsDirectory(parDir + File.separator + index);
             int length = cellData.get(index).getLength();
+            fluorData.add(new ArrayList());
             if (length > minLength) {
                 childDir = new File(childDirName);
                 exec.submit(new RunnableOutputGenerator(cellData, parDir,
                         protMode, uv, childDir, sigStack,
-                        cytoStack, index, length, directory, roi));
+                        cytoStack, index, length, directory, roi, fluorData.get(index)));
             }
         }
         terminate("Error generating outputs.");
     }
+
+    public ArrayList<ArrayList<ArrayList<Double>>> getFluorData() {
+        return fluorData;
+    }
+    
+    
 }

@@ -9,37 +9,42 @@ import IAClasses.Region;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
-import ij.text.TextWindow;
 import java.io.IOException;
 import java.util.ArrayList;
-import org.apache.commons.csv.CSVPrinter;
 
 public class RegionFluorescenceQuantifier {
 
-    Region[] regions;
-    ImageStack stack;
-    CSVPrinter printer;
-    static TextWindow tw = new TextWindow("Fluorescence Distribution", FluorescenceDistAnalyser.PARAM_HEADINGS, new ArrayList(), 640, 480);
+    private final Region[] regions;
+    private final ImageStack stack;
+    private final ArrayList<ArrayList<Double>> data;
+    private final int index;
 
-    public RegionFluorescenceQuantifier(Region[] regions, ImageStack stack, CSVPrinter printer) {
+    public RegionFluorescenceQuantifier(Region[] regions, ImageStack stack, ArrayList<ArrayList<Double>> data, int index) {
         this.regions = regions;
-//        this.stack = GenUtils.convertStack(stack, 8);
         this.stack = stack;
-        this.printer = printer;
+        this.data = data;
+        this.index = index;
     }
 
     public void doQuantification() throws IOException {
         int length = stack.size();
-        String headings = FluorescenceDistAnalyser.PARAM_HEADINGS;
-        printer.printRecord(headings.replace('\t', ','));
         for (int i = 1; i <= length; i++) {
+            data.add(new ArrayList());
             if (regions[i - 1] != null) {
                 ImageProcessor mask = regions[i - 1].getMask();
                 mask.invert();
                 FluorescenceDistAnalyser fa = new FluorescenceDistAnalyser(new ImagePlus("", stack.getProcessor(i).convertToByteProcessor(true)), mask, 1);
                 fa.doAnalysis();
-                printer.printRecord(fa.getContrast(), fa.getHomogeneity(), fa.getEnergy(), fa.getMean(), fa.getStd(), fa.getSkew(), fa.getKurt());
-                tw.append(fa.getContrast() + "\t" + fa.getHomogeneity() + "\t" + fa.getEnergy() + "\t" + fa.getMean() + "\t" + fa.getStd() + "\t" + fa.getSkew() + "\t" + fa.getKurt());
+                ArrayList<Double> thisData = data.get(i - 1);
+                thisData.add((double) index);
+                thisData.add((double) (i - 1));
+                thisData.add(fa.getContrast());
+                thisData.add(fa.getHomogeneity());
+                thisData.add(fa.getEnergy());
+                thisData.add(fa.getMean());
+                thisData.add(fa.getStd());
+                thisData.add(fa.getSkew());
+                thisData.add(fa.getKurt());
             }
         }
     }

@@ -92,7 +92,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     protected static File directory = new File("D:\\debugging\\adapt_debug\\output"); // root directory
     protected File childDir, // root output directory
             parDir, // output directory for each cell
-            velDirName, curvDirName, trajDirName, segDirName;
+            velDirName, curvDirName, segDirName;
     protected String TITLE = StaticVariables.TITLE;
     final String BLEB_DATA_FILES = "Bleb_Data_Files";
     protected final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
@@ -372,9 +372,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * detected regions.
          */
         if ((uv.isGenVis() || uv.isGetFluorDist()) && !protMode) {
-            (new MultiThreadedOutputGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()), cellData,
+            MultiThreadedOutputGenerator outGen = new MultiThreadedOutputGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()), cellData,
                     parDir.getAbsolutePath(), protMode, uv, childDir, stacks[1],
-                    stacks[0], directory, roi)).run();
+                    stacks[0], directory, roi);
+            outGen.run();
+            saveFluorData(outGen.getFluorData());
             velDirName = GenUtils.createDirectory(parDir + delimiter + "Velocity_Visualisation", false);
             curvDirName = GenUtils.createDirectory(parDir + delimiter + "Curvature_Visualisation", false);
             genCurveVelVis(cellData);
@@ -389,7 +391,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 IJ.log("Could not save morphological data file.");
             }
         }
-        trajDirName = GenUtils.createDirectory(parDir + delimiter + "Trajectories_Visualisation", false);
         try {
             generateCellTrajectories(cellData);
         } catch (Exception e) {
@@ -488,14 +489,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             FloatProcessor greyCurvMap = new FloatProcessor(curvatures.length, upLength);
             FloatProcessor greySigMap = new FloatProcessor(sigchanges.length, upLength);
             ColorProcessor colorVelMap = new ColorProcessor(smoothVelocities.length, upLength);
-//            DataStatistics velstats = new DataStatistics(0.05, smoothVelocities, smoothVelocities.length * smoothVelocities[0].length);
-//            double maxvel = velstats.getUpper99(); // Max and min velocity values (for colourmap) based on upper.lower 99th percentile boundaries
-//            double minvel = velstats.getLower99();
-            generateScaleBar(uv.getMaxVel(), uv.getMinVel());
             cellData.get(index).setGreyVelMap(greyVelMap);
             cellData.get(index).setGreyCurveMap(greyCurvMap);
-            cellData.get(index).setMaxVel(uv.getMaxVel());
-            cellData.get(index).setMinVel(uv.getMinVel());
             cellData.get(index).setGreySigMap(greySigMap);
             cellData.get(index).setColorVelMap(colorVelMap);
             cellData.get(index).setSmoothVelocities(smoothVelocities);
@@ -632,7 +627,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //        paramStream.println(StaticVariables.DISPLAY_PLOTS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isDisplayPlots()));
 //        return true;
 //    }
-
     @Deprecated
     void buildVelSigMaps(int index, Region[] allRegions, PrintWriter trajStream, PrintWriter segStream, CellData cellData, int total) {
         ImageStack cytoStack = stacks[0];
@@ -841,19 +835,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         String pdLabel = protMode ? "Building Filopodia Trajectories..." : "Building Cell Trajectories...";
         ProgressDialog dialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
         dialog.setVisible(true);
-        /*
-         * Generate various visualisations for output
-         */
-        int width = cytoStack.getWidth();
-        int height = cytoStack.getHeight();
         int stackSize = cytoStack.getSize();
         int origins[][] = new int[N][2];
         double distances[] = new double[N];
         Color colors[] = new Color[N];
         Random rand = new Random();
         Arrays.fill(distances, 0.0);
-        int xc = width / 2;
-        int yc = height / 2;
         ArrayList<ArrayList<Double>> trajData = new ArrayList<ArrayList<Double>>();
         String[] trajDataHeadings = new String[5];
         trajDataHeadings[0] = "Frame";
@@ -872,17 +859,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 origins[n][1] = (int) Math.round(centres.get(cl - 1)[1]);
             }
         }
-        for (int t = 0; t < stackSize; t++) {
-            dialog.updateProgress(t, stackSize);
-            ColorProcessor trajOutputCommonOrigin = new ColorProcessor(width, height);
-            trajOutputCommonOrigin.setColor(Region.MASK_FOREGROUND);
-            trajOutputCommonOrigin.fill();
-            ColorProcessor trajOutput = (ColorProcessor) trajOutputCommonOrigin.duplicate();
-            int d = uv.getVisLineWidth();
-            int r = (int) Math.floor(d / 2.0);
-            for (int n = 0; n < N; n++) {
-                trajOutputCommonOrigin.setColor(colors[n]);
-                trajOutput.setColor(colors[n]);
+        for (int n = 0; n < N; n++) {
+            for (int t = 0; t < stackSize; t++) {
+                dialog.updateProgress(n, N);
                 int start = cellData.get(n).getStartFrame();
                 int end = cellData.get(n).getEndFrame();
                 int length = cellData.get(n).getLength();
@@ -897,9 +876,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         int c = centres.size();
                         double x = centres.get(c - 1)[0];
                         double y = centres.get(c - 1)[1];
-                        trajOutputCommonOrigin.fillOval((int) Math.round(x + xc - origins[n][0]) - r,
-                                (int) Math.round(y + yc - origins[n][1]) - r, d, d);
-                        trajOutput.fillOval((int) Math.round(x - r), (int) Math.round(y - r), d, d);
                         trajData.get(0).add((double) t);
                         trajData.get(1).add(t * 60.0 / uv.getTimeRes());
                         trajData.get(2).add((double) n);
@@ -918,8 +894,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 
                 }
             }
-            IJ.saveAs((new ImagePlus("", trajOutputCommonOrigin)), "PNG", trajDirName.getAbsolutePath() + delimiter + "CommonOrigin_T" + numFormat.format(t));
-            IJ.saveAs((new ImagePlus("", trajOutput)), "PNG", trajDirName.getAbsolutePath() + delimiter + "Unmodified_T" + numFormat.format(t));
         }
         DataWriter.saveValues(trajData, new File(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "trajectories.csv")), trajDataHeadings, null, false);
         dialog.dispose();
@@ -1654,6 +1628,27 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 
     public ArrayList<CellData> getCellData() {
         return cellData;
+    }
+
+    private void saveFluorData(ArrayList<ArrayList<ArrayList<Double>>> fluorData) {
+        ArrayList<ArrayList<Double>> convertedData = new ArrayList();
+        for (ArrayList<ArrayList<Double>> frameData : fluorData) {
+            for (ArrayList<Double> lineData : frameData) {
+                int size = lineData.size();
+                while (convertedData.size() < size) {
+                    convertedData.add(new ArrayList());
+                }
+                for (int j = 0; j < size; j++) {
+                    convertedData.get(j).add(lineData.get(j));
+                }
+            }
+        }
+        try {
+            DataWriter.saveValues(convertedData, new File(String.format("%s%s%s", parDir, File.separator, "fluorescence.csv")),
+                    FluorescenceDistAnalyser.PARAM_HEADINGS, null, false);
+        } catch (IOException e) {
+            GenUtils.logError(e, "Failed to save fluorescence information file.");
+        }
     }
 
 }

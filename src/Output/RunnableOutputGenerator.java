@@ -86,10 +86,9 @@ public class RunnableOutputGenerator extends RunnableProcess {
     final String BLEB_DATA_FILES = "Bleb_Data_Files";
     private final double trajMin = 5.0;
     DecimalFormat numFormat = StaticVariables.numFormat;
+    private final ArrayList<ArrayList<Double>> fluorData;
 
-    public RunnableOutputGenerator(ArrayList<CellData> cellData, String parDir,
-            boolean protMode, UserVariables uv, File childDir, ImageStack sigStack,
-            ImageStack cytoStack, int index, int length, File directory, PointRoi roi) {
+    public RunnableOutputGenerator(ArrayList<CellData> cellData, String parDir, boolean protMode, UserVariables uv, File childDir, ImageStack sigStack, ImageStack cytoStack, int index, int length, File directory, PointRoi roi, ArrayList<ArrayList<Double>> fluorData) {
         super(null);
         this.cellData = cellData;
         this.parDir = parDir;
@@ -102,6 +101,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
         this.length = length;
         this.directory = directory;
         this.roi = roi;
+        this.fluorData = fluorData;
     }
 
     @Override
@@ -111,11 +111,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
         if (uv.isGetFluorDist()) {
             try {
                 FluorescenceAnalyser.generateFluorMapsPerCellOverTime(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, sigStack, ImageProcessor.MAX, Integer.MAX_VALUE, 2, cellData.get(index).getCellRegions(), cellData.get(index).getStartFrame(), cellData.get(index).getEndFrame()), childDir);
-                File fluorFile = new File(parDir + File.separator + "fluorescence.csv");
-                CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(fluorFile), GenVariables.ISO), CSVFormat.EXCEL);
-                RegionFluorescenceQuantifier rfq = new RegionFluorescenceQuantifier(cellData.get(index).getCellRegions(), sigStack, printer);
-                rfq.doQuantification();
-                printer.close();
+                quantifyCellFluorescence();
             } catch (Exception e) {
                 GenUtils.logError(e, "Error during fluorescence distribution quantification.");
             }
@@ -198,8 +194,8 @@ public class RunnableOutputGenerator extends RunnableProcess {
 //            generateScaleBar(uv.getMaxVel(), uv.getMinVel());
             cellData.get(index).setGreyVelMap(greyVelMap);
             cellData.get(index).setGreyCurveMap(greyCurvMap);
-            cellData.get(index).setMaxVel(uv.getMaxVel());
-            cellData.get(index).setMinVel(uv.getMinVel());
+//            cellData.get(index).setMaxVel(uv.getMaxVel());
+//            cellData.get(index).setMinVel(uv.getMinVel());
             cellData.get(index).setGreySigMap(greySigMap);
 //            cellData.get(index).setColorVelMap(colorVelMap);
             cellData.get(index).setSmoothVelocities(smoothVelocities);
@@ -646,31 +642,11 @@ public class RunnableOutputGenerator extends RunnableProcess {
         }
     }
 
-    /*
-     * Essentially acts as a look-up table, calculated 'on the fly'. The output
-     * will range somewhere between red for retmax, green for promax and yellow
-     * if val=0.
-     */
-//    Color getColor(double val, double promax, double retmax) {
-//        Color colour = Color.black;
-//        int r, g;
-//        if (val >= 0.0) {
-//            r = 255 - (int) Math.round(255 * val / promax);
-//            if (r < 0) {
-//                r = 0;
-//            } else if (r > 255) {
-//                r = 255;
-//            }
-//            colour = new Color(r, 255, 0);
-//        } else if (val < 0.0) {
-//            g = 255 - (int) Math.round(255 * val / retmax);
-//            if (g < 0) {
-//                g = 0;
-//            } else if (g > 255) {
-//                g = 255;
-//            }
-//            colour = new Color(255, g, 0);
-//        }
-//        return colour;
-//    }
+    private void quantifyCellFluorescence() throws IOException {
+        File fluorFile = new File(parDir + File.separator + "fluorescence.csv");
+        CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(fluorFile), GenVariables.ISO), CSVFormat.EXCEL);
+        RegionFluorescenceQuantifier rfq = new RegionFluorescenceQuantifier(cellData.get(index).getCellRegions(), sigStack, fluorData, index);
+        rfq.doQuantification();
+        printer.close();
+    }
 }
