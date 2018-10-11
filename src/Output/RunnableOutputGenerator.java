@@ -149,8 +149,6 @@ public class RunnableOutputGenerator extends RunnableProcess {
 
     void buildOutput(int index, int length, boolean preview) {
         Region[] allRegions = cellData.get(index).getCellRegions();
-        File trajFile, segPointsFile;
-        PrintWriter trajStream, segStream;
         double scaleFactors[] = new double[length];
 
         /*
@@ -174,29 +172,10 @@ public class RunnableOutputGenerator extends RunnableProcess {
             if (sigStack != null) {
                 sigMap = new MorphMap(length, upLength);
             }
-            /*
-             * Create file to store cell trajectory, which consists of the list of
-             * cell centroids.
-             */
-            try {
-                trajFile = new File(childDir + File.separator + "trajectory.csv");
-                segPointsFile = new File(childDir + File.separator + "cell_boundary_points.csv");
-                trajStream = new PrintWriter(new FileOutputStream(trajFile));
-                segStream = new PrintWriter(new FileOutputStream(segPointsFile));
-            } catch (FileNotFoundException e) {
-                System.out.println("Error: Failed to create parameter files.\n");
-                System.out.println(e.toString());
-                return;
-            }
-            if (!prepareOutputFiles(trajStream, segStream, length, 3)) {
-                return;
-            }
             cellData.get(index).setVelMap(velMap);
             cellData.get(index).setSigMap(sigMap);
             cellData.get(index).setScaleFactors(scaleFactors);
-            buildVelSigMaps(index, allRegions, trajStream, segStream, cellData.get(index), cellData.size());
-            trajStream.close();
-            segStream.close();
+            buildVelSigMaps(index, allRegions, cellData.get(index), cellData.size());
             double smoothVelocities[][] = velMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes()); // Gaussian smoothing in time and space
             double curvatures[][] = curveMap.smoothMap(0.0, 0.0);
             double sigchanges[][];
@@ -486,26 +465,13 @@ public class RunnableOutputGenerator extends RunnableProcess {
         }
     }
 
-    boolean prepareOutputFiles(PrintWriter trajStream, PrintWriter segStream, int size, int dim) {
-        segStream.println("FRAMES " + String.valueOf(size));
-        segStream.println("DIM " + String.valueOf(dim));
-        trajStream.println("Time(s), X (" + String.valueOf(GenUtils.mu) + "m), Y (" + String.valueOf(GenUtils.mu) + "m)");
-        return true;
-    }
-
-    void buildVelSigMaps(int index, Region[] allRegions, PrintWriter trajStream, PrintWriter segStream, CellData cellData, int total) {
+    void buildVelSigMaps(int index, Region[] allRegions, CellData cellData, int total) {
         MorphMap velMap = cellData.getVelMap();
         MorphMap sigMap = cellData.getSigMap();
         int width = velMap.getWidth();
         int height = velMap.getHeight();
         for (int i = cellData.getStartFrame() - 1; i < width; i++) {
             Region current = allRegions[i];
-            ArrayList<float[]> centres = current.getCentres();
-            double xc = centres.get(0)[0];
-            double yc = centres.get(0)[1];
-            trajStream.println(String.valueOf(i * 60.0 / uv.getTimeRes())
-                    + ", " + String.valueOf(xc * uv.getSpatialRes())
-                    + ", " + String.valueOf(yc * uv.getSpatialRes()));
             /*
              * Get points for one column (time-point) of map
              */
@@ -529,7 +495,6 @@ public class RunnableOutputGenerator extends RunnableProcess {
                 x[j] = vmPoints[j][0];
                 y[j] = vmPoints[j][1];
                 vmz[j] = vmPoints[j][2];
-                segStream.println(String.valueOf(x[j]) + ", " + String.valueOf(y[j]) + ", " + String.valueOf(i));
             }
             if (smPoints != null) {
                 for (int j = 0; j < height; j++) {
