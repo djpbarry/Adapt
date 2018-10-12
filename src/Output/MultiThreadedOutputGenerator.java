@@ -20,6 +20,7 @@ import Cell.CellData;
 import Process.MultiThreadedProcess;
 import UserVariables.UserVariables;
 import UtilClasses.GenUtils;
+import ij.IJ;
 import ij.ImageStack;
 import ij.gui.PointRoi;
 import java.io.File;
@@ -61,6 +62,7 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
 
     @Override
     public void run() {
+        IJ.log("Building individual cell outputs...");
         double minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
         for (int index = 0; index < cellData.size(); index++) {
             String childDirName = GenUtils.openResultsDirectory(parDir + File.separator + index);

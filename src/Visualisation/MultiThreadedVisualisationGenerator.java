@@ -22,6 +22,7 @@ import Lut.LUTCreator;
 import Overlay.OverlayToRoi;
 import Process.MultiThreadedProcess;
 import UserVariables.UserVariables;
+import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Overlay;
@@ -60,7 +61,7 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
 
     @Override
     public void run() {
-
+        IJ.showStatus("Generating visualisations...");
         int stackSize = cytoStack.getSize();
         IndexColorModel lut = (new LUTCreator()).getRedGreen();
         for (int t = 0; t < stackSize; t++) {

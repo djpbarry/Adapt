@@ -6,6 +6,7 @@
 package Adapt;
 
 import IAClasses.Region;
+import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
@@ -29,6 +30,7 @@ public class RegionFluorescenceQuantifier {
     public void doQuantification() throws IOException {
         int length = stack.size();
         for (int i = 1; i <= length; i++) {
+            IJ.showProgress(i,length);
             data.add(new ArrayList());
             if (regions[i - 1] != null) {
                 ImageProcessor mask = regions[i - 1].getMask();

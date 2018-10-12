@@ -110,7 +110,9 @@ public class RunnableOutputGenerator extends RunnableProcess {
         buildOutput(index, length, false);
         if (uv.isGetFluorDist()) {
             try {
-                FluorescenceAnalyser.generateFluorMapsPerCellOverTime(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, sigStack, ImageProcessor.MAX, Integer.MAX_VALUE, 2, cellData.get(index).getCellRegions(), cellData.get(index).getStartFrame(), cellData.get(index).getEndFrame()), childDir);
+                IJ.showStatus("Quantifying fluorescence localisation");
+                FluorescenceAnalyser.generateFluorMapsPerCellOverTime(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, sigStack, ImageProcessor.MAX, Integer.MAX_VALUE, uv.getErosion(), cellData.get(index).getCellRegions(), cellData.get(index).getStartFrame(), cellData.get(index).getEndFrame()), childDir);
+                IJ.showStatus("Quantifying gross fluorescence distribution");
                 RegionFluorescenceQuantifier rfq = new RegionFluorescenceQuantifier(cellData.get(index).getCellRegions(), sigStack, fluorData, index);
                 rfq.doQuantification();
             } catch (Exception e) {
@@ -146,6 +148,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
     }
 
     void buildOutput(int index, int length, boolean preview) {
+        IJ.showStatus("Building cell maps");
         Region[] allRegions = cellData.get(index).getCellRegions();
         double scaleFactors[] = new double[length];
 

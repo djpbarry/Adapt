@@ -30,6 +30,7 @@ import IO.DataWriter;
 import IO.PropertyWriter;
 import Output.MultiThreadedOutputGenerator;
 import Segmentation.RegionGrower;
+import TimeAndDate.TimeAndDate;
 import Trajectory.TrajectoryAnalysis;
 import UtilClasses.Utilities;
 import UtilClasses.GenUtils;
@@ -91,7 +92,7 @@ import java.util.concurrent.Executors;
 public class Analyse_Movie extends NotificationThread implements PlugIn {
 
     protected static File directory = IJ.getInstance() == null
-            ? new File("D:\\debugging\\adapt_debug\\output")
+            ? new File("D:\\debugging\\ADAPT Test Data\\ADAPT Test Data\\Adapt_Test_Data")
             : new File(IJ.getDirectory("current")); // root directory
     protected File childDir, // root output directory
             parDir, // output directory for each cell
@@ -152,6 +153,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     public void run(String arg) {
 //        MacroWriter.write();
         TITLE = TITLE + "_v" + StaticVariables.VERSION + "." + numFormat.format(Revision.Revision.revisionNumber);
+        IJ.log(TITLE);
+        IJ.log(TimeAndDate.getCurrentTimeAndDate());
         if (IJ.getInstance() != null && WindowManager.getIDList() == null) {
             IJ.error("No Images Open.");
             return;
@@ -258,8 +261,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
         String pdLabel = protMode ? "Segmenting Filopodia..." : "Segmenting Cells...";
-        ProgressDialog segDialog = new ProgressDialog(null, pdLabel, false, TITLE, false);
-        segDialog.setVisible(true);
         cellData = new ArrayList<>();
         ImageProcessor cytoImage = cytoStack.getProcessor(1).duplicate();
         (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
@@ -289,11 +290,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 return;
             }
         }
+        IJ.log(pdLabel);
+        IJ.showStatus(pdLabel);
         for (int i = 0; i < cytoSize; i++) {
 //            if (allMasks != null) {
 //                IJ.saveAs(new ImagePlus("", allMasks), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d.png", "AllMasksPreErode", i));
 //            }
-            segDialog.updateProgress(i, cytoSize);
+            IJ.showProgress(i, cytoSize);
             cytoImage = cytoStack.getProcessor(i + 1).duplicate();
             (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
             thresholds[i] = RegionGrower.getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
@@ -371,7 +374,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             cellData.get(i).setCellRegions(regions);
             cellData.get(i).setGreyThresholds(thresholds);
         }
-        segDialog.dispose();
         if (selectiveOutput) {
             ArrayList<CellData> filteredCells = filterCells(cellData);
             cellData = filteredCells;
@@ -381,6 +383,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * detected regions.
          */
         if ((uv.isGenVis() || uv.isGetFluorDist()) && !protMode) {
+            IJ.log("Quantifying fluorescence distributions...");
             MultiThreadedOutputGenerator outGen = new MultiThreadedOutputGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()), cellData,
                     cellsDir.getAbsolutePath(), protMode, uv, childDir, stacks[1],
                     stacks[0], directory, roi);
@@ -397,7 +400,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             try {
                 getMorphologyData(cellData, true, -1, null, 0.0);
             } catch (IOException e) {
-                IJ.log("Could not save morphological data file.");
+                GenUtils.logError(e, "Could not save morphological data file.");
             }
         }
         try {
@@ -524,6 +527,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     public void getMorphologyData(ArrayList<CellData> cellData, boolean saveFile, int measurements, ImageProcessor redirectImage, double blurRadius) throws IOException {
+        IJ.showStatus("Generating morphology data");
         ResultsTable rt = Analyzer.getResultsTable();
         if (redirectImage != null) {
             new GaussianBlur().blurGaussian(redirectImage, blurRadius);
@@ -537,6 +541,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             measurements = Integer.MAX_VALUE;
         }
         for (int index = 0; index < cellData.size(); index++) {
+            IJ.showProgress(index, cellData.size());
             int length = cellData.get(index).getLength();
             if (length > minLength) {
                 Region[] allRegions = cellData.get(index).getCellRegions();
@@ -1640,6 +1645,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     private void saveFluorData(ArrayList<ArrayList<ArrayList<Double>>> fluorData) {
+        IJ.showStatus("Saving fluorescence data");
         ArrayList<ArrayList<Double>> convertedData = new ArrayList();
         for (ArrayList<ArrayList<Double>> frameData : fluorData) {
             for (ArrayList<Double> lineData : frameData) {

@@ -62,6 +62,7 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
 
     @Override
     public void run() {
+        IJ.showProgress(t, cytoStack.getSize());
         int N = cellData.size();
         double minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
         int width = cytoStack.getWidth();
@@ -106,9 +107,9 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
         String velFileName = String.format("%s%s%s.tiff", velDirName.getAbsolutePath(), File.separator, numFormat.format(t));
         String curveFileName = String.format("%s%s%s.tiff", curvDirName.getAbsolutePath(), File.separator, numFormat.format(t));
         try {
-            IJ.log(String.format("Saving %s", velFileName));
+//            IJ.log(String.format("Saving %s", velFileName));
             BioFormatsImageWriter.saveImage(velOutput, new File(velFileName), lut);
-            IJ.log(String.format("Saving %s", curveFileName));
+//            IJ.log(String.format("Saving %s", curveFileName));
             BioFormatsImageWriter.saveImage(curveOutput, new File(curveFileName), lut);
         } catch (Exception e) {
             GenUtils.logError(e, "Failed to saved visualisation image.");
