@@ -90,10 +90,12 @@ import java.util.concurrent.Executors;
  */
 public class Analyse_Movie extends NotificationThread implements PlugIn {
 
-    protected static File directory = new File("D:\\debugging\\adapt_debug\\output"); // root directory
+    protected static File directory = IJ.getInstance() == null
+            ? new File("D:\\debugging\\adapt_debug\\output")
+            : new File(IJ.getDirectory("current")); // root directory
     protected File childDir, // root output directory
             parDir, // output directory for each cell
-            velDirName, curvDirName, segDirName;
+            velDir, curveDir, segDir, visDir, cellsDir, popDir;
     protected String TITLE = StaticVariables.TITLE;
     final String BLEB_DATA_FILES = "Bleb_Data_Files";
     protected final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
@@ -165,8 +167,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             return;
         }
         analyse(arg);
-        TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes()/60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
-        ta.run(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME));
+        TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes() / 60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
+        ta.run(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME));
         try {
             PropertyWriter.printProperties(props, parDir.getAbsolutePath(), TITLE, true);
         } catch (IOException e) {
@@ -235,6 +237,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         } else if (parDir == null) {
             return;
         }
+        visDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Visualisations")));
+        cellsDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Individual_Cell_Data")));
+        popDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Population_Data")));
         int width = cytoStack.getWidth();
         int height = cytoStack.getHeight();
         /*
@@ -276,7 +281,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         PrintWriter filoStream = null;
         if (protMode) {
             try {
-                filoData = new File(parDir + delimiter + "FilopodiaVersusTime.csv");
+                filoData = new File(popDir + delimiter + "FilopodiaVersusTime.csv");
                 filoStream = new PrintWriter(new FileOutputStream(filoData));
                 filoStream.println("Frame,Number of Filopodia");
             } catch (FileNotFoundException e) {
@@ -377,15 +382,15 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          */
         if ((uv.isGenVis() || uv.isGetFluorDist()) && !protMode) {
             MultiThreadedOutputGenerator outGen = new MultiThreadedOutputGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()), cellData,
-                    parDir.getAbsolutePath(), protMode, uv, childDir, stacks[1],
+                    cellsDir.getAbsolutePath(), protMode, uv, childDir, stacks[1],
                     stacks[0], directory, roi);
             outGen.run();
             saveFluorData(outGen.getFluorData());
-            velDirName = GenUtils.createDirectory(parDir + delimiter + "Velocity_Visualisation", false);
-            curvDirName = GenUtils.createDirectory(parDir + delimiter + "Curvature_Visualisation", false);
+            velDir = GenUtils.createDirectory(visDir + delimiter + "Velocity_Visualisation", false);
+            curveDir = GenUtils.createDirectory(visDir + delimiter + "Curvature_Visualisation", false);
             genCurveVelVis(cellData);
         } else {
-            segDirName = GenUtils.createDirectory(parDir + delimiter + "Segmentation_Visualisation", false);
+            segDir = GenUtils.createDirectory(visDir + delimiter + "Segmentation_Visualisation", false);
             genSimpSegVis(cellData);
         }
         if (uv.isGetMorph()) {
@@ -551,7 +556,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         if (saveFile) {
-            DataWriter.saveResultsTable(rt, new File(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "morphology.csv")));
+            DataWriter.saveResultsTable(rt, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, "morphology.csv")));
         }
     }
 
@@ -784,7 +789,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 
     void genCurveVelVis(ArrayList<CellData> cellDatas) {
         (new MultiThreadedVisualisationGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()),
-                cellData, protMode, stacks[0], uv, velDirName, curvDirName)).run();
+                cellData, protMode, stacks[0], uv, velDir, curveDir)).run();
     }
 
     void genSimpSegVis(ArrayList<CellData> cellDatas) {
@@ -828,7 +833,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     output.drawString(String.valueOf(n + 1), xc + 2, yc + 2);
                 }
             }
-            IJ.saveAs((new ImagePlus("", output)), "PNG", segDirName.getAbsolutePath() + delimiter + numFormat.format(t));
+            IJ.saveAs((new ImagePlus("", output)), "PNG", segDir.getAbsolutePath() + delimiter + numFormat.format(t));
         }
         dialog.dispose();
     }
@@ -899,7 +904,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 }
             }
         }
-        DataWriter.saveValues(trajData, new File(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME)), trajDataHeadings, null, false);
+        DataWriter.saveValues(trajData, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME)), trajDataHeadings, null, false);
         dialog.dispose();
     }
 
@@ -1648,7 +1653,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         try {
-            DataWriter.saveValues(convertedData, new File(String.format("%s%s%s", parDir, File.separator, "fluorescence.csv")),
+            DataWriter.saveValues(convertedData, new File(String.format("%s%s%s", popDir, File.separator, "fluorescence.csv")),
                     FluorescenceDistAnalyser.PARAM_HEADINGS, null, false);
         } catch (IOException e) {
             GenUtils.logError(e, "Failed to save fluorescence information file.");

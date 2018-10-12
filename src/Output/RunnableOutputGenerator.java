@@ -111,7 +111,8 @@ public class RunnableOutputGenerator extends RunnableProcess {
         if (uv.isGetFluorDist()) {
             try {
                 FluorescenceAnalyser.generateFluorMapsPerCellOverTime(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, sigStack, ImageProcessor.MAX, Integer.MAX_VALUE, 2, cellData.get(index).getCellRegions(), cellData.get(index).getStartFrame(), cellData.get(index).getEndFrame()), childDir);
-                quantifyCellFluorescence();
+                RegionFluorescenceQuantifier rfq = new RegionFluorescenceQuantifier(cellData.get(index).getCellRegions(), sigStack, fluorData, index);
+                rfq.doQuantification();
             } catch (Exception e) {
                 GenUtils.logError(e, "Error during fluorescence distribution quantification.");
             }
@@ -640,13 +641,5 @@ public class RunnableOutputGenerator extends RunnableProcess {
             detectionSlice.setColor(Color.yellow);
             detectionSlice.drawString(String.valueOf(index), sx, sy);
         }
-    }
-
-    private void quantifyCellFluorescence() throws IOException {
-        File fluorFile = new File(parDir + File.separator + "fluorescence.csv");
-        CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(fluorFile), GenVariables.ISO), CSVFormat.EXCEL);
-        RegionFluorescenceQuantifier rfq = new RegionFluorescenceQuantifier(cellData.get(index).getCellRegions(), sigStack, fluorData, index);
-        rfq.doQuantification();
-        printer.close();
     }
 }
