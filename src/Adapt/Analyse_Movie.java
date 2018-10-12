@@ -30,6 +30,7 @@ import IO.DataWriter;
 import IO.PropertyWriter;
 import Output.MultiThreadedOutputGenerator;
 import Segmentation.RegionGrower;
+import Trajectory.TrajectoryAnalysis;
 import UtilClasses.Utilities;
 import UtilClasses.GenUtils;
 import ij.IJ;
@@ -110,6 +111,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private ImageProcessor[] previewImages;
     private boolean selectiveOutput = false;
     private Properties props;
+    private final String TRAJ_FILE_NAME = "trajectories.csv";
 
     /**
      * Default constructor
@@ -163,6 +165,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             return;
         }
         analyse(arg);
+        TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes()/60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
+        ta.run(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME));
         try {
             PropertyWriter.printProperties(props, parDir.getAbsolutePath(), TITLE, true);
         } catch (IOException e) {
@@ -895,7 +899,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 }
             }
         }
-        DataWriter.saveValues(trajData, new File(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "trajectories.csv")), trajDataHeadings, null, false);
+        DataWriter.saveValues(trajData, new File(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME)), trajDataHeadings, null, false);
         dialog.dispose();
     }
 
