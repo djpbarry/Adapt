@@ -62,7 +62,7 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
 
     @Override
     public void run() {
-        IJ.showProgress(t, cytoStack.getSize());
+        IJ.showStatus(String.format("Generating visualisations... %d%%", (int) Math.round(t * 100.0 / cytoStack.getSize())));
         int N = cellData.size();
         double minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
         int width = cytoStack.getWidth();

@@ -76,6 +76,7 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
             }
         }
         terminate("Error generating outputs.");
+         IJ.log("\nAll cells done.\n");
     }
 
     public ArrayList<ArrayList<ArrayList<Double>>> getFluorData() {

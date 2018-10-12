@@ -61,7 +61,7 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
 
     @Override
     public void run() {
-        IJ.showStatus("Generating visualisations...");
+        IJ.log("Building visualisations...\n");
         int stackSize = cytoStack.getSize();
         IndexColorModel lut = (new LUTCreator()).getRedGreen();
         for (int t = 0; t < stackSize; t++) {

@@ -155,6 +155,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         TITLE = TITLE + "_v" + StaticVariables.VERSION + "." + numFormat.format(Revision.Revision.revisionNumber);
         IJ.log(TITLE);
         IJ.log(TimeAndDate.getCurrentTimeAndDate());
+        IJ.log("");
         if (IJ.getInstance() != null && WindowManager.getIDList() == null) {
             IJ.error("No Images Open.");
             return;
@@ -260,7 +261,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             props = gui.getProperties();
         }
         minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
-        String pdLabel = protMode ? "Segmenting Filopodia..." : "Segmenting Cells...";
+        String pdLabel = protMode ? "Segmenting filopodia..." : "Segmenting cells...";
         cellData = new ArrayList<>();
         ImageProcessor cytoImage = cytoStack.getProcessor(1).duplicate();
         (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
@@ -291,12 +292,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         IJ.log(pdLabel);
-        IJ.showStatus(pdLabel);
         for (int i = 0; i < cytoSize; i++) {
 //            if (allMasks != null) {
 //                IJ.saveAs(new ImagePlus("", allMasks), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d.png", "AllMasksPreErode", i));
 //            }
-            IJ.showProgress(i, cytoSize);
+            IJ.showStatus(String.format("Segmenting %d%%", (int) Math.round(i * 100.0 / cytoSize)));
             cytoImage = cytoStack.getProcessor(i + 1).duplicate();
             (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
             thresholds[i] = RegionGrower.getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
@@ -374,6 +374,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             cellData.get(i).setCellRegions(regions);
             cellData.get(i).setGreyThresholds(thresholds);
         }
+        IJ.log(String.format("%d cells found.\n", cellData.size()));
         if (selectiveOutput) {
             ArrayList<CellData> filteredCells = filterCells(cellData);
             cellData = filteredCells;
@@ -383,7 +384,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
          * detected regions.
          */
         if ((uv.isGenVis() || uv.isGetFluorDist()) && !protMode) {
-            IJ.log("Quantifying fluorescence distributions...");
             MultiThreadedOutputGenerator outGen = new MultiThreadedOutputGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()), cellData,
                     cellsDir.getAbsolutePath(), protMode, uv, childDir, stacks[1],
                     stacks[0], directory, roi);
@@ -527,7 +527,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     public void getMorphologyData(ArrayList<CellData> cellData, boolean saveFile, int measurements, ImageProcessor redirectImage, double blurRadius) throws IOException {
-        IJ.showStatus("Generating morphology data");
         ResultsTable rt = Analyzer.getResultsTable();
         if (redirectImage != null) {
             new GaussianBlur().blurGaussian(redirectImage, blurRadius);
@@ -541,7 +540,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             measurements = Integer.MAX_VALUE;
         }
         for (int index = 0; index < cellData.size(); index++) {
-            IJ.showProgress(index, cellData.size());
+            IJ.showStatus(String.format("Generating morphology data %d%%", (int) Math.round(index * 100.0 / cellData.size())));
             int length = cellData.get(index).getLength();
             if (length > minLength) {
                 Region[] allRegions = cellData.get(index).getCellRegions();
@@ -563,6 +562,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (saveFile) {
             DataWriter.saveResultsTable(rt, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, "morphology.csv")));
         }
+        WindowManager.getWindow(rt.getTitle()).dispose();
     }
 
     void saveRegionMorph(Region region, ResultsTable rt) {

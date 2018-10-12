@@ -106,13 +106,13 @@ public class RunnableOutputGenerator extends RunnableProcess {
 
     @Override
     public void run() {
-        IJ.log(String.format("Building outputs for cell %d", index));
+        IJ.log(String.format("\nBuilding outputs for cell %d", index));
         buildOutput(index, length, false);
         if (uv.isGetFluorDist()) {
             try {
-                IJ.showStatus("Quantifying fluorescence localisation");
+                IJ.log("Quantifying fluorescence localisation...");
                 FluorescenceAnalyser.generateFluorMapsPerCellOverTime(FluorescenceAnalyser.getFluorDists(StaticVariables.FLUOR_MAP_HEIGHT, sigStack, ImageProcessor.MAX, Integer.MAX_VALUE, uv.getErosion(), cellData.get(index).getCellRegions(), cellData.get(index).getStartFrame(), cellData.get(index).getEndFrame()), childDir);
-                IJ.showStatus("Quantifying gross fluorescence distribution");
+                IJ.log("Quantifying gross fluorescence distribution...");
                 RegionFluorescenceQuantifier rfq = new RegionFluorescenceQuantifier(cellData.get(index).getCellRegions(), sigStack, fluorData, index);
                 rfq.doQuantification();
             } catch (Exception e) {

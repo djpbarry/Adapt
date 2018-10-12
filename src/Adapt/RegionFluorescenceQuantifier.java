@@ -30,7 +30,7 @@ public class RegionFluorescenceQuantifier {
     public void doQuantification() throws IOException {
         int length = stack.size();
         for (int i = 1; i <= length; i++) {
-            IJ.showProgress(i,length);
+            IJ.showStatus(String.format("Quantifying fluorescence distribution %d%%",(int)Math.round(i * 100.0 / length)));
             data.add(new ArrayList());
             if (regions[i - 1] != null) {
                 ImageProcessor mask = regions[i - 1].getMask();
