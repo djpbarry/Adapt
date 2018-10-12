@@ -527,6 +527,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     public void getMorphologyData(ArrayList<CellData> cellData, boolean saveFile, int measurements, ImageProcessor redirectImage, double blurRadius) throws IOException {
+        IJ.log("Generating cell morphology data...\n");
         ResultsTable rt = Analyzer.getResultsTable();
         if (redirectImage != null) {
             new GaussianBlur().blurGaussian(redirectImage, blurRadius);
@@ -540,13 +541,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             measurements = Integer.MAX_VALUE;
         }
         for (int index = 0; index < cellData.size(); index++) {
-            IJ.showStatus(String.format("Generating morphology data %d%%", (int) Math.round(index * 100.0 / cellData.size())));
             int length = cellData.get(index).getLength();
             if (length > minLength) {
                 Region[] allRegions = cellData.get(index).getCellRegions();
                 int start = cellData.get(index).getStartFrame();
                 int end = cellData.get(index).getEndFrame();
                 for (int h = start - 1; h < end; h++) {
+                    IJ.showStatus(String.format("%d%% morphological analysis done for cell %d of %d",
+                            (int) Math.round((h - start + 1) * 100.0 / (end - start + 1)), (index + 1), cellData.size()));
                     Region current = allRegions[h];
                     ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.SHOW_RESULTS,
                             measurements, rt, 0.0, Double.POSITIVE_INFINITY);
