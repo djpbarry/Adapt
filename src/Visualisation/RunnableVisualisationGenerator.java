@@ -99,7 +99,7 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
                 int cl = centres.size();
                 int xc = (int) Math.round(centres.get(cl - 1)[0]);
                 int yc = (int) Math.round(centres.get(cl - 1)[1]);
-                TextRoi label = new TextRoi(xc + 2, yc + 2, String.valueOf(n + 1));
+                TextRoi label = new TextRoi(xc + 2, yc + 2, String.valueOf(n));
                 label.setPosition(t + 1);
                 labels.add(label);
             }

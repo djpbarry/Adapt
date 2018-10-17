@@ -31,6 +31,7 @@ import IAClasses.CrossCorrelation;
 import IAClasses.DSPProcessor;
 import IAClasses.Region;
 import IAClasses.Utils;
+import IO.DataWriter;
 import Process.RunnableProcess;
 import Segmentation.RegionGrower;
 import UserVariables.UserVariables;
@@ -68,8 +69,6 @@ import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 
 public class RunnableOutputGenerator extends RunnableProcess {
 
@@ -161,6 +160,10 @@ public class RunnableOutputGenerator extends RunnableProcess {
         cellData.get(index).setCurveMap(curveMap);
         cellData.get(index).setScaleFactors(scaleFactors);
         buildCurveMap(allRegions, cellData.get(index));
+        ArrayList<ArrayList<Double>> boundaryPoints = new ArrayList();
+        while (boundaryPoints.size() < 3) {
+            boundaryPoints.add(new ArrayList());
+        }
 
         if (!preview) {
             /*
@@ -176,7 +179,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
             cellData.get(index).setVelMap(velMap);
             cellData.get(index).setSigMap(sigMap);
             cellData.get(index).setScaleFactors(scaleFactors);
-            buildVelSigMaps(index, allRegions, cellData.get(index), cellData.size());
+            buildVelSigMaps(index, allRegions, cellData.get(index), cellData.size(), boundaryPoints);
             double smoothVelocities[][] = velMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes()); // Gaussian smoothing in time and space
             double curvatures[][] = curveMap.smoothMap(0.0, 0.0);
             double sigchanges[][];
@@ -209,6 +212,12 @@ public class RunnableOutputGenerator extends RunnableProcess {
 //            IJ.saveAs(new ImagePlus("", colorVelMap), "PNG", childDir + File.separator + "ColorVelocityMap.png");
             IJ.saveAs(CrossCorrelation.periodicity2D(greyVelMap, greyVelMap, 100), "TIF",
                     childDir + File.separator + "VelMap_AutoCorrelation.tif");
+            try {
+                DataWriter.saveValues(boundaryPoints, new File(String.format("%s%s%s", childDir.getAbsolutePath(), File.separator, "cell_boundary.csv ")),
+                        new String[]{"X", "Y", "Frame"}, null, false);
+            } catch (IOException e) {
+                GenUtils.logError(e, "Failed to save boundary points file");
+            }
             if (sigStack != null) {
                 IJ.saveAs(new ImagePlus("", greySigMap), "TIF", childDir + File.separator
                         + "SignalMap.tif");
@@ -466,7 +475,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
         }
     }
 
-    void buildVelSigMaps(int index, Region[] allRegions, CellData cellData, int total) {
+    void buildVelSigMaps(int index, Region[] allRegions, CellData cellData, int total, ArrayList<ArrayList<Double>> boundaryPoints) {
         MorphMap velMap = cellData.getVelMap();
         MorphMap sigMap = cellData.getSigMap();
         int width = velMap.getWidth();
@@ -496,6 +505,9 @@ public class RunnableOutputGenerator extends RunnableProcess {
                 x[j] = vmPoints[j][0];
                 y[j] = vmPoints[j][1];
                 vmz[j] = vmPoints[j][2];
+                boundaryPoints.get(0).add(x[j]);
+                boundaryPoints.get(1).add(y[j]);
+                boundaryPoints.get(2).add((double) i);
             }
             if (smPoints != null) {
                 for (int j = 0; j < height; j++) {

@@ -65,23 +65,21 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
         IJ.log("Building individual cell outputs...");
         double minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
         for (int index = 0; index < cellData.size(); index++) {
-            String childDirName = GenUtils.openResultsDirectory(parDir + File.separator + index);
             int length = cellData.get(index).getLength();
             fluorData.add(new ArrayList());
             if (length > minLength) {
-                childDir = new File(childDirName);
+                childDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%d", parDir, File.separator, index)));
                 exec.submit(new RunnableOutputGenerator(cellData, parDir,
                         protMode, uv, childDir, sigStack,
                         cytoStack, index, length, directory, roi, fluorData.get(index)));
             }
         }
         terminate("Error generating outputs.");
-         IJ.log("\nAll cells done.\n");
+        IJ.log("\nAll cells done.\n");
     }
 
     public ArrayList<ArrayList<ArrayList<Double>>> getFluorData() {
         return fluorData;
     }
-    
-    
+
 }
