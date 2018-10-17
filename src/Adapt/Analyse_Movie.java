@@ -78,6 +78,8 @@ import ui.GUI;
 import UtilClasses.GenVariables;
 import Visualisation.MultiThreadedVisualisationGenerator;
 import java.awt.Window;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.InputMismatchException;
 import java.util.Properties;
 import java.util.Scanner;
@@ -152,6 +154,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      */
     @Override
     public void run(String arg) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_TIME;
+        LocalDateTime startTime = LocalDateTime.now();
 //        MacroWriter.write();
         TITLE = TITLE + "_v" + StaticVariables.VERSION + "." + numFormat.format(Revision.Revision.revisionNumber);
         IJ.log(TITLE);
@@ -180,6 +184,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             IJ.log("Failed to create properties file.");
         }
         IJ.showStatus(TITLE + " done.");
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime duration = LocalDateTime.from(endTime);
+        duration = duration.minusHours(startTime.getHour());
+        duration = duration.minusMinutes(startTime.getMinute());
+        duration = duration.minusSeconds(startTime.getSecond());
+        duration = duration.minusNanos(startTime.getNano());
+        IJ.log(formatter.format(duration));
     }
 
     public void analyse(String imageName) {
