@@ -400,7 +400,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     cellsDir.getAbsolutePath(), protMode, uv, childDir, stacks[1],
                     stacks[0], directory, roi);
             outGen.run();
-            if (stacks[1] != null) {
+            if (stacks[1] != null && uv.isGetFluorDist()) {
                 saveFluorData(outGen.getFluorData());
             }
             velDir = GenUtils.createDirectory(visDir + delimiter + "Velocity_Visualisation", false);
