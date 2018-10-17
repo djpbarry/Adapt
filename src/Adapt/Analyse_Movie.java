@@ -77,6 +77,7 @@ import org.apache.commons.io.FilenameUtils;
 import ui.GUI;
 import UtilClasses.GenVariables;
 import Visualisation.MultiThreadedVisualisationGenerator;
+import java.awt.Window;
 import java.util.InputMismatchException;
 import java.util.Properties;
 import java.util.Scanner;
@@ -155,7 +156,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         TITLE = TITLE + "_v" + StaticVariables.VERSION + "." + numFormat.format(Revision.Revision.revisionNumber);
         IJ.log(TITLE);
         IJ.log(TimeAndDate.getCurrentTimeAndDate());
-        IJ.log("");
         if (IJ.getInstance() != null && WindowManager.getIDList() == null) {
             IJ.error("No Images Open.");
             return;
@@ -170,6 +170,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (directory == null) {
             return;
         }
+        IJ.log(String.format("Using %d parallel processes.\n", Runtime.getRuntime().availableProcessors()));
         analyse(arg);
         TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes() / 60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
         ta.run(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME));
@@ -388,7 +389,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     cellsDir.getAbsolutePath(), protMode, uv, childDir, stacks[1],
                     stacks[0], directory, roi);
             outGen.run();
-            saveFluorData(outGen.getFluorData());
+            if (stacks[1] != null) {
+                saveFluorData(outGen.getFluorData());
+            }
             velDir = GenUtils.createDirectory(visDir + delimiter + "Velocity_Visualisation", false);
             curveDir = GenUtils.createDirectory(visDir + delimiter + "Curvature_Visualisation", false);
             genCurveVelVis(cellData);
@@ -564,7 +567,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (saveFile) {
             DataWriter.saveResultsTable(rt, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, "morphology.csv")));
         }
-        WindowManager.getWindow(rt.getTitle()).dispose();
+        Window w = WindowManager.getWindow(rt.getTitle());
+        if (w != null) {
+            w.dispose();
+        }
+
     }
 
     void saveRegionMorph(Region region, ResultsTable rt) {
