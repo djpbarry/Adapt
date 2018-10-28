@@ -478,9 +478,8 @@ public class RunnableOutputGenerator extends RunnableProcess {
     void buildVelSigMaps(int index, Region[] allRegions, CellData cellData, int total, ArrayList<ArrayList<Double>> boundaryPoints) {
         MorphMap velMap = cellData.getVelMap();
         MorphMap sigMap = cellData.getSigMap();
-        int width = velMap.getWidth();
         int height = velMap.getHeight();
-        for (int i = cellData.getStartFrame() - 1; i < width; i++) {
+        for (int i = cellData.getStartFrame() - 1; i < cellData.getEndFrame(); i++) {
             Region current = allRegions[i];
             /*
              * Get points for one column (time-point) of map
@@ -519,9 +518,9 @@ public class RunnableOutputGenerator extends RunnableProcess {
              */
             double upX[] = DSPProcessor.upScale(x, height, false);
             double upY[] = DSPProcessor.upScale(y, height, false);
-            velMap.addColumn(upX, upY, DSPProcessor.upScale(vmz, height, false), i);
+            velMap.addColumn(upX, upY, DSPProcessor.upScale(vmz, height, false), i - cellData.getStartFrame() + 1);
             if (sigMap != null) {
-                sigMap.addColumn(upX, upY, smz, i);
+                sigMap.addColumn(upX, upY, smz, i - cellData.getStartFrame() + 1);
             }
         }
     }
