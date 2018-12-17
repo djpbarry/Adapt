@@ -1022,7 +1022,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     }
 
     public void setProperties(Properties p, Container c) {
-        PropertyExtractor.setProperties(p, c);
+        PropertyExtractor.setProperties(p, c, PropertyExtractor.WRITE);
     }
 
     public Properties getProperties() {

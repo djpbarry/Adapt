@@ -17,6 +17,7 @@
 package Output;
 
 import Cell.CellData;
+import IO.BioFormats.BioFormatsImg;
 import Process.MultiThreadedProcess;
 import UserVariables.UserVariables;
 import UtilClasses.GenUtils;
@@ -25,6 +26,7 @@ import ij.ImageStack;
 import ij.gui.PointRoi;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 
 public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
@@ -40,14 +42,18 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
     PointRoi roi;
     private final ArrayList<ArrayList<ArrayList<Double>>> fluorData;
 
-    public void setup() {
+    public MultiThreadedOutputGenerator() {
+        this(null, null, null, false, null, null, null, null, null, null);
+    }
+
+    public void setup(BioFormatsImg img, Properties props, String[] propLabels) {
 
     }
 
     public MultiThreadedOutputGenerator(ExecutorService exec, ArrayList<CellData> cellData,
             String parDir, boolean protMode, UserVariables uv, File childDir, ImageStack sigStack,
             ImageStack cytoStack, File directory, PointRoi roi) {
-        super(null, null);
+        super(null);
         this.cellData = cellData;
         this.parDir = parDir;
         this.protMode = protMode;
@@ -82,4 +88,9 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
         return fluorData;
     }
 
+    public MultiThreadedOutputGenerator duplicate() {
+        MultiThreadedOutputGenerator newProcess = new MultiThreadedOutputGenerator();
+        this.updateOutputDests(newProcess);
+        return newProcess;
+    }
 }

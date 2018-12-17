@@ -18,9 +18,11 @@ package Visualisation;
 
 import Adapt.StaticVariables;
 import Cell.CellData;
+import IO.BioFormats.BioFormatsImg;
 import Lut.LUTCreator;
 import Overlay.OverlayToRoi;
 import Process.MultiThreadedProcess;
+import Process.Segmentation.MultiThreadedRegionGrower;
 import UserVariables.UserVariables;
 import ij.IJ;
 import ij.ImagePlus;
@@ -31,6 +33,7 @@ import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 
 public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
@@ -44,12 +47,16 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
     protected DecimalFormat numFormat = StaticVariables.numFormat;
     private final Overlay labels;
 
-    public void setup() {
+    public MultiThreadedVisualisationGenerator() {
+        this(null, null, false, null, null, null, null);
+    }
+
+    public void setup(BioFormatsImg img, Properties props, String[] propLabels) {
 
     }
 
     public MultiThreadedVisualisationGenerator(ExecutorService exec, ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, File velDirName, File curvDirName) {
-        super(null, null);
+        super(null);
         this.cellData = cellData;
         this.protMode = protMode;
         this.cytoStack = cytoStack;
@@ -81,4 +88,9 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
         rm.close();
     }
 
+    public MultiThreadedVisualisationGenerator duplicate() {
+        MultiThreadedVisualisationGenerator newProcess = new MultiThreadedVisualisationGenerator();
+        this.updateOutputDests(newProcess);
+        return newProcess;
+    }
 }
