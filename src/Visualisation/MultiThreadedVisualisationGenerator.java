@@ -22,7 +22,6 @@ import IO.BioFormats.BioFormatsImg;
 import Lut.LUTCreator;
 import Overlay.OverlayToRoi;
 import Process.MultiThreadedProcess;
-import Process.Segmentation.MultiThreadedRegionGrower;
 import UserVariables.UserVariables;
 import ij.IJ;
 import ij.ImagePlus;
@@ -35,6 +34,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
 
@@ -69,6 +69,7 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
     @Override
     public void run() {
         IJ.log("Building visualisations...");
+        this.exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         int stackSize = cytoStack.getSize();
         IndexColorModel lut = (new LUTCreator()).getRedGreen();
         for (int t = 0; t < stackSize; t++) {

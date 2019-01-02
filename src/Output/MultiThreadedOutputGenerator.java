@@ -28,6 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
 
@@ -69,6 +70,7 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
     @Override
     public void run() {
         IJ.log("Building individual cell outputs...");
+        this.exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         double minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
         for (int index = 0; index < cellData.size(); index++) {
             int length = cellData.get(index).getLength();
