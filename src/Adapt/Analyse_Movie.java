@@ -178,7 +178,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes() / 60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
         ta.run(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME));
         try {
-            PropertyWriter.printProperties(props, parDir.getAbsolutePath(), TITLE, true);
+            PropertyWriter.saveProperties(props, parDir.getAbsolutePath(), TITLE, true);
         } catch (IOException e) {
             IJ.log("Failed to create properties file.");
         }
