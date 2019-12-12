@@ -175,7 +175,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             return;
         }
         IJ.log(String.format("Using %d parallel processes.\n", Runtime.getRuntime().availableProcessors()));
-        analyse(arg);
+        if (!analyse(arg)) {
+            return;
+        }
         TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes() / 60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
         ta.run(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME));
         try {
@@ -187,7 +189,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         IJ.log(Time.getDurationAsString(startTime));
     }
 
-    public void analyse(String imageName) {
+    public boolean analyse(String imageName) {
         int cytoSize, sigSize;
         ImageStack cytoStack;
         ImagePlus cytoImp = new ImagePlus(), sigImp;
@@ -198,7 +200,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         } else {
             ImagePlus images[] = GenUtils.specifyInputs(channelLabels);
             if (images == null) {
-                return;
+                return false;
             }
             cytoImp = images[0];
             if (images[1] != null) {
@@ -215,7 +217,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 if (cytoSize != sigSize) {
                     Toolkit.getDefaultToolkit().beep();
                     IJ.error("File number mismatch!");
-                    return;
+                    return false;
                 }
             }
             stacks[0] = cytoStack;
@@ -245,7 +247,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (parDirName != null) {
             parDir = new File(parDirName);
         } else if (parDir == null) {
-            return;
+            return false;
         }
         visDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Visualisations")));
         cellsDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Individual_Cell_Data")));
@@ -261,7 +263,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             GUI gui = new GUI(null, true, TITLE, stacks, roi);
             gui.setVisible(true);
             if (!gui.isWasOKed()) {
-                return;
+                return false;
             }
             uv = GUI.getUv();
             props = gui.getProperties();
@@ -294,7 +296,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 filoStream.println("Frame,Number of Filopodia");
             } catch (FileNotFoundException e) {
                 System.out.println(e.toString());
-                return;
+                return false;
             }
         }
         IJ.log(pdLabel);
@@ -430,6 +432,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 //            return;
 //        }
 //        paramStream.close();
+        return true;
     }
 
     ArrayList<CellData> filterCells(ArrayList<CellData> originalCells) {
