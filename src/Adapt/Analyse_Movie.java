@@ -30,6 +30,7 @@ import IAClasses.Utils;
 import IO.DataWriter;
 import IO.PropertyWriter;
 import Output.MultiThreadedOutputGenerator;
+import Revision.Revision;
 import Segmentation.RegionGrower;
 import TimeAndDate.TimeAndDate;
 import Trajectory.TrajectoryAnalysis;
@@ -156,7 +157,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     public void run(String arg) {
         LocalDateTime startTime = LocalDateTime.now();
 //        MacroWriter.write();
-        TITLE = TITLE + "_v" + StaticVariables.VERSION + "." + numFormat.format(Revision.Revision.revisionNumber);
+        TITLE = TITLE + "_v" + Revision.VERSION + "." + numFormat.format(Revision.revisionNumber);
         IJ.log(TITLE);
         IJ.log(TimeAndDate.getCurrentTimeAndDate());
         if (IJ.getInstance() != null && WindowManager.getIDList() == null) {

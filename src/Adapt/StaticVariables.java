@@ -188,7 +188,7 @@ public class StaticVariables {
     /**
      * Program version number
      */
-    public static final int VERSION = 1;
+//    public static final int VERSION = 1;
 
     public static final int FLUOR_MAP_HEIGHT = 512;
 }

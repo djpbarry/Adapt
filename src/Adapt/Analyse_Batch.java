@@ -5,6 +5,7 @@
  */
 package Adapt;
 
+import Revision.Revision;
 import UserVariables.UserVariables;
 import UtilClasses.Utilities;
 import ij.IJ;
@@ -45,7 +46,7 @@ public class Analyse_Batch extends Analyse_Movie {
     public void run(String arg) {
 //        MacroWriter.write();
 //        Utilities.setLookAndFeel(GUI.class);
-        TITLE = TITLE + "_v" + StaticVariables.VERSION + "." + numFormat.format(Revision.Revision.revisionNumber);
+        TITLE = TITLE + "_v" + Revision.VERSION + "." + numFormat.format(Revision.revisionNumber);
         File cytoImageFiles[] = null; // Obtain file list
         File sigImageFiles[] = null;
         batchMode = true;
