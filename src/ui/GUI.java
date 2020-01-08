@@ -947,6 +947,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
             sigImp.setProcessor(sigUpdate);
             sigCanvas.repaint();
         }
+        IJ.log("Preview complete");
     }
 
     private void blebDetectRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_blebDetectRadioButtonActionPerformed

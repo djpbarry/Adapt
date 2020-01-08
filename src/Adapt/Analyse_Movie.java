@@ -227,6 +227,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 stacks[1] = null;
             }
         }
+        cytoImp.setTitle(cytoImp.getTitle().replace(" ", "_"));
         if (roi != null) {
             selectiveOutput = true;
         }
@@ -257,8 +258,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         /*
          Convert cyto channel to 8-bit for faster segmentation
          */
+//        IJ.saveAs(new ImagePlus("",stacks[0]), "TIF","D:/debugging/adapt_debug/stacks_0");
         cytoStack = GenUtils.convertStack(stacks[0], 8);
         stacks[0] = cytoStack;
+//        IJ.saveAs(new ImagePlus("",stacks[0]), "TIF","D:/debugging/adapt_debug/stacks_0_post_conversion");
         if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, roi);
             gui.setVisible(true);
@@ -1520,6 +1523,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     public void generatePreview(int sliceIndex) {
         cellData = new ArrayList<>();
         ImageProcessor cytoProc = stacks[0].getProcessor(sliceIndex).duplicate();
+//        IJ.saveAs(new ImagePlus("",cytoProc), "TIF","D:/debugging/adapt_debug/preview_slice");
         int width = cytoProc.getWidth();
         int height = cytoProc.getHeight();
         (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);
