@@ -16,12 +16,7 @@
  */
 package net.calm.adapt.Adapt;
 
-import net.calm.adapt.Output.MultiThreadedOutputGenerator;
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.Prefs;
-import ij.WindowManager;
+import ij.*;
 import ij.gui.PointRoi;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
@@ -32,32 +27,10 @@ import ij.plugin.filter.Analyzer;
 import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
-import ij.process.Blitter;
-import ij.process.ByteBlitter;
-import ij.process.ByteProcessor;
-import ij.process.ColorBlitter;
-import ij.process.ColorProcessor;
-import ij.process.FloatProcessor;
-import ij.process.ImageProcessor;
-import ij.process.ImageStatistics;
-import ij.process.TypeConverter;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
-
+import ij.process.*;
+import net.calm.adapt.Output.MultiThreadedOutputGenerator;
+import net.calm.adapt.Visualisation.MultiThreadedVisualisationGenerator;
+import net.calm.adapt.ui.GUI;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.Cell.MorphMap;
 import net.calm.iaclasslibrary.Curvature.CurveAnalyser;
@@ -73,14 +46,12 @@ import net.calm.iaclasslibrary.UtilClasses.GenUtils;
 import net.calm.iaclasslibrary.UtilClasses.GenVariables;
 import net.calm.iaclasslibrary.UtilClasses.Utilities;
 import org.apache.commons.io.FilenameUtils;
-import net.calm.adapt.ui.GUI;
-import net.calm.adapt.Visualisation.MultiThreadedVisualisationGenerator;
 
-import java.awt.Window;
+import java.awt.*;
+import java.io.*;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
-import java.util.InputMismatchException;
-import java.util.Properties;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.Executors;
 
 /**
@@ -154,7 +125,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     public void run(String arg) {
         LocalDateTime startTime = LocalDateTime.now();
 //        MacroWriter.write();
-        //TITLE = TITLE + "_v" + Revision.VERSION + "." + numFormat.format(Revision.revisionNumber);
+        String version = null;
+        try {
+            final Properties properties = new Properties();
+            properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
+            version = properties.getProperty("version");
+        } catch (IOException e) {
+        }
+        TITLE = TITLE + "_v" + version;
         IJ.log(TITLE);
         IJ.log(TimeAndDate.getCurrentTimeAndDate());
         if (IJ.getInstance() != null && WindowManager.getIDList() == null) {
