@@ -5,22 +5,19 @@
  */
 package net.calm.adapt.Adapt;
 
-import net.calm.trackerlibrary.Revision.Revision;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.PointRoi;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Scanner;
-import java.util.regex.Pattern;
-
+import net.calm.adapt.ui.GUI;
 import net.calm.iaclasslibrary.UserVariables.UserVariables;
 import net.calm.iaclasslibrary.UtilClasses.Utilities;
-import net.calm.adapt.ui.GUI;
+
+import java.io.*;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.Scanner;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -47,7 +44,14 @@ public class Analyse_Batch extends Analyse_Movie {
     public void run(String arg) {
 //        MacroWriter.write();
 //        Utilities.setLookAndFeel(GUI.class);
-        TITLE = TITLE + "_v" + Revision.VERSION + "." + numFormat.format(Revision.revisionNumber);
+        String version = null;
+        try {
+            final Properties properties = new Properties();
+            properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
+            version = properties.getProperty("version");
+        } catch (IOException e) {
+        }
+        TITLE = TITLE + "_v" + version;
         File cytoImageFiles[] = null; // Obtain file list
         File sigImageFiles[] = null;
         batchMode = true;

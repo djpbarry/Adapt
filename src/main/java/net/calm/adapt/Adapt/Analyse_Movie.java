@@ -17,7 +17,6 @@
 package net.calm.adapt.Adapt;
 
 import net.calm.adapt.Output.MultiThreadedOutputGenerator;
-import net.calm.trackerlibrary.Revision.Revision;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -155,7 +154,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     public void run(String arg) {
         LocalDateTime startTime = LocalDateTime.now();
 //        MacroWriter.write();
-        TITLE = TITLE + "_v" + Revision.VERSION + "." + numFormat.format(Revision.revisionNumber);
+        //TITLE = TITLE + "_v" + Revision.VERSION + "." + numFormat.format(Revision.revisionNumber);
         IJ.log(TITLE);
         IJ.log(TimeAndDate.getCurrentTimeAndDate());
         if (IJ.getInstance() != null && WindowManager.getIDList() == null) {
