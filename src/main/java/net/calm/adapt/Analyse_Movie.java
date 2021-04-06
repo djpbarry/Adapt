@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.calm.adapt.Adapt;
+package net.calm.adapt;
 
 import ij.*;
 import ij.gui.PointRoi;
@@ -28,6 +28,7 @@ import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
 import ij.process.*;
+import net.calm.adapt.Adapt.*;
 import net.calm.adapt.Output.MultiThreadedOutputGenerator;
 import net.calm.adapt.Visualisation.MultiThreadedVisualisationGenerator;
 import net.calm.adapt.ui.GUI;
@@ -86,7 +87,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private ImageProcessor[] previewImages;
     private boolean selectiveOutput = false;
     private Properties props;
-    private final String TRAJ_FILE_NAME = "trajectories.csv";
+    private final String TRAJ_FILE_NAME = "Trajectories.csv";
 
     /**
      * Default constructor
@@ -552,7 +553,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         if (saveFile) {
-            DataWriter.saveResultsTable(rt, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, "morphology.csv")));
+            DataWriter.saveResultsTable(rt, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, "Morphology.csv")), false, true);
         }
         Window w = WindowManager.getWindow(rt.getTitle());
         if (w != null) {
@@ -1656,7 +1657,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         try {
-            DataWriter.saveValues(convertedData, new File(String.format("%s%s%s", popDir, File.separator, "fluorescence.csv")),
+            DataWriter.saveValues(convertedData, new File(String.format("%s%s%s", popDir, File.separator, "Fluorescence.csv")),
                     FluorescenceDistAnalyser.PARAM_HEADINGS, null, false);
         } catch (IOException e) {
             GenUtils.logError(e, "Failed to save fluorescence information file.");

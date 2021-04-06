@@ -16,7 +16,7 @@
  */
 package net.calm.adapt.ui;
 
-import net.calm.adapt.Adapt.Analyse_Movie;
+import net.calm.adapt.Analyse_Movie;
 import net.calm.adapt.Adapt.StaticVariables;
 import net.calm.adapt.Adapt.TaskListener;
 import ij.IJ;

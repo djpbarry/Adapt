@@ -13,9 +13,9 @@
 
     <groupId>net.calm</groupId>
     <artifactId>adapt</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
 
-    <name>Adapt</name>
+    <name>net.calm.adapt</name>
     <description>Maven implementation of net.calm.adapt.Adapt plugin.</description>
     <url>https://github.com/djpbarry/net.calm.adapt.Adapt</url>
     <inceptionYear>2015</inceptionYear>
@@ -81,7 +81,7 @@
 
     <properties>
         <package-name>net.calm.adapt</package-name>
-        <main-class>None</main-class>
+        <main-class>net.calm.adapt.Main</main-class>
         <license.licenseName>bsd_2</license.licenseName>
         <license.copyrightOwners>Francis Crick Institute</license.copyrightOwners>
     </properties>
@@ -119,6 +119,28 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
 </project>
