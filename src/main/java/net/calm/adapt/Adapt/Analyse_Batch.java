@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.calm.adapt;
+package net.calm.adapt.Adapt;
 
 import ij.IJ;
 import ij.ImagePlus;
