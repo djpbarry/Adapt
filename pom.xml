@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.scijava</groupId>
         <artifactId>pom-scijava</artifactId>
-        <version>28.0.0</version>
+        <version>31.1.0</version>
         <relativePath/>
     </parent>
 
@@ -91,6 +91,10 @@
         <repository>
             <id>scijava.public</id>
             <url>https://maven.scijava.org/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/djpbarry/*</url>
         </repository>
     </repositories>
 
