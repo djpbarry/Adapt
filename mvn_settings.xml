@@ -30,7 +30,7 @@
     <server>
       <id>github</id>
       <username>djpbarry</username>
-      <password>$PAT</password>
+      <password>${internal.repo.password}</password>
     </server>
   </servers>
 </settings>
