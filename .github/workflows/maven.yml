@@ -13,9 +13,7 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-      - name: Set up Maven
+      - name: Build with Maven
         env:
            PAT: ${{ secrets.PAT }}
-        run: mvn install --settings mvn_settings.xml
-      - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots -Dinternal.repo.password="$PAT" verify
+        run: mvn --batch-mode --update-snapshots -Dinternal.repo.password="$PAT" --settings mvn_settings.xml verify
