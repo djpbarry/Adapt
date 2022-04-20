@@ -121,7 +121,7 @@ public class StaticVariables {
 
     public static final String LAMBDA = "Texture Sensitivity";
 
-    public static final String MIN_TRAJ_LENGTH = "Minimum net.calm.trackerlibrary.Trajectory Length";
+    public static final String MIN_TRAJ_LENGTH = "Minimum Trajectory Length";
 
     public static final String THRESH_METHOD = "Thresholding Method";
 
@@ -143,7 +143,7 @@ public class StaticVariables {
 
     public static final String MIN_MORPH_AREA = "Minimum Object Size (" + IJ.micronSymbol + "m^2)";
 
-    public static final String VIS_LINE_WIDTH = "net.calm.adapt.Visualisation Line Thickness";
+    public static final String VIS_LINE_WIDTH = "Visualisation Line Thickness";
 
     public static final String TIME = "Time_(s)";
 
