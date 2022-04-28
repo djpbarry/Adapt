@@ -28,7 +28,6 @@ import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
 import ij.process.*;
-import net.calm.adapt.Adapt.*;
 import net.calm.adapt.Output.MultiThreadedOutputGenerator;
 import net.calm.adapt.Visualisation.MultiThreadedVisualisationGenerator;
 import net.calm.adapt.ui.GUI;
@@ -658,7 +657,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
              * Get points for one column (time-point) of map
              */
             float vmPoints[][] = current.buildMapCol(current.buildVelImage(cytoStack, i + 1,
-                    uv.getTimeRes(), uv.getSpatialRes(), cellData.getGreyThresholds()), height,
+                            uv.getTimeRes(), uv.getSpatialRes(), cellData.getGreyThresholds()), height,
                     (int) Math.round(uv.getCortexDepth() / uv.getSpatialRes()));
             float smPoints[][] = null;
             if (sigStack != null) {
@@ -1431,7 +1430,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                         }
                         thisDataStream.write("\n");
                         IJ.saveAs(new ImagePlus("", BlebAnalyser.drawBlebSigMap(currentBleb,
-                                uv.getSpatialRes(), uv.isUseSigThresh())),
+                                        uv.getSpatialRes(), uv.isUseSigThresh())),
                                 "TIF", mapDir + delimiter + "detection_" + numFormat.format(count) + "_map.tif");
                         for (int z = 0; z < meanVel.size(); z++) {
                             meanVel.set(z, meanVel.get(z) / protrusionLength.get(z)); //Divide by protrusion length to get mean
@@ -1507,6 +1506,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int threshold = RegionGrower.getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
         int nCell = RegionGrower.initialiseROIs(null, -1, sliceIndex, cytoProc, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
         Region[][] allRegions = new Region[nCell][stacks[0].getSize()];
+        //RegionGrower.watershedRegions(cytoProc, threshold, cellData);
         ArrayList<Region> detectedRegions = RegionGrower.findCellRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
             allRegions[k][sliceIndex - 1] = detectedRegions.get(k);
