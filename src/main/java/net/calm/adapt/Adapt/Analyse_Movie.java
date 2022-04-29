@@ -141,7 +141,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         try {
             if (!batchMode) {
-                directory = Utilities.getFolder(directory, "Specify directory for output files...", true); // Specify directory for output
+                directory = Utilities.getFolder(new File(IJ.getDirectory("current")), "Specify directory for output files...", true); // Specify directory for output
             }
         } catch (Exception e) {
             IJ.log(e.toString());
@@ -288,7 +288,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             thresholds[i] = RegionGrower.getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
             int N = cellData.size();
             if (cytoImage != null) {
-                allRegions.add(RegionGrower.findCellRegions(cytoImage, thresholds[i], cellData));
+                allRegions.add(RegionGrower.watershedRegions(cytoImage, thresholds[i], cellData));
+
             }
             int fcount = 0;
             for (int j = 0; j < N; j++) {
@@ -819,6 +820,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     Region[] allRegions = cellDatas.get(n).getCellRegions();
                     Region current = allRegions[t];
                     short[][] border = current.getOrderedBoundary(width, height, current.getMask(), current.getCentre());
+                    if (border == null) continue;
                     output.setColor(Color.yellow);
                     int bsize = border.length;
                     for (int i = 0; i < bsize; i++) {
@@ -1506,8 +1508,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int threshold = RegionGrower.getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
         int nCell = RegionGrower.initialiseROIs(null, -1, sliceIndex, cytoProc, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
         Region[][] allRegions = new Region[nCell][stacks[0].getSize()];
-        //RegionGrower.watershedRegions(cytoProc, threshold, cellData);
-        ArrayList<Region> detectedRegions = RegionGrower.findCellRegions(cytoProc, threshold, cellData);
+        ArrayList<Region> detectedRegions = RegionGrower.watershedRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
             allRegions[k][sliceIndex - 1] = detectedRegions.get(k);
             cellData.get(k).setCellRegions(allRegions[k]);
