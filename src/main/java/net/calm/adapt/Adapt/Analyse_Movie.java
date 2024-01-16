@@ -1501,7 +1501,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     public void generatePreview(int sliceIndex) {
         cellData = new ArrayList<>();
         ImageProcessor cytoProc = stacks[0].getProcessor(sliceIndex).duplicate();
-//        IJ.saveAs(new ImagePlus("",cytoProc), "TIF","D:/debugging/adapt_debug/preview_slice");
         int width = cytoProc.getWidth();
         int height = cytoProc.getHeight();
         (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);

@@ -7,13 +7,13 @@
     <parent>
         <groupId>org.scijava</groupId>
         <artifactId>pom-scijava</artifactId>
-        <version>33.2.0</version>
+        <version>37.0.0</version>
         <relativePath/>
     </parent>
 
     <groupId>net.calm</groupId>
     <artifactId>adapt</artifactId>
-    <version>3.0.8</version>
+    <version>3.0.9</version>
 
     <name>net.calm.adapt</name>
     <description>Maven implementation of net.calm.adapt.Adapt plugin.</description>
@@ -102,17 +102,17 @@
         <dependency>
             <groupId>net.calm</groupId>
             <artifactId>iaclasslibrary</artifactId>
-            <version>1.0.28</version>
+            <version>1.0.29</version>
         </dependency>
         <dependency>
             <groupId>net.calm</groupId>
             <artifactId>trackerlibrary</artifactId>
-            <version>3.0.8</version>
+            <version>3.0.9</version>
         </dependency>
         <dependency>
             <groupId>net.calm</groupId>
             <artifactId>adaptdataprocessing</artifactId>
-            <version>1.0.5</version>
+            <version>1.0.6</version>
         </dependency>
     </dependencies>
 
