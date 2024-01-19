@@ -6,4 +6,10 @@ _[Dave Barry](mailto:david.barry@crick.ac.uk), Image Analyst, Advanced Light Mic
 
 ADAPT (**A**utomated **D**etection and **A**nalysis of **P**ro**T**rusions) is a plug-in developed for the [ImageJ/FIJI](http://fiji.sc/) platform to automatically detect and analyse cell migration and morphodynamics. The program provides whole-cell analysis of multiple cells, while also returning data on individual membrane protrusion events.
 
-For instructions on installation and usage, consult [the wiki](https://github.com/djpbarry/adapt/wiki).
+## Get Started
+
+View the below tutorial on YouTube to get started with some test data.
+
+[![YouTube ScreenShot](./content/YouTube.png)](https://youtu.be/TWD4mrTnXvk?feature=shared)
+
+For more detailed instructions on installation and usage, consult [the wiki](https://github.com/djpbarry/adapt/wiki).
