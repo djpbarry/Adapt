@@ -8,7 +8,7 @@ ADAPT (**A**utomated **D**etection and **A**nalysis of **P**ro**T**rusions) is a
 
 ## Get Started
 
-View the below tutorial on YouTube to get started with some test data.
+View the below tutorial on YouTube to get started with some [test data](./test_data).
 
 [![YouTube ScreenShot](./content/YouTube.png)](https://youtu.be/TWD4mrTnXvk?feature=shared)
 
