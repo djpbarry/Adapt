@@ -1643,6 +1643,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     private void saveFluorData(ArrayList<ArrayList<ArrayList<Double>>> fluorData) {
+        if (fluorData.size() < 1) {
+            IJ.log("No fluorescence distribution data found.");
+            return;
+        }
         IJ.showStatus("Saving fluorescence data");
         ArrayList<ArrayList<Double>> convertedData = new ArrayList();
         for (ArrayList<ArrayList<Double>> frameData : fluorData) {
