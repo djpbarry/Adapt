@@ -24,6 +24,7 @@ import ij.gui.Overlay;
 import ij.plugin.frame.RoiManager;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.IO.BioFormats.BioFormatsImg;
+import net.calm.iaclasslibrary.IO.BioFormats.LocationAgnosticBioFormatsImg;
 import net.calm.iaclasslibrary.Lut.LUTCreator;
 import net.calm.iaclasslibrary.Overlay.OverlayToRoi;
 import net.calm.iaclasslibrary.Process.MultiThreadedProcess;
@@ -94,5 +95,9 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
         MultiThreadedVisualisationGenerator newProcess = new MultiThreadedVisualisationGenerator();
         this.updateOutputDests(newProcess);
         return newProcess;
+    }
+
+    public void setup(LocationAgnosticBioFormatsImg var1, Properties var2, String[] var3){
+
     }
 }

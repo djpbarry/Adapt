@@ -210,6 +210,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 || (stacks[1] != null && stacks[1].getProcessor(1) instanceof ColorProcessor)) {
             IJ.showMessage("Warning: greyscale images should be used for optimal results.");
         }
+        if (cytoImp.getImageStack().getSize() < 2) {
+            IJ.error("Timelapse dataset required - aborting.");
+            return false;
+        }
         /*
          * Create new parent output directory - make sure directory name is
          * unique so old results are not overwritten

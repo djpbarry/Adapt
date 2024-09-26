@@ -21,6 +21,7 @@ import ij.ImageStack;
 import ij.gui.PointRoi;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.IO.BioFormats.BioFormatsImg;
+import net.calm.iaclasslibrary.IO.BioFormats.LocationAgnosticBioFormatsImg;
 import net.calm.iaclasslibrary.Process.MultiThreadedProcess;
 import net.calm.iaclasslibrary.UserVariables.UserVariables;
 import net.calm.iaclasslibrary.UtilClasses.GenUtils;
@@ -95,5 +96,9 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
         MultiThreadedOutputGenerator newProcess = new MultiThreadedOutputGenerator();
         this.updateOutputDests(newProcess);
         return newProcess;
+    }
+
+    public void setup(LocationAgnosticBioFormatsImg var1, Properties var2, String[] var3){
+
     }
 }

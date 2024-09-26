@@ -13,7 +13,7 @@
 
     <groupId>net.calm</groupId>
     <artifactId>adapt</artifactId>
-    <version>3.0.10</version>
+    <version>3.0.11</version>
 
     <name>net.calm.adapt</name>
     <description>Maven implementation of net.calm.adapt.Adapt plugin.</description>
@@ -93,26 +93,26 @@
             <url>https://maven.scijava.org/content/groups/public</url>
         </repository>
         <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/djpbarry/*</url>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>net.calm</groupId>
-            <artifactId>iaclasslibrary</artifactId>
-            <version>1.0.29</version>
+            <groupId>com.github.djpbarry</groupId>
+            <artifactId>IAClassLibrary</artifactId>
+            <version>37a1be016a</version>
         </dependency>
         <dependency>
-            <groupId>net.calm</groupId>
-            <artifactId>trackerlibrary</artifactId>
-            <version>3.0.9</version>
+            <groupId>com.github.djpbarry</groupId>
+            <artifactId>TrackerLibrary</artifactId>
+            <version>99584ec579</version>
         </dependency>
         <dependency>
-            <groupId>net.calm</groupId>
-            <artifactId>adaptdataprocessing</artifactId>
-            <version>1.0.6</version>
+            <groupId>com.github.djpbarry</groupId>
+            <artifactId>AdaptDataProcessing</artifactId>
+            <version>95d31fcec8</version>
         </dependency>
     </dependencies>
 
@@ -127,7 +127,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
@@ -146,13 +146,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub djpbarry Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/djpbarry/Adapt</url>
-        </repository>
-    </distributionManagement>
-
 </project>
