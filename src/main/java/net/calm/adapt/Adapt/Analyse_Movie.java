@@ -911,7 +911,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 }
             }
         }
-        DataWriter.saveValues(trajData, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME)), trajDataHeadings, null, false);
+        if (trajData.size() > 0)
+            DataWriter.saveValues(trajData, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME)), trajDataHeadings, null, false);
         dialog.dispose();
     }
 
@@ -1665,8 +1666,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         try {
-            DataWriter.saveValues(convertedData, new File(String.format("%s%s%s", popDir, File.separator, "Fluorescence.csv")),
-                    FluorescenceDistAnalyser.PARAM_HEADINGS, null, false);
+            if (convertedData.size() > 0)
+                DataWriter.saveValues(convertedData, new File(String.format("%s%s%s", popDir, File.separator, "Fluorescence.csv")),
+                        FluorescenceDistAnalyser.PARAM_HEADINGS, null, false);
         } catch (IOException e) {
             GenUtils.logError(e, "Failed to save fluorescence information file.");
         }
