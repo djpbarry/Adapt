@@ -13,7 +13,7 @@
 
     <groupId>net.calm</groupId>
     <artifactId>adapt</artifactId>
-    <version>3.0.12</version>
+    <version>3.0.13</version>
 
     <name>net.calm.adapt</name>
     <description>Maven implementation of net.calm.adapt.Adapt plugin.</description>
@@ -102,7 +102,7 @@
         <dependency>
             <groupId>com.github.djpbarry</groupId>
             <artifactId>IAClassLibrary</artifactId>
-            <version>216117f86e</version>
+            <version>fe92f24c6e</version>
         </dependency>
         <dependency>
             <groupId>com.github.djpbarry</groupId>
