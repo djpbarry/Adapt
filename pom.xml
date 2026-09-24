@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.scijava</groupId>
         <artifactId>pom-scijava</artifactId>
-        <version>37.0.0</version>
+        <version>45.1.0</version>
         <relativePath/>
     </parent>
 
@@ -87,6 +87,11 @@
     </properties>
 
     <repositories>
+        <!-- NB: declare Central first so JitPack cannot shadow it with empty files -->
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
         <!-- NB: for SciJava dependencies -->
         <repository>
             <id>scijava.public</id>
@@ -97,6 +102,21 @@
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <!--
+            IAClassLibrary depends on TrackMate transitively (unversioned). The
+            pom-scijava parent manages TrackMate at 8.0.0 (Java 21), which would
+            break our Java 11 target; pin to the last Java 11-compatible 7.x.
+            -->
+            <dependency>
+                <groupId>sc.fiji</groupId>
+                <artifactId>TrackMate</artifactId>
+                <version>7.14.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
