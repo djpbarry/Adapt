@@ -199,6 +199,76 @@ Sections to establish (migrating wiki content → docs):
 
 ---
 
+## Phase D — TrackMate interoperability
+
+TrackMate (`sc.fiji:TrackMate`, package `fiji.plugin.trackmate`) is the de facto
+standard single-particle/cell tracker in the ImageJ ecosystem. ADAPT and
+TrackMate are complementary rather than competing: TrackMate detects + links
+objects into tracks; ADAPT analyses membrane/protrusion/bleb morphodynamics.
+The goal is a practical interop bridge, not a wholesale replacement.
+
+### D0. Correct mental model (avoids a common misconception)
+
+ADAPT's `TrajectoryAnalysis` (in `Analyse_Movie.run()`) is **not** the tracker —
+it is a *downstream* analysis step that reads an already-written
+`Trajectories.csv` and computes cell-migration statistics (speed,
+directionality, persistence, etc.). The actual cell linking happens earlier,
+during ADAPT's segmentation/detection stage (in the external `IAClassLibrary`
+via `RegionGrower`/`CellData`).
+
+This matters because it maps cleanly onto TrackMate's architecture:
+
+| ADAPT concern | TrackMate counterpart | Overlap |
+|---|---|---|
+| Cell detection + linking across frames | `SpotDetectorFactory` + `SpotTrackerFactory` (LAP) | ADAPT's homegrown tracking is the weaker half; TrackMate's LAP is field-standard |
+| `TrajectoryAnalysis` migration metrics | `TrackAnalyzer` modules (`TrackSpeedStatisticsAnalyzer`, `TrackDurationAnalyzer`, …) | Overlapping downstream analysis |
+| Protrusion/bleb/membrane analysis | (nothing — this is ADAPT's unique value) | No overlap |
+
+### D1. Stage 1 — interop bridge (low risk, high value, do first)
+
+Interoperate at the **data boundary** rather than coupling codebases:
+
+1. **Import TrackMate tracks into ADAPT.** Parse a TrackMate XML session
+   (`TmXmlReader`, JDOM2, no runtime TrackMate dependency) and feed the resulting
+   per-cell tracks into ADAPT's protrusion/bleb analysis. This lets users do
+   detection + LAP tracking in TrackMate, then use ADAPT for the membrane
+   dynamics. The conversion maps TrackMate `Spot`s (v7 `Spot` supports a `SpotRoi`
+   contour) onto ADAPT's per-cell regions.
+2. **Export ADAPT detections to TrackMate** (optional reverse direction): write
+   ADAPT's cell centroids + contours as TrackMate XML/`Spot`s so users can track
+   them inside TrackMate.
+
+Because this is XML parse/write only, it sidesteps the Java-version conflict
+(see D3 constraints) and needs no compile-time TrackMate dependency.
+
+### D2. Stage 2 — ADAPT as a TrackMate module (long-term, high effort)
+
+Ship ADAPT's membrane/protrusion/bleb analysis as a TrackMate `TrackAnalyzer`
+(and optionally ADAPT segmentation as a `SpotDetectorFactory`), so ADAPT metrics
+appear directly in TrackMate's tables/plots. This is the "first-class citizen in
+the field standard" outcome, but it requires re-plumbing ADAPT's analysis to
+consume TrackMate's `Spot`/`SpotRoi` + `TrackModel` instead of its internal
+`CellData`/`MorphMap`. Defer until **after** M4's refactor produces a
+model-agnostic analysis core.
+
+### D3. Explicitly not recommended (near-term)
+
+Pulling TrackMate's LAP tracker into ADAPT purely to replace ADAPT's homegrown
+tracking. It is the highest-effort/lowest-value option: tracking is not ADAPT's
+core value, and it forces an immediate dependency + Java-target decision.
+TrackMate ≥ 8 requires **Java 21**, whereas ADAPT has just agreed to target
+**Java 11** (Decision 3), so any *runtime* TrackMate coupling reopens that
+decision (or pins TrackMate to v7).
+
+### D4. Constraints to confirm before any compile-time dependency
+
+1. **Java target** — TrackMate ≥ 8 needs Java 21; v7 targets older JVMs. Stage 1
+   (XML-only) avoids this entirely.
+2. **License** — ADAPT is GPL-3.0 (Decision 1). Verify TrackMate's license is
+   compatible before adding `sc.fiji:TrackMate` as a compile dependency.
+
+---
+
 ## Suggested sequencing & milestones
 
 1. **M1 — Foundations (low risk, high value):** `.gitignore`, Maven wrapper, CI
@@ -213,10 +283,14 @@ Sections to establish (migrating wiki content → docs):
 5. **M5 — GUI & UX:** hand-managed layout, parameter presets, progress/cancel.
    (Phase B)
 6. **M6 — Distribution:** update site, semver, in-product help links. (Phase B3)
+7. **M7 — TrackMate interop:** Stage-1 XML import/export bridge (Phase D1);
+   Stage-2 `TrackAnalyzer` module only after M4 lands.
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
 parallel. Package renaming (Q4) should be done early in M4 before it cascades
-into other work.
+into other work. M7's Stage-1 bridge is independent of the Java-target decision
+and can be tackled earlier if desired; Stage-2 depends on M4's model-agnostic
+refactor.
 
 ## Decisions (resolved open questions)
 
