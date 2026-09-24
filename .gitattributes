@@ -1,0 +1,4 @@
+# Maven wrapper scripts: LF for the Unix script, CRLF for Windows batch
+mvnw text eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
