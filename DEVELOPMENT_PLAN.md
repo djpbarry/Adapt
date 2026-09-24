@@ -115,6 +115,17 @@ Targets, priority-ordered:
 
 ## Phase B — User-friendliness
 
+### B1. Known bug to fix — non-deterministic `labels.zip` ROI order
+
+Issue #2 ("ROIs in random order"): `MultiThreadedVisualisationGenerator.run()`
+submits one thread per frame, all sharing a single unsynchronized `Overlay`
+`labels`. Concurrent `labels.add(...)` in `RunnableVisualisationGenerator.run()`
+(line 105) produces non-deterministic ROI ordering in the saved `labels.zip`.
+Measurements are unaffected (cell index is baked into each ROI's text; per-cell
+CSVs are written independently in cell order), but the fix is still warranted:
+collect labels into per-frame slots and assemble the overlay in deterministic
+frame order before saving. Include an order-assurance assertion.
+
 ### B1. Rework the GUI
 
 1. **Replace the NetBeans `.form` coupling** — the hand-versus-generator split
