@@ -394,6 +394,61 @@ over Ultrack CSV. Only if Ultrack CSV proves insufficient.
 
 ---
 
+## Phase G — Upstream dependency hygiene (do first)
+
+ADAPT's core logic actually lives in the three JitPack dependencies
+(`IAClassLibrary`, `TrackerLibrary`, `AdaptDataProcessing`). They share ADAPT's
+exact problems, so they must be addressed **before** (or in lockstep with) ADAPT's
+own modernization — they block A2 / Decision 2 (pin-to-tags).
+
+### G0. Verified current state
+
+| Library | License (pom / LICENSE) | Java | Tags | ADAPT pins |
+|---|---|---|---|---|
+| IAClassLibrary | BSD-2 (pom) | 8 | `v1.032` (Jul 2024) | `fe92f24c6e` (after tag, untagged) |
+| TrackerLibrary | **BSD-2 (pom) / GPL-3 (LICENSE)** | 8 | none | `99584ec579` (untagged) |
+| AdaptDataProcessing | **BSD-2 (pom) / GPL-3 (LICENSE)** | 8 | none | `95d31fcec8` (untagged) |
+
+All three are single-maintainer, maintenance-mode, with no CI and no tests.
+
+### G1. Fix license metadata (mirrors Decision 1)
+
+`TrackerLibrary` and `AdaptDataProcessing` carry GPL-3 `LICENSE` files but declare
+BSD-2 in their poms — the same contradiction ADAPT just resolved. Correct each
+pom to GPL-3 (or make the `LICENSE` file match the intended BSD). `IAClassLibrary`
+declares BSD-2; verify its `LICENSE` file agrees (BSD-2 is GPL-3-compatible, so
+there is no ADAPT licensing blocker either way).
+
+### G2. Tag all three (unblocks Decision 2)
+
+- Tag each library with semver. `IAClassLibrary`'s pinned commit `fe92f24c6e`
+  is *after* its only tag `v1.032` (and bumped the version to 1.0.37); tag the
+  current `master` as the next release.
+- Repoint the cross-dependency pins: `TrackerLibrary` and `AdaptDataProcessing`
+  currently depend on `IAClassLibrary` at `37a1be016a`; update them to the new
+  IAClassLibrary tag.
+
+### G3. Resolve the TrackMate version web
+
+`IAClassLibrary` → `sc.fiji:TrackMate` (unversioned, parent-managed);
+`TrackerLibrary` → `TrackMate:7.10.0` (explicit); ADAPT pins `7.14.0`. Adopt a
+single TrackMate version policy across all three + ADAPT (7.x for now; the
+8.x / Java 21 move is coordinated later via Phase D5).
+
+### G4. Update ADAPT's pins to tags
+
+Once tagged, change ADAPT's three dependency versions from commit hashes to the
+new tags (completing A2 / Decision 2).
+
+### G5. Consider consolidation (revisit Decision 2)
+
+One maintainer, three repos, no tests/CI, and cross-repo pin skew. If the
+multi-repo overhead is too high, revisit "no vendoring" (Decision 2) and consider
+merging the three libraries into one repo (or into ADAPT) to make dependency
+management tractable.
+
+---
+
 ## Suggested sequencing & milestones
 
 1. **M1 — Foundations (low risk, high value):** `.gitignore`, Maven wrapper, CI
@@ -415,6 +470,9 @@ over Ultrack CSV. Only if Ultrack CSV proves insufficient.
    (Phase E3) only after the Java-target question is revisited.
 9. **M9 — Track export:** Stage-1 Ultrack-CSV export for inTRACKtive (Phase F1);
    GEFF (Phase F2) only if needed.
+10. **M10 — Upstream dependency hygiene (do first):** license fixes, tagging,
+    TrackMate-version web, cross-pin repointing, then ADAPT pin-to-tags
+    (Phase G). Blocks A2 / Decision 2.
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
 parallel. Package renaming (Q4) should be done early in M4 before it cascades
@@ -422,6 +480,11 @@ into other work. M7's Stage-1 bridge is independent of the Java-target decision
 and can be tackled earlier if desired; Stage-2 depends on M4's model-agnostic
 refactor. M8's Stage-1 (external-mask import) is likewise Java-target
 independent. M9 is a self-contained exporter and can land at any point.
+
+**M10 (Phase G) is the immediate next step and a prerequisite** — the three
+upstream libraries are where ADAPT's core logic lives, and their license/tagging/
+TrackMate issues must be resolved before ADAPT can pin to tags (Decision 2) and
+before the Java 21 / TrackMate 8 move.
 
 ## Decisions (resolved open questions)
 
