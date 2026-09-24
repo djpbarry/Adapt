@@ -284,6 +284,22 @@ decision (or pins TrackMate to v7).
 2. **License** — ADAPT is GPL-3.0 (Decision 1). Verify TrackMate's license is
    compatible before adding `sc.fiji:TrackMate` as a compile dependency.
 
+### D5. Current state & TrackMate 8 goal (discovered during build)
+
+ADAPT already depends on TrackMate **transitively** via `IAClassLibrary`
+(unversioned `sc.fiji:TrackMate`), so TrackMate is already on ADAPT's runtime
+classpath — the interop surface is closer than Phase D1 assumes.
+
+The `pom-scijava` parent manages `TrackMate:8.0.0` (Java 21). To stay on the
+Java 11 target, ADAPT currently pins `TrackMate:7.14.0` in `dependencyManagement`
+— a **stopgap**, not the end state.
+
+**Goal (later, coordinated bump):** move to the latest TrackMate 8.x. TrackMate
+≥ 8 requires **Java 21**, so this must be done together with a Java-target
+upgrade (reopens Decision 3). Track it as a dedicated milestone: raise the Java
+target to 21 *and* drop the TrackMate pin to `8.x` in one change, then re-verify
+bytecode compatibility (`EnforceBytecodeVersion`) and Phase D1/D2 interop.
+
 ---
 
 ## Phase E — Segmentation interoperability (Cellpose / StarDist)
@@ -427,10 +443,15 @@ input for the phases above.
      only the CI workflow references it; no `pom.xml` dependency resolves from
      `maven.pkg.github.com`. Remove `mvn_settings.xml` and the `PAT`/`--settings`
      wiring from `maven.yml` (verify with one clean CI run before deleting).
-3. **Target JDK — Java 11 (compile target), build on a modern JDK.** This
-   matches the current `pom-scijava` convention (`scijava.jvm.version=11`).
-   Recent Fiji "latest" bundles Java 21 at runtime, so building on JDK 21 and
-   targeting 11 keeps the plugin compatible while staying current.
+3. **Target JDK — Java 11 (compile target), build on a modern JDK.** ✔
+   Implemented: parent `pom-scijava` bumped 37.0.0 → 45.1.0 (whose base sets
+   `scijava.jvm.version=11`), verified via `mvnw help:evaluate`
+   (`maven.compiler.release=11`) and a clean `mvnw verify`. Build JDK is Temurin
+   17 (via `JAVA_HOME`). Fiji "latest" bundles Java 21 at runtime, so targeting
+   11 keeps the plugin compatible.
+   - **Future goal:** TrackMate ≥ 8 (and the `imglib2-cellpose` integration)
+     require **Java 21**. Coordinate a Java 21 + TrackMate 8 bump as one change
+     (see Phase D5) once the codebase is ready.
 4. **Package names — rename to lowercase.** Rename `Adapt`, `Output`,
    `Visualisation`, `ui` to conventional lowercase (`adapt`, `output`,
    `visualisation`, `ui`); update `plugins.config` and all imports accordingly.

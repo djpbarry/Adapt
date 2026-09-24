@@ -20,18 +20,23 @@ these libraries first, not this repo.
 
 ## Build / test / run
 
-- **Build + verify:** `mvn verify`
-  - All dependencies come from JitPack (`com.github.djpbarry:*`) and the SciJava
-    repo; no auth is required.
+- **Build + verify:** `mvnw verify` (Maven wrapper; on Windows use `mvnw.cmd`).
+  - Requires **JDK 17+** on `JAVA_HOME` (Temurin 17 at
+    `C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot` is the local
+    setup). Compile target is **Java 11** (parent `pom-scijava:45.1.0`).
+  - Dependencies resolve from Maven Central (`central`, declared first), SciJava
+    (`maven.scijava.org`), and JitPack (`com.github.djpbarry:*`); no auth needed.
   - `mvn_settings.xml` (GitHub Packages + PAT) is **vestigial** and slated for
-    removal — see `DEVELOPMENT_PLAN.md`. It is not needed to resolve the three
-    declared dependencies.
+    removal — see `DEVELOPMENT_PLAN.md`.
+  - `IAClassLibrary` depends on `sc.fiji:TrackMate` transitively; ADAPT pins
+    `TrackMate:7.14.0` in `dependencyManagement` as a stopgap (TrackMate 8 needs
+    Java 21). See Phase D5 of the plan for the Java 21 + TrackMate 8 goal.
 - **CI:** `.github/workflows/maven.yml` runs
   `mvn --batch-mode --update-snapshots -Dinternal.repo.password="$PAT" --settings
-  mvn_settings.xml verify` on `ubuntu-latest` with JDK 11 (AdoptOpenJDK). The
-  `PAT` secret and `--settings` flag will be removed once the build is confirmed
-  clean without them.
-- **Packaging:** the parent POM is `org.scijava:pom-scijava:37.0.0`; the
+  mvn_settings.xml verify` on `ubuntu-latest` with JDK 11 (AdoptOpenJDK). This
+  still references the vestigial `mvn_settings.xml`/`PAT` and must be updated to
+  use the wrapper + JDK 17 + Java 11 target.
+- **Packaging:** the parent POM is `org.scijava:pom-scijava:45.1.0`; the
   `maven-dependency-plugin` copies all dependencies into `target/` on `package`.
 - **Run/debug:** `main-class` is `net.calm.adapt.Adapt.Main`. Its `main()` calls
   `Analyse_Movie.initialise()` then `run(null)`, which is a debug path that opens
