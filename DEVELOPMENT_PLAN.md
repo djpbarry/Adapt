@@ -286,6 +286,61 @@ decision (or pins TrackMate to v7).
 
 ---
 
+## Phase E — Segmentation interoperability (Cellpose / StarDist)
+
+Cellpose and StarDist are the field-standard deep-learning cell-segmentation
+tools; they target ADAPT's **segmentation** step (`RegionGrower` watershed) the
+same way TrackMate (Phase D) targets its **tracking** step. ADAPT's core value is
+downstream (membrane/protrusion/bleb), so these are complementary front-ends, not
+replacements.
+
+### E0. Mental model
+
+ADAPT currently segments via `RegionGrower.initialiseROIs()`/`watershedRegions()`
+(external `IAClassLibrary`), which requires a uniform cytoplasmic channel and
+manual thresholding. Cellpose's `cyto`/`cyto2`/`cyto3` models are trained for
+exactly this "cytoplasm" input, and StarDist is a Fiji-native (Java/TensorFlow)
+2D alternative. Letting ADAPT consume externally-produced masks replaces its
+weakest, most parameter-sensitive step.
+
+### E1. Stage 1 — accept externally-segmented masks/ROIs (low risk, do first)
+
+If a user supplies segmentation masks (e.g. cellpose output, or ROIs in the Fiji
+RoiManager), ADAPT skips its `RegionGrower` watershed and builds `CellData` /
+`Region` directly from the masks. This is format-based, needs no Python and no
+compile-time dependency, and sidesteps the Java-version conflict entirely (like
+TrackMate Stage 1).
+
+### E2. Stage 2 — combined pipeline via TrackMate-Cellpose (zero ADAPT-side Python)
+
+The `TrackMate-Cellpose` detector (`sc.fiji:TrackMate-Cellpose`) already runs
+cellpose segmentation + LAP tracking inside TrackMate. Users can therefore run
+`cellpose → TrackMate → ADAPT` and import the resulting tracks via Phase D1 —
+full deep-learning segmentation and tracking with no Python managed by ADAPT.
+
+### E3. Stage 3 — in-UI cellpose (optional, heavier)
+
+Call cellpose directly from ADAPT's UI via the Fiji-Cellpose/Appose library
+(`imglib2-cellpose`, package `net.imglib2.cellpose`). This adds a real
+dependency and requires **Java 21**, reopening Decision 3 — so defer it unless
+Stage 1/2 prove insufficient.
+
+### E4. Constraints
+
+1. **Runtime** — cellpose is Python + PyTorch, so it cannot be a Java Maven
+   dependency; integrate via Fiji-Cellpose (Appose) or TrackMate-Cellpose
+   (conda), or by accepting pre-produced masks.
+2. **Java target** — `imglib2-cellpose` / Fiji-Cellpose require Java 21 (same
+   tension as TrackMate v8). Stage 1 (mask import) avoids this.
+3. **License** — cellpose *code* is BSD-3-Clause (compatible with ADAPT's
+   GPL-3.0), but its **pretrained weights are CC-BY-NC (non-commercial)**. This
+   only matters if ADAPT redistributed the weights, not if it merely invokes
+   cellpose — but it is worth surfacing to commercial users.
+4. **StarDist** is the Fiji-native alternative (Java/TensorFlow, no Python env),
+   2D-only — recommend it for users who want a zero-setup segmentation front-end.
+
+---
+
 ## Suggested sequencing & milestones
 
 1. **M1 — Foundations (low risk, high value):** `.gitignore`, Maven wrapper, CI
@@ -302,12 +357,16 @@ decision (or pins TrackMate to v7).
 6. **M6 — Distribution:** update site, semver, in-product help links. (Phase B3)
 7. **M7 — TrackMate interop:** Stage-1 XML import/export bridge (Phase D1);
    Stage-2 `TrackAnalyzer` module only after M4 lands.
+8. **M8 — Segmentation interop:** Stage-1 external-mask import (Phase E1); the
+   cellpose → TrackMate → ADAPT route (Phase E2) rides on M7; in-UI cellpose
+   (Phase E3) only after the Java-target question is revisited.
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
 parallel. Package renaming (Q4) should be done early in M4 before it cascades
 into other work. M7's Stage-1 bridge is independent of the Java-target decision
 and can be tackled earlier if desired; Stage-2 depends on M4's model-agnostic
-refactor.
+refactor. M8's Stage-1 (external-mask import) is likewise Java-target
+independent.
 
 ## Decisions (resolved open questions)
 
