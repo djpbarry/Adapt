@@ -191,28 +191,50 @@ Sections to establish (migrating wiki content → docs):
 ## Suggested sequencing & milestones
 
 1. **M1 — Foundations (low risk, high value):** `.gitignore`, Maven wrapper, CI
-   hardening, license-header consistency, delete dead code. (Phase A1, A5.5, A6)
-2. **M2 — Test harness:** JUnit + a couple of unit tests + golden-file CSV test.
-   (Phase A3)
+   hardening, license-header consistency, delete dead code. (Phase A1, A2, A4.5,
+   A5.5, A6)
+2. **M2 — Test harness:** JUnit + a couple of unit tests + golden-file output
+   test. (Phase A3)
 3. **M3 — Docs migration:** stand up Sphinx/RTD, migrate wiki content. (Phase C)
 4. **M4 — Refactor core:** decompose `analyse()`/`buildOutput()`, replace
-   `readParams()`, remove static state. (Phase A4)
+   `readParams()` with JSON, remove static state, rename packages. (Phase A4,
+   A5.2)
 5. **M5 — GUI & UX:** hand-managed layout, parameter presets, progress/cancel.
    (Phase B)
 6. **M6 — Distribution:** update site, semver, in-product help links. (Phase B3)
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
-parallel.
+parallel. Package renaming (Q4) should be done early in M4 before it cascades
+into other work.
 
-## Open questions to resolve before acting
+## Decisions (resolved open questions)
 
-1. **License resolution** — source headers say GPL, `pom.xml` says BSD-2. Which
-   governs? (affects A4.6 and docs).
-2. **Dependency strategy** — promote the three JitPack libraries to tagged
-   releases, or vendor them? (affects A2).
-3. **Target JDK** — stick to 11 for Fiji compatibility or move to 17/21?
-   (affects A1.2).
-4. **Package rename** — is renaming mixed-case packages worth the
-   `plugins.config` churn? (affects A5.2).
-5. **Params file format** — keep CSV (with a header/version) or move to JSON/YAML?
-   (affects A4.2).
+These were resolved with the maintainer on 2024-09-24 and are the authoritative
+input for the phases above.
+
+1. **License — GPL-3.0.** The root `LICENSE` and the majority of source headers
+   already declare GPL-3.0; `pom.xml`'s `Simplified BSD` (and the
+   `license.licenseName=bsd_2` property) is stale metadata and must be corrected
+   to GPL-3.0. Replace the six NetBeans "change this header" stubs with the GPL
+   header. Confirm the correct `license.copyrightOwners` (Francis Crick
+   Institute / David Barry) while doing so.
+2. **Dependencies — stay on JitPack, pin to tags.** Do not vendor. Do not use
+   GitHub Packages. Tag each of `IAClassLibrary`, `TrackerLibrary`,
+   `AdaptDataProcessing` with a release in its own repo; JitPack resolves tagged
+   versions auth-free. Update the three `pom.xml` versions from commit hashes to
+   those tags.
+   - **`mvn_settings.xml` / GitHub Packages is vestigial.** Investigation shows
+     only the CI workflow references it; no `pom.xml` dependency resolves from
+     `maven.pkg.github.com`. Remove `mvn_settings.xml` and the `PAT`/`--settings`
+     wiring from `maven.yml` (verify with one clean CI run before deleting).
+3. **Target JDK — Java 11 (compile target), build on a modern JDK.** This
+   matches the current `pom-scijava` convention (`scijava.jvm.version=11`).
+   Recent Fiji "latest" bundles Java 21 at runtime, so building on JDK 21 and
+   targeting 11 keeps the plugin compatible while staying current.
+4. **Package names — rename to lowercase.** Rename `Adapt`, `Output`,
+   `Visualisation`, `ui` to conventional lowercase (`adapt`, `output`,
+   `visualisation`, `ui`); update `plugins.config` and all imports accordingly.
+5. **Params file — JSON.** Replace the positional CSV parsing in
+   `Analyse_Batch.readParams()` with JSON (validated via Jackson, already in the
+   Bio-Formats/SciJava dependency tree), including a schema/version for
+   forward-compatibility.

@@ -20,16 +20,17 @@ these libraries first, not this repo.
 
 ## Build / test / run
 
-- **Build + verify:** `mvn --settings mvn_settings.xml verify`
-  - `mvn_settings.xml` is required: it activates a `github` profile pointing at
-    `https://maven.pkg.github.com/djpbarry/*` and supplies the GitHub Packages
-    credentials via `${internal.repo.password}`.
-  - Locally this prompts for / requires `-Dinternal.repo.password=<PAT>` for any
-    artifact not already cached from repo1.maven.org or the SciJava/JitPack
-    repos declared in `pom.xml`.
-- **CI:** `.github/workflows/maven.yml` runs `mvn --batch-mode --update-snapshots
-  -Dinternal.repo.password="$PAT" --settings mvn_settings.xml verify` on
-  `ubuntu-latest` with JDK 11 (AdoptOpenJDK). The `PAT` is a GitHub secret.
+- **Build + verify:** `mvn verify`
+  - All dependencies come from JitPack (`com.github.djpbarry:*`) and the SciJava
+    repo; no auth is required.
+  - `mvn_settings.xml` (GitHub Packages + PAT) is **vestigial** and slated for
+    removal — see `DEVELOPMENT_PLAN.md`. It is not needed to resolve the three
+    declared dependencies.
+- **CI:** `.github/workflows/maven.yml` runs
+  `mvn --batch-mode --update-snapshots -Dinternal.repo.password="$PAT" --settings
+  mvn_settings.xml verify` on `ubuntu-latest` with JDK 11 (AdoptOpenJDK). The
+  `PAT` secret and `--settings` flag will be removed once the build is confirmed
+  clean without them.
 - **Packaging:** the parent POM is `org.scijava:pom-scijava:37.0.0`; the
   `maven-dependency-plugin` copies all dependencies into `target/` on `package`.
 - **Run/debug:** `main-class` is `net.calm.adapt.Adapt.Main`. Its `main()` calls
