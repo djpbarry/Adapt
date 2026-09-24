@@ -16,10 +16,12 @@ the current state of the codebase as of the plan's writing.
   (pinned to git commit hashes in `pom.xml`). ADAPT also contains substantial
   in-repo domain logic (protrusion/bleb/fluorescence analysis and
   cell-trajectory extraction), so it is not purely orchestration/glue.
-- The build is Maven 3 with `org.scijava:pom-scijava:37.0.0` as parent, JDK 11
-  (per CI). `mvn_settings.xml` wires up GitHub Packages but is vestigial (see
-  Decision 2) — no declared dependency resolves from it.
-- There are **no unit tests**, **no lint/format tooling**, and **no `.gitignore`**.
+- The build is Maven 3 with `org.scijava:pom-scijava:45.1.0` as parent, targeting
+  Java 11 (build JDK is Temurin 17). A Maven wrapper (`mvnw`/`mvnw.cmd`, pinned
+  to 3.9.16) is committed; the vestigial `mvn_settings.xml` (GitHub Packages)
+  has been removed.
+- There are **no unit tests** and **no lint/format tooling**. A `.gitignore`
+  (and `.gitattributes`) have been added.
 - The GUI is a NetBeans-generated `JDialog` (`ui/GUI.java` + `ui/GUI.form`), with
   parameters held in a single **static** `UserVariables` instance.
 - Documentation currently lives in the GitHub wiki and a short `README.md`, with
@@ -40,6 +42,9 @@ the current state of the codebase as of the plan's writing.
    - Add a matrix over supported JDKs, or at least pin the exact one used.
    - Add caching for Maven dependencies to speed up runs.
    - Split into distinct jobs: `build`, `test` (future), `docs` (see Phase C).
+   - **Follow-up (CI deprecation warnings, revisit later):** `actions/setup-java@v4`
+     and `actions/checkout@v4` are deprecated (Node 20 → Node 24); bump both to
+     `@v5`. `ubuntu-latest` migrates to Ubuntu 26 in Oct 2026 — re-verify then.
 4. **Add a `.gitignore`** covering `target/`, `.idea/`, `*.iml`, and OS files.
 
 ### A2. Fix the dependency pinning problem
