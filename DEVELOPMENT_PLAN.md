@@ -341,6 +341,43 @@ Stage 1/2 prove insufficient.
 
 ---
 
+## Phase F — Track visualization/sharing export (inTRACKtive)
+
+inTRACKtive (`royerlab/inTRACKtive`) is a browser-based tool (TypeScript +
+Python, MIT license) for exploring and sharing already-computed cell-tracking
+data. It is **downstream** of ADAPT, not a front-end into it: the pipeline is
+`cellpose → TrackMate → ADAPT → inTRACKtive` (segment → track → analyse →
+visualize/share). This is an output/export concern, lower priority than Phases
+D/E and closer in spirit to the Phase B output-UX work.
+
+### F0. Mental model
+
+inTRACKtive is *not* a Fiji plugin and is *not* a detector/tracker/segmenter; it
+consumes tracking data and renders it in the browser. It accepts CSV (in Ultrack
+format: `track_id, t, z, y, x, parent_track_id`), Parquet, GEFF, or a napari
+Tracks layer, converting to a Zarr bundle. No Java, Maven, or license coupling.
+
+### F1. Stage 1 — export Ultrack-format CSV (do first)
+
+Add an exporter that writes ADAPT's cell trajectories (the centroids produced by
+`Analyse_Movie.generateCellTrajectories()`, already serialised to
+`Trajectories.csv`) in the Ultrack CSV shape inTRACKtive consumes. Users then run
+`intracktive convert`/`open` to view and share their ADAPT results in the
+browser.
+
+### F2. Stage 2 (optional) — GEFF export
+
+Emit GEFF (General Exchange Format) as an alternative for tools that prefer it
+over Ultrack CSV. Only if Ultrack CSV proves insufficient.
+
+### F3. Constraints
+
+1. **License** — MIT, fully compatible with ADAPT's GPL-3.
+2. **No dependency** — data-export only; inTRACKtive is a separate Python/browser
+   tool, so no Java-target or Maven impact.
+
+---
+
 ## Suggested sequencing & milestones
 
 1. **M1 — Foundations (low risk, high value):** `.gitignore`, Maven wrapper, CI
@@ -360,13 +397,15 @@ Stage 1/2 prove insufficient.
 8. **M8 — Segmentation interop:** Stage-1 external-mask import (Phase E1); the
    cellpose → TrackMate → ADAPT route (Phase E2) rides on M7; in-UI cellpose
    (Phase E3) only after the Java-target question is revisited.
+9. **M9 — Track export:** Stage-1 Ultrack-CSV export for inTRACKtive (Phase F1);
+   GEFF (Phase F2) only if needed.
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
 parallel. Package renaming (Q4) should be done early in M4 before it cascades
 into other work. M7's Stage-1 bridge is independent of the Java-target decision
 and can be tackled earlier if desired; Stage-2 depends on M4's model-agnostic
 refactor. M8's Stage-1 (external-mask import) is likewise Java-target
-independent.
+independent. M9 is a self-contained exporter and can land at any point.
 
 ## Decisions (resolved open questions)
 
