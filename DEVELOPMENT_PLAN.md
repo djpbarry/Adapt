@@ -1,0 +1,218 @@
+# ADAPT Development Plan
+
+This plan outlines a multi-phase effort to (a) make ADAPT more robust and
+maintainable, (b) improve the user experience, and (c) overhaul the
+documentation (migrating from the GitHub wiki to ReadTheDocs). It is grounded in
+the current state of the codebase as of the plan's writing.
+
+## Current state (context for the plan)
+
+- ADAPT is a Fiji/ImageJ plugin (`net.calm.adapt`) that analyses cell migration,
+  membrane protrusions, and correlated fluorescence intensity.
+- Most substantive algorithms live in three external libraries pulled from
+  JitPack: `IAClassLibrary`, `TrackerLibrary`, `AdaptDataProcessing` (pinned to
+  git commit hashes in `pom.xml`). This repo is primarily orchestration, I/O, and
+  UI glue.
+- The build is Maven 3 with `org.scijava:pom-scijava:37.0.0` as parent, JDK 11,
+  and a GitHub Packages-backed `mvn_settings.xml` for private dependencies.
+- There are **no unit tests**, **no lint/format tooling**, and **no `.gitignore`**.
+- The GUI is a NetBeans-generated `JDialog` (`ui/GUI.java` + `ui/GUI.form`), with
+  parameters held in a single **static** `UserVariables` instance.
+- Documentation currently lives in the GitHub wiki and a short `README.md`, with
+  screenshots under `content/` and a zip of test data under `test_data/`.
+
+---
+
+## Phase A — Robustness & maintainability
+
+### A1. Modernise the build and CI
+
+1. **Pin and commit a reproducible toolchain** — add a Maven wrapper
+   (`mvnw[.cmd]`) so builds don't depend on a system Maven of an unknown version.
+2. **Upgrade the JDK** — evaluate moving from JDK 11 to the current LTS (17 or
+   21) now that the SciJava parent and Fiji support it; keep 11 as a fallback if
+   Fiji's bundled runtime lags.
+3. **Harden CI** (`.github/workflows/maven.yml`):
+   - Add a matrix over supported JDKs, or at least pin the exact one used.
+   - Add caching for Maven dependencies to speed up runs.
+   - Split into distinct jobs: `build`, `test` (future), `docs` (see Phase C).
+4. **Add a `.gitignore`** covering `target/`, `.idea/`, `*.iml`, and OS files.
+
+### A2. Fix the dependency pinning problem
+
+1. The three JitPack dependencies are pinned to raw commit hashes
+   (`fe92f24c6e`, `99584ec579`, `95d31fcec8`). This is fragile and unreviewable.
+   - Decide whether to promote these libraries to published releases (tags) or
+     vendor them into this repo.
+   - At minimum, document in the POM *which* commit each hash refers to and why.
+
+### A3. Introduce tests (the single biggest maintainability win)
+
+1. **Add a test framework** (JUnit 5 via the SciJava parent's conventional test
+   setup) and wire `mvn verify` to run it.
+2. **Start with the highest-value, lowest-cost targets** — the pure-logic,
+   static-method classes already extracted:
+   - `CurveMapAnalyser` (curvature minima detection — pure arithmetic over arrays)
+   - `BlebAnalyser` (boundary/anchoring math — currently hard to test because it
+     touches `ImageProcessor`/`MorphMap`)
+   - `FluorescenceDistAnalyser` (GLCM statistics — pure numeric transforms)
+   - `ReadParam`/CSV parsing in `Analyse_Batch`.
+3. **Add golden-file tests** for CSV output: run the pipeline against
+   `test_data/ADAPT_Test_Data.zip` and assert the output schema/headings are
+   stable. This catches the silent schema-drift risk flagged in `AGENTS.md`.
+4. **Make code testable first** — extract pure logic from god methods (see A4)
+   so tests don't require a running ImageJ.
+
+### A4. Refactor for clarity and testability
+
+Targets, priority-ordered:
+
+1. **`Analyse_Movie.analyse()`** and **`RunnableOutputGenerator.buildOutput()`**
+   — these are the largest, most intertwined methods. Decompose into
+   single-responsibility private methods (segmentation, map building, protrusion
+   analysis, output writing) and move pure math into package-private/static
+   helpers.
+2. **`Analyse_Batch.readParams()`** — replace the brittle positional `Scanner`
+   + `br.readLine()` parsing with keyed/header-driven parsing, or switch params
+   to JSON/YAML with a schema. Add a version field to the params file so old
+   files can be detected and rejected with a clear message.
+3. **Reduce mutable static/config state** — `GUI`'s static `UserVariables UV`
+   and the many `protected` fields on `Analyse_Movie` are shared across
+   instances and the batch recursion. Introduce an explicit "run context" object
+   passed down instead of relying on statics/field mutation.
+4. **Normalise the two concurrency abstractions** — `NotificationThread` (in
+   repo) and `MultiThreadedProcess`/`RunnableProcess` (external) are unrelated.
+   Consolidate on one, or document/enforce which to use where.
+5. **Remove dead code** — `Main.java` is almost entirely commented-out
+   experiments; `Analyse_Movie`, `BlebAnalyser`, and `RunnableOutputGenerator`
+   contain large stale comment blocks. Delete them (they're recoverable from
+   git) and strip unused imports.
+6. **Normalise license headers** — some files have GPL headers, others the
+   NetBeans "change this header" stub, while the project declares BSD-2 in
+   `pom.xml`. Pick a single header and apply it consistently (confirm the legal
+   intent first — the code says GPL but the POM says BSD).
+
+### A5. Add static analysis and formatting
+
+1. Add a formatter (e.g. Spotless with a standard Java style) and a linter
+   (SpotBugs / PMD as appropriate) wired into `mvn verify`.
+2. Fix the mixed-case package-directory convention
+   (`Adapt`, `Output`, `Visualisation`, `ui`) either by renaming to lowercase
+   JIAA-style packages, or (if renaming is too risky for Fiji's `plugins.config`)
+   at least documenting it as intentional.
+
+### A6. Error handling & user-facing failure modes
+
+1. Replace bare `catch (Exception e) { IJ.log(e); }` and empty `catch` blocks
+   (e.g. the version-property load in `run()`) with structured, actionable
+   messages.
+2. Centralise logging on `IJ.log`/`IJ.error` with a small wrapper so severity and
+   context are consistent.
+3. Add pre-flight validation of input images (size/type/time-series) — the repo
+   already began this (`5445fde`, `b634de7`), so continue it comprehensively.
+
+---
+
+## Phase B — User-friendliness
+
+### B1. Rework the GUI
+
+1. **Replace the NetBeans `.form` coupling** — the hand-versus-generator split
+   between `GUI.java` and `GUI.form` is risky to edit. Migrate to a hand-managed
+   layout (GridBag/GroupLayout written by hand) so the UI is version-controllable
+   and diffable.
+2. **Eliminate the static `UserVariables` singleton** — pass a `UserVariables`
+   instance explicitly; this fixes a class of bugs from stale/shared state across
+   sessions.
+3. **Group parameters into collapsible sections** mirroring the *Simple /
+   Advanced / Protrusions* screenshots already in `content/`, and add tooltips
+   or inline help for every parameter (wording drawn from `StaticVariables`).
+4. **Add validation and sane defaults** at the UI layer: numeric ranges, required
+   fields, and a "load/save parameter preset" feature (the raw material exists in
+   `Analyse_Batch.readParams()`).
+5. **Add cancellation & progress** — the pipeline runs in background threads but
+   exposes no cancel path; wire the existing `NotificationThread`/`TaskListener`
+   and `MultiThreadedProcess` mechanisms to a familiar progress dialog with a
+   cancel button.
+
+### B2. Onboarding & output UX
+
+1. **First-run / help flow** — link the tutorial and docs directly from the GUI.
+2. **Output organisation** — preserve the current on-disk structure (the
+   `Output_Folder_Structure.PNG` screenshot documents it), but document each file
+   in-product (a `README.txt` written into the output folder).
+3. **Consistent exit messaging** — unify the `IJ.showStatus`/`IJ.log` completion
+   messages and always report elapsed time and output location.
+
+### B3. Package & distribute more cleanly
+
+1. Ensure the plugin is discoverable via a Fiji update site (this is the *de
+   facto* distribution channel for ImageJ plugins) so users get updates.
+2. Version under semantic versioning and surface the version prominently (today
+   the version is injected into `project.properties` from `pom.xml` at build time).
+
+---
+
+## Phase C — Documentation (GitHub wiki → ReadTheDocs)
+
+### C1. Choose and scaffold the docs toolchain
+
+1. Adopt **Sphinx + MyST (Markdown)** hosted on **ReadTheDocs**, keeping the
+   source under `docs/` in this repo so docs and code version together.
+2. Add an RTD build job to CI and a `readthedocs.yaml` config.
+3. Redirect the GitHub wiki to the new site (a stub page pointing to RTD), and
+   add a prominent link in `README.md`.
+
+### C2. Migrate and restructure content
+
+Sections to establish (migrating wiki content → docs):
+
+- **Getting Started**: installation via update site, test-data tutorial (linked
+  YouTube video + `test_data/ADAPT_Test_Data.zip`).
+- **User Guide**: explain each parameter (draw from `StaticVariables` labels);
+  the Simple/Advanced/Protrusions modes; the output folder structure.
+- **Concepts / Method**: plain-English explanation of the analysis pipeline —
+  segmentation, curvature/velocity/signal maps, protrusion vs bleb detection —
+  with the DOI cited.
+- **Troubleshooting / FAQ**.
+- **Developer Guide**: build instructions (from `AGENTS.md`), architecture,
+  entry points (`plugins.config`), and contribution workflow.
+
+### C3. Automate doc quality
+
+1. Add a `make linkcheck` / docs-build to CI to catch broken links and RST/MD
+   errors.
+2. Optionally generate API reference from Javadoc and reference it from RTD.
+3. Keep screenshots (currently `content/*.png`) in `docs/_static/`, and update
+   them as the GUI changes in Phase B.
+
+---
+
+## Suggested sequencing & milestones
+
+1. **M1 — Foundations (low risk, high value):** `.gitignore`, Maven wrapper, CI
+   hardening, license-header consistency, delete dead code. (Phase A1, A5.5, A6)
+2. **M2 — Test harness:** JUnit + a couple of unit tests + golden-file CSV test.
+   (Phase A3)
+3. **M3 — Docs migration:** stand up Sphinx/RTD, migrate wiki content. (Phase C)
+4. **M4 — Refactor core:** decompose `analyse()`/`buildOutput()`, replace
+   `readParams()`, remove static state. (Phase A4)
+5. **M5 — GUI & UX:** hand-managed layout, parameter presets, progress/cancel.
+   (Phase B)
+6. **M6 — Distribution:** update site, semver, in-product help links. (Phase B3)
+
+Each milestone is independently shippable and testable; M1–M3 can proceed in
+parallel.
+
+## Open questions to resolve before acting
+
+1. **License resolution** — source headers say GPL, `pom.xml` says BSD-2. Which
+   governs? (affects A4.6 and docs).
+2. **Dependency strategy** — promote the three JitPack libraries to tagged
+   releases, or vendor them? (affects A2).
+3. **Target JDK** — stick to 11 for Fiji compatibility or move to 17/21?
+   (affects A1.2).
+4. **Package rename** — is renaming mixed-case packages worth the
+   `plugins.config` churn? (affects A5.2).
+5. **Params file format** — keep CSV (with a header/version) or move to JSON/YAML?
+   (affects A4.2).
