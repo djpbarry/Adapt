@@ -9,12 +9,16 @@ the current state of the codebase as of the plan's writing.
 
 - ADAPT is a Fiji/ImageJ plugin (`net.calm.adapt`) that analyses cell migration,
   membrane protrusions, and correlated fluorescence intensity.
-- Most substantive algorithms live in three external libraries pulled from
-  JitPack: `IAClassLibrary`, `TrackerLibrary`, `AdaptDataProcessing` (pinned to
-  git commit hashes in `pom.xml`). This repo is primarily orchestration, I/O, and
-  UI glue.
-- The build is Maven 3 with `org.scijava:pom-scijava:37.0.0` as parent, JDK 11,
-  and a GitHub Packages-backed `mvn_settings.xml` for private dependencies.
+- The heavy lifting — segmentation (`RegionGrower`), curvature computation,
+  particle/trajectory tracking (`TrajectoryAnalysis`, `TrajectoryBuilder`),
+  Bio-Formats I/O, and CSV writing — lives in three external libraries pulled
+  from JitPack: `IAClassLibrary`, `TrackerLibrary`, `AdaptDataProcessing`
+  (pinned to git commit hashes in `pom.xml`). ADAPT also contains substantial
+  in-repo domain logic (protrusion/bleb/fluorescence analysis and
+  cell-trajectory extraction), so it is not purely orchestration/glue.
+- The build is Maven 3 with `org.scijava:pom-scijava:37.0.0` as parent, JDK 11
+  (per CI). `mvn_settings.xml` wires up GitHub Packages but is vestigial (see
+  Decision 2) — no declared dependency resolves from it.
 - There are **no unit tests**, **no lint/format tooling**, and **no `.gitignore`**.
 - The GUI is a NetBeans-generated `JDialog` (`ui/GUI.java` + `ui/GUI.form`), with
   parameters held in a single **static** `UserVariables` instance.
@@ -29,9 +33,9 @@ the current state of the codebase as of the plan's writing.
 
 1. **Pin and commit a reproducible toolchain** — add a Maven wrapper
    (`mvnw[.cmd]`) so builds don't depend on a system Maven of an unknown version.
-2. **Upgrade the JDK** — evaluate moving from JDK 11 to the current LTS (17 or
-   21) now that the SciJava parent and Fiji support it; keep 11 as a fallback if
-   Fiji's bundled runtime lags.
+2. **Confirm the JDK target** — Decision 3 is to compile to Java 11 on a modern
+   JDK. Keep CI's source/target at 11; only revisit if a dependency (e.g.
+   TrackMate v8, see Phase D) requires newer.
 3. **Harden CI** (`.github/workflows/maven.yml`):
    - Add a matrix over supported JDKs, or at least pin the exact one used.
    - Add caching for Maven dependencies to speed up runs.
@@ -41,10 +45,10 @@ the current state of the codebase as of the plan's writing.
 ### A2. Fix the dependency pinning problem
 
 1. The three JitPack dependencies are pinned to raw commit hashes
-   (`fe92f24c6e`, `99584ec579`, `95d31fcec8`). This is fragile and unreviewable.
-   - Decide whether to promote these libraries to published releases (tags) or
-     vendor them into this repo.
-   - At minimum, document in the POM *which* commit each hash refers to and why.
+   (`fe92f24c6e`, `99584ec579`, `95d31fcec8`). Per Decision 2, promote them to
+   tagged releases in their own repos and pin `pom.xml` to those tags (still on
+   JitPack, no vendoring). Until that lands, document in the POM *which* commit
+   each hash refers to and why.
 
 ### A3. Introduce tests (the single biggest maintainability win)
 
@@ -52,11 +56,14 @@ the current state of the codebase as of the plan's writing.
    setup) and wire `mvn verify` to run it.
 2. **Start with the highest-value, lowest-cost targets** — the pure-logic,
    static-method classes already extracted:
-   - `CurveMapAnalyser` (curvature minima detection — pure arithmetic over arrays)
-   - `BlebAnalyser` (boundary/anchoring math — currently hard to test because it
-     touches `ImageProcessor`/`MorphMap`)
-   - `FluorescenceDistAnalyser` (GLCM statistics — pure numeric transforms)
-   - `ReadParam`/CSV parsing in `Analyse_Batch`.
+   - `CurveMapAnalyser` (curvature-**extrema** detection + tracking of curvature
+     minima via `TrackerLibrary`; the `calcScaledCurveRange`/`isLocalCurvatureExtreme`
+     helpers are the extractable pure parts — the top-level method is not pure)
+   - `BlebAnalyser` (boundary/anchoring math — hard to test because it touches
+     `ImageProcessor`/`MorphMap`)
+   - `FluorescenceDistAnalyser` (GLCM statistics — `calcGlcmStats()` is pure, but
+     `constructGLCM()`/`setStats()` operate on `ImageProcessor`/`ImageStatistics`)
+   - `Analyse_Batch.readParams()` (positional CSV parsing).
 3. **Add golden-file tests** for CSV output: run the pipeline against
    `test_data/ADAPT_Test_Data.zip` and assert the output schema/headings are
    stable. This catches the silent schema-drift risk flagged in `AGENTS.md`.
@@ -72,14 +79,16 @@ Targets, priority-ordered:
    single-responsibility private methods (segmentation, map building, protrusion
    analysis, output writing) and move pure math into package-private/static
    helpers.
-2. **`Analyse_Batch.readParams()`** — replace the brittle positional `Scanner`
-   + `br.readLine()` parsing with keyed/header-driven parsing, or switch params
-   to JSON/YAML with a schema. Add a version field to the params file so old
-   files can be detected and rejected with a clear message.
-3. **Reduce mutable static/config state** — `GUI`'s static `UserVariables UV`
-   and the many `protected` fields on `Analyse_Movie` are shared across
-   instances and the batch recursion. Introduce an explicit "run context" object
-   passed down instead of relying on statics/field mutation.
+2. **`Analyse_Batch.readParams()`** — per Decision 5, replace the brittle
+   positional `Scanner` + `br.readLine()` parsing with JSON (validated via
+   Jackson), including a schema/version field so old files are detected and
+   rejected with a clear message.
+3. **Reduce mutable static/config state** — `GUI.UV` is a genuine static
+   singleton (returned by `GUI.getUv()`), so all runs share one `UserVariables`
+   instance. `Analyse_Movie` also carries many `protected` *instance* fields that
+   are mutated through the class hierarchy and the protrusion-analysis recursion,
+   making state hard to reason about. Introduce an explicit per-run "context"
+   object passed down instead of relying on statics/field mutation.
 4. **Normalise the two concurrency abstractions** — `NotificationThread` (in
    repo) and `MultiThreadedProcess`/`RunnableProcess` (external) are unrelated.
    Consolidate on one, or document/enforce which to use where.
@@ -87,19 +96,17 @@ Targets, priority-ordered:
    experiments; `Analyse_Movie`, `BlebAnalyser`, and `RunnableOutputGenerator`
    contain large stale comment blocks. Delete them (they're recoverable from
    git) and strip unused imports.
-6. **Normalise license headers** — some files have GPL headers, others the
-   NetBeans "change this header" stub, while the project declares BSD-2 in
-   `pom.xml`. Pick a single header and apply it consistently (confirm the legal
-   intent first — the code says GPL but the POM says BSD).
+6. **Normalise license headers** — per Decision 1, GPL-3.0 is authoritative.
+   Replace the six NetBeans "change this header" stubs with the GPL header and
+   correct `pom.xml` (currently declares BSD-2; see Decision 1).
 
 ### A5. Add static analysis and formatting
 
 1. Add a formatter (e.g. Spotless with a standard Java style) and a linter
    (SpotBugs / PMD as appropriate) wired into `mvn verify`.
-2. Fix the mixed-case package-directory convention
-   (`Adapt`, `Output`, `Visualisation`, `ui`) either by renaming to lowercase
-   JIAA-style packages, or (if renaming is too risky for Fiji's `plugins.config`)
-   at least documenting it as intentional.
+2. Fix the mixed-case package-directory convention (`Adapt`, `Output`,
+   `Visualisation`, `ui`) — per Decision 4, rename to lowercase and update
+   `plugins.config` + all imports.
 
 ### A6. Error handling & user-facing failure modes
 
@@ -141,10 +148,11 @@ frame order before saving. Include an order-assurance assertion.
 4. **Add validation and sane defaults** at the UI layer: numeric ranges, required
    fields, and a "load/save parameter preset" feature (the raw material exists in
    `Analyse_Batch.readParams()`).
-5. **Add cancellation & progress** — the pipeline runs in background threads but
-   exposes no cancel path; wire the existing `NotificationThread`/`TaskListener`
-   and `MultiThreadedProcess` mechanisms to a familiar progress dialog with a
-   cancel button.
+5. **Add cancellation & progress** — the GUI has a Cancel button, but it only
+   `dispose()`s the setup dialog; the background analysis threads
+   (`MultiThreaded*` generators) have no cancellation path. Wire the existing
+   `NotificationThread`/`TaskListener` and `MultiThreadedProcess` mechanisms to a
+   progress dialog whose Cancel actually interrupts the running analysis.
 
 ### B2. Onboarding & output UX
 
@@ -181,7 +189,7 @@ Sections to establish (migrating wiki content → docs):
 - **Getting Started**: installation via update site, test-data tutorial (linked
   YouTube video + `test_data/ADAPT_Test_Data.zip`).
 - **User Guide**: explain each parameter (draw from `StaticVariables` labels);
-  the Simple/Advanced/Protrusions modes; the output folder structure.
+  the Simple / Advanced / Protrusion Analysis tabs; the output folder structure.
 - **Concepts / Method**: plain-English explanation of the analysis pipeline —
   segmentation, curvature/velocity/signal maps, protrusion vs bleb detection —
   with the DOI cited.
@@ -209,18 +217,27 @@ The goal is a practical interop bridge, not a wholesale replacement.
 
 ### D0. Correct mental model (avoids a common misconception)
 
-ADAPT's `TrajectoryAnalysis` (in `Analyse_Movie.run()`) is **not** the tracker —
-it is a *downstream* analysis step that reads an already-written
-`Trajectories.csv` and computes cell-migration statistics (speed,
-directionality, persistence, etc.). The actual cell linking happens earlier,
-during ADAPT's segmentation/detection stage (in the external `IAClassLibrary`
-via `RegionGrower`/`CellData`).
+ADAPT's `TrajectoryAnalysis` (called in `Analyse_Movie.run()`) is **not** the
+tracker — it is a *downstream* analysis step that reads an already-written
+`Trajectories.csv` and computes cell-migration statistics (speed, directionality,
+persistence, etc.).
+
+Cell identity across frames is established earlier, during segmentation:
+`RegionGrower.initialiseROIs()`/`watershedRegions()` (external `IAClassLibrary`)
+produce a per-frame `Region` for each seeded cell, associating cells across
+frames by seed-following segmentation (there is no LAP-style linking pass).
+`Analyse_Movie.generateCellTrajectories()` (in-repo) then extracts each cell's
+centroid per frame and writes `Trajectories.csv`.
+
+Separately, `CurveMapAnalyser` uses `TrackerLibrary`'s `TrajectoryBuilder` /
+`ParticleTrajectory` to track **curvature minima** (protrusions/blebs) around the
+cell boundary — that is protrusion-level tracking, distinct from cell migration.
 
 This matters because it maps cleanly onto TrackMate's architecture:
 
 | ADAPT concern | TrackMate counterpart | Overlap |
 |---|---|---|
-| Cell detection + linking across frames | `SpotDetectorFactory` + `SpotTrackerFactory` (LAP) | ADAPT's homegrown tracking is the weaker half; TrackMate's LAP is field-standard |
+| Cell detection + frame-to-frame association | `SpotDetectorFactory` + `SpotTrackerFactory` (LAP) | ADAPT uses seed-following segmentation (no LAP pass); TrackMate's LAP is the field-standard alternative |
 | `TrajectoryAnalysis` migration metrics | `TrackAnalyzer` modules (`TrackSpeedStatisticsAnalyzer`, `TrackDurationAnalyzer`, …) | Overlapping downstream analysis |
 | Protrusion/bleb/membrane analysis | (nothing — this is ADAPT's unique value) | No overlap |
 
@@ -320,6 +337,6 @@ input for the phases above.
    `Visualisation`, `ui` to conventional lowercase (`adapt`, `output`,
    `visualisation`, `ui`); update `plugins.config` and all imports accordingly.
 5. **Params file — JSON.** Replace the positional CSV parsing in
-   `Analyse_Batch.readParams()` with JSON (validated via Jackson, already in the
-   Bio-Formats/SciJava dependency tree), including a schema/version for
-   forward-compatibility.
+   `Analyse_Batch.readParams()` with JSON (validated via Jackson, adding it as a
+   dependency if it is not already transitive via Bio-Formats/SciJava),
+   including a schema/version for forward-compatibility.
