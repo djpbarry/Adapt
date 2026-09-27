@@ -27,6 +27,62 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-09-27 — Upstream dependencies have moved; `AdaptDataProcessing` is obsolete
+
+The three JitPack dependencies are no longer in the state assumed by the plan.
+Two of them have been substantially modernised, and the third is now deprecated.
+
+### The two surviving libraries now publish Javadoc
+
+- **IAClassLibrary** — https://djpbarry.github.io/IAClassLibrary/
+- **TrackerLibrary** — https://djpbarry.github.io/TrackerLibrary/
+
+Both have completed their own modernisation pass (GPL-3.0-or-later, Java 21,
+Maven wrapper, and Javadoc publishing). Their `REVISION_LOG.md` files are the
+authoritative record; their Javadoc sites are now the canonical API surface for
+downstream consumers. This **changes Decision 2's reference point**: the
+compatibility target for ADAPT is the published Javadoc, not the pinned git
+commit hashes currently in `pom.xml`.
+
+ADAPT's pins are therefore stale:
+- `IAClassLibrary:fe92f24c6e` — superseded by the modernised tagged/Javadoc
+  release.
+- `TrackerLibrary:99584ec579` — superseded by the modernised release
+  (`4.0.0-SNAPSHOT` in the sibling, tagged per its plan).
+
+### `AdaptDataProcessing` is deprecated (archive candidate)
+
+The [`AdaptDataProcessing` README](https://github.com/djpbarry/AdaptDataProcessing/blob/master/README.md)
+now declares the project **obsolete** and recommends a **Python rewrite**
+(pandas / NumPy / SciPy / matplotlib) for its analysis. Its three pieces are:
+
+- `DataFileAverager` — the only functional engine (per-timepoint mean/σ across
+  track CSVs).
+- `DataResampler` — effectively non-functional (`run()` commented out).
+- `DetectionMapAnalyser` — TIFF detection-map statistics.
+
+**Impact on ADAPT:**
+
+- The `Bleb_Data_Analysis` plugin is a thin wrapper over
+  `AdaptDataProcessing.DataFileAverager`, so one of ADAPT's three registered
+  entry points now rests on a deprecated dependency.
+- `pom.xml` still pins `AdaptDataProcessing:95d31fcec8`.
+- Phase G ("tag all three") and Decision 2 are **moot for `AdaptDataProcessing`**:
+  it should not be tagged/fixed, it should be **removed** — with its
+  `DataFileAverager` behaviour either reimplemented in ADAPT (or its Python
+  equivalent surfaced), or the `Bleb_Data_Analysis` plugin retired.
+
+### Open items this raises
+
+1. Decide the fate of `Bleb_Data_Analysis`: drop it, reimplement
+   `DataFileAverager` in ADAPT, or point users at a Python path.
+2. Re-point `IAClassLibrary` / `TrackerLibrary` pins to their tagged releases
+   using the Javadoc as the compatibility check (completing A2 / Decision 2).
+3. Revise `DEVELOPMENT_PLAN.md` Phase G to drop `AdaptDataProcessing` from the
+   tagging work.
+
+---
+
 ## 2026-09-27 — Review & plan kick-off; M1 build tooling landed (partial)
 
 Initial full review of ADAPT and creation of the modernisation plan

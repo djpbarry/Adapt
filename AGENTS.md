@@ -21,9 +21,11 @@ these libraries first, not this repo.
 ## Build / test / run
 
 - **Build + verify:** `mvnw verify` (Maven wrapper; on Windows use `mvnw.cmd`).
-  - Requires **JDK 17+** on `JAVA_HOME` (Temurin 17 at
-    `C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot` is the local
+  - Requires **JDK 17+** on `JAVA_HOME` (Temurin 21 at
+    `C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot` is the local
     setup). Compile target is **Java 11** (parent `pom-scijava:45.1.0`).
+  - Local Maven install (only needed if bypassing the wrapper):
+    `C:\Program Files\apache-maven-3.9.16`.
   - Dependencies resolve from Maven Central (`central`, declared first), SciJava
     (`maven.scijava.org`), and JitPack (`com.github.djpbarry:*`); no auth needed.
   - `mvn_settings.xml` (GitHub Packages + PAT) is **vestigial** and slated for
