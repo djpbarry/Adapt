@@ -620,10 +620,12 @@ input for the phases above.
 3. **Target JDK — Java 21 (resolved 2026-09-27).** Move everything to Java 21 to
    avoid cross-project compatibility issues: this aligns ADAPT with the siblings
    (IAClassLibrary, TrackerLibrary), Fiji's runtime, and TrackMate ≥ 8. This
-   *reverses* the earlier Java 11 target. Actions: set the compile target to 21,
-   drop the `TrackMate:7.14.0` pin so the parent resolves 8.x, and re-point the
-   dependencies once the upstream tags land (Phase G / M10).
-   *(Prior Decision 3 targeted Java 11; superseded by this.)*
+   *reverses* the earlier Java 11 target.
+   - ✔ `scijava.jvm.version=21` set; `maven.compiler.release=21` verified; clean
+     compile of all 18 sources at `release 21` passes.
+   - ✔ `TrackMate:7.14.0` pin removed — the parent now resolves TrackMate 8.0.0.
+   - Remaining: re-point the three dependencies to the new tags once the
+     upstream repos are tagged (Phase G / M10).
 4. **Package names — rename to lowercase.** Rename `Adapt`, `Output`,
    `Visualisation`, `ui` to conventional lowercase (`adapt`, `output`,
    `visualisation`, `ui`); update `plugins.config` and all imports accordingly.

@@ -40,6 +40,23 @@ No code changed — planning only.
 
 ---
 
+## 2026-09-27 — JDK 21 upgrade applied; TrackMate pin removed
+
+Executed the JDK 21 move in `pom.xml`:
+
+- Added `scijava.jvm.version=21`; `maven.compiler.release` now resolves to **21**.
+  Clean `mvn compile` recompiled all 18 sources with `javac [release 21]`
+  (BUILD SUCCESS).
+- Removed the `TrackMate:7.14.0` `dependencyManagement` pin. TrackMate is now
+  resolved transitively (parent manages **TrackMate 8.0.0**), so ADAPT no longer
+  pins it at all.
+
+The three sibling dependencies are still the old commit hashes
+(`fe92f24c6e`, `99584ec579`, `95d31fcec8`); re-pointing them to the new tags is
+the next step once the upstream repos are tagged.
+
+---
+
 ## 2026-09-27 — JDK 21 target + output-baseline plan (decisions)
 
 - **JDK target moved to Java 21** (reverses Decision 3's Java 11). Rationale:

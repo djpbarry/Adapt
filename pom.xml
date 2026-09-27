@@ -84,6 +84,7 @@
         <main-class>net.calm.adapt.Adapt.Main</main-class>
         <license.licenseName>gpl_v3</license.licenseName>
         <license.copyrightOwners>Francis Crick Institute</license.copyrightOwners>
+        <scijava.jvm.version>21</scijava.jvm.version>
     </properties>
 
     <repositories>
@@ -102,21 +103,6 @@
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
-
-    <dependencyManagement>
-        <dependencies>
-            <!--
-            IAClassLibrary depends on TrackMate transitively (unversioned). The
-            pom-scijava parent manages TrackMate at 8.0.0 (Java 21), which would
-            break our Java 11 target; pin to the last Java 11-compatible 7.x.
-            -->
-            <dependency>
-                <groupId>sc.fiji</groupId>
-                <artifactId>TrackMate</artifactId>
-                <version>7.14.0</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <!--
