@@ -40,6 +40,23 @@ No code changed — planning only.
 
 ---
 
+## 2026-09-27 — Local Fiji wired up for live testing (M11 / Phase H)
+
+- Fiji is at `C:\Users\barryd\fiji-nojre\Fiji.app` (a **nojre** build, no bundled
+  JRE). Verified it runs on the local **JDK 21** (ImageJ 1.54p + Java 21.0.12.1).
+- The bundled `fiji-windows-x64.exe` launcher **cannot find Java** (exits 1), so
+  Fiji is launched via direct Java (`java -cp "jars\*;plugins\*" ij.ImageJ`).
+- Installed `adapt-4.0.0-SNAPSHOT.jar` into `Fiji.app/plugins/`, removed the old
+  `adapt-3.0.13.jar`. Sibling deps were already present and match the current
+  pins (`iaclasslibrary-1.0.37.jar`, `trackerlibrary-3.0.10.jar`,
+  `adaptdataprocessing-1.0.7.jar`).
+- Confirmed all three ADAPT plugin classes load on the Fiji classpath.
+- Committed `bin/install-to-fiji.cmd`, `bin/run-fiji.cmd`,
+  `bin/smoke-test-fiji.cmd` (Phase H1), with the launcher fix left as a
+  follow-up.
+
+---
+
 ## 2026-09-27 — Plugin framework decision: stay ImageJ 1.x
 
 Resolved (with the maintainer) that ADAPT **stays an ImageJ 1.x plugin**

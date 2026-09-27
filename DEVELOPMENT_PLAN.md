@@ -487,14 +487,24 @@ worth re-plumbing.
 
 ### H1. Local Fiji staging & launch
 
-1. Document how to obtain / locate a local Fiji installation (`Fiji.app/`).
-2. Add a script (`bin/install-to-fiji[.cmd]`) that:
-   - runs `mvn package`,
-   - copies `target/adapt-<version>.jar` and the dependency jars under `target/`
-     into `Fiji.app/jars/` (or `Fiji.app/plugins/`), and
-   - refreshes ImageJ's plugin cache.
-3. Add a launch script (`bin/run-fiji[.cmd]`) that starts Fiji with the ADAPT
-   plugin on the classpath.
+Local Fiji is at `C:\Users\barryd\fiji-nojre\Fiji.app` — a **nojre** build (no
+bundled JRE). Verified working with the local **JDK 21**
+(`C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot`); the bundled
+`fiji-windows-x64.exe` launcher cannot find Java (exits 1), so launch is done via
+direct Java. Scripts committed under `bin/`:
+
+- `bin/install-to-fiji.cmd [Fiji.app]` — `mvnw package`, removes any old
+  `adapt-*.jar`, copies `target/adapt-<version>.jar` into `Fiji.app/plugins/`.
+  Only the ADAPT jar is installed; its sibling dependencies are already present.
+- `bin/run-fiji.cmd [Fiji.app]` — launches `ij.ImageJ` (ImageJ 1.x GUI, which is
+  what ADAPT needs) with `-cp "jars\*;plugins\*"`.
+- `bin/smoke-test-fiji.cmd [Fiji.app]` — headless check that the JDK runs ImageJ
+  and all three ADAPT plugin classes (plus sibling deps) are loadable. This is
+  the scripted form of H2.
+
+**Follow-up (later):** fix or document the bundled launcher (create a `jre`
+junction to the JDK) so the normal Fiji double-click path also works; the direct
+Java launch is the current workaround.
 
 ### H2. Interactive smoke test (per change, before merge)
 
