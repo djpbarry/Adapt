@@ -13,7 +13,7 @@
 
     <groupId>net.calm</groupId>
     <artifactId>adapt</artifactId>
-    <version>3.0.13</version>
+    <version>4.0.0-SNAPSHOT</version>
 
     <name>net.calm.adapt</name>
     <description>Maven implementation of net.calm.adapt.Adapt plugin.</description>
@@ -25,7 +25,7 @@
     </organization>
     <licenses>
         <license>
-            <name>Simplified BSD License</name>
+            <name>GNU General Public License v3.0 or later</name>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -82,7 +82,7 @@
     <properties>
         <package-name>net.calm.adapt</package-name>
         <main-class>net.calm.adapt.Adapt.Main</main-class>
-        <license.licenseName>bsd_2</license.licenseName>
+        <license.licenseName>gpl_v3</license.licenseName>
         <license.copyrightOwners>Francis Crick Institute</license.copyrightOwners>
     </properties>
 
@@ -119,6 +119,22 @@
     </dependencyManagement>
 
     <dependencies>
+        <!--
+        The three ADAPT core libraries are pinned to specific git commits
+        because none has a usable release tag (Decision 2, DEVELOPMENT_PLAN.md
+        Phase A2/G). Each is a JitPack `com.github.djpbarry:*` artifact resolved
+        auth-free.
+
+        * IAClassLibrary `fe92f24c6e` - the commit immediately after the only
+          tag `v1.032` (it bumped the version to 1.0.37). Superseded by the
+          modernised release; API docs at
+          https://djpbarry.github.io/IAClassLibrary/
+        * TrackerLibrary `99584ec579` - untagged. Superseded by the modernised
+          release; API docs at https://djpbarry.github.io/TrackerLibrary/
+        * AdaptDataProcessing `95d31fcec8` - untagged, and the project is now
+          DEPRECATED (archive candidate; see its README). Only
+          `Bleb_Data_Analysis` uses it; slated for removal rather than tagging.
+        -->
         <dependency>
             <groupId>com.github.djpbarry</groupId>
             <artifactId>IAClassLibrary</artifactId>

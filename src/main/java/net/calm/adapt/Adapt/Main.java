@@ -1,19 +1,22 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2014 David Barry <david.barry at cancer.org.uk>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.calm.adapt.Adapt;
 
-/**
- *
- */
 public class Main {
-//
-//    public static void main(String args[]) {
-//        (new Bleb_Data_Analysis()).run(null);
-//        System.exit(0);
-//    } 
 
     public static void main(String args[]) {
         Analyse_Movie am = new Analyse_Movie();
@@ -21,27 +24,4 @@ public class Main {
         am.run(null);
         System.exit(0);
     }
-//    public static void main(String args[]) {
-////        Random r = new Random();
-////        for (int i = 0; i < 20; i++) {
-//        UserVariables uv = new UserVariables();
-////        Analyse_Batch.readParams(uv, new File("C:\\Users\\barry05\\Desktop\\Test_Data_Sets\\adapt_test_data\\Test Data For Paper\\Adapt_v1.105_Output\\params.csv"));
-////            uv.setCurveRange(4 + r.nextInt(3));
-////            uv.setCortexDepth(0.48 + r.nextDouble() * 0.24);
-////            uv.setTempFiltRad(4.0 + r.nextDouble() * 2.0);
-////            uv.setSpatFiltRad(4.0 + r.nextDouble() * 2.0);
-////            uv.setSigThreshFact(0.0 + r.nextDouble() * 0.5);
-////            uv.setMinCurveThresh(0.0 + r.nextDouble() * 5.0);
-////            uv.setSigRecoveryThresh(0.2 + r.nextDouble() * 0.1);
-////            Analyse_Batch am = new Analyse_Batch(false, true,
-////                    new File("C:\\Users\\barry05\\Desktop\\Test_Data_Sets\\adapt_test_data\\Test Data For Paper\\Stacks\\cyto"),
-////                    new File("C:\\Users\\barry05\\Desktop\\Test_Data_Sets\\adapt_test_data\\Test Data For Paper\\Stacks\\sig"),
-////                    uv);
-////            am.run(null);
-////        }
-////        Analyse_Batch am = new Analyse_Batch();
-//        Analyse_Batch am = new Analyse_Batch(true, false, null, null, uv);
-//        am.run(null);
-//        System.exit(0);
-//    }
 }

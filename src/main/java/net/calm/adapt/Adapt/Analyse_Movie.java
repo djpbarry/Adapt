@@ -124,13 +124,14 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     @Override
     public void run(String arg) {
         LocalDateTime startTime = LocalDateTime.now();
-//        MacroWriter.write();
         String version = null;
         try {
             final Properties properties = new Properties();
             properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
             version = properties.getProperty("version");
         } catch (IOException e) {
+            IJ.log("Failed to read version from project.properties.");
+            version = "unknown";
         }
         TITLE = TITLE + "_v" + version;
         IJ.log(TITLE);
@@ -144,7 +145,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 directory = Utilities.getFolder(new File(IJ.getDirectory("current")), "Specify directory for output files...", true); // Specify directory for output
             }
         } catch (Exception e) {
-            IJ.log(e.toString());
+            IJ.log("Failed to select output directory: " + e.getMessage());
         }
         if (directory == null) {
             return;
@@ -171,7 +172,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (IJ.getInstance() == null || batchMode || protMode) {
             cytoStack = stacks[0];
             cytoSize = cytoStack.getSize();
-//            roi = new PointRoi(new float[]{288, 244, 956}, new float[]{532, 346, 364});
         } else {
             ImagePlus images[] = GenUtils.specifyInputs(channelLabels);
             if (images == null) {
@@ -237,10 +237,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         /*
          Convert cyto channel to 8-bit for faster segmentation
          */
-//        IJ.saveAs(new ImagePlus("",stacks[0]), "TIF","D:/debugging/adapt_debug/stacks_0");
         cytoStack = GenUtils.convertStack(stacks[0], 8);
         stacks[0] = cytoStack;
-//        IJ.saveAs(new ImagePlus("",stacks[0]), "TIF","D:/debugging/adapt_debug/stacks_0_post_conversion");
         if (!(batchMode || protMode)) {
             GUI gui = new GUI(null, true, TITLE, stacks, roi);
             gui.setVisible(true);
@@ -256,11 +254,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         ImageProcessor cytoImage = cytoStack.getProcessor(1).duplicate();
         (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         RegionGrower.initialiseROIs(null, -1, 1, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
-//        if (initialiseROIs(1, null, -1, 1, cytoImage) < 1) {
-//            IJ.error(TITLE, "No cells detected!");
-//            segDialog.dispose();
-//            return;
-//        }
         roi = null;
         /*
          * Cycle through all images in stack and detect cells in each. All
@@ -277,15 +270,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 filoStream = new PrintWriter(new FileOutputStream(filoData));
                 filoStream.println("Frame,Number of Filopodia");
             } catch (FileNotFoundException e) {
-                System.out.println(e.toString());
+                IJ.log("Failed to create FilopodiaVersusTime.csv: " + e.getMessage());
                 return false;
             }
         }
         IJ.log(pdLabel);
         for (int i = 0; i < cytoSize; i++) {
-//            if (allMasks != null) {
-//                IJ.saveAs(new ImagePlus("", allMasks), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d.png", "AllMasksPreErode", i));
-//            }
             IJ.showStatus(String.format("Segmenting %d%%", (int) Math.round(i * 100.0 / cytoSize)));
             cytoImage = cytoStack.getProcessor(i + 1).duplicate();
             (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
@@ -305,7 +295,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                      * segmentation
                      */
                     ImageProcessor mask = current.getMask();
-//                    IJ.saveAs(new ImagePlus("", mask), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d_%d.png", "MaskPreErode", i, j));
                     current.calcCentroid(mask);
                     Rectangle bounds = current.getBounds();
                     bounds.grow(2, 2);
@@ -314,7 +303,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     for (int k = 0; k < e; k++) {
                         mask.erode();
                     }
-//                    IJ.saveAs(new ImagePlus("", mask), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d_%d.png", "MaskPostErode", i, j));
                     short seed[] = current.findSeed(mask);
                     if (seed != null) {
                         Region temp;
@@ -341,13 +329,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 Region current = allRegions.get(i).get(k);
                 if (current != null) {
                     ImageProcessor currentMask = current.getMask();
-//                    IJ.saveAs(new ImagePlus("", currentMask), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d_%d.png", "MaskPostErode2", i, k));
                     currentMask.invert();
                     bb.copyBits(currentMask, 0, 0, Blitter.ADD);
                     current.setFinalMask();
                 }
             }
-//                IJ.saveAs(new ImagePlus("", allMasks), "PNG", String.format("D:\\debugging\\adapt_debug\\output\\%s_%d.png", "AllMasksPostErode", i));
             if (i > 0) {
                 RegionGrower.initialiseROIs(allMasks, thresholds[i], i + 2, cytoImage, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
             }
@@ -402,20 +388,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         } catch (Exception e) {
             GenUtils.logError(e, "Error: Failed to create cell trajectories file.");
         }
-//        File paramFile;
-//        PrintWriter paramStream;
-//        try {
-//            paramFile = new File(parDir + delimiter + "params.csv");
-//            paramStream = new PrintWriter(new FileOutputStream(paramFile));
-//        } catch (FileNotFoundException e) {
-//            System.out.println("Error: Failed to create parameter file.\n");
-//            System.out.println(e.toString());
-//            return;
-//        }
-//        if (!printParamFile(paramStream)) {
-//            return;
-//        }
-//        paramStream.close();
         return true;
     }
 
@@ -463,13 +435,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
              * cell centroids.
              */
             try {
-//                trajFile = new File(childDir + delimiter + "trajectory.csv");
                 segPointsFile = new File(childDir + delimiter + "cell_boundary_points.csv");
-//                trajStream = new PrintWriter(new FileOutputStream(trajFile));
                 segStream = new PrintWriter(new FileOutputStream(segPointsFile));
             } catch (FileNotFoundException e) {
-                System.out.println("Error: Failed to create parameter files.\n");
-                System.out.println(e.toString());
+                IJ.log("Failed to create cell boundary points file: " + e.getMessage());
                 return;
             }
             if (!prepareOutputFiles(null, segStream, length, 3)) {
@@ -479,7 +448,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             cellData.get(index).setSigMap(sigMap);
             cellData.get(index).setScaleFactors(scaleFactors);
             buildVelSigMaps(index, allRegions, null, segStream, cellData.get(index), cellData.size());
-//            trajStream.close();
             segStream.close();
             double smoothVelocities[][] = velMap.smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes()); // Gaussian smoothing in time and space
             double curvatures[][] = curveMap.smoothMap(0.0, 0.0);
@@ -603,45 +571,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     boolean prepareOutputFiles(PrintWriter trajStream, PrintWriter segStream, int size, int dim) {
         segStream.println("FRAMES " + String.valueOf(size));
         segStream.println("DIM " + String.valueOf(dim));
-//        trajStream.println("Time(s), X (" + String.valueOf(GenUtils.mu) + "m), Y (" + String.valueOf(GenUtils.mu) + "m)");
         return true;
     }
 
-    //    boolean printParamFile(PrintWriter paramStream) {
-//        paramStream.println(TITLE);
-//        paramStream.println(Utilities.getDate("dd/MM/yyyy HH:mm:ss"));
-//        paramStream.println();
-//        paramStream.println(StaticVariables.AUTO_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isAutoThreshold()));
-//        paramStream.println(StaticVariables.THRESH_METHOD.replaceAll("\\s", "_") + ", " + uv.getThreshMethod());
-//        paramStream.println(StaticVariables.GREY_SENS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getGreyThresh()));
-//        paramStream.println(StaticVariables.SPAT_RES.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSpatialRes()));
-//        paramStream.println(StaticVariables.TIME_RES.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getTimeRes()));
-//        paramStream.println(StaticVariables.EROSION.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getErosion()));
-//        paramStream.println(StaticVariables.SPAT_FILT_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSpatFiltRad()));
-//        paramStream.println(StaticVariables.TEMP_FILT_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getTempFiltRad()));
-//        paramStream.println(StaticVariables.GAUSS_RAD.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getGaussRad()));
-//        paramStream.println(StaticVariables.GEN_VIS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGenVis()));
-//        paramStream.println(StaticVariables.GET_MORPH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetMorph()));
-//        paramStream.println(StaticVariables.ANA_PROT.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isAnalyseProtrusions()));
-//        paramStream.println(StaticVariables.DETECT_BLEB.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isBlebDetect()));
-//        paramStream.println(StaticVariables.MIN_CURVE_RANGE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCurveRange()));
-//        paramStream.println(StaticVariables.MIN_CURVE_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinCurveThresh()));
-//        paramStream.println(StaticVariables.PROT_LEN_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebLenThresh()));
-//        paramStream.println(StaticVariables.PROT_DUR_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getBlebDurThresh()));
-//        paramStream.println(StaticVariables.CUT_OFF.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCutOffTime()));
-//        paramStream.println(StaticVariables.CORTEX_DEPTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getCortexDepth()));
-//        paramStream.println(StaticVariables.USE_SIG_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isUseSigThresh()));
-//        paramStream.println(StaticVariables.SIG_THRESH_FACT.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigThreshFact()));
-//        paramStream.println(StaticVariables.SIG_REC_THRESH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getSigRecoveryThresh()));
-//        paramStream.println(StaticVariables.MIN_TRAJ_LENGTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMinLength()));
-//        paramStream.println(StaticVariables.FILO_MAX_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSizeMax()));
-//        paramStream.println(StaticVariables.FILO_MIN_SIZE.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getFiloSizeMin()));
-//        paramStream.println(StaticVariables.GEN_SIG_DIST.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isGetFluorDist()));
-//        paramStream.println(StaticVariables.MIN_MORPH_AREA.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getMorphSizeMin()));
-//        paramStream.println(StaticVariables.VIS_LINE_WIDTH.replaceAll("\\s", "_") + ", " + String.valueOf(uv.getVisLineWidth()));
-//        paramStream.println(StaticVariables.DISPLAY_PLOTS.replaceAll("\\s", "_") + ", " + String.valueOf(uv.isDisplayPlots()));
-//        return true;
-//    }
     @Deprecated
     void buildVelSigMaps(int index, Region[] allRegions, PrintWriter trajStream, PrintWriter segStream, CellData cellData, int total) {
         ImageStack cytoStack = stacks[0];
@@ -652,12 +584,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int height = velMap.getHeight();
         for (int i = cellData.getStartFrame() - 1; i < width; i++) {
             Region current = allRegions[i];
-//            ArrayList<float[]> centres = current.getCentres();
-//            double xc = centres.get(0)[0];
-//            double yc = centres.get(0)[1];
-//            trajStream.println(String.valueOf(i * 60.0 / uv.getTimeRes())
-//                    + ", " + String.valueOf(xc * uv.getSpatialRes())
-//                    + ", " + String.valueOf(yc * uv.getSpatialRes()));
             /*
              * Get points for one column (time-point) of map
              */
@@ -789,7 +715,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
             velStatWriter.close();
         } catch (FileNotFoundException e) {
-            System.out.println(e.toString());
+            IJ.log("Failed to create VelocityAnalysis.csv: " + e.getMessage());
         }
     }
 
@@ -1085,95 +1011,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-    //    void initDistanceMaps(ImageProcessor inputImage, ByteProcessor regionImage, ArrayList<Region> singleImageRegions, float[][][] distancemaps, ByteProcessor[] regionImages, int width, double filtRad, double thresh) {
-//        GaussianBlur blurrer = new GaussianBlur();
-//        /*
-//         * Image texture (and grey levels) used to control region growth.
-//         * Standard deviation of grey levels is used as a simple measure of
-//         * texture.
-//         */
-//        ImageProcessor texture = inputImage.duplicate();
-//        texture.findEdges();
-//        blurrer.blurGaussian(texture, filtRad, filtRad, 0.01);
-//        int cellNum = singleImageRegions.size();
-//        ArrayList<Region> tempRegions = new ArrayList<Region>();
-//        for (int n = 0; n < cellNum; n++) {
-//            /*
-//             * Initialise distance maps. Any non-seed pixels are set to
-//             * MAX_VALUE. Seed pixels are set to zero distance. Using these seed
-//             * pixels, temporary regions are added to a temporary ArrayList.
-//             */
-//            for (int x = 0; x < width; x++) {
-//                Arrays.fill(distancemaps[n][x], Float.MAX_VALUE);
-//            }
-//            Region cell = singleImageRegions.get(n);
-//            if (cell != null) {
-//                ImageProcessor mask = cell.getMask();
-//                LinkedList<short[]> borderPix = cell.getBorderPix();
-//                ArrayList<float[]> centres = cell.getCentres();
-//                float[] centre = centres.get(0);
-//                Region cellcopy = new Region(inputImage.getWidth(), inputImage.getHeight(),
-//                        new short[]{(short) Math.round(centre[0]), (short) Math.round(centre[1])});
-//                /*
-//                 * Copy initial pixels and border pixels to cell copy for distance
-//                 * map construction. This can probably be replaced with a clone
-//                 * method.
-//                 */
-//                Rectangle bounds = cell.getBounds();
-//                for (int i = bounds.x; i < bounds.x + bounds.width; i++) {
-//                    for (int j = bounds.y; j < bounds.y + bounds.height; j++) {
-//                        if (mask.getPixel(i, j) == 0) {
-//                            distancemaps[n][i][j] = 0.0f;
-//                        }
-//                    }
-//                }
-//                int bordersize = borderPix.size();
-//                for (int s = 0; s < bordersize; s++) {
-//                    short[] pix = borderPix.get(s);
-//                    int sx = pix[0];
-//                    int sy = pix[1];
-//                    distancemaps[n][sx][sy] = 0.0f;
-//                    cellcopy.addBorderPoint(pix);
-//                }
-//                tempRegions.add(cellcopy);
-//                regionImages[n] = (ByteProcessor) regionImage.duplicate();
-//            } else {
-//                tempRegions.add(new Region(inputImage.getWidth(), inputImage.getHeight(), null));
-//                regionImages[n] = (ByteProcessor) regionImage.duplicate();
-//            }
-//        }
-//        boolean totChange = true, thisChange;
-//        while (totChange) {
-//            totChange = false;
-//            for (int i = 0; i < cellNum; i++) {
-//                if (singleImageRegions.get(i) != null) {
-//                    ByteProcessor tempRef = (ByteProcessor) regionImages[i].duplicate(); // Temporary reference to ensure each pixel is only considered once.
-//                    Region cell = tempRegions.get(i);
-//                    if (cell.isActive()) {
-//                        LinkedList<short[]> borderPix = cell.getBorderPix();
-//                        int borderLength = borderPix.size();
-//                        thisChange = false;
-//                        for (int j = 0; j < borderLength; j++) {
-//                            short[] thispix = borderPix.get(j);
-//                            /*
-//                             * thisChange is set to true if dilation occurs at any
-//                             * border pixel.
-//                             */
-//                            thisChange = buildDistanceMaps(tempRef, inputImage, cell,
-//                                    thispix, distancemaps[i], thresh, texture, i + 1, uv.getLambda()) || thisChange;
-//                        }
-//                        cell.setActive(thisChange);
-//                        totChange = thisChange || totChange; // if all regions cease growing, while loop will exit
-//                    }
-//                }
-//            }
-//            /*
-//             * Update each region to new dilated size and update regionImages to
-//             * assign index to scanned pixels
-//             */
-//            expandRegions(tempRegions, regionImages, cellNum);
-//        }
-//    }
     float calcDistance(short[] point, int x, int y, ImageProcessor gradient, double lambda) {
         return (float) ((Math.pow(gradient.getPixelValue(point[0], point[1])
                 - gradient.getPixelValue(x, y), 2.0) + lambda) / (1.0 + lambda));
@@ -1215,120 +1052,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return sdImage;
     }
 
-//    /*
-//     * Dilate region at current point according to grey levels, texture,
-//     * gradient and Dijkstra distance map.
-//     */
-//    boolean dijkstraDilate(ByteProcessor regionImage, Region region, Pixel point, float[][][] distanceMaps, int intermediate, int index) {
-//        int width = regionImage.getWidth();
-//        int height = regionImage.getHeight();
-//        int x = point.getX();
-//        int y = point.getY();
-//        int N = distanceMaps.length;
-//        boolean dilate = false;
-//        boolean remove = true;
-//        regionImage.setValue(intermediate); // No region in regionImage should have the index value INTERMEDIATE
-//        for (int i = x - 1; i <= x + 1; i++) {
-//            for (int j = y - 1; j <= y + 1; j++) {
-//                if (!(Utils.isEdgePixel(i, j, width, height, 0))) {
-//                    if (regionImage.getPixel(i, j) == Region.FOREGROUND && distanceMaps[index - 1][i][j] < Float.MAX_VALUE) {
-//                        boolean thisdilate = true;
-//                        for (int k = 0; k < N; k++) {
-//                            if (k != index - 1) {
-//                                /*
-//                                 * Dilation will occur at the current point if
-//                                 * distance to the current region's seed is less
-//                                 * than all others.
-//                                 */
-//                                thisdilate = (distanceMaps[index - 1][i][j]
-//                                        < distanceMaps[k][i][j]) && thisdilate;
-//                            }
-//                        }
-//                        /*
-//                         * If dilation is to occur, update regionImage and add a
-//                         * pixel to the expandedBorder of the current region.
-//                         */
-//                        if (thisdilate) {
-//                            Pixel p = new Pixel(i, j, index);
-//                            regionImage.drawPixel(i, j);
-//                            dilate = true;
-//                            region.addExpandedBorderPix(p);
-//                        }
-//                    }
-//                }
-//                int r = regionImage.getPixel(i, j);
-//                /*
-//                 * Remove (x,y) from the borderpixel set and add it to the inner
-//                 * region set if all surrounding pixels are either set to
-//                 * INTERMEDIATE or already assigned to index.
-//                 */
-//                remove = (r == intermediate || r == index) && remove;
-//            }
-//        }
-//        if (!remove) {
-//            region.addExpandedBorderPix(point);
-//            if (x < 1 || y < 1 || x >= regionImage.getWidth() - 1 || y >= regionImage.getHeight() - 1) {
-//                region.setEdge(true);
-//            }
-//        } else if (Utils.isEdgePixel(x, y, width, height, 1)) {
-//            region.addExpandedBorderPix(point);
-//        }
-//        return dilate;
-//    }
-//    /*
-//     * Values are added to distanceMaps in the neighbourhood of the specified
-//     * point. Returns false if no values added, true otherwise.
-//     */
-//    boolean buildDistanceMaps(ByteProcessor regionImage, ImageProcessor greys, Region region, Pixel point, float[][] distancemap, double thresh, ImageProcessor gradient, int index, double lambda) {
-//        int x = point.getX();
-//        int y = point.getY();
-//        boolean dilate = false;
-//        boolean remove = true;
-//        float minDist = Float.MAX_VALUE;
-//        regionImage.setValue(intermediate); // No region in regionImage should have the index value INTERMEDIATE
-//        Pixel p = null;
-//        for (int i = x - 1; i <= x + 1; i++) {
-//            for (int j = y - 1; j <= y + 1; j++) {
-//                int r = regionImage.getPixel(i, j);
-//                float g = greys.getPixelValue(i, j);
-//                /*
-//                 * Dilation considered if grey-level threshold exceeded
-//                 */
-//                if (r == Region.FOREGROUND && (g > thresh)) {
-//                    float dist = calcDistance(point, i, j, gradient, lambda);
-//                    /*
-//                     * Dilation will only occur at point minimally distant from
-//                     * seed
-//                     */
-//                    if (dist < minDist) {
-//                        minDist = dist;
-//                        p = new Pixel(i, j, index);
-//                        r = index;
-//                    }
-//                }
-//                /*
-//                 * Remove (x,y) from the borderpixel set and add it to the inner
-//                 * region set if all surrounding pixels are either set to
-//                 * INTERMEDIATE or already assigned to index.
-//                 */
-//                remove = (r == intermediate || r == index) && remove;
-//            }
-//        }
-//        if (p != null) {
-//            regionImage.drawPixel(p.getX(), p.getY());
-//            dilate = true;
-//            region.addExpandedBorderPix(p);
-//            distancemap[p.getX()][p.getY()] = distancemap[x][y] + minDist;
-//        }
-//        if (!remove) {
-//            region.addExpandedBorderPix(point);
-//            if (x < 1 || y < 1 || x >= regionImage.getWidth() - 1 || y >= regionImage.getHeight() - 1) {
-//                region.setEdge(true);
-//            }
-//        }
-//        return dilate;
-//    }
-
     /*
      * 'Soft' threshold - enhances contrast and edges.
      */
@@ -1341,23 +1064,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
     }
-
-//    void expandRegions(ArrayList<Region> regions, ByteProcessor[] regionImage, int N) {
-//        for (int i = 0; i < N; i++) {
-//            Region cell = regions.get(i);
-//            if (cell != null) {
-//                LinkedList<Pixel> pixels = cell.getExpandedBorder();
-//                int borderLength = pixels.size();
-//                for (int j = 0; j < borderLength; j++) {
-//                    Pixel current = pixels.get(j);
-//                    int x = current.getX();
-//                    int y = current.getY();
-//                    regionImage[i].putPixelValue(x, y, i + 1);
-//                }
-//                cell.expandBorder();
-//            }
-//        }
-//    }
 
     /*
      * Correlates data in velImage and sigImage within the Roi's specified in

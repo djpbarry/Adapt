@@ -5,6 +5,15 @@ maintainable, (b) improve the user experience, and (c) overhaul the
 documentation (migrating from the GitHub wiki to ReadTheDocs). It is grounded in
 the current state of the codebase as of the plan's writing.
 
+## Maintenance convention
+
+**Every time anything in the codebase is changed, update this
+`DEVELOPMENT_PLAN.md` and `REVISION_LOG.md` in the same pass.** Mark phases,
+milestones, and decisions as done or deviated in the plan, and add a dated
+narrative entry to the revision log. The plan and the log are the single source
+of truth for what has actually been done; they must not drift stale behind the
+code.
+
 ## Current state (context for the plan)
 
 - ADAPT is a Fiji/ImageJ plugin (`net.calm.adapt`) that analyses cell migration,
@@ -458,7 +467,7 @@ management tractable.
 
 1. **M1 — Foundations (low risk, high value):** `.gitignore`, Maven wrapper, CI
    hardening, license-header consistency, delete dead code. (Phase A1, A2, A4.5,
-   A5.5, A6)
+   A4.6, A6) — **done (2026-09-27).**
 2. **M2 — Test harness:** JUnit + a couple of unit tests + golden-file output
    test. (Phase A3)
 3. **M3 — Docs migration:** stand up Sphinx/RTD, migrate wiki content. (Phase C)
@@ -502,6 +511,8 @@ input for the phases above.
    to GPL-3.0. Replace the six NetBeans "change this header" stubs with the GPL
    header. Confirm the correct `license.copyrightOwners` (Francis Crick
    Institute / David Barry) while doing so.
+   *(Applied in M1 — pom.xml and headers corrected; `license.copyrightOwners`
+   confirmation still open.)*
 2. **Dependencies — stay on JitPack, pin to tags.** Do not vendor. Do not use
    GitHub Packages. Tag each of `IAClassLibrary`, `TrackerLibrary`,
    `AdaptDataProcessing` with a release in its own repo; JitPack resolves tagged

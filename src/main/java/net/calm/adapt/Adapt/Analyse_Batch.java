@@ -1,7 +1,18 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2014 David Barry <david.barry at cancer.org.uk>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.calm.adapt.Adapt;
 
@@ -50,6 +61,8 @@ public class Analyse_Batch extends Analyse_Movie {
             properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
             version = properties.getProperty("version");
         } catch (IOException e) {
+            IJ.log("Failed to read version from project.properties.");
+            version = "unknown";
         }
         TITLE = TITLE + "_v" + version;
         File cytoImageFiles[] = null; // Obtain file list
@@ -71,7 +84,7 @@ public class Analyse_Batch extends Analyse_Movie {
             }
             directory = new File(directory.getAbsolutePath() + delimiter + "..");
         } catch (Exception e) {
-            IJ.log(e.toString());
+            IJ.log("Failed to locate image directories: " + e.getMessage());
             return;
         }
 //        } else {
@@ -116,7 +129,7 @@ public class Analyse_Batch extends Analyse_Movie {
                     }
                     analyse(cytoImageFiles[f].getName());
                 } catch (Exception e) {
-                    IJ.log("Failed to analyse " + cytoImageFiles[f].getName());
+                    IJ.log("Failed to analyse " + cytoImageFiles[f].getName() + ": " + e.getMessage());
                 }
             }
         }
@@ -161,7 +174,7 @@ public class Analyse_Batch extends Analyse_Movie {
             uv.setMorphSizeMin(new Scanner(br.readLine()).useDelimiter(p).nextDouble());
             br.close();
         } catch (Exception e) {
-            System.out.println("Error reading parameter file.");
+            IJ.log("Error reading parameter file: " + e.getMessage());
         }
     }
 

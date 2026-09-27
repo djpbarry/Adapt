@@ -27,6 +27,43 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-09-27 — Version bump to `4.0.0-SNAPSHOT`
+
+Bumped `pom.xml` `<version>` from `3.0.13` to `4.0.0-SNAPSHOT` — the first step
+toward the semver discipline in L2 and the sibling's `4.0.0-SNAPSHOT` convention.
+This is the pre-tag working version; the `v4.0.0` tag is only created once the
+planned modernisation work lands.
+
+---
+
+## 2026-09-27 — M1 (Foundations) completed
+
+**Phases A1, A2, A4.5, A4.6, and A6 done.** `mvn verify` passes on JDK 21 with
+`maven.compiler.release=11`. The package rename (A5.2 / Decision 4) and the
+`readParams()` → JSON replacement (Decision 5) are deliberately left to M4, as
+the plan sequences them.
+
+| Change | What |
+|---|---|
+| A1 | CI `actions/checkout@v4` → `@v5` and `actions/setup-java@v4` → `@v5` (Node 20 → Node 24 deprecation). |
+| A2 | `pom.xml`: documented the three commit-hash pins (`IAClassLibrary:fe92f24c6e`, `TrackerLibrary:99584ec579`, `AdaptDataProcessing:95d31fcec8`) with the commit each refers to and why; flagged `AdaptDataProcessing` as deprecated. Re-pointing to tags remains M10 / Phase G. |
+| A4.5 | Stripped ~300 lines of dead code: `Main.java` (commented experiments); the old Dijkstra segmentation methods (`initDistanceMaps`, `dijkstraDilate`, `buildDistanceMaps`, `expandRegions`); `generateScaleBar`, `drawBlebMovie`, `printParamFile`; and scattered debug `IJ.saveAs` blocks across `Analyse_Movie`, `BlebAnalyser`, `RunnableOutputGenerator`. |
+| A4.6 | `pom.xml` license BSD-2 → GPL-3.0 (`license.licenseName=gpl_v3`, name "GNU General Public License v3.0 or later"); replaced the six NetBeans "change this header" stubs with the GPL header. |
+| A6 | Replaced 2 empty `catch` blocks and 9 bare `System.out.println(e.toString())` / `IJ.log(e.toString())` with actionable `IJ.log(...)` messages; fixed a log typo ("saved" → "save"). |
+
+### Verification
+
+- `mvn verify` → **BUILD SUCCESS**.
+- `mvnw` is tracked with the executable bit set (`100755`) — L10 is satisfied.
+
+### Deliberately deferred
+
+- **A5.2 (package rename)** — sequenced into M4 (see plan note).
+- **`AdaptDataProcessing` / `Bleb_Data_Analysis` removal** — flagged as an open
+  decision (see the upstream-dependency entry above), not forced inside M1.
+
+---
+
 ## 2026-09-27 — Upstream dependencies have moved; `AdaptDataProcessing` is obsolete
 
 The three JitPack dependencies are no longer in the state assumed by the plan.
@@ -105,10 +142,9 @@ deliberately on the Java target** (see Decision 3 below).
 
 ### Review findings (recorded for the plan — see `DEVELOPMENT_PLAN.md`)
 
-- **License inconsistency (unresolved):** `LICENSE` is GPL-3.0 but `pom.xml`
-  declares `Simplified BSD License` with `license.licenseName=bsd_2`. This is
-  the same contradiction the siblings resolved; ADAPT's `pom.xml` has **not yet
-  been corrected** (Decision 1, still open).
+- **License inconsistency (resolved in M1):** `LICENSE` was GPL-3.0 but `pom.xml`
+  declared `Simplified BSD License` with `license.licenseName=bsd_2`. Corrected
+  to GPL-3.0 in M1 (Decision 1).
 - **No tests, no tags, no lint/format tooling.** `mvn verify` is
   compile-only. ADAPT has no git tags at all.
 - **Brittle `Analyse_Batch.readParams()`** — positional `Scanner` + hard-coded
@@ -130,7 +166,7 @@ deliberately on the Java target** (see Decision 3 below).
 ### The five decisions (resolved 2024-09-24, authoritative)
 
 1. **License — GPL-3.0.** Correct `pom.xml` (BSD-2 → GPL-3.0) and the six
-   NetBeans header stubs. *(Open — not yet applied here.)*
+   NetBeans header stubs. *(Done in M1.)*
 2. **Dependencies — stay on JitPack, pin to tags.** Requires Phase G (tagging
    the three upstream libs) first. *(Open.)*
 3. **Target JDK — Java 11 compile target, build on a modern JDK.** This is the
@@ -171,16 +207,16 @@ dependency pins in writing before any build or CI edit.
 
 ### L2 — Use consistent semver tag names *(inherited)*
 
-ADAPT has **no tags** and its version is still old-style `3.0.13`. The siblings
-standardised on `vX.Y.Z`.
+ADAPT has **no tags** yet. Its version is now `4.0.0-SNAPSHOT` (bumped from the
+old-style `3.0.13`); the siblings standardised on `vX.Y.Z`.
 
 **Rule:** adopt `vX.Y.Z` from the first tag onward and decide the major bump
 before tagging.
 
 ### L3 — Resolve the licence before tagging *(inherited)*
 
-ADAPT has the exact contradiction the siblings fixed: GPL-3.0 `LICENSE` but
-BSD-2 `pom.xml`. It has **not** been fixed here yet.
+ADAPT had the exact contradiction the siblings fixed: GPL-3.0 `LICENSE` but
+BSD-2 `pom.xml`. Fixed in M1 (pom.xml + headers).
 
 **Rule:** align `pom.xml` (`<licenses>`, `license.licenseName`,
 `license.copyrightOwners`) with the root `LICENSE` before tagging; treat the
@@ -224,8 +260,8 @@ files.
 
 ADAPT adopted the wrapper in `ad4a749`. The sibling hit "Permission denied" on
 Linux CI because `mvnw` was committed as mode `100644`. ADAPT also added
-`.gitattributes` (LF for `mvnw`) in the same pass — but the executable bit has
-not been verified here yet.
+`.gitattributes` (LF for `mvnw`) in the same pass. The executable bit was
+verified in M1: `mvnw` is tracked as `100755`.
 
 **Rule:** confirm `git ls-files -s mvnw` shows `100755` (and LF line endings)
 before relying on `./mvnw` in CI. On Windows, set it with
@@ -233,11 +269,11 @@ before relying on `./mvnw` in CI. On Windows, set it with
 
 ### L11 — A plugin's build-tooling win is not a completion *(new, ADAPT-specific)*
 
-ADAPT has landed the entire build/tooling half of M1 (wrapper, CI, `.gitignore`,
-`.gitattributes`, parent bump, TrackMate pin) but **none** of the code-level
-M1 work — license correction, dead-code removal, package rename, error-handling.
-The easy, high-visibility wins are done; the remaining M1 items are the ones
-that touch source.
+ADAPT landed the entire build/tooling half of M1 (wrapper, CI, `.gitignore`,
+`.gitattributes`, parent bump, TrackMate pin) well before the code-level M1
+work (license correction, dead-code removal, error handling — package rename
+still deferred to M4). The easy, high-visibility wins came first and could
+have been mistaken for a finished M1.
 
 **Rule:** treat "wrapper + CI green" as necessary but far from sufficient;
 track code-level milestones explicitly so a green `mvn verify` is not mistaken

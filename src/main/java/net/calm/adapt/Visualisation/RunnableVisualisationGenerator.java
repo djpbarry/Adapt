@@ -113,7 +113,7 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
 //            IJ.log(String.format("Saving %s", curveFileName));
             BioFormatsImageWriter.saveImage(curveOutput, new File(curveFileName), lut);
         } catch (Exception e) {
-            GenUtils.logError(e, "Failed to saved visualisation image.");
+            GenUtils.logError(e, "Failed to save visualisation image.");
         }
     }
 }

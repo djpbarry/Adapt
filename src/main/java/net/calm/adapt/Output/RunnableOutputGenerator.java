@@ -126,7 +126,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
                 try {
                     correlativePlot(cellData.get(index));
                 } catch (IOException e) {
-                    IJ.log(e.toString());
+                    IJ.log("Failed to write bleb data analysis files: " + e.getMessage());
                 }
                 String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL, StaticVariables.MEAN_SIGNAL};
                 (new DataFileAverager(StaticVariables.DATA_STREAM_HEADINGS,
@@ -195,22 +195,13 @@ public class RunnableOutputGenerator extends RunnableProcess {
             FloatProcessor greyVelMap = new FloatProcessor(smoothVelocities.length, upLength);
             FloatProcessor greyCurvMap = new FloatProcessor(curvatures.length, upLength);
             FloatProcessor greySigMap = new FloatProcessor(sigchanges.length, upLength);
-//            ColorProcessor colorVelMap = new ColorProcessor(smoothVelocities.length, upLength);
-//            DataStatistics velstats = new DataStatistics(0.05, smoothVelocities, smoothVelocities.length * smoothVelocities[0].length);
-//            double maxvel = velstats.getUpper99(); // Max and min velocity values (for colourmap) based on upper.lower 99th percentile boundaries
-//            double minvel = velstats.getLower99();
-//            generateScaleBar(uv.getMaxVel(), uv.getMinVel());
             cellData.get(index).setGreyVelMap(greyVelMap);
             cellData.get(index).setGreyCurveMap(greyCurvMap);
-//            cellData.get(index).setMaxVel(uv.getMaxVel());
-//            cellData.get(index).setMinVel(uv.getMinVel());
             cellData.get(index).setGreySigMap(greySigMap);
-//            cellData.get(index).setColorVelMap(colorVelMap);
             cellData.get(index).setSmoothVelocities(smoothVelocities);
             generateMaps(smoothVelocities, cellData.get(index), index, cellData.size());
             IJ.saveAs(new ImagePlus("", greyVelMap), "TIF", childDir + File.separator + "VelocityMap.tif");
             IJ.saveAs(new ImagePlus("", greyCurvMap), "TIF", childDir + File.separator + "CurvatureMap.tif");
-//            IJ.saveAs(new ImagePlus("", colorVelMap), "PNG", childDir + File.separator + "ColorVelocityMap.png");
             IJ.saveAs(CrossCorrelation.periodicity2D(greyVelMap, greyVelMap, 100), "TIF",
                     childDir + File.separator + "VelMap_AutoCorrelation.tif");
             try {
@@ -526,28 +517,6 @@ public class RunnableOutputGenerator extends RunnableProcess {
         }
     }
 
-    /*
-     * Generate graphic scalebar and output to child directory
-     */
-//    void generateScaleBar(double max, double min) {
-//        ColorProcessor scaleBar = new ColorProcessor(90, 480);
-//        scaleBar.setColor(Color.white);
-//        scaleBar.fill();
-//        double step = (max - min) / (scaleBar.getHeight() - 1);
-//        for (int j = 0; j < scaleBar.getHeight(); j++) {
-//            double val = max - j * step;
-//            Color thiscolor = getColor(val, max, min);
-//            scaleBar.setColor(thiscolor);
-//            scaleBar.drawLine(0, j, scaleBar.getWidth() / 2, j);
-//        }
-//        DecimalFormat decformat = new DecimalFormat("0.0");
-//        scaleBar.setFont(new Font("Times", Font.BOLD, 20));
-//        int x = scaleBar.getWidth() - scaleBar.getFontMetrics().charWidth('0') * 4;
-//        scaleBar.setColor(Color.black);
-//        scaleBar.drawString(decformat.format(max), x, scaleBar.getFontMetrics().getHeight());
-//        scaleBar.drawString(decformat.format(min), x, scaleBar.getHeight());
-//        IJ.saveAs(new ImagePlus("", scaleBar), "PNG", childDir + File.separator + "VelocityScaleBar.png");
-//    }
     void generateMaps(double[][] smoothVelocities, CellData cellData, int index, int total) {
         boolean sigNull = (cellData.getSigMap() == null);
         int l = smoothVelocities.length;
@@ -556,7 +525,6 @@ public class RunnableOutputGenerator extends RunnableProcess {
         FloatProcessor greyVelMap = cellData.getGreyVelMap();
         FloatProcessor greyCurvMap = cellData.getGreyCurveMap();
         FloatProcessor greySigMap = null;
-//        ColorProcessor colorVelMap = cellData.getColorVelMap();
         double curvatures[][] = curveMap.smoothMap(0.0, 0.0);
         double sigchanges[][] = null;
         File velStats;
@@ -582,8 +550,6 @@ public class RunnableOutputGenerator extends RunnableProcess {
                     }
                     greyVelMap.putPixelValue(i, j, smoothVelocities[i][j]);
                     greyCurvMap.putPixelValue(i, j, curvatures[i][j]);
-//                    colorVelMap.setColor(getColor(smoothVelocities[i][j], cellData.getMaxVel(), cellData.getMinVel()));
-//                    colorVelMap.drawPixel(i, j);
                     if (!sigNull && greySigMap != null) {
                         greySigMap.putPixelValue(i, j, sigchanges[i][j]);
                     }
@@ -598,7 +564,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
             }
             velStatWriter.close();
         } catch (FileNotFoundException e) {
-            System.out.println(e.toString());
+            IJ.log("Failed to create VelocityAnalysis.csv: " + e.getMessage());
         }
     }
 

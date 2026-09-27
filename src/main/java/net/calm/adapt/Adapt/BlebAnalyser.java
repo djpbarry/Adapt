@@ -51,18 +51,13 @@ public class BlebAnalyser {
      * pixels) &lt; uv.getSigRecoveryThresh()), false otherwise
      */
     public static boolean extractAreaSignalData(Bleb currentBleb, CellData cellData, int index, ImageStack[] stacks, UserVariables uv) {
-//        ImageStack cytoStack = stacks[0];
-//        ImageStack sigStack = stacks[1];
         MorphMap curveMap = cellData.getCurveMap();
         double[][] xvals = curveMap.getxCoords();
         double[][] yvals = curveMap.getyCoords();
         double[][] noisyVels = cellData.getVelMap().getzVals();
         Rectangle bounds = currentBleb.getBounds();
-//        int imageWidth = cytoStack.getWidth();
-//        int imageHeight = cytoStack.getHeight();
         int velMapHeight = cellData.getVelMapWithDetections().getHeight();
         double heightLimit = velMapHeight * 0.75;
-//        ArrayList<BoundaryPixel> minPos[] = cellData.getCurvatureMinima();
         int anchor1[] = new int[2];
         anchor1[0] = GenUtils.checkRange(bounds.y, velMapHeight);
         anchor1[1] = -1;
@@ -70,7 +65,6 @@ public class BlebAnalyser {
         anchor2[0] = GenUtils.checkRange(bounds.y + bounds.height - 1, velMapHeight);
         anchor2[1] = -1;
         int maxExtent = bounds.height;
-//        ColorProcessor detectionSlice;
         ImageProcessor velMapImage = cellData.getGreyVelMap();
         double cutoff = uv.getCutOffTime() * (uv.getTimeRes() / 60.0);
         int totalCount = 0, zeroCount = 0;
@@ -82,10 +76,6 @@ public class BlebAnalyser {
             int searchRange = (int) Math.round(uv.getCurveRange() * cellData.getScaleFactors()[timeIndex]);
             double currentMeanVel = 0.0;
             double currentProtrusionLength;
-//            detectionSlice.setChannel(1, (ByteProcessor) ((new TypeConverter(cytoStack.getProcessor(timeIndex + 1), true)).convertToByte()));
-//            if (sigStack != null) {
-//                detectionSlice.setChannel(2, (ByteProcessor) ((new TypeConverter(sigStack.getProcessor(timeIndex + 1), true)).convertToByte()));
-//            }
             ImageProcessor sigProc = stacks[1].getProcessor(timeIndex + 1);
             CurveMapAnalyser.updateAnchorPoint(timeIndex, anchor1, searchRange, cellData);
             CurveMapAnalyser.updateAnchorPoint(timeIndex, anchor2, searchRange, cellData);
@@ -149,7 +139,6 @@ public class BlebAnalyser {
                     currentProtrusionLength += velMapImage.getHeight();
                 }
                 currentProtrusionLength *= uv.getSpatialRes() / cellData.getScaleFactors()[timeIndex];
-//                currentProtrusion.getDetectionStack().addSlice(detectionSlice);
                 currentBleb.getBlebPerimSigs().add(thisBlebPerimSig);
                 currentBleb.getMeanVel().add(currentMeanVel);
                 currentBleb.getProtrusionLength().add(currentProtrusionLength);
@@ -191,67 +180,21 @@ public class BlebAnalyser {
         for (int j = 0; j < blebDur; j++) {
             ArrayList<Double> thisbleb = currentBleb.getBlebPerimSigs().get(j);
             int offset = (blebSigImage.getHeight() - thisbleb.size()) / 2;
-//            double sum = 0.0;
-//            int indexsum = 0;
-//            int indexcount = 0;
             for (int k = 0; k < thisbleb.size(); k++) {
                 double val = thisbleb.get(k);
                 if (!useSigThresh) {
-//                    sum += val;
-//                    indexcount++;
                     blebSigImage.putPixelValue(j, offset + k, val);
                 } else {
                     blebSigImage.putPixelValue(j, offset + k, 0.0);
                     if (val >= 0.0) {
-//                        sum += val;
-//                        indexsum += k;
-//                        indexcount++;
-//                        if (!average) {
                         blebSigImage.putPixelValue(j, offset + k, val);
-//                        }
                     }
                 }
             }
-//            if (average && indexcount > 0) {
-//                blebSigImage.putPixelValue(j, offset + indexsum / indexcount, sum / indexcount);
-//            }
         }
         return blebSigImage;
     }
 
-//    public static void drawBlebMovie(Bleb currentProtrusion, double spatialRes, boolean useSigThresh) {
-//        int height = currentProtrusion.getMaxExtent();
-//        int blebDur = currentProtrusion.getBlebPerimSigs().size();
-//        FloatProcessor blebSigImage = new FloatProcessor(blebDur, height);
-//        blebSigImage.setValue(-1.0);
-//        blebSigImage.fill();
-//        double max = 30000;
-//        ByteProcessor blebPlotImage = new ByteProcessor(blebDur, blebDur);
-//        blebPlotImage.setValue(0.0);
-//        blebPlotImage.fill();
-//        for (int j = 0; j < blebDur; j++) {
-//            ArrayList<Double> thisbleb = currentProtrusion.getBlebPerimSigs().get(j);
-//            int offset = (blebSigImage.getHeight() - thisbleb.size()) / 2;
-//            double sum = 0.0;
-//            for (int k = 0; k < thisbleb.size(); k++) {
-//                double val = thisbleb.get(k);
-//                if (!useSigThresh) {
-//                    sum += val;
-//                    blebSigImage.putPixelValue(j, offset + k, val);
-//                } else {
-//                    blebSigImage.putPixelValue(j, offset + k, 0.0);
-//                    if (val >= 0.0) {
-//                        sum += val;
-//                    }
-//                }
-//            }
-//            blebPlotImage.setLineWidth(5);
-//            blebPlotImage.setValue(255.0);
-//            blebPlotImage.drawDot(j, blebDur - (int) Math.round(sum * blebDur / max));
-//            IJ.saveAs((new ImagePlus("", blebSigImage)), "TIF", "C:\\Users\\barry05\\Desktop\\BlebSigMovie\\slice_" + j);
-//            IJ.saveAs((new ImagePlus("", blebPlotImage)), "PNG", "C:\\Users\\barry05\\Desktop\\BlebPlotMovie\\slice_" + j);
-//        }
-//    }
     /**
      * Draw a mask image of the specified {@link java.awt.Polygon Polygon}
      * representation of a bleb
