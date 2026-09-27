@@ -40,6 +40,35 @@ No code changed — planning only.
 
 ---
 
+## 2026-09-27 — Switched to latest Fiji (2.18.1); fixed launcher
+
+- Adopted the **latest Fiji** at `C:\Users\barryd\Fiji` (2.18.1, `nojre`). It
+  requires **Java 21+** and ships **TrackMate 8.1.6** (matching the modernised
+  `IAClassLibrary` `v2.0.1`).
+- Launcher confirmed working: the jaunch launcher finds Java 21 via `JAVA_HOME`
+  (no bundled JRE or junction needed — an initial `jre` junction was tried and
+  then removed as unnecessary).
+- Updated `bin/` scripts to default to the new Fiji dir, and `run-fiji.cmd` to
+  use the bundled launcher. Updated `DEVELOPMENT_PLAN.md` Phase H1.
+
+---
+
+## 2026-09-27 — Re-pointed dependencies to tagged releases
+
+`pom.xml` now pins the modernised siblings (Decision 2):
+
+- `IAClassLibrary` `fe92f24c6e` → **`v2.0.1`**
+- `TrackerLibrary` `99584ec579` → **`v4.0.1`**
+- `AdaptDataProcessing` left at `95d31fcec8` (obsolete; still used by
+  `Bleb_Data_Analysis`, pending removal).
+
+`mvn clean verify` passes (18 sources compiled at `release 21`). One new
+deprecation warning surfaced in `Analyse_Movie` — the modernised IAClassLibrary
+marks `ProgressDialog`/`DataStatistics` `@Deprecated`; migrating those calls is a
+follow-up, not a blocker.
+
+---
+
 ## 2026-09-27 — JDK 21 upgrade applied; TrackMate pin removed
 
 Executed the JDK 21 move in `pom.xml`:

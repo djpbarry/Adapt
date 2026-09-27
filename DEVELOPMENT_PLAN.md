@@ -487,24 +487,19 @@ worth re-plumbing.
 
 ### H1. Local Fiji staging & launch
 
-Local Fiji is at `C:\Users\barryd\fiji-nojre\Fiji.app` — a **nojre** build (no
-bundled JRE). Verified working with the local **JDK 21**
-(`C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot`); the bundled
-`fiji-windows-x64.exe` launcher cannot find Java (exits 1), so launch is done via
-direct Java. Scripts committed under `bin/`:
+Local Fiji is at `C:\Users\barryd\Fiji` — the **latest** Fiji (2.18.1), a
+**nojre** build (no bundled JRE). It **requires Java 21+** (README). The jaunch
+launcher (`fiji-windows-x64.exe`) finds Java 21 via the `JAVA_HOME` environment
+variable (`C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot`), so no
+bundled JRE or junction is needed — the GUI launches as-is. This Fiji already
+ships **TrackMate 8.1.6**, matching the modernised `IAClassLibrary` `v2.0.1`.
+Scripts committed under `bin/` (default `Fiji` dir = `C:\Users\barryd\Fiji`):
 
-- `bin/install-to-fiji.cmd [Fiji.app]` — `mvnw package`, removes any old
-  `adapt-*.jar`, copies `target/adapt-<version>.jar` into `Fiji.app/plugins/`.
-  Only the ADAPT jar is installed; its sibling dependencies are already present.
-- `bin/run-fiji.cmd [Fiji.app]` — launches `ij.ImageJ` (ImageJ 1.x GUI, which is
-  what ADAPT needs) with `-cp "jars\*;plugins\*"`.
-- `bin/smoke-test-fiji.cmd [Fiji.app]` — headless check that the JDK runs ImageJ
-  and all three ADAPT plugin classes (plus sibling deps) are loadable. This is
-  the scripted form of H2.
-
-**Follow-up (later):** fix or document the bundled launcher (create a `jre`
-junction to the JDK) so the normal Fiji double-click path also works; the direct
-Java launch is the current workaround.
+- `bin/install-to-fiji.cmd [Fiji]` — `mvnw package`, removes any old `adapt-*.jar`,
+  copies `target/adapt-<version>.jar` into `Fiji/plugins/`.
+- `bin/run-fiji.cmd [Fiji]` — launches the bundled `fiji-windows-x64.exe`.
+- `bin/smoke-test-fiji.cmd [Fiji]` — headless check that the JDK runs ImageJ and
+  all three ADAPT plugin classes (plus sibling deps) are loadable.
 
 ### H2. Interactive smoke test (per change, before merge)
 
@@ -613,6 +608,9 @@ input for the phases above.
    `AdaptDataProcessing` with a release in its own repo; JitPack resolves tagged
    versions auth-free. Update the three `pom.xml` versions from commit hashes to
    those tags.
+   *(Applied 2026-09-27: `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.1`.
+   `AdaptDataProcessing` is obsolete (not tagged); `Bleb_Data_Analysis` still
+   pins the old commit `95d31fcec8` pending its removal.)*
    - **`mvn_settings.xml` / GitHub Packages is vestigial.** Investigation shows
      only the CI workflow references it; no `pom.xml` dependency resolves from
      `maven.pkg.github.com`. Remove `mvn_settings.xml` and the `PAT`/`--settings`
@@ -624,8 +622,9 @@ input for the phases above.
    - ✔ `scijava.jvm.version=21` set; `maven.compiler.release=21` verified; clean
      compile of all 18 sources at `release 21` passes.
    - ✔ `TrackMate:7.14.0` pin removed — the parent now resolves TrackMate 8.0.0.
-   - Remaining: re-point the three dependencies to the new tags once the
-     upstream repos are tagged (Phase G / M10).
+   - ✔ `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.1` (clean compile).
+   - Remaining: `AdaptDataProcessing` (obsolete) — still on `95d31fcec8` pending
+     removal + `Bleb_Data_Analysis` rework.
 4. **Package names — rename to lowercase.** Rename `Adapt`, `Output`,
    `Visualisation`, `ui` to conventional lowercase (`adapt`, `output`,
    `visualisation`, `ui`); update `plugins.config` and all imports accordingly.

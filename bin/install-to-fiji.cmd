@@ -12,7 +12,7 @@ rem Fiji installation (see DEVELOPMENT_PLAN.md Phase H).
 setlocal enabledelayedexpansion
 
 set "FIJI_DIR=%~1"
-if "%FIJI_DIR%"=="" set "FIJI_DIR=C:\Users\barryd\fiji-nojre\Fiji.app"
+if "%FIJI_DIR%"=="" set "FIJI_DIR=C:\Users\barryd\Fiji"
 set "PLUGINS=%FIJI_DIR%\plugins"
 
 if not exist "%PLUGINS%" (

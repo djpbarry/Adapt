@@ -11,7 +11,7 @@ rem run the GUI; it only confirms the classpath and plugin wiring.
 setlocal
 
 set "FIJI_DIR=%~1"
-if "%FIJI_DIR%"=="" set "FIJI_DIR=C:\Users\barryd\fiji-nojre\Fiji.app"
+if "%FIJI_DIR%"=="" set "FIJI_DIR=C:\Users\barryd\Fiji"
 
 set "JAVA_HOME=%JAVA_HOME%"
 if "%JAVA_HOME%"=="" set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot"
