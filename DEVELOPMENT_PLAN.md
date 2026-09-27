@@ -463,6 +463,65 @@ management tractable.
 
 ---
 
+## Phase H — Interactive Fiji run & smoke-test harness
+
+ADAPT is a Fiji plugin: a green `mvn verify` only proves it compiles. From this
+point on, every change must also be verified by running the plugin
+**interactively inside Fiji** against the bundled test data. Headless
+build/run/test is a necessary floor, not a substitute. This phase wires that
+capability into the repo as a repeatable, scripted step rather than an ad-hoc
+manual one.
+
+### H0. Plugin framework decision (2026-09-27)
+
+ADAPT **stays an ImageJ 1.x plugin** for now (`plugins.config` +
+`ij.plugin.PlugIn`); the authoritative reference for this model is
+https://imagej.net/develop/ij1-plugins. A modern SciJava reimplementation
+(`@Plugin(type = Command.class)` + `@Parameter`, auto-GUI/scripting/headless) is
+**noted as a future option, not planned** — see the beginner's guide
+(https://imagej.net/develop/beginners-guide) and
+https://imagej.net/develop/plugins. If it is ever revisited, the preferred route
+is thin `Command` wrappers over the existing `PlugIn` core (after M4), not a full
+rewrite: the analysis core lives in ImageJ-1.x-era external libraries and is not
+worth re-plumbing.
+
+### H1. Local Fiji staging & launch
+
+1. Document how to obtain / locate a local Fiji installation (`Fiji.app/`).
+2. Add a script (`bin/install-to-fiji[.cmd]`) that:
+   - runs `mvn package`,
+   - copies `target/adapt-<version>.jar` and the dependency jars under `target/`
+     into `Fiji.app/jars/` (or `Fiji.app/plugins/`), and
+   - refreshes ImageJ's plugin cache.
+3. Add a launch script (`bin/run-fiji[.cmd]`) that starts Fiji with the ADAPT
+   plugin on the classpath.
+
+### H2. Interactive smoke test (per change, before merge)
+
+A short checklist run against `test_data/ADAPT_Test_Data.zip`:
+
+1. `Plugins>Adapt>Analyse Movie` — GUI opens, run completes, output tree written.
+2. `Plugins>Adapt>Batch Analysis` — the `params.csv` / directory flow completes.
+3. `Plugins>Adapt>Bleb Data Analysis` — post-hoc averaging runs.
+4. Confirm the produced CSVs/TIFFs match the documented
+   `Output_Folder_Structure` screenshot.
+
+### H3. Make the harness visible & repeatable
+
+- Record the smoke test as a script that can run once a Fiji install is present
+  (headless `--headless` launch where possible), and at minimum document the
+  manual gate in `AGENTS.md` and `README.md`.
+- Track the outcome in `REVISION_LOG.md` alongside each change.
+
+### H4. Entry-point hygiene (prerequisite)
+
+The current `Main.main()` debug path opens images via `IJ.openImage()` dialogs —
+it is *not* the real plugin entry point. Confirm the three `plugins.config`
+commands are the authoritative interactive entry points, and either document the
+`Main` path as debug-only or remove it in M4's dead-code sweep.
+
+---
+
 ## Suggested sequencing & milestones
 
 1. **M1 — Foundations (low risk, high value):** `.gitignore`, Maven wrapper, CI
@@ -487,6 +546,9 @@ management tractable.
 10. **M10 — Upstream dependency hygiene (do first):** license fixes, tagging,
     TrackMate-version web, cross-pin repointing, then ADAPT pin-to-tags
     (Phase G). Blocks A2 / Decision 2.
+11. **M11 — Interactive Fiji run & smoke-test harness:** stage the built plugin
+    into a local Fiji, launch it, and run the three plugins against test data
+    (Phase H). Becomes a per-change gate once landed.
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
 parallel. Package renaming (Q4) should be done early in M4 before it cascades
@@ -499,6 +561,11 @@ independent. M9 is a self-contained exporter and can land at any point.
 upstream libraries are where ADAPT's core logic lives, and their license/tagging/
 TrackMate issues must be resolved before ADAPT can pin to tags (Decision 2) and
 before the Java 21 / TrackMate 8 move.
+
+**M11 (Phase H) is now the immediate gate for every change** — headless
+build/test is no longer sufficient; each change must be exercised interactively
+in Fiji before it is considered done. Wire M11 up as soon as a local Fiji
+install is available.
 
 ## Decisions (resolved open questions)
 
@@ -538,3 +605,8 @@ input for the phases above.
    `Analyse_Batch.readParams()` with JSON (validated via Jackson, adding it as a
    dependency if it is not already transitive via Bio-Formats/SciJava),
    including a schema/version for forward-compatibility.
+6. **Plugin framework — stay ImageJ 1.x (resolved 2026-09-27).** ADAPT remains a
+   `plugins.config` + `ij.plugin.PlugIn` plugin. A modern SciJava
+   reimplementation (`@Plugin` + `@Parameter`) is recorded as a future option,
+   not planned work; if revisited, prefer thin `Command` wrappers over the
+   existing core (after M4) rather than a full rewrite. See Phase H0.

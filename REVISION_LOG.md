@@ -27,6 +27,34 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-09-27 — Added Phase H: interactive Fiji run & smoke-test harness
+
+From this point, headless build/test is no longer sufficient to consider a change
+done — ADAPT must be exercised interactively inside Fiji. Added **Phase H** to
+`DEVELOPMENT_PLAN.md` (staging/launch scripts, a per-change smoke test over the
+three `plugins.config` commands against `test_data/ADAPT_Test_Data.zip`, and
+entry-point hygiene for the `Main` debug path), plus **M11** in the sequencing
+list. M11 is now the immediate gate for every change.
+
+No code changed — planning only.
+
+---
+
+## 2026-09-27 — Plugin framework decision: stay ImageJ 1.x
+
+Resolved (with the maintainer) that ADAPT **stays an ImageJ 1.x plugin**
+(`plugins.config` + `ij.plugin.PlugIn`) rather than reimplementing as a modern
+SciJava `@Plugin`/`@Parameter` command. A SciJava migration is recorded as a
+future option only; if revisited, the preferred route is thin `Command` wrappers
+over the existing core (after M4), not a full rewrite. Recorded in
+`DEVELOPMENT_PLAN.md` as Decision 6 and Phase H0, with
+https://imagej.net/develop/ij1-plugins as the authoritative reference for the
+current model.
+
+No code changed — planning only.
+
+---
+
 ## 2026-09-27 — Version bump to `4.0.0-SNAPSHOT`
 
 Bumped `pom.xml` `<version>` from `3.0.13` to `4.0.0-SNAPSHOT` — the first step
