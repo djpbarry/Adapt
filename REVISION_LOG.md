@@ -40,6 +40,25 @@ No code changed — planning only.
 
 ---
 
+## 2026-09-27 — JDK 21 target + output-baseline plan (decisions)
+
+- **JDK target moved to Java 21** (reverses Decision 3's Java 11). Rationale:
+  avoid cross-project compatibility issues by aligning ADAPT with the siblings
+  (IAClassLibrary, TrackerLibrary), Fiji's runtime, and TrackMate ≥ 8. Actions
+  (not yet applied): compile target → 21, drop the `TrackMate:7.14.0` pin,
+  re-point deps once upstream tags land. Recorded in `DEVELOPMENT_PLAN.md`
+  Decision 3.
+- **Output-baseline comparison** recorded as `DEVELOPMENT_PLAN.md` Phase H5: a
+  SHA-256 per-file diff against the `ADAPT_Test_Data/` benchmark outputs, with
+  normalization for timestamps (`*.properties`), non-deterministic ROI order
+  (`labels.zip`, Issue #2), and TIFF/PNG metadata. Behaviour-preserving changes
+  must reproduce the benchmark byte-for-byte; changes are only expected once the
+  modernised deps land (upstream bug fixes).
+
+No code changed — planning only.
+
+---
+
 ## 2026-09-27 — Local Fiji wired up for live testing (M11 / Phase H)
 
 - Fiji is at `C:\Users\barryd\fiji-nojre\Fiji.app` (a **nojre** build, no bundled

@@ -530,6 +530,24 @@ it is *not* the real plugin entry point. Confirm the three `plugins.config`
 commands are the authoritative interactive entry points, and either document the
 `Main` path as debug-only or remove it in M4's dead-code sweep.
 
+### H5. Output-baseline comparison (quantitative, deferred)
+
+Beyond the visual check, establish a quantitative gate: run the pipeline on the
+benchmark inputs under `ADAPT_Test_Data/` and compare every output file to the
+stored outputs by **SHA-256**, with normalization for volatile content:
+
+- strip the timestamp line in `*.properties`;
+- sort the ROIs inside `labels.zip` (its ordering is non-deterministic — Issue #2);
+- compare TIFF/PNG pixel payload rather than the raw file (to ignore metadata).
+
+The CSVs are the strongest signal and should be byte-identical while the code is
+behaviour-preserving.
+
+**Baseline rule:** any change must reproduce the benchmark outputs *exactly*
+until the modernised dependencies are swapped in — at which point output
+differences are expected (upstream bug fixes) and must be reviewed deliberately,
+not silently accepted.
+
 ---
 
 ## Suggested sequencing & milestones
@@ -599,15 +617,13 @@ input for the phases above.
      only the CI workflow references it; no `pom.xml` dependency resolves from
      `maven.pkg.github.com`. Remove `mvn_settings.xml` and the `PAT`/`--settings`
      wiring from `maven.yml` (verify with one clean CI run before deleting).
-3. **Target JDK — Java 11 (compile target), build on a modern JDK.** ✔
-   Implemented: parent `pom-scijava` bumped 37.0.0 → 45.1.0 (whose base sets
-   `scijava.jvm.version=11`), verified via `mvnw help:evaluate`
-   (`maven.compiler.release=11`) and a clean `mvnw verify`. Build JDK is Temurin
-   17 (via `JAVA_HOME`). Fiji "latest" bundles Java 21 at runtime, so targeting
-   11 keeps the plugin compatible.
-   - **Future goal:** TrackMate ≥ 8 (and the `imglib2-cellpose` integration)
-     require **Java 21**. Coordinate a Java 21 + TrackMate 8 bump as one change
-     (see Phase D5) once the codebase is ready.
+3. **Target JDK — Java 21 (resolved 2026-09-27).** Move everything to Java 21 to
+   avoid cross-project compatibility issues: this aligns ADAPT with the siblings
+   (IAClassLibrary, TrackerLibrary), Fiji's runtime, and TrackMate ≥ 8. This
+   *reverses* the earlier Java 11 target. Actions: set the compile target to 21,
+   drop the `TrackMate:7.14.0` pin so the parent resolves 8.x, and re-point the
+   dependencies once the upstream tags land (Phase G / M10).
+   *(Prior Decision 3 targeted Java 11; superseded by this.)*
 4. **Package names — rename to lowercase.** Rename `Adapt`, `Output`,
    `Visualisation`, `ui` to conventional lowercase (`adapt`, `output`,
    `visualisation`, `ui`); update `plugins.config` and all imports accordingly.
