@@ -20,8 +20,8 @@
     <url>https://github.com/djpbarry/net.calm.adapt.Adapt</url>
     <inceptionYear>2015</inceptionYear>
     <organization>
-        <name>Francis Crick Institute</name>
-        <url>https://www.crick.ac.uk/</url>
+        <name>David Barry</name>
+        <url>https://github.com/djpbarry</url>
     </organization>
     <licenses>
         <license>
@@ -83,7 +83,7 @@
         <package-name>net.calm.adapt</package-name>
         <main-class>net.calm.adapt.Adapt.Main</main-class>
         <license.licenseName>gpl_v3</license.licenseName>
-        <license.copyrightOwners>Francis Crick Institute</license.copyrightOwners>
+        <license.copyrightOwners>David Barry</license.copyrightOwners>
         <scijava.jvm.version>21</scijava.jvm.version>
     </properties>
 

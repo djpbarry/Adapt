@@ -26,7 +26,7 @@ code.
   in-repo domain logic (protrusion/bleb/fluorescence analysis and
   cell-trajectory extraction), so it is not purely orchestration/glue.
 - The build is Maven 3 with `org.scijava:pom-scijava:45.1.0` as parent, targeting
-  Java 11 (build JDK is Temurin 17). A Maven wrapper (`mvnw`/`mvnw.cmd`, pinned
+  Java 21 (build JDK is Temurin 21). A Maven wrapper (`mvnw`/`mvnw.cmd`, pinned
   to 3.9.16) is committed; the vestigial `mvn_settings.xml` (GitHub Packages)
   has been removed.
 - There are **no unit tests** and **no lint/format tooling**. A `.gitignore`
@@ -44,25 +44,23 @@ code.
 
 1. **Pin and commit a reproducible toolchain** — add a Maven wrapper
    (`mvnw[.cmd]`) so builds don't depend on a system Maven of an unknown version.
-2. **Confirm the JDK target** — Decision 3 is to compile to Java 11 on a modern
-   JDK. Keep CI's source/target at 11; only revisit if a dependency (e.g.
-   TrackMate v8, see Phase D) requires newer.
+2. **Confirm the JDK target** — ✔ Decision 3 was reversed to **Java 21**
+   (2026-09-27): `scijava.jvm.version=21` set, `maven.compiler.release=21`
+   verified. See Decision 3 and Phase D5.
 3. **Harden CI** (`.github/workflows/maven.yml`):
    - Add a matrix over supported JDKs, or at least pin the exact one used.
    - Add caching for Maven dependencies to speed up runs.
    - Split into distinct jobs: `build`, `test` (future), `docs` (see Phase C).
-   - **Follow-up (CI deprecation warnings, revisit later):** `actions/setup-java@v4`
-     and `actions/checkout@v4` are deprecated (Node 20 → Node 24); bump both to
-     `@v5`. `ubuntu-latest` migrates to Ubuntu 26 in Oct 2026 — re-verify then.
+   - ✔ `actions/setup-java@v4` → `@v5` and `actions/checkout@v4` → `@v5` (done in
+     M1). `ubuntu-latest` migrates to Ubuntu 26 in Oct 2026 — re-verify then.
 4. **Add a `.gitignore`** covering `target/`, `.idea/`, `*.iml`, and OS files.
 
 ### A2. Fix the dependency pinning problem
 
-1. The three JitPack dependencies are pinned to raw commit hashes
-   (`fe92f24c6e`, `99584ec579`, `95d31fcec8`). Per Decision 2, promote them to
-   tagged releases in their own repos and pin `pom.xml` to those tags (still on
-   JitPack, no vendoring). Until that lands, document in the POM *which* commit
-   each hash refers to and why.
+1. ✔ Done (2026-09-27): `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` →
+   `v4.0.1` (both tagged, Javadoc-published). `AdaptDataProcessing` is
+   **deprecated** (untagged) — it should be *removed*, not tagged; only
+   `Bleb_Data_Analysis` still uses it (pending rework/removal).
 
 ### A3. Introduce tests (the single biggest maintainability win)
 
@@ -110,9 +108,9 @@ Targets, priority-ordered:
    experiments; `Analyse_Movie`, `BlebAnalyser`, and `RunnableOutputGenerator`
    contain large stale comment blocks. Delete them (they're recoverable from
    git) and strip unused imports.
-6. **Normalise license headers** — per Decision 1, GPL-3.0 is authoritative.
-   Replace the six NetBeans "change this header" stubs with the GPL header and
-   correct `pom.xml` (currently declares BSD-2; see Decision 1).
+6. **Normalise license headers** — ✔ done in M1: `pom.xml` corrected to
+   GPL-3.0 (`license.licenseName=gpl_v3`, `license.copyrightOwners=David Barry`),
+   the six NetBeans stubs replaced with the GPL header.
 
 ### A5. Add static analysis and formatting
 
@@ -287,9 +285,9 @@ model-agnostic analysis core.
 Pulling TrackMate's LAP tracker into ADAPT purely to replace ADAPT's homegrown
 tracking. It is the highest-effort/lowest-value option: tracking is not ADAPT's
 core value, and it forces an immediate dependency + Java-target decision.
-TrackMate ≥ 8 requires **Java 21**, whereas ADAPT has just agreed to target
-**Java 11** (Decision 3), so any *runtime* TrackMate coupling reopens that
-decision (or pins TrackMate to v7).
+TrackMate ≥ 8 requires **Java 21**, which ADAPT now targets (Decision 3
+reversed), so the Java-version objection is moot — but the recommendation against
+pulling LAP in as a *replacement for homegrown tracking* still stands.
 
 ### D4. Constraints to confirm before any compile-time dependency
 
@@ -300,19 +298,14 @@ decision (or pins TrackMate to v7).
 
 ### D5. Current state & TrackMate 8 goal (discovered during build)
 
-ADAPT already depends on TrackMate **transitively** via `IAClassLibrary`
-(unversioned `sc.fiji:TrackMate`), so TrackMate is already on ADAPT's runtime
-classpath — the interop surface is closer than Phase D1 assumes.
+ADAPT depends on TrackMate **transitively** via `IAClassLibrary` (unversioned
+`sc.fiji:TrackMate`), so TrackMate is already on ADAPT's runtime classpath — the
+interop surface is closer than Phase D1 assumes.
 
-The `pom-scijava` parent manages `TrackMate:8.0.0` (Java 21). To stay on the
-Java 11 target, ADAPT currently pins `TrackMate:7.14.0` in `dependencyManagement`
-— a **stopgap**, not the end state.
-
-**Goal (later, coordinated bump):** move to the latest TrackMate 8.x. TrackMate
-≥ 8 requires **Java 21**, so this must be done together with a Java-target
-upgrade (reopens Decision 3). Track it as a dedicated milestone: raise the Java
-target to 21 *and* drop the TrackMate pin to `8.x` in one change, then re-verify
-bytecode compatibility (`EnforceBytecodeVersion`) and Phase D1/D2 interop.
+✔ Done (2026-09-27): ADAPT now targets **Java 21** and resolves **TrackMate
+8.0.0** via the parent (the earlier `TrackMate:7.14.0` stopgap pin was removed).
+Remaining TrackMate work is the actual interop (Phase D1/D2), not version
+alignment.
 
 ---
 
@@ -409,6 +402,13 @@ over Ultrack CSV. Only if Ultrack CSV proves insufficient.
 ---
 
 ## Phase G — Upstream dependency hygiene (do first)
+
+> **Status (2026-09-27): largely complete.** `IAClassLibrary` (`v2.0.1`) and
+> `TrackerLibrary` (`v4.0.1`) have been modernised and tagged (GPL-3.0-or-later,
+> Java 21, Maven wrapper, Javadoc published). `AdaptDataProcessing` is
+> **deprecated** and should be *removed*, not tagged. Remaining: rework/remove
+> `Bleb_Data_Analysis` (which wraps its `DataFileAverager`) and drop the
+> `AdaptDataProcessing` pin. See `REVISION_LOG.md`.
 
 ADAPT's core logic actually lives in the three JitPack dependencies
 (`IAClassLibrary`, `TrackerLibrary`, `AdaptDataProcessing`). They share ADAPT's
@@ -599,10 +599,9 @@ input for the phases above.
    already declare GPL-3.0; `pom.xml`'s `Simplified BSD` (and the
    `license.licenseName=bsd_2` property) is stale metadata and must be corrected
    to GPL-3.0. Replace the six NetBeans "change this header" stubs with the GPL
-   header. Confirm the correct `license.copyrightOwners` (Francis Crick
-   Institute / David Barry) while doing so.
-   *(Applied in M1 — pom.xml and headers corrected; `license.copyrightOwners`
-   confirmation still open.)*
+   header. `license.copyrightOwners` is **David Barry** (development predates
+   the Francis Crick Institute, so the Crick cannot claim copyright).
+   *(Applied in M1 — pom.xml and headers corrected.)*
 2. **Dependencies — stay on JitPack, pin to tags.** Do not vendor. Do not use
    GitHub Packages. Tag each of `IAClassLibrary`, `TrackerLibrary`,
    `AdaptDataProcessing` with a release in its own repo; JitPack resolves tagged

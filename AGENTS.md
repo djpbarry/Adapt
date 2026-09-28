@@ -3,7 +3,7 @@
 ## Project overview
 
 ADAPT (**A**utomated **D**etection and **A**nalysis of **P**ro**T**rusions) is an
-[ImageJ/Fiji](http://fiji.sc/) plugin (Java 11, built with Maven) for automated
+[ImageJ/Fiji](http://fiji.sc/) plugin (Java 21, built with Maven) for automated
 detection and analysis of cell migration, membrane protrusions, and associated
 fluorescence intensity. It consumes two image stacks per cell (a cytoplasmic
 channel used for segmentation and a "signal" channel) and produces
@@ -13,31 +13,30 @@ visualisations.
 The heavy lifting (segmentation, curvature analysis, trajectory analysis,
 Bio-Formats I/O, `UserVariables` parameters) is done by three external
 dependencies pulled from JitPack (`IAClassLibrary`, `TrackerLibrary`,
-`AdaptDataProcessing` — all under `com.github.djpbarry`, pinned to specific git
-commit hashes in `pom.xml`). ADAPT itself is mostly orchestration and I/O glue
-around those libraries. When searching for how a step actually works, look at
-these libraries first, not this repo.
+`AdaptDataProcessing` — all under `com.github.djpbarry`). `IAClassLibrary`
+(`v2.0.1`) and `TrackerLibrary` (`v4.0.1`) are pinned to tagged releases;
+`AdaptDataProcessing` is deprecated (untagged, used only by
+`Bleb_Data_Analysis`). ADAPT also contains substantial in-repo domain logic, so
+it is not purely orchestration/glue. When searching for how a step actually
+works, look at these libraries first, not this repo.
 
 ## Build / test / run
 
 - **Build + verify:** `mvnw verify` (Maven wrapper; on Windows use `mvnw.cmd`).
-  - Requires **JDK 17+** on `JAVA_HOME` (Temurin 21 at
+  - Requires **JDK 21+** on `JAVA_HOME` (Temurin 21 at
     `C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot` is the local
-    setup). Compile target is **Java 11** (parent `pom-scijava:45.1.0`).
+    setup). Compile target is **Java 21** (`scijava.jvm.version=21`, parent
+    `pom-scijava:45.1.0`).
   - Local Maven install (only needed if bypassing the wrapper):
     `C:\Program Files\apache-maven-3.9.16`.
   - Dependencies resolve from Maven Central (`central`, declared first), SciJava
     (`maven.scijava.org`), and JitPack (`com.github.djpbarry:*`); no auth needed.
-  - `mvn_settings.xml` (GitHub Packages + PAT) is **vestigial** and slated for
-    removal — see `DEVELOPMENT_PLAN.md`.
-  - `IAClassLibrary` depends on `sc.fiji:TrackMate` transitively; ADAPT pins
-    `TrackMate:7.14.0` in `dependencyManagement` as a stopgap (TrackMate 8 needs
-    Java 21). See Phase D5 of the plan for the Java 21 + TrackMate 8 goal.
-- **CI:** `.github/workflows/maven.yml` runs
-  `mvn --batch-mode --update-snapshots -Dinternal.repo.password="$PAT" --settings
-  mvn_settings.xml verify` on `ubuntu-latest` with JDK 11 (AdoptOpenJDK). This
-  still references the vestigial `mvn_settings.xml`/`PAT` and must be updated to
-  use the wrapper + JDK 17 + Java 11 target.
+  - `mvn_settings.xml` (GitHub Packages + PAT) has been **removed**.
+  - `IAClassLibrary` depends on `sc.fiji:TrackMate` transitively; ADAPT resolves
+    TrackMate 8.0.0 via the parent (no explicit pin).
+- **CI:** `.github/workflows/maven.yml` runs `./mvnw --batch-mode verify` on
+  `ubuntu-latest` across a JDK matrix (Temurin, `actions/setup-java@v5`) with
+  Maven caching (`actions/checkout@v5`).
 - **Packaging:** the parent POM is `org.scijava:pom-scijava:45.1.0`; the
   `maven-dependency-plugin` copies all dependencies into `target/` on `package`.
 - **Run/debug:** `main-class` is `net.calm.adapt.Adapt.Main`. Its `main()` calls
@@ -140,12 +139,12 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
   commented experiments; many `//` blocks in `Analyse_Movie`, `BlebAnalyser`,
   `RunnableOutputGenerator`). Treat existing commented lines as historical
   context, not spec — they are frequently stale.
-- **License headers are inconsistent** — some files carry the old
-  `netbeans`-generated "To change this license header" stub; others have the GPL
-  header. Don't try to normalize them unless asked; the project's `pom.xml`
-  declares the Simplified BSD license.
-- **No `.gitignore`** is present in the repo (build artifacts like `target/`
-  or `.idea/` are not excluded).
+- **License is GPL-3.0** (aligned in M1): `pom.xml` (`license.licenseName=gpl_v3`)
+  and source headers now agree. `license.copyrightOwners` is **David Barry**
+  (development predates the Francis Crick Institute, so the Crick cannot claim
+  copyright).
+- A `.gitignore` and `.gitattributes` are present (`target/`, IDE files, and OS
+  files excluded; `mvnw` is LF and tracked executable).
 
 ## Domain terms
 
