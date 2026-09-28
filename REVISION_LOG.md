@@ -27,6 +27,23 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-09-28 — Removed `AdaptDataProcessing`; retired `Bleb_Data_Analysis`
+
+`AdaptDataProcessing` is deprecated — its README now recommends a Python rewrite
+for its analysis. Dropped it from ADAPT entirely:
+
+- Removed the `com.github.djpbarry:AdaptDataProcessing` dependency from `pom.xml`.
+- Deleted the `Bleb_Data_Analysis` plugin (a thin wrapper over
+  `AdaptDataProcessing.DataFileAverager`) and its `plugins.config` entry.
+- Removed the inline `DataFileAverager` call in `RunnableOutputGenerator` (the
+  per-bleb `mean_data.csv` averaging step). That post-hoc averaging is now a
+  Python step, per the upstream README.
+
+ADAPT now has **two** registered plugins (`Analyse Movie`, `Batch Analysis`) and
+**two** JitPack dependencies (`IAClassLibrary`, `TrackerLibrary`).
+
+---
+
 ## 2026-09-27 — TrackerLibrary bumped to `v4.0.2` (version-skew fix)
 
 `pom.xml` now pins `TrackerLibrary v4.0.2` (was `v4.0.1`). `v4.0.2` re-pins its

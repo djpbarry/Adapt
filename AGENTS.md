@@ -11,14 +11,12 @@ curvature/velocity/signal maps, per-cell and per-protrusion metrics, and
 visualisations.
 
 The heavy lifting (segmentation, curvature analysis, trajectory analysis,
-Bio-Formats I/O, `UserVariables` parameters) is done by three external
-dependencies pulled from JitPack (`IAClassLibrary`, `TrackerLibrary`,
-`AdaptDataProcessing` — all under `com.github.djpbarry`). `IAClassLibrary`
-(`v2.0.1`) and `TrackerLibrary` (`v4.0.2`) are pinned to tagged releases;
-`AdaptDataProcessing` is deprecated (untagged, used only by
-`Bleb_Data_Analysis`). ADAPT also contains substantial in-repo domain logic, so
-it is not purely orchestration/glue. When searching for how a step actually
-works, look at these libraries first, not this repo.
+Bio-Formats I/O, `UserVariables` parameters) is done by two external
+dependencies pulled from JitPack (`IAClassLibrary` `v2.0.1` and `TrackerLibrary`
+`v4.0.2`, both under `com.github.djpbarry`, pinned to tagged releases). ADAPT
+also contains substantial in-repo domain logic, so it is not purely
+orchestration/glue. When searching for how a step actually works, look at these
+libraries first, not this repo.
 
 ## Build / test / run
 
@@ -42,7 +40,7 @@ works, look at these libraries first, not this repo.
 - **Run/debug:** `main-class` is `net.calm.adapt.Adapt.Main`. Its `main()` calls
   `Analyse_Movie.initialise()` then `run(null)`, which is a debug path that opens
   images via dialog (`IJ.openImage()`), not the normal plugin entry point. Under
-  Fiji the real entry points are the three plugins declared in
+  Fiji the real entry points are the two plugins declared in
   `src/main/resources/plugins.config`.
 - **No unit tests exist.** There is no `src/test`, no test framework configured,
   and no lint/format tooling. Verification is compilation plus manual runs in
@@ -55,10 +53,9 @@ Fiji discovers commands via `src/main/resources/plugins.config`, not annotations
 ```
 Plugins>Adapt, "Analyse Movie", net.calm.adapt.Adapt.Analyse_Movie
 Plugins>Adapt, "Batch Analysis", net.calm.adapt.Adapt.Analyse_Batch
-Plugins>Adapt, "Bleb Data Analysis", net.calm.adapt.Adapt.Bleb_Data_Analysis
 ```
 
-These three classes implement ImageJ's `ij.plugin.PlugIn` (`run(String arg)`).
+These two classes implement ImageJ's `ij.plugin.PlugIn` (`run(String arg)`).
 To add a new plugin command, add a line to `plugins.config` AND the class must
 implement `PlugIn`.
 
@@ -77,8 +74,6 @@ prefixes you'll see in imports:
     image files, reusing the same `analyse()` per file. Also contains
     `readParams()` which parses a `params.csv` line-by-line with a positional
     `Scanner` — this is brittle and order-sensitive.
-  - `Bleb_Data_Analysis` — third plugin; thin wrapper over
-    `AdaptDataProcessing.DataFileAverager` for post-hoc averaging.
   - Domain/helper classes: `Bleb` (extends `Protrusion`), `BlebAnalyser`,
     `CurveMapAnalyser`, `FluorescenceDistAnalyser`,
     `RegionFluorescenceQuantifier`, `Protrusion`, `StaticVariables` (all GUI
@@ -121,8 +116,7 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
   `Visualisation`, `ui`) — unusual for Java but intentional; keep it consistent.
 - **`StaticVariables` is the single source of truth** for GUI labels and output
   column names (e.g. `TIME`, `VELOCITY`, `TOTAL_SIGNAL`). Column headings are
-  wired into CSV writers and `DataFileAverager`; changing a string here changes
-  output schema.
+  wired into CSV writers; changing a string here changes output schema.
 - **Versioning:** the reported title is `Adapt_v<version>` where `<version>` is
   read at runtime from `project.properties`, which Maven filters from
   `${project.version}` (`pom.xml` sets `<filtering>true</filtering>`). Bump the

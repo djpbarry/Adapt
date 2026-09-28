@@ -20,11 +20,11 @@ code.
   membrane protrusions, and correlated fluorescence intensity.
 - The heavy lifting — segmentation (`RegionGrower`), curvature computation,
   particle/trajectory tracking (`TrajectoryAnalysis`, `TrajectoryBuilder`),
-  Bio-Formats I/O, and CSV writing — lives in three external libraries pulled
-  from JitPack: `IAClassLibrary`, `TrackerLibrary`, `AdaptDataProcessing`
-  (pinned to git commit hashes in `pom.xml`). ADAPT also contains substantial
-  in-repo domain logic (protrusion/bleb/fluorescence analysis and
-  cell-trajectory extraction), so it is not purely orchestration/glue.
+  Bio-Formats I/O, and CSV writing — lives in two external libraries pulled
+  from JitPack: `IAClassLibrary` `v2.0.1` and `TrackerLibrary` `v4.0.2` (tagged
+  releases). ADAPT also contains substantial in-repo domain logic
+  (protrusion/bleb/fluorescence analysis and cell-trajectory extraction), so it
+  is not purely orchestration/glue.
 - The build is Maven 3 with `org.scijava:pom-scijava:45.1.0` as parent, targeting
   Java 21 (build JDK is Temurin 21). A Maven wrapper (`mvnw`/`mvnw.cmd`, pinned
   to 3.9.16) is committed; the vestigial `mvn_settings.xml` (GitHub Packages)
@@ -58,9 +58,9 @@ code.
 ### A2. Fix the dependency pinning problem
 
 1. ✔ Done (2026-09-27): `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` →
-   `v4.0.2` (both tagged, Javadoc-published). `AdaptDataProcessing` is
-   **deprecated** (untagged) — it should be *removed*, not tagged; only
-   `Bleb_Data_Analysis` still uses it (pending rework/removal).
+   `v4.0.2` (both tagged, Javadoc-published). ✔ `AdaptDataProcessing` removed
+   (deprecated/obsolete — its README recommends Python); the `Bleb_Data_Analysis`
+   plugin was retired with it.
 
 ### A3. Introduce tests (the single biggest maintainability win)
 
@@ -403,17 +403,18 @@ over Ultrack CSV. Only if Ultrack CSV proves insufficient.
 
 ## Phase G — Upstream dependency hygiene (do first)
 
-> **Status (2026-09-27): largely complete.** `IAClassLibrary` (`v2.0.1`) and
-> `TrackerLibrary` (`v4.0.2`) have been modernised and tagged (GPL-3.0-or-later,
-> Java 21, Maven wrapper, Javadoc published). `AdaptDataProcessing` is
-> **deprecated** and should be *removed*, not tagged. Remaining: rework/remove
-> `Bleb_Data_Analysis` (which wraps its `DataFileAverager`) and drop the
-> `AdaptDataProcessing` pin. See `REVISION_LOG.md`.
+> **Status (2026-09-28): complete.** `IAClassLibrary` (`v2.0.1`) and
+> `TrackerLibrary` (`v4.0.2`) are modernised and tagged (GPL-3.0-or-later, Java
+> 21, Maven wrapper, Javadoc published). `AdaptDataProcessing` was **removed**
+> (deprecated/obsolete — its README recommends Python); the `Bleb_Data_Analysis`
+> plugin and the inline `DataFileAverager` call were retired with it. See
+> `REVISION_LOG.md`.
 
-ADAPT's core logic actually lives in the three JitPack dependencies
-(`IAClassLibrary`, `TrackerLibrary`, `AdaptDataProcessing`). They share ADAPT's
-exact problems, so they must be addressed **before** (or in lockstep with) ADAPT's
-own modernization — they block A2 / Decision 2 (pin-to-tags).
+ADAPT's core logic actually lives in the two remaining JitPack dependencies
+(`IAClassLibrary`, `TrackerLibrary`). They share ADAPT's exact problems, so they
+must be addressed **before** (or in lockstep with) ADAPT's own modernization —
+they block A2 / Decision 2 (pin-to-tags). `AdaptDataProcessing` was removed
+(deprecated/obsolete).
 
 ### G0. Verified current state
 
@@ -507,8 +508,7 @@ A short checklist run against `test_data/ADAPT_Test_Data.zip`:
 
 1. `Plugins>Adapt>Analyse Movie` — GUI opens, run completes, output tree written.
 2. `Plugins>Adapt>Batch Analysis` — the `params.csv` / directory flow completes.
-3. `Plugins>Adapt>Bleb Data Analysis` — post-hoc averaging runs.
-4. Confirm the produced CSVs/TIFFs match the documented
+3. Confirm the produced CSVs/TIFFs match the documented
    `Output_Folder_Structure` screenshot.
 
 ### H3. Make the harness visible & repeatable
@@ -603,13 +603,13 @@ input for the phases above.
    the Francis Crick Institute, so the Crick cannot claim copyright).
    *(Applied in M1 — pom.xml and headers corrected.)*
 2. **Dependencies — stay on JitPack, pin to tags.** Do not vendor. Do not use
-   GitHub Packages. Tag each of `IAClassLibrary`, `TrackerLibrary`,
-   `AdaptDataProcessing` with a release in its own repo; JitPack resolves tagged
-   versions auth-free. Update the three `pom.xml` versions from commit hashes to
-   those tags.
-   *(Applied 2026-09-27: `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.2`.
-   `AdaptDataProcessing` is obsolete (not tagged); `Bleb_Data_Analysis` still
-   pins the old commit `95d31fcec8` pending its removal.)*
+   GitHub Packages. Tag `IAClassLibrary` and `TrackerLibrary` with releases in
+   their own repos; JitPack resolves tagged versions auth-free. Update the
+   `pom.xml` versions from commit hashes to those tags.
+   *(Applied: `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.2`.
+   `AdaptDataProcessing` was **removed** as deprecated/obsolete — its README
+   recommends a Python rewrite; the `Bleb_Data_Analysis` plugin was retired
+   with it.)*
    - **`mvn_settings.xml` / GitHub Packages is vestigial.** Investigation shows
      only the CI workflow references it; no `pom.xml` dependency resolves from
      `maven.pkg.github.com`. Remove `mvn_settings.xml` and the `PAT`/`--settings`
@@ -622,8 +622,8 @@ input for the phases above.
      compile of all 18 sources at `release 21` passes.
    - ✔ `TrackMate:7.14.0` pin removed — the parent now resolves TrackMate 8.0.0.
    - ✔ `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.2` (clean compile).
-   - Remaining: `AdaptDataProcessing` (obsolete) — still on `95d31fcec8` pending
-     removal + `Bleb_Data_Analysis` rework.
+   - ✔ `AdaptDataProcessing` removed (deprecated/obsolete) and `Bleb_Data_Analysis`
+     retired.
 4. **Package names — rename to lowercase.** Rename `Adapt`, `Output`,
    `Visualisation`, `ui` to conventional lowercase (`adapt`, `output`,
    `visualisation`, `ui`); update `plugins.config` and all imports accordingly.

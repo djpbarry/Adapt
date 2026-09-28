@@ -22,7 +22,6 @@ import net.calm.adapt.Adapt.BlebAnalyser;
 import net.calm.adapt.Adapt.CurveMapAnalyser;
 import net.calm.adapt.Adapt.RegionFluorescenceQuantifier;
 import net.calm.adapt.Adapt.StaticVariables;
-import net.calm.adaptdataprocessing.DataProcessing.DataFileAverager;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -128,10 +127,6 @@ public class RunnableOutputGenerator extends RunnableProcess {
                 } catch (IOException e) {
                     IJ.log("Failed to write bleb data analysis files: " + e.getMessage());
                 }
-                String normHeadings[] = new String[]{StaticVariables.TOTAL_SIGNAL, StaticVariables.MEAN_SIGNAL};
-                (new DataFileAverager(StaticVariables.DATA_STREAM_HEADINGS,
-                        normHeadings, uv.isDisplayPlots(), StaticVariables.VELOCITY,
-                        StaticVariables.TIME, GenVariables.UTF8)).run(childDir + File.separator + BLEB_DATA_FILES);
             } else {
                 ImageStack protStacks[] = new ImageStack[2];
                 protStacks[0] = findProtrusionsBasedOnMorph(cellData.get(index), (int) Math.round(getMaxFilArea()), 1, sigStack.size());
