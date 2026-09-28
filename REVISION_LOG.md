@@ -27,6 +27,15 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-09-27 — TrackerLibrary bumped to `v4.0.2` (version-skew fix)
+
+`pom.xml` now pins `TrackerLibrary v4.0.2` (was `v4.0.1`). `v4.0.2` re-pins its
+`IAClassLibrary` dependency to `v2.0.1` (the prior `v4.0.1` still pointed at the
+old commit `37a1be016a`), so ADAPT's direct `IAClassLibrary v2.0.1` and the
+transitive one now agree — resolving the version skew flagged during review.
+
+---
+
 ## 2026-09-27 — Added Phase H: interactive Fiji run & smoke-test harness
 
 From this point, headless build/test is no longer sufficient to consider a change

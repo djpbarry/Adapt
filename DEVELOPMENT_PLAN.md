@@ -58,7 +58,7 @@ code.
 ### A2. Fix the dependency pinning problem
 
 1. ✔ Done (2026-09-27): `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` →
-   `v4.0.1` (both tagged, Javadoc-published). `AdaptDataProcessing` is
+   `v4.0.2` (both tagged, Javadoc-published). `AdaptDataProcessing` is
    **deprecated** (untagged) — it should be *removed*, not tagged; only
    `Bleb_Data_Analysis` still uses it (pending rework/removal).
 
@@ -404,7 +404,7 @@ over Ultrack CSV. Only if Ultrack CSV proves insufficient.
 ## Phase G — Upstream dependency hygiene (do first)
 
 > **Status (2026-09-27): largely complete.** `IAClassLibrary` (`v2.0.1`) and
-> `TrackerLibrary` (`v4.0.1`) have been modernised and tagged (GPL-3.0-or-later,
+> `TrackerLibrary` (`v4.0.2`) have been modernised and tagged (GPL-3.0-or-later,
 > Java 21, Maven wrapper, Javadoc published). `AdaptDataProcessing` is
 > **deprecated** and should be *removed*, not tagged. Remaining: rework/remove
 > `Bleb_Data_Analysis` (which wraps its `DataFileAverager`) and drop the
@@ -607,7 +607,7 @@ input for the phases above.
    `AdaptDataProcessing` with a release in its own repo; JitPack resolves tagged
    versions auth-free. Update the three `pom.xml` versions from commit hashes to
    those tags.
-   *(Applied 2026-09-27: `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.1`.
+   *(Applied 2026-09-27: `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.2`.
    `AdaptDataProcessing` is obsolete (not tagged); `Bleb_Data_Analysis` still
    pins the old commit `95d31fcec8` pending its removal.)*
    - **`mvn_settings.xml` / GitHub Packages is vestigial.** Investigation shows
@@ -621,7 +621,7 @@ input for the phases above.
    - ✔ `scijava.jvm.version=21` set; `maven.compiler.release=21` verified; clean
      compile of all 18 sources at `release 21` passes.
    - ✔ `TrackMate:7.14.0` pin removed — the parent now resolves TrackMate 8.0.0.
-   - ✔ `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.1` (clean compile).
+   - ✔ `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.2` (clean compile).
    - Remaining: `AdaptDataProcessing` (obsolete) — still on `95d31fcec8` pending
      removal + `Bleb_Data_Analysis` rework.
 4. **Package names — rename to lowercase.** Rename `Adapt`, `Output`,

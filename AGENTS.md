@@ -14,7 +14,7 @@ The heavy lifting (segmentation, curvature analysis, trajectory analysis,
 Bio-Formats I/O, `UserVariables` parameters) is done by three external
 dependencies pulled from JitPack (`IAClassLibrary`, `TrackerLibrary`,
 `AdaptDataProcessing` — all under `com.github.djpbarry`). `IAClassLibrary`
-(`v2.0.1`) and `TrackerLibrary` (`v4.0.1`) are pinned to tagged releases;
+(`v2.0.1`) and `TrackerLibrary` (`v4.0.2`) are pinned to tagged releases;
 `AdaptDataProcessing` is deprecated (untagged, used only by
 `Bleb_Data_Analysis`). ADAPT also contains substantial in-repo domain logic, so
 it is not purely orchestration/glue. When searching for how a step actually

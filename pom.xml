@@ -110,7 +110,7 @@
 
         * IAClassLibrary `v2.0.1` - modernised (Java 21, GPL-3.0); API docs at
           https://djpbarry.github.io/IAClassLibrary/
-        * TrackerLibrary `v4.0.1` - modernised (Java 21, GPL-3.0); API docs at
+        * TrackerLibrary `v4.0.2` - modernised (Java 21, GPL-3.0); API docs at
           https://djpbarry.github.io/TrackerLibrary/
         * AdaptDataProcessing `95d31fcec8` - untagged and DEPRECATED (archive
           candidate; see its README). Only `Bleb_Data_Analysis` uses it; slated
@@ -124,7 +124,7 @@
         <dependency>
             <groupId>com.github.djpbarry</groupId>
             <artifactId>TrackerLibrary</artifactId>
-            <version>v4.0.1</version>
+            <version>v4.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.github.djpbarry</groupId>
