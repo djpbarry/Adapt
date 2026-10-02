@@ -104,10 +104,9 @@ Targets, priority-ordered:
 4. **Normalise the two concurrency abstractions** — `NotificationThread` (in
    repo) and `MultiThreadedProcess`/`RunnableProcess` (external) are unrelated.
    Consolidate on one, or document/enforce which to use where.
-5. **Remove dead code** — `Main.java` is almost entirely commented-out
-   experiments; `Analyse_Movie`, `BlebAnalyser`, and `RunnableOutputGenerator`
-   contain large stale comment blocks. Delete them (they're recoverable from
-   git) and strip unused imports.
+5. **Remove dead code** — ✔ done in M1: the commented-out experiments in
+   `Main.java`, `Analyse_Movie`, `BlebAnalyser`, and `RunnableOutputGenerator`
+   were stripped (recoverable from git).
 6. **Normalise license headers** — ✔ done in M1: `pom.xml` corrected to
    GPL-3.0 (`license.licenseName=gpl_v3`, `license.copyrightOwners=David Barry`),
    the six NetBeans stubs replaced with the GPL header.
@@ -122,9 +121,9 @@ Targets, priority-ordered:
 
 ### A6. Error handling & user-facing failure modes
 
-1. Replace bare `catch (Exception e) { IJ.log(e); }` and empty `catch` blocks
-   (e.g. the version-property load in `run()`) with structured, actionable
-   messages.
+1. ✔ done in M1: replaced the bare `catch (Exception e) { IJ.log(e); }` and
+   empty `catch` blocks (e.g. the version-property load in `run()`) with
+   structured, actionable messages.
 2. Centralise logging on `IJ.log`/`IJ.error` with a small wrapper so severity and
    context are consistent.
 3. Add pre-flight validation of input images (size/type/time-series) — the repo
@@ -627,7 +626,7 @@ input for the phases above.
    (IAClassLibrary, TrackerLibrary), Fiji's runtime, and TrackMate ≥ 8. This
    *reverses* the earlier Java 11 target.
    - ✔ `scijava.jvm.version=21` set; `maven.compiler.release=21` verified; clean
-     compile of all 18 sources at `release 21` passes.
+     compile of all 17 sources at `release 21` passes.
    - ✔ `TrackMate:7.14.0` pin removed — the parent now resolves TrackMate 8.0.0.
    - ✔ `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.2` (clean compile).
    - ✔ `AdaptDataProcessing` removed (deprecated/obsolete) and `Bleb_Data_Analysis`

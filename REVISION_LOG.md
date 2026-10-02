@@ -9,7 +9,7 @@ and
 [`TrackerLibrary`](https://github.com/djpbarry/TrackerLibrary/blob/development/REVISION_LOG.md)).
 
 ADAPT is the **end consumer** of the chain (`IAClassLibrary` →
-`TrackerLibrary` → `AdaptDataProcessing` → ADAPT): it is a Fiji/ImageJ plugin,
+`TrackerLibrary` → ADAPT): it is a Fiji/ImageJ plugin,
 not a library, so the "public API" concerns that dominate the sibling logs
 apply only lightly here. Its modernisation is instead about robustness,
 testability, and UX, as laid out in `DEVELOPMENT_PLAN.md`.
@@ -395,9 +395,9 @@ source-header tidy-up as a separate, deferred item.
 
 ### L4 — "No references in this repo" ≠ "dead code" *(inherited, lightly)*
 
-Less applicable to a plugin than a library, but the principle maps onto ADAPT's
-large commented-out blocks in `Main.java`/`Analyse_Movie`: commented code is
-historical context, not spec, and is often stale.
+Less applicable to a plugin than a library, but the principle mapped onto ADAPT's
+large commented-out blocks in `Main.java`/`Analyse_Movie` (since removed in M1):
+commented code is historical context, not spec, and is often stale.
 
 **Rule:** strip commented/experimental code (recoverable from git) rather than
 leaving it to mislead.
@@ -413,8 +413,8 @@ already worked around one consequence by declaring `central` **first** in
 
 ### L6 — Experimental code must not leak into `main` *(inherited)*
 
-ADAPT's `Main.java` is almost entirely commented experiments; `Analyse_Movie`
-and others carry large stale blocks.
+ADAPT's `Main.java` was almost entirely commented experiments (stripped in M1);
+`Analyse_Movie` and others carried large stale blocks (also stripped).
 
 **Rule:** gate experiments behind a flag or branch; strip debug/hardcoded-path
 code before merge.
