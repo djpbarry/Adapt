@@ -1,5 +1,9 @@
 # ADAPT Development Plan
 
+> **Keep this plan and `REVISION_LOG.md` in sync:** after any repo change,
+> review and update one or both in the same pass (mark phases/milestones done,
+> record decisions, log lessons).
+
 This plan outlines a multi-phase effort to (a) make ADAPT more robust and
 maintainable, (b) improve the user experience, and (c) overhaul the
 documentation (migrating from the GitHub wiki to ReadTheDocs). It is grounded in
@@ -34,7 +38,8 @@ code.
 - The GUI is a NetBeans-generated `JDialog` (`ui/GUI.java` + `ui/GUI.form`), with
   parameters held in a single **static** `UserVariables` instance.
 - Documentation currently lives in the GitHub wiki and a short `README.md`, with
-  screenshots under `content/` and a zip of test data under `test_data/`.
+  screenshots under `content/` and test data (`.ome.tiff` inputs, Git LFS) under
+  `test_data/`.
 
 ---
 
@@ -76,9 +81,9 @@ code.
    - `FluorescenceDistAnalyser` (GLCM statistics — `calcGlcmStats()` is pure, but
      `constructGLCM()`/`setStats()` operate on `ImageProcessor`/`ImageStatistics`)
    - `Analyse_Batch.readParams()` (positional CSV parsing).
-3. **Add golden-file tests** for CSV output: run the pipeline against
-   `test_data/ADAPT_Test_Data.zip` and assert the output schema/headings are
-   stable. This catches the silent schema-drift risk flagged in `AGENTS.md`.
+3. **Add golden-file tests** for CSV output: run the pipeline against the
+   `test_data/` inputs (`blebbing_cell`, `migrating_cell`) and assert the output
+   schema/headings are stable. This catches the silent schema-drift risk flagged in `AGENTS.md`.
 4. **Make code testable first** — extract pure logic from god methods (see A4)
    so tests don't require a running ImageJ.
 
@@ -265,7 +270,7 @@ Trade-off: this is a breaking change, so the H5 output baseline and the
 Sections to establish (migrating wiki content → docs):
 
 - **Getting Started**: installation via update site, test-data tutorial (linked
-  YouTube video + `test_data/ADAPT_Test_Data.zip`).
+  YouTube video + `test_data/`).
 - **User Guide**: explain each parameter (draw from `StaticVariables` labels);
   the Simple / Advanced / Protrusion Analysis tabs; the output folder structure.
 - **Concepts / Method**: plain-English explanation of the analysis pipeline —
@@ -576,7 +581,8 @@ Scripts committed under `bin/`:
 
 ### H2. Interactive smoke test (per change, before merge)
 
-A short checklist run against `test_data/ADAPT_Test_Data.zip`:
+A short checklist run against the `test_data/` inputs (`blebbing_cell`,
+`migrating_cell`):
 
 1. `Plugins>Adapt>Analyse Movie` — GUI opens, run completes, output tree written.
 2. `Plugins>Adapt>Batch Analysis` — the `params.csv` / directory flow completes.
@@ -600,7 +606,7 @@ commands are the authoritative interactive entry points, and either document the
 ### H5. Output-baseline comparison (quantitative, deferred)
 
 Beyond the visual check, establish a quantitative gate: run the pipeline on the
-benchmark inputs under `ADAPT_Test_Data/` and compare every output file to the
+benchmark inputs under `test_data/` and compare every output file to the
 stored outputs by **SHA-256**, with normalization for volatile content:
 
 - strip the timestamp line in `*.properties`;

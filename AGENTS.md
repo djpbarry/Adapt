@@ -49,7 +49,8 @@ libraries first, not this repo.
   (gitignored; template is `bin/local-env.cmd.example`).
 - **No unit tests exist.** There is no `src/test`, no test framework configured,
   and no lint/format tooling. Verification is compilation plus manual runs in
-  Fiji. Test data ships as `test_data/ADAPT_Test_Data.zip`.
+  Fiji. Test data ships as extracted `.ome.tiff` stacks under `test_data/`
+  (Git LFS-tracked); ADAPT output trees are gitignored.
 
 ## Entry points / plugin registration
 

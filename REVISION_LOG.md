@@ -27,6 +27,23 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-02 — Test data moved to Git LFS
+
+Replaced the single committed `test_data/ADAPT_Test_Data.zip` (~91 MB) with the
+two extracted input stacks, committed via **Git LFS**:
+
+- `test_data/migrating_cell/migrating_cell.ome.tiff` (~107 MB — over GitHub's
+  100 MB regular-file limit, so LFS was mandatory)
+- `test_data/blebbing_cell/blebbing_cell.ome.tiff` (~75 MB)
+
+`.gitattributes` now LFS-tracks image/binary formats (`*.tiff`, `*.tif`, `*.jpg`,
+`*.jpeg`, `*.png`, `*.zip`); `.gitignore` excludes the regenerable
+`test_data/**/Adapt_*/` output trees (the H5 golden baseline will be committed
+separately after the B2a output-structure simplification lands). The old zip
+remains in git history until a `git filter-repo`/BFG sweep.
+
+---
+
 ## 2026-10-02 — Live Fiji run succeeded; test-data output reviewed
 
 The plugin now runs end-to-end in the local Fiji against `test_data/` (both
