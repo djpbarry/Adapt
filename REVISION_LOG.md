@@ -27,6 +27,29 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-02 — Hardened `install-to-fiji.cmd`; wired up a fresh Fiji
+
+The local-Fiji install script had two gaps that surfaced when wiring a fresh
+Fiji (2.18.1, `fiji-latest-portable-nojava`) on a new machine:
+
+- It ran `mvnw package` without `clean`, so a dirty `target/` left stale
+  versioned jars (e.g. an old `adapt-3.0.10.jar` alongside the current
+  `adapt-4.0.0-SNAPSHOT.jar`) and copied them all into `Fiji/plugins/`,
+  causing duplicate classes.
+- It only copied the ADAPT plugin jar; the two sibling libraries
+  (`IAClassLibrary`, `TrackerLibrary`) were assumed to already be present in
+  Fiji, which a fresh install lacks.
+
+`bin/install-to-fiji.cmd` now runs `mvnw clean package`, installs the plugin
+into `plugins/`, and installs the sibling libraries into `jars/` (replacing any
+old versions). TrackMate is deliberately not copied: it is provided by Fiji's
+updater (`jars/TrackMate-8.1.6.jar`), and `IAClassLibrary` declares it without a
+`<version>`, so the version is governed by the shared parent
+`pom-scijava:45.1.0` (`TrackMate.version=8.0.0`). Fiji's 8.1.6 is a compatible
+patch/minor bump for ADAPT's transitive use.
+
+---
+
 ## 2026-09-28 — Externalised machine-specific paths to `bin/local-env.cmd`
 
 The `bin/` scripts (`install-to-fiji.cmd`, `run-fiji.cmd`,

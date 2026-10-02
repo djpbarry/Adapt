@@ -500,8 +500,10 @@ maintainer's current machine.
 
 Scripts committed under `bin/`:
 
-- `bin/install-to-fiji.cmd [Fiji]` — `mvnw package`, removes any old `adapt-*.jar`,
-  copies `target/adapt-<version>.jar` into `Fiji/plugins/`.
+- `bin/install-to-fiji.cmd [Fiji]` — `mvnw clean package` (clean first so stale
+  versioned jars aren't copied), removes any old `adapt-*.jar`, copies
+  `target/adapt-<version>.jar` into `Fiji/plugins/`, and copies the two sibling
+  libraries (`IAClassLibrary`, `TrackerLibrary`) into `Fiji/jars/`.
 - `bin/run-fiji.cmd [Fiji]` — launches the bundled `fiji-windows-x64.exe`.
 - `bin/smoke-test-fiji.cmd [Fiji]` — headless check that the JDK runs ImageJ and
   the two ADAPT plugin classes (plus sibling deps) are loadable.
