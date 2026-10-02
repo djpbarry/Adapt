@@ -525,7 +525,7 @@ A short checklist run against `test_data/ADAPT_Test_Data.zip`:
 ### H4. Entry-point hygiene (prerequisite)
 
 The current `Main.main()` debug path opens images via `IJ.openImage()` dialogs —
-it is *not* the real plugin entry point. Confirm the three `plugins.config`
+it is *not* the real plugin entry point. Confirm the two `plugins.config`
 commands are the authoritative interactive entry points, and either document the
 `Main` path as debug-only or remove it in M4's dead-code sweep.
 
@@ -572,10 +572,11 @@ not silently accepted.
    GEFF (Phase F2) only if needed.
 10. **M10 — Upstream dependency hygiene (do first):** license fixes, tagging,
     TrackMate-version web, cross-pin repointing, then ADAPT pin-to-tags
-    (Phase G). Blocks A2 / Decision 2.
+    (Phase G). Blocks A2 / Decision 2. — **done (2026-09-27).**
 11. **M11 — Interactive Fiji run & smoke-test harness:** stage the built plugin
-    into a local Fiji, launch it, and run the three plugins against test data
-    (Phase H). Becomes a per-change gate once landed.
+    into a local Fiji, launch it, and run the two plugins against test data
+    (Phase H). Becomes a per-change gate once landed. — **Fiji wired (2026-09-27);
+    live smoke test + output baseline pending.**
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
 parallel. Package renaming (Q4) should be done early in M4 before it cascades
@@ -584,15 +585,16 @@ and can be tackled earlier if desired; Stage-2 depends on M4's model-agnostic
 refactor. M8's Stage-1 (external-mask import) is likewise Java-target
 independent. M9 is a self-contained exporter and can land at any point.
 
-**M10 (Phase G) is the immediate next step and a prerequisite** — the three
-upstream libraries are where ADAPT's core logic lives, and their license/tagging/
-TrackMate issues must be resolved before ADAPT can pin to tags (Decision 2) and
-before the Java 21 / TrackMate 8 move.
+**M10 (Phase G) is done.** The two upstream libraries are tagged
+(`IAClassLibrary v2.0.1`, `TrackerLibrary v4.0.2`) and re-pointed; the obsolete
+`AdaptDataProcessing` was dropped (along with the `Bleb_Data_Analysis` plugin).
+Java 21 + TrackMate 8 are in place.
 
 **M11 (Phase H) is now the immediate gate for every change** — headless
 build/test is no longer sufficient; each change must be exercised interactively
-in Fiji before it is considered done. Wire M11 up as soon as a local Fiji
-install is available.
+in Fiji before it is considered done. Fiji is wired and launching; the remaining
+work is to install the plugin + sibling jars into the local Fiji, run the H2
+smoke test, and establish the H5 output baseline.
 
 ## Decisions (resolved open questions)
 
