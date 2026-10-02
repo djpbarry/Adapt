@@ -27,6 +27,38 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-02 — Live Fiji run succeeded; test-data output reviewed
+
+The plugin now runs end-to-end in the local Fiji against `test_data/` (both
+`migrating_cell` and `blebbing_cell`). Two things came out of this.
+
+**Dependency story (update sites).** The `NoClassDefFoundError:
+inra.ijpb…FloodFillComponentsLabeling` is **MorphoLibJ**, which ships on the
+**IJPB-plugins** update site, not base Fiji. ADAPT's canonical install needs
+CALM (plugin + siblings + `commons-csv`) + IJPB-plugins (MorphoLibJ) + 3D ImageJ
+Suite (`mcib3d-core`). The modernised `IAClassLibrary v2.0.1` also pulls
+`imagescience` and `combinatoricslib` as `compile` deps, but these are transitive
+and not exercised at runtime, so they can be left uninstalled. The old wiki
+Installation page omits ImageScience — now moot.
+
+**Output anomalies (logged, not yet fixed).** Reviewing the CSVs found:
+
+- **Encoding inconsistency:** `Trajectories.csv` writes `µ` as Latin-1 (`0xB5`)
+  while `VelocityAnalysis.csv` / `bleb_data_*.csv` write it as UTF-8. Likely a
+  platform-default `FileWriter` charset; breaks cross-platform byte-identical
+  baselines and confuses UTF-8-expecting Python tooling.
+- **`bleb_data_*.csv` spurious first line:** a filesystem path
+  (`…\test_data\blebbing_cell_0`) precedes the real header, so strict CSV parsers
+  read the header off by one.
+- **`bleb_data_*.csv` trailing comma:** 7 header fields vs 6 data columns.
+- **`Morphology.csv` blank `Skew`/`Kurt`** (`" "`) on flat/binary regions —
+  ImageJ "undefined", expected but schema-relevant.
+
+These feed the output-structure simplification under Phase B2 and the golden-file
+normalisation under Phase A3/H5.
+
+---
+
 ## 2026-10-02 — Hardened `install-to-fiji.cmd`; wired up a fresh Fiji
 
 The local-Fiji install script had two gaps that surfaced when wiring a fresh

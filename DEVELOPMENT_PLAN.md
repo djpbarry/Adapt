@@ -168,11 +168,78 @@ frame order before saving. Include an order-assurance assertion.
 ### B2. Onboarding & output UX
 
 1. **First-run / help flow** — link the tutorial and docs directly from the GUI.
-2. **Output organisation** — preserve the current on-disk structure (the
-   `Output_Folder_Structure.PNG` screenshot documents it), but document each file
-   in-product (a `README.txt` written into the output folder).
+2. **Output organisation** — *simplify* the on-disk structure (revised from
+   "preserve" after the 2026-10-02 output review — see `REVISION_LOG.md`): tidy
+   long-format CSVs under one `tables/` dir, multi-page TIFF stacks + maps under
+   `images/`, JSON params + a schema manifest, deterministic ROIs. Must stay
+   importable in Fiji (TIFF stacks + ROI overlay) *and* in Python (UTF-8 tidy
+   CSVs + JSON). The `Output_Folder_Structure.PNG` screenshot must be regenerated.
 3. **Consistent exit messaging** — unify the `IJ.showStatus`/`IJ.log` completion
    messages and always report elapsed time and output location.
+
+### B2a. Output structure — simplified target
+
+Proposed on-disk layout (from the 2026-10-02 review — see `REVISION_LOG.md`). The
+guiding principle is three disjoint concerns — **tables** (measurements),
+**images** (pixel data / visualisations), **metadata** (params + manifest) — with
+every table in tidy long-format (one observation per row, a `cell_id` column on
+every row-bearing table):
+
+```
+<name>_Output/
+├── parameters.json          # run params (machine-readable; replaces properties.xml)
+├── README.md                # schema + file manifest (in-product docs)
+├── tables/                  # all tabular data, tidy long-format, UTF-8
+│   ├── cells.csv            # cell_id, ... (one row per cell)
+│   ├── trajectories.csv     # cell_id, frame, time_s, x_um, y_um
+│   ├── morphology.csv       # cell_id, frame, area, ... (ImageJ measures)
+│   ├── velocity.csv         # cell_id, frame, %_protruding, ...
+│   ├── fluorescence.csv     # cell_id, frame, contrast, ... (GLCM)
+│   ├── boundary.csv         # cell_id, frame, x, y
+│   └── blebs.csv            # cell_id, bleb_id, time_s, v_um_s, signal, ...
+├── images/                  # maps + visualisations, Fiji-friendly
+│   ├── cell_000/
+│   │   ├── signal_map.tif
+│   │   ├── curvature_map.tif
+│   │   ├── velocity_map.tif
+│   │   ├── change_in_signal_map.tif
+│   │   ├── velocity_visualisation.tif    # one multi-page stack (was NNN.tiff)
+│   │   ├── curvature_visualisation.tif   # one multi-page stack
+│   │   └── bleb_detection.tif            # bleb mode
+│   └── …
+└── labels.zip               # ImageJ ROI overlay (deterministic order)
+```
+
+Old → new mapping:
+
+| Old | New |
+|---|---|
+| `Population_Data_Output/*.csv` | `tables/*.csv` (add `cell_id` where missing) |
+| `Individual_Cell_Data_Output/0_Output/*.csv` | `tables/*.csv` (flatten across cells) |
+| `Individual_Cell_Data_Output/0_Output/Bleb_Data_Files/bleb_data_N.csv` | `tables/blebs.csv` (add `bleb_id`) |
+| `Individual_Cell_Data_Output/0_Output/*.tif` maps | `images/cell_000/*.tif` |
+| `Visualisations_Output/Velocity_Visualisation/NNN.tiff` | `images/cell_000/velocity_visualisation.tif` |
+| `Visualisations_Output/Curvature_Visualisation/NNN.tiff` | `images/cell_000/curvature_visualisation.tif` |
+| `Visualisations_Output/labels.zip` | `labels.zip` (deterministic order) |
+| `properties.xml` | `parameters.json` |
+
+Checklist:
+
+- [ ] Write all CSVs as **UTF-8** (fix the Latin-1 `µ` in `Trajectories.csv`); prefer
+      ASCII column names (`x_um`, `time_s`, `v_um_s`) to remove the encoding bug class.
+- [ ] Add `cell_id` (and `bleb_id`) columns; merge per-cell / per-bleb files into one
+      tidy table each.
+- [ ] Emit time-series visualisations as **multi-page TIFF stacks** (one file, not
+      `NNN.tiff`).
+- [ ] Emit `parameters.json` and a `README.md` manifest.
+- [ ] Make `labels.zip` ROI order deterministic (B1 fix).
+- [ ] Remove the spurious first line and trailing comma in `bleb_data_*.csv`.
+- [ ] Regenerate `content/Output_Folder_Structure.PNG` and update the docs.
+
+Trade-off: this is a breaking change, so the H5 output baseline and the
+`Output_Folder_Structure.PNG` screenshot must be regenerated; do it before the
+`v4.0.0` tag. Consider doing the writer changes alongside the M4
+`RunnableOutputGenerator.buildOutput()` decomposition so the schema lands once.
 
 ### B3. Package & distribute more cleanly
 
@@ -561,8 +628,8 @@ not silently accepted.
 4. **M4 — Refactor core:** decompose `analyse()`/`buildOutput()`, replace
    `readParams()` with JSON, remove static state, rename packages. (Phase A4,
    A5.2)
-5. **M5 — GUI & UX:** hand-managed layout, parameter presets, progress/cancel.
-   (Phase B)
+5. **M5 — GUI & UX:** hand-managed layout, parameter presets, progress/cancel,
+   simplified output structure. (Phase B, including B2a)
 6. **M6 — Distribution:** update site, semver, in-product help links. (Phase B3)
 7. **M7 — TrackMate interop:** Stage-1 XML import/export bridge (Phase D1);
    Stage-2 `TrackAnalyzer` module only after M4 lands.
