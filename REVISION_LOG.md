@@ -27,6 +27,25 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-02 — M2: JUnit 5 test harness landed (first unit tests)
+
+Added JUnit 5 (`junit-jupiter-api` + `engine`, version managed by `pom-scijava`;
+the parent already wires `maven-surefire-plugin` + JUnit Platform + JaCoCo) and
+wrote the first 7 unit tests against the pure-logic parts of two classes:
+
+- `CurveMapAnalyser.calcScaledCurveRange()` and `isLocalCurvatureExtreme()` —
+  the curvature-extrema detection logic. `isLocalCurvatureExtreme` was changed
+  from `private` to package-private so it can be tested directly.
+- `FluorescenceDistAnalyser.calcGlcmStats()` — the GLCM contrast/energy/
+  homogeneity computation, extracted to a `static` helper taking the GLCM matrix
+  (the instance method now delegates to it).
+
+`mvn verify` passes with 7/7 tests green. The golden-file output test (A3.3) is
+deliberately deferred: it needs the headless Fiji pipeline and is best done after
+the B2a output-structure simplification and the H5 baseline land.
+
+---
+
 ## 2026-10-02 — Test data moved to Git LFS
 
 Replaced the single committed `test_data/ADAPT_Test_Data.zip` (~91 MB) with the

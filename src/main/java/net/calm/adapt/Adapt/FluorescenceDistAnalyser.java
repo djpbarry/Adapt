@@ -94,11 +94,9 @@ public class FluorescenceDistAnalyser {
         kurt = stats.kurtosis;
     }
 
-    double calcGlcmStats() {
+    static double[] calcGlcmStats(double[][] glcm) {
         int length = glcm.length;
-        contrast = 0.0;
-        energy = 0.0;
-        homogeneity = 0.0;
+        double contrast = 0.0, energy = 0.0, homogeneity = 0.0;
         for (int j = 0; j < length; j++) {
             for (int i = 0; i < length; i++) {
                 contrast += Math.pow(Math.abs(i - j), 2.0) * glcm[i][j];
@@ -106,6 +104,14 @@ public class FluorescenceDistAnalyser {
                 homogeneity += glcm[i][j] / (1.0 + Math.abs(i - j));
             }
         }
+        return new double[]{contrast, energy, homogeneity};
+    }
+
+    double calcGlcmStats() {
+        double[] stats = calcGlcmStats(glcm);
+        contrast = stats[0];
+        energy = stats[1];
+        homogeneity = stats[2];
         return contrast;
     }
 

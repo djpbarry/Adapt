@@ -60,7 +60,7 @@ public class CurveMapAnalyser {
      * @return 0 if this is a local curvature minima, non-zero otherwise
      *
      */
-    private static int isLocalCurvatureExtreme(int pos, int range, double[] curveVals, double threshold, boolean minima) {
+    static int isLocalCurvatureExtreme(int pos, int range, double[] curveVals, double threshold, boolean minima) {
         int factor = minima ? 1 : -1;
         double C0 = factor * curveVals[pos];
         double C1 = 0.0, C2 = 0.0;

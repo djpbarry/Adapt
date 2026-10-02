@@ -69,23 +69,23 @@ code.
 
 ### A3. Introduce tests (the single biggest maintainability win)
 
-1. **Add a test framework** (JUnit 5 via the SciJava parent's conventional test
-   setup) and wire `mvn verify` to run it.
+1. ✔ **Add a test framework** — JUnit 5 (`junit-jupiter-api` + `engine`, version
+   managed by `pom-scijava`) added; the parent already wires `maven-surefire-plugin`
+   (JUnit Platform) + JaCoCo into `mvn verify`.
 2. **Start with the highest-value, lowest-cost targets** — the pure-logic,
    static-method classes already extracted:
-   - `CurveMapAnalyser` (curvature-**extrema** detection + tracking of curvature
-     minima via `TrackerLibrary`; the `calcScaledCurveRange`/`isLocalCurvatureExtreme`
-     helpers are the extractable pure parts — the top-level method is not pure)
-   - `BlebAnalyser` (boundary/anchoring math — hard to test because it touches
-     `ImageProcessor`/`MorphMap`)
-   - `FluorescenceDistAnalyser` (GLCM statistics — `calcGlcmStats()` is pure, but
-     `constructGLCM()`/`setStats()` operate on `ImageProcessor`/`ImageStatistics`)
-   - `Analyse_Batch.readParams()` (positional CSV parsing).
-3. **Add golden-file tests** for CSV output: run the pipeline against the
-   `test_data/` inputs (`blebbing_cell`, `migrating_cell`) and assert the output
-   schema/headings are stable. This catches the silent schema-drift risk flagged in `AGENTS.md`.
-4. **Make code testable first** — extract pure logic from god methods (see A4)
-   so tests don't require a running ImageJ.
+   - ✔ `CurveMapAnalyser` — `calcScaledCurveRange` + `isLocalCurvatureExtreme`
+     (curvature-extrema detection) tested.
+   - ✔ `FluorescenceDistAnalyser` — `calcGlcmStats` (GLCM contrast/energy/
+     homogeneity) extracted to a `static` helper and tested.
+   - `BlebAnalyser` (boundary/anchoring math) — still deferred (touches
+     `ImageProcessor`/`MorphMap`).
+   - `Analyse_Batch.readParams()` (positional CSV parsing) — still deferred.
+3. **Add golden-file tests** for CSV output — *deferred*: needs the headless Fiji
+   pipeline; do it after the B2a output-structure simplification and H5 baseline
+   (still targets the schema-drift risk flagged in `AGENTS.md`).
+4. **Make code testable first** — started: `isLocalCurvatureExtreme` made
+   package-private, `calcGlcmStats` extracted to a `static` helper. Continue in A4.
 
 ### A4. Refactor for clarity and testability
 
@@ -628,8 +628,9 @@ not silently accepted.
 1. **M1 — Foundations (low risk, high value):** `.gitignore`, Maven wrapper, CI
    hardening, license-header consistency, delete dead code. (Phase A1, A2, A4.5,
    A4.6, A6) — **done (2026-09-27).**
-2. **M2 — Test harness:** JUnit + a couple of unit tests + golden-file output
-   test. (Phase A3)
+2. **M2 — Test harness:** JUnit 5 + a couple of unit tests + golden-file output
+   test. (Phase A3) — **unit tests landed (2026-10-02); golden-file test deferred
+   to H5.**
 3. **M3 — Docs migration:** stand up Sphinx/RTD, migrate wiki content. (Phase C)
 4. **M4 — Refactor core:** decompose `analyse()`/`buildOutput()`, replace
    `readParams()` with JSON, remove static state, rename packages. (Phase A4,
