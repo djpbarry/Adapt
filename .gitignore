@@ -15,3 +15,6 @@ Desktop.ini
 
 # Local (machine-specific) environment
 bin/local-env.cmd
+
+# ADAPT analysis outputs (regenerable; golden baseline committed separately)
+test_data/**/Adapt_*/
