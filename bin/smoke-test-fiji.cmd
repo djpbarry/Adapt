@@ -1,20 +1,30 @@
 @echo off
-rem Headless smoke test: verify the local Fiji runs on the JDK and that all three
+rem Headless smoke test: verify the local Fiji runs on the JDK and that the two
 rem ADAPT plugin classes (plus their sibling-library dependencies) are loadable.
 rem
-rem Usage:   smoke-test-fiji.cmd [path\to\Fiji.app]
-rem Default: C:\Users\barryd\fiji-nojre\Fiji.app
+rem Usage:   smoke-test-fiji.cmd [path\to\Fiji]
+rem Default: FIJI_DIR from bin\local-env.cmd (gitignored); see local-env.cmd.example
 rem
 rem This is the scripted version of DEVELOPMENT_PLAN.md Phase H2. It does not
 rem run the GUI; it only confirms the classpath and plugin wiring.
 
 setlocal
 
-set "FIJI_DIR=%~1"
-if "%FIJI_DIR%"=="" set "FIJI_DIR=C:\Users\barryd\Fiji"
+rem Load machine-specific paths (FIJI_DIR, JAVA_HOME) if present.
+call "%~dp0local-env.cmd" 2>nul
 
-set "JAVA_HOME=%JAVA_HOME%"
-if "%JAVA_HOME%"=="" set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot"
+rem A command-line argument overrides the env file.
+if not "%~1"=="" set "FIJI_DIR=%~1"
+
+if "%FIJI_DIR%"=="" (
+    echo [smoke-test-fiji] ERROR: FIJI_DIR not set. Create bin\local-env.cmd or pass a path.
+    exit /b 1
+)
+
+if "%JAVA_HOME%"=="" (
+    echo [smoke-test-fiji] ERROR: JAVA_HOME not set.
+    exit /b 1
+)
 
 set "JAVA=%JAVA_HOME%\bin\java.exe"
 if not exist "%JAVA%" (
@@ -28,8 +38,7 @@ set "CHECK=%TEMP%\AdaptPluginCheck.java"
     echo     public static void main(String[] a^) throws Exception {
     echo         String[] plugins = {
     echo             "net.calm.adapt.Adapt.Analyse_Movie",
-    echo             "net.calm.adapt.Adapt.Analyse_Batch",
-    echo             "net.calm.adapt.Adapt.Bleb_Data_Analysis"
+    echo             "net.calm.adapt.Adapt.Analyse_Batch"
     echo         };
     echo         for (String p : plugins^) {
     echo             System.out.println("OK  " + Class.forName(p^).getName(^)^);

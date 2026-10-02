@@ -2,17 +2,26 @@
 rem Install the built ADAPT plugin jar into a local Fiji installation.
 rem
 rem Usage:   install-to-fiji.cmd [path\to\Fiji.app]
-rem Default: C:\Users\barryd\fiji-nojre\Fiji.app
+rem Default: FIJI_DIR from bin\local-env.cmd (gitignored); see local-env.cmd.example
 rem
-rem This only installs the ADAPT plugin jar itself. Its three sibling
-rem dependencies (IAClassLibrary, TrackerLibrary, AdaptDataProcessing) and the
+rem This only installs the ADAPT plugin jar itself. Its two sibling
+rem dependencies (IAClassLibrary, TrackerLibrary) and the
 rem rest of the ImageJ/Fiji stack are expected to already be present in the
 rem Fiji installation (see DEVELOPMENT_PLAN.md Phase H).
 
 setlocal enabledelayedexpansion
 
-set "FIJI_DIR=%~1"
-if "%FIJI_DIR%"=="" set "FIJI_DIR=C:\Users\barryd\Fiji"
+rem Load machine-specific paths (FIJI_DIR, JAVA_HOME) if present.
+call "%~dp0local-env.cmd" 2>nul
+
+rem A command-line argument overrides the env file.
+if not "%~1"=="" set "FIJI_DIR=%~1"
+
+if "%FIJI_DIR%"=="" (
+    echo [install-to-fiji] ERROR: FIJI_DIR not set. Create bin\local-env.cmd or pass a path.
+    exit /b 1
+)
+
 set "PLUGINS=%FIJI_DIR%\plugins"
 
 if not exist "%PLUGINS%" (

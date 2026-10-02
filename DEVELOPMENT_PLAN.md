@@ -488,19 +488,23 @@ worth re-plumbing.
 
 ### H1. Local Fiji staging & launch
 
-Local Fiji is at `C:\Users\barryd\Fiji` — the **latest** Fiji (2.18.1), a
-**nojre** build (no bundled JRE). It **requires Java 21+** (README). The jaunch
-launcher (`fiji-windows-x64.exe`) finds Java 21 via the `JAVA_HOME` environment
-variable (`C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot`), so no
-bundled JRE or junction is needed — the GUI launches as-is. This Fiji already
-ships **TrackMate 8.1.6**, matching the modernised `IAClassLibrary` `v2.0.1`.
-Scripts committed under `bin/` (default `Fiji` dir = `C:\Users\barryd\Fiji`):
+Local Fiji (this machine) is at `C:\Users\barryd\fiji-latest-portable-nojava\Fiji`
+— the **latest** Fiji, a **nojava** build (no bundled JRE), requiring **Java 21+**.
+The jaunch launcher (`fiji-windows-x64.exe`) finds Java 21 via `JAVA_HOME` (no
+bundled JRE or junction needed).
+
+**Device-specific paths are not committed.** `Fiji` and `JAVA_HOME` live in
+`bin/local-env.cmd` (gitignored; copy `bin/local-env.cmd.example`). The scripts
+`call` it and fall back to a command-line argument. The paths above are the
+maintainer's current machine.
+
+Scripts committed under `bin/`:
 
 - `bin/install-to-fiji.cmd [Fiji]` — `mvnw package`, removes any old `adapt-*.jar`,
   copies `target/adapt-<version>.jar` into `Fiji/plugins/`.
 - `bin/run-fiji.cmd [Fiji]` — launches the bundled `fiji-windows-x64.exe`.
 - `bin/smoke-test-fiji.cmd [Fiji]` — headless check that the JDK runs ImageJ and
-  all three ADAPT plugin classes (plus sibling deps) are loadable.
+  the two ADAPT plugin classes (plus sibling deps) are loadable.
 
 ### H2. Interactive smoke test (per change, before merge)
 

@@ -27,6 +27,18 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-09-28 — Externalised machine-specific paths to `bin/local-env.cmd`
+
+The `bin/` scripts (`install-to-fiji.cmd`, `run-fiji.cmd`,
+`smoke-test-fiji.cmd`) no longer hardcode the Fiji/JDK paths. They `call`
+`bin/local-env.cmd` (gitignored) for `FIJI_DIR`/`JAVA_HOME`, falling back to a
+command-line argument. `bin/local-env.cmd.example` (committed) documents the
+variables; each machine keeps its own `local-env.cmd` without churning the
+committed scripts. The maintainer works on several machines, so hardcoded paths
+were unworkable.
+
+---
+
 ## 2026-09-28 — Removed `AdaptDataProcessing`; retired `Bleb_Data_Analysis`
 
 `AdaptDataProcessing` is deprecated — its README now recommends a Python rewrite

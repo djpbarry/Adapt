@@ -42,6 +42,10 @@ libraries first, not this repo.
   images via dialog (`IJ.openImage()`), not the normal plugin entry point. Under
   Fiji the real entry points are the two plugins declared in
   `src/main/resources/plugins.config`.
+- **Local Fiji testing:** `bin/install-to-fiji.cmd`, `bin/run-fiji.cmd`, and
+  `bin/smoke-test-fiji.cmd` stage/launch/test the plugin in a local Fiji.
+  Machine-specific `FIJI_DIR`/`JAVA_HOME` live in `bin/local-env.cmd`
+  (gitignored; template is `bin/local-env.cmd.example`).
 - **No unit tests exist.** There is no `src/test`, no test framework configured,
   and no lint/format tooling. Verification is compilation plus manual runs in
   Fiji. Test data ships as `test_data/ADAPT_Test_Data.zip`.

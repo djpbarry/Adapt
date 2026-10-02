@@ -12,3 +12,6 @@ target/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Local (machine-specific) environment
+bin/local-env.cmd
