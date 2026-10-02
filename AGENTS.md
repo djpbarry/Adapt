@@ -32,9 +32,10 @@ libraries first, not this repo.
   - `mvn_settings.xml` (GitHub Packages + PAT) has been **removed**.
   - `IAClassLibrary` depends on `sc.fiji:TrackMate` transitively; ADAPT resolves
     TrackMate 8.0.0 via the parent (no explicit pin).
-- **CI:** `.github/workflows/maven.yml` runs `./mvnw --batch-mode verify` on
-  `ubuntu-latest` across a JDK matrix (Temurin, `actions/setup-java@v5`) with
-  Maven caching (`actions/checkout@v5`).
+- **CI:** `.github/workflows/maven.yml` runs
+  `./mvnw --batch-mode --no-transfer-progress verify` on `ubuntu-latest` with
+  JDK 21 (Temurin), Maven caching, and `actions/checkout@v5` /
+  `actions/setup-java@v5`.
 - **Packaging:** the parent POM is `org.scijava:pom-scijava:45.1.0`; the
   `maven-dependency-plugin` copies all dependencies into `target/` on `package`.
 - **Run/debug:** `main-class` is `net.calm.adapt.Adapt.Main`. Its `main()` calls
@@ -133,10 +134,10 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
   also does `directory.getAbsolutePath() + delimiter + ".."` for the parent.
 - **Statics on `GUI`:** `UserVariables UV` and the `VERSION`-style labels are
   static/shared; the GUI dialog is modal and populated once per batch run.
-- **Lots of commented-out code** throughout (`Main.java` is almost entirely
-  commented experiments; many `//` blocks in `Analyse_Movie`, `BlebAnalyser`,
-  `RunnableOutputGenerator`). Treat existing commented lines as historical
-  context, not spec — they are frequently stale.
+- **Dead code was removed in M1.** The commented-out experiments in `Main.java`,
+  `Analyse_Movie`, `BlebAnalyser`, and `RunnableOutputGenerator` were stripped
+  (recoverable from git history); remaining comments are legitimate
+  documentation, not stale experiments.
 - **License is GPL-3.0** (aligned in M1): `pom.xml` (`license.licenseName=gpl_v3`)
   and source headers now agree. `license.copyrightOwners` is **David Barry**
   (development predates the Francis Crick Institute, so the Crick cannot claim
