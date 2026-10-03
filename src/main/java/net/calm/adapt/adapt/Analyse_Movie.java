@@ -214,6 +214,50 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             IJ.error("Timelapse dataset required - aborting.");
             return false;
         }
+        if (!createOutputDirectories(cytoImp, imageName)) {
+            return false;
+        }
+        int width = cytoStack.getWidth();
+        int height = cytoStack.getHeight();
+        /*
+         Convert cyto channel to 8-bit for faster segmentation
+         */
+        cytoStack = GenUtils.convertStack(stacks[0], 8);
+        stacks[0] = cytoStack;
+        if (!(batchMode || protMode)) {
+            GUI gui = new GUI(null, true, TITLE, stacks, roi);
+            gui.setVisible(true);
+            if (!gui.isWasOKed()) {
+                return false;
+            }
+            uv = GUI.getUv();
+            props = gui.getProperties();
+        }
+        if (!segmentCells(cytoStack, width, height, cytoSize)) {
+            return false;
+        }
+        if (cellData.size() < 1) return false;
+        if (selectiveOutput) {
+            ArrayList<CellData> filteredCells = filterCells(cellData);
+            cellData = filteredCells;
+        }
+        generateOutputs();
+        if (uv.isGetMorph()) {
+            try {
+                getMorphologyData(cellData, true, -1, null, 0.0);
+            } catch (IOException e) {
+                GenUtils.logError(e, "Could not save morphological data file.");
+            }
+        }
+        try {
+            generateCellTrajectories(cellData);
+        } catch (Exception e) {
+            GenUtils.logError(e, "Error: Failed to create cell trajectories file.");
+        }
+        return true;
+    }
+
+    private boolean createOutputDirectories(ImagePlus cytoImp, String imageName) {
         /*
          * Create new parent output directory - make sure directory name is
          * unique so old results are not overwritten
@@ -232,22 +276,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         visDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Visualisations")));
         cellsDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Individual_Cell_Data")));
         popDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Population_Data")));
-        int width = cytoStack.getWidth();
-        int height = cytoStack.getHeight();
-        /*
-         Convert cyto channel to 8-bit for faster segmentation
-         */
-        cytoStack = GenUtils.convertStack(stacks[0], 8);
-        stacks[0] = cytoStack;
-        if (!(batchMode || protMode)) {
-            GUI gui = new GUI(null, true, TITLE, stacks, roi);
-            gui.setVisible(true);
-            if (!gui.isWasOKed()) {
-                return false;
-            }
-            uv = GUI.getUv();
-            props = gui.getProperties();
-        }
+        return true;
+    }
+
+    private boolean segmentCells(ImageStack cytoStack, int width, int height, int cytoSize) {
         minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
         String pdLabel = protMode ? "Segmenting filopodia..." : "Segmenting cells...";
         cellData = new ArrayList<>();
@@ -352,11 +384,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             cellData.get(i).setGreyThresholds(thresholds);
         }
         IJ.log(String.format("%d cells found.\n", cellData.size()));
-        if (cellData.size() < 1) return false;
-        if (selectiveOutput) {
-            ArrayList<CellData> filteredCells = filterCells(cellData);
-            cellData = filteredCells;
-        }
+        return true;
+    }
+
+    private void generateOutputs() {
         /*
          * Analyse the dynamics of each cell, represented by a series of
          * detected regions.
@@ -376,19 +407,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             segDir = GenUtils.createDirectory(visDir + delimiter + "Segmentation_Visualisation", false);
             genSimpSegVis(cellData);
         }
-        if (uv.isGetMorph()) {
-            try {
-                getMorphologyData(cellData, true, -1, null, 0.0);
-            } catch (IOException e) {
-                GenUtils.logError(e, "Could not save morphological data file.");
-            }
-        }
-        try {
-            generateCellTrajectories(cellData);
-        } catch (Exception e) {
-            GenUtils.logError(e, "Error: Failed to create cell trajectories file.");
-        }
-        return true;
     }
 
     ArrayList<CellData> filterCells(ArrayList<CellData> originalCells) {

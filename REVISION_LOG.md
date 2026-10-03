@@ -27,6 +27,31 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-03 — Decomposed `Analyse_Movie.analyse()` (M4 step 3 / A4.1)
+
+Split the ~225-line `analyse()` into three single-responsibility private methods
+so the pipeline reads as a sequence instead of a wall of code, with no behaviour
+change:
+
+- `createOutputDirectories(cytoImp, imageName)` — derives the parent/cells/
+  population/visualisation directories.
+- `segmentCells(cytoStack, width, height, cytoSize)` — the full per-frame
+  segmentation loop, region→cell assignment, and grey-threshold wiring.
+- `generateOutputs()` — the morphology/velocity/signal output-vs-simple-visual
+  dispatch.
+
+`analyse()` now reads: prepare inputs → create dirs → convert to 8-bit → show GUI
+→ segment → filter → generate outputs → morphology → trajectories. `mvn clean
+verify` passes with 12/12 tests green.
+
+Lesson: the extracted blocks were already cohesive (they operated on a narrow set
+of fields) — the obstacle to extraction was that they *mutated* shared fields
+(`cellData`, `roi`, `minLength`, the `*Dir` fields). Extracting them as `private`
+methods that mutate those fields kept the diff mechanical and behaviour-neutral,
+which is the right first move before the larger A4.3 context-object refactor.
+
+---
+
 ## 2026-10-03 — `readParams()` CSV → JSON (M4 step 2 / Decision 5)
 
 Replaced the positional `Scanner` + `br.readLine()` CSV parser in

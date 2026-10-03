@@ -96,7 +96,9 @@ Targets, priority-ordered:
    — these are the largest, most intertwined methods. Decompose into
    single-responsibility private methods (segmentation, map building, protrusion
    analysis, output writing) and move pure math into package-private/static
-   helpers.
+   helpers. ✔ `analyse()` decomposed (2026-10-03, M4 step 3) into
+   `createOutputDirectories()`, `segmentCells()`, and `generateOutputs()`;
+   `buildOutput()` remains for M4 step 5.
 2. **`Analyse_Batch.readParams()`** — ✔ per Decision 5 (done 2026-10-03):
    replaced the brittle positional `Scanner` + `br.readLine()` parsing with JSON
    (validated via Jackson), including a `version` field so old files are detected
@@ -691,7 +693,9 @@ Each step is independently committable with its own verification gate.
 3. **Decompose `Analyse_Movie.analyse()`** (A4.1). Extract segmentation /
    map-building / protrusion-analysis / output-writing into single-responsibility
    methods; move pure math to static/package-private helpers with tests. No
-   behaviour change. Gate: build + existing 7 tests still green.
+   behaviour change. Gate: build + existing tests still green. — **done
+   (2026-10-03): `analyse()` now delegates to `createOutputDirectories()`,
+   `segmentCells()`, and `generateOutputs()`; 12/12 tests green.**
 4. **Fix output anomalies** (B2a, low-risk half). UTF-8 everywhere (fix Latin-1
    `µ`), drop the `bleb_data_*.csv` spurious first line + trailing comma, decide
    on blank `Skew`/`Kurt`. Still the old layout — just make output correct/
