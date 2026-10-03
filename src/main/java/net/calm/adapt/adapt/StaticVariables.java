@@ -145,19 +145,19 @@ public class StaticVariables {
 
     public static final String VIS_LINE_WIDTH = "Visualisation Line Thickness";
 
-    public static final String TIME = "Time_(s)";
+    public static final String TIME = "time_s";
 
-    public static final String ZEROED_TIME = "Zeroed_Time_(s)";
+    public static final String ZEROED_TIME = "zeroed_time_s";
 
-    public static final String VELOCITY = "V_(" + GenUtils.mu + "m/s)";
+    public static final String VELOCITY = "v_um_s";
 
-    public static final String TOTAL_SIGNAL = "Total_Signal_(AU)";
+    public static final String TOTAL_SIGNAL = "total_signal_au";
 
-    public static final String LENGTH = "Length_(" + GenUtils.mu + "m)";
+    public static final String LENGTH = "length_um";
 
-    public static final String MEAN_SIGNAL = "Mean_Signal";
+    public static final String MEAN_SIGNAL = "mean_signal";
 
-    public static final String NORM_LENGTH = "Normalised_Length";
+    public static final String NORM_LENGTH = "normalised_length";
 
     public static final String DATA_STREAM_HEADINGS[] = {TIME, VELOCITY,
         TOTAL_SIGNAL, MEAN_SIGNAL, LENGTH, NORM_LENGTH};

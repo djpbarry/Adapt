@@ -528,7 +528,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
         try {
             velStats = new File(childDir + File.separator + "VelocityAnalysis.csv");
             velStatWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(velStats), GenVariables.UTF8));
-            velStatWriter.println("Frame,% Protruding,% Retracting,Mean Protrusion Velocity (" + IJ.micronSymbol + "m/min), Mean Retraction Velocity (" + IJ.micronSymbol + "m/min)");
+            velStatWriter.println("frame,%_protruding,%_retracting,mean_protrusion_velocity_um_min,mean_retraction_velocity_um_min");
             if (!sigNull) {
                 sigchanges = cellData.getSigMap().smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
                 greySigMap = cellData.getGreySigMap();

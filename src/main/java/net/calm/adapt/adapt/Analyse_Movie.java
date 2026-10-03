@@ -274,8 +274,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             return false;
         }
         visDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Visualisations")));
-        cellsDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Individual_Cell_Data")));
-        popDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Population_Data")));
+        cellsDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "images")));
+        popDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "tables")));
         return true;
     }
 
@@ -699,7 +699,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         try {
             velStats = new File(childDir + delimiter + "VelocityAnalysis.csv");
             velStatWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(velStats), GenVariables.UTF8));
-            velStatWriter.println("Frame,% Protruding,% Retracting,Mean Protrusion Velocity (" + IJ.micronSymbol + "m/min), Mean Retraction Velocity (" + IJ.micronSymbol + "m/min)");
+            velStatWriter.println("frame,%_protruding,%_retracting,mean_protrusion_velocity_um_min,mean_retraction_velocity_um_min");
             if (!sigNull) {
                 sigchanges = cellData.getSigMap().smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
                 greySigMap = cellData.getGreySigMap();
@@ -802,12 +802,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         Random rand = new Random();
         Arrays.fill(distances, 0.0);
         ArrayList<ArrayList<Double>> trajData = new ArrayList<ArrayList<Double>>();
-        String[] trajDataHeadings = new String[5];
-        trajDataHeadings[0] = "Frame";
-        trajDataHeadings[1] = "Time (s)";
-        trajDataHeadings[2] = "Cell ID";
-        trajDataHeadings[3] = String.format("Cell_X (%cm)", IJ.micronSymbol);
-        trajDataHeadings[4] = String.format("Cell_Y (%cm)", IJ.micronSymbol);
+        String[] trajDataHeadings = new String[]{"frame", "time_s", "cell_id", "x_um", "y_um"};
         for (int n = 0; n < N; n++) {
             colors[n] = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
             if (cellData.get(n).getLength() > minLength) {

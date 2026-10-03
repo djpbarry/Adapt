@@ -236,7 +236,7 @@ Checklist:
 
 - [x] Write all CSVs as **UTF-8** (fix the Latin-1 `µ` in `Trajectories.csv`); prefer
       ASCII column names (`x_um`, `time_s`, `v_um_s`) to remove the encoding bug class.
-      — UTF-8 done (2026-10-03); ASCII names deferred to step 6.
+      — UTF-8 + ASCII names done (2026-10-03).
 - [ ] Add `cell_id` (and `bleb_id`) columns; merge per-cell / per-bleb files into one
       tidy table each.
 - [ ] Emit time-series visualisations as **multi-page TIFF stacks** (one file, not
@@ -714,7 +714,8 @@ Each step is independently committable with its own verification gate.
    `cell_id`/`bleb_id`, merge per-cell files, ASCII column names),
    `images/cell_NNN/*.tif` multi-page stacks, `parameters.json` + `README.md`
    manifest, deterministic `labels.zip` (B1 fix). Gate: Fiji run + review the new
-   tree.
+   tree. — **in progress (2026-10-03): ASCII column names done; top-level dirs
+   renamed `tables/` + `images/`, per-cell dirs → `cell_NNN`.**
 7. **Remove static `GUI.UV`** (A4.3). Pass a `UserVariables` per run / introduce a
    run-context object instead of the static singleton. Touches GUI +
    `Analyse_Movie`/`Analyse_Batch`. Gate: build + batch/single GUI runs.

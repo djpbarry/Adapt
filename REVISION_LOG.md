@@ -27,6 +27,26 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-03 — Output restructure started (M4 step 6 / B2a)
+
+First slice of the breaking output restructure:
+
+- **ASCII column names:** converted the output CSV headings to lowercase
+  snake_case ASCII — `StaticVariables` (`time_s`, `zeroed_time_s`, `v_um_s`,
+  `total_signal_au`, `length_um`, `mean_signal`, `normalised_length`), the
+  trajectory headings (`frame,time_s,cell_id,x_um,y_um`), and the velocity
+  headings (`frame,%_protruding,%_retracting,mean_protrusion_velocity_um_min,
+  mean_retraction_velocity_um_min`). GUI labels (with `µ`) are untouched.
+- **Directory restructure (partial):** `Population_Data` → `tables`,
+  `Individual_Cell_Data` → `images`, and per-cell dirs `0` → `cell_000`
+  (zero-padded). The `Visualisations` dir and multi-page stacks are not yet done.
+
+`mvn test` green (12/12). Remaining for step 6: `parameters.json` + `README.md`,
+`cell_id`/`bleb_id` columns + table merging, multi-page TIFF stacks, and
+deterministic `labels.zip`.
+
+---
+
 ## 2026-10-03 — Decomposed `RunnableOutputGenerator.buildOutput()` (M4 step 5 / A4.1)
 
 Extracted the image/boundary writing from `buildOutput()` into a single-
