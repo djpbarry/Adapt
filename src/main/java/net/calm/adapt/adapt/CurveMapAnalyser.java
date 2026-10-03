@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.calm.adapt.Adapt;
+package net.calm.adapt.adapt;
 
 import net.calm.trackerlibrary.ParticleTracking.ParticleTrajectory;
 import net.calm.trackerlibrary.ParticleTracking.TrajectoryBuilder;

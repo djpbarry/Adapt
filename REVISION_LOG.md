@@ -27,6 +27,20 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-03 — Package rename to lowercase (M4 step 1 / Decision 4)
+
+Renamed the three mixed-case packages `Adapt`→`adapt`, `Output`→`output`,
+`Visualisation`→`visualisation` (`ui` unchanged). Updated every `package`
+declaration and import, `plugins.config` FQNs, and `pom.xml` `main-class` (the
+GitHub repo URLs were left untouched). Directories were renamed via a two-step
+`git mv` (case-insensitive filesystem). `mvn clean verify` passes: 17 main + 2
+test sources, 7/7 tests green under `net.calm.adapt.adapt`.
+
+Used `pixi` for Python to do the bulk string replacement (no `sed`/`perl` in the
+shell); the disposable project lived under `target/` (gitignored).
+
+---
+
 ## 2026-10-02 — M4 + B2a broken into an ordered work breakdown
 
 Recorded a 9-step dependency-ordered sequence in `DEVELOPMENT_PLAN.md` to split

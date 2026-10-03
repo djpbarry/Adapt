@@ -120,9 +120,9 @@ Targets, priority-ordered:
 
 1. Add a formatter (e.g. Spotless with a standard Java style) and a linter
    (SpotBugs / PMD as appropriate) wired into `mvn verify`.
-2. Fix the mixed-case package-directory convention (`Adapt`, `Output`,
-   `Visualisation`, `ui`) — per Decision 4, rename to lowercase and update
-   `plugins.config` + all imports.
+2. ✔ Done (2026-10-03): renamed `Adapt`, `Output`, `Visualisation` to lowercase
+   (`adapt`, `output`, `visualisation`; `ui` unchanged); updated all imports,
+   `plugins.config`, and `pom.xml` `main-class`.
 
 ### A6. Error handling & user-facing failure modes
 
@@ -679,7 +679,7 @@ Each step is independently committable with its own verification gate.
    `Output`→`output`, `Visualisation`→`visualisation` (`ui` stays). Update all
    imports, `plugins.config` FQNs, and `pom.xml` `main-class`/`package-name`.
    First because it cascades into every later step. Gate: `mvn verify` + Fiji
-   smoke test.
+   smoke test. — **done (2026-10-03).**
 2. **`readParams()` CSV → JSON** (Decision 5 / A4.2). Add Jackson (or confirm
    transitive), define a versioned schema, rewrite the parser, ship a
    `params.json` example + migration note for old `params.csv`. Self-contained.
@@ -747,9 +747,9 @@ input for the phases above.
    - ✔ `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.2` (clean compile).
    - ✔ `AdaptDataProcessing` removed (deprecated/obsolete) and `Bleb_Data_Analysis`
      retired.
-4. **Package names — rename to lowercase.** Rename `Adapt`, `Output`,
-   `Visualisation`, `ui` to conventional lowercase (`adapt`, `output`,
-   `visualisation`, `ui`); update `plugins.config` and all imports accordingly.
+4. **Package names — rename to lowercase.** ✔ Done (2026-10-03): `Adapt`→`adapt`,
+   `Output`→`output`, `Visualisation`→`visualisation` (`ui` unchanged); all
+   imports, `plugins.config`, and `pom.xml` `main-class` updated.
 5. **Params file — JSON.** Replace the positional CSV parsing in
    `Analyse_Batch.readParams()` with JSON (validated via Jackson, adding it as a
    dependency if it is not already transitive via Bio-Formats/SciJava),

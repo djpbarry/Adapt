@@ -14,14 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.calm.adapt.Output;
+package net.calm.adapt.output;
 
-import net.calm.adapt.Adapt.Analyse_Movie;
-import net.calm.adapt.Adapt.Bleb;
-import net.calm.adapt.Adapt.BlebAnalyser;
-import net.calm.adapt.Adapt.CurveMapAnalyser;
-import net.calm.adapt.Adapt.RegionFluorescenceQuantifier;
-import net.calm.adapt.Adapt.StaticVariables;
+import net.calm.adapt.adapt.Analyse_Movie;
+import net.calm.adapt.adapt.Bleb;
+import net.calm.adapt.adapt.BlebAnalyser;
+import net.calm.adapt.adapt.CurveMapAnalyser;
+import net.calm.adapt.adapt.RegionFluorescenceQuantifier;
+import net.calm.adapt.adapt.StaticVariables;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;

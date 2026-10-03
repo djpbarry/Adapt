@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.calm.adapt.Adapt;
+package net.calm.adapt.adapt;
 
 import ij.*;
 import ij.gui.PointRoi;
@@ -28,8 +28,8 @@ import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
 import ij.process.*;
-import net.calm.adapt.Output.MultiThreadedOutputGenerator;
-import net.calm.adapt.Visualisation.MultiThreadedVisualisationGenerator;
+import net.calm.adapt.output.MultiThreadedOutputGenerator;
+import net.calm.adapt.visualisation.MultiThreadedVisualisationGenerator;
 import net.calm.adapt.ui.GUI;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.Cell.MorphMap;

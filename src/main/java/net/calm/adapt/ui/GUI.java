@@ -16,9 +16,9 @@
  */
 package net.calm.adapt.ui;
 
-import net.calm.adapt.Adapt.Analyse_Movie;
-import net.calm.adapt.Adapt.StaticVariables;
-import net.calm.adapt.Adapt.TaskListener;
+import net.calm.adapt.adapt.Analyse_Movie;
+import net.calm.adapt.adapt.StaticVariables;
+import net.calm.adapt.adapt.TaskListener;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;

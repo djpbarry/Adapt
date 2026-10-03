@@ -38,7 +38,7 @@ libraries first, not this repo.
   `actions/setup-java@v5`.
 - **Packaging:** the parent POM is `org.scijava:pom-scijava:45.1.0`; the
   `maven-dependency-plugin` copies all dependencies into `target/` on `package`.
-- **Run/debug:** `main-class` is `net.calm.adapt.Adapt.Main`. Its `main()` calls
+- **Run/debug:** `main-class` is `net.calm.adapt.adapt.Main`. Its `main()` calls
   `Analyse_Movie.initialise()` then `run(null)`, which is a debug path that opens
   images via dialog (`IJ.openImage()`), not the normal plugin entry point. Under
   Fiji the real entry points are the two plugins declared in
@@ -58,8 +58,8 @@ libraries first, not this repo.
 Fiji discovers commands via `src/main/resources/plugins.config`, not annotations:
 
 ```
-Plugins>Adapt, "Analyse Movie", net.calm.adapt.Adapt.Analyse_Movie
-Plugins>Adapt, "Batch Analysis", net.calm.adapt.Adapt.Analyse_Batch
+Plugins>Adapt, "Analyse Movie", net.calm.adapt.adapt.Analyse_Movie
+Plugins>Adapt, "Batch Analysis", net.calm.adapt.adapt.Analyse_Batch
 ```
 
 These two classes implement ImageJ's `ij.plugin.PlugIn` (`run(String arg)`).
