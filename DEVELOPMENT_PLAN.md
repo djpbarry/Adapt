@@ -778,3 +778,9 @@ input for the phases above.
    reimplementation (`@Plugin` + `@Parameter`) is recorded as a future option,
    not planned work; if revisited, prefer thin `Command` wrappers over the
    existing core (after M4) rather than a full rewrite. See Phase H0.
+7. **Versioning — plain `X.Y.Z` on `development`, tag `vX.Y.Z` (resolved
+   2026-10-03).** ADAPT follows the sibling convention (see `IAClassLibrary`'s
+   `development` branch): `pom.xml` `<version>` is a plain `X.Y.Z` (no
+   `-SNAPSHOT`), and `maven-release-plugin` tags releases as
+   `v@{project.version}` (e.g. `v4.0.0`). The `v4.0.0` tag is created only once
+   the modernisation work lands.

@@ -27,6 +27,21 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-03 — Version aligned with sibling convention (dropped `-SNAPSHOT`)
+
+`IAClassLibrary`'s `development` branch uses a plain `<version>X.Y.Z</version>`
+(no `-SNAPSHOT`) and tags releases as `v@{project.version}`. ADAPT's `pom.xml`
+was still `4.0.0-SNAPSHOT`, so it now follows the same convention:
+
+- `<version>4.0.0</version>` (dropped the `-SNAPSHOT` suffix).
+- Added `maven-release-plugin` with
+  `<tagNameFormat>v@{project.version}</tagNameFormat>` so future releases tag as
+  `v4.0.0`, `v4.0.1`, …
+
+The `v4.0.0` tag is still only created once the modernisation work lands.
+
+---
+
 ## 2026-10-03 — Output restructure started (M4 step 6 / B2a)
 
 First slice of the breaking output restructure:
