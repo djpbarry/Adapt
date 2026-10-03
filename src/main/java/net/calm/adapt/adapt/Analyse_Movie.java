@@ -274,8 +274,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             return false;
         }
         visDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Visualisations")));
-        cellsDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "images")));
-        popDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "tables")));
+        cellsDir = GenUtils.createDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "images"), false);
+        popDir = GenUtils.createDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "tables"), false);
         return true;
     }
 

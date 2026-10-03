@@ -78,7 +78,7 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
             int length = cellData.get(index).getLength();
             fluorData.add(new ArrayList());
             if (length > minLength) {
-                childDir = new File(GenUtils.openResultsDirectory(String.format("%s%scell_%03d", parDir, File.separator, index)));
+                childDir = GenUtils.createDirectory(String.format("%s%scell_%03d", parDir, File.separator, index), false);
                 exec.submit(new RunnableOutputGenerator(cellData, parDir,
                         protMode, uv, childDir, sigStack,
                         cytoStack, index, length, directory, roi, fluorData.get(index)));

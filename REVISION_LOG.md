@@ -55,6 +55,9 @@ First slice of the breaking output restructure:
 - **Directory restructure (partial):** `Population_Data` → `tables`,
   `Individual_Cell_Data` → `images`, and per-cell dirs `0` → `cell_000`
   (zero-padded). The `Visualisations` dir and multi-page stacks are not yet done.
+  (`openResultsDirectory` initially appended `_Output` to these child dirs; that
+  was dropped by switching to `createDirectory` so the names are clean
+  `tables/`, `images/cell_000/`.)
 
 `mvn test` green (12/12). Remaining for step 6: `parameters.json` + `README.md`,
 `cell_id`/`bleb_id` columns + table merging, multi-page TIFF stacks, and
