@@ -638,7 +638,8 @@ not silently accepted.
 3. **M3 — Docs migration:** stand up Sphinx/RTD, migrate wiki content. (Phase C)
 4. **M4 — Refactor core:** decompose `analyse()`/`buildOutput()`, replace
    `readParams()` with JSON, remove static state, rename packages. (Phase A4,
-   A5.2)
+   A5.2) — **steps 1–3 done (2026-10-03): package rename, JSON `readParams()`,
+   `analyse()` decomposed; steps 4–9 remain (see the M4 + B2a breakdown).**
 5. **M5 — GUI & UX:** hand-managed layout, parameter presets, progress/cancel,
    simplified output structure. (Phase B, including B2a)
 6. **M6 — Distribution:** update site, semver, in-product help links. (Phase B3)
