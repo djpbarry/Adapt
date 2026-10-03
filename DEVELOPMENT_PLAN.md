@@ -241,8 +241,12 @@ Checklist:
 - [x] Write all CSVs as **UTF-8** (fix the Latin-1 `µ` in `Trajectories.csv`); prefer
       ASCII column names (`x_um`, `time_s`, `v_um_s`) to remove the encoding bug class.
       — UTF-8 + ASCII names done (2026-10-03).
-- [ ] Add `cell_id` (and `bleb_id`) columns; merge per-cell / per-bleb files into one
+- [x] Add `cell_id` (and `bleb_id`) columns; merge per-cell / per-bleb files into one
       tidy table each.
+      — done (2026-10-03): `net.calm.adapt.output.CellTableAccumulator` merges the
+      parallel per-cell writers into `tables/velocity.csv`, `tables/boundary.csv`,
+      and `tables/blebs.csv` (with `cell_id`/`bleb_id`); population tables renamed to
+      snake_case and `Cell_ID`/`Cell ID` → `cell_id`.
 - [ ] Emit time-series visualisations as **multi-page TIFF stacks** (one file, not
       `NNN.tiff`).
 - [x] Emit `parameters.json` and a `README.md` manifest.
@@ -724,7 +728,8 @@ Each step is independently committable with its own verification gate.
    manifest, deterministic `labels.zip` (B1 fix). Gate: Fiji run + review the new
    tree. — **in progress (2026-10-03): ASCII column names done; top-level dirs
    renamed `tables/` + `images/`, per-cell dirs → `cell_NNN`; `parameters.json`
-   + `README.md` manifest done.**
+   + `README.md` manifest done; `cell_id`/`bleb_id` columns + merged
+   `velocity.csv`/`boundary.csv`/`blebs.csv` done.**
 7. **Remove static `GUI.UV`** (A4.3). Pass a `UserVariables` per run / introduce a
    run-context object instead of the static singleton. Touches GUI +
    `Analyse_Movie`/`Analyse_Batch`. Gate: build + batch/single GUI runs.

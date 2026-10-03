@@ -59,8 +59,8 @@ First slice of the breaking output restructure:
   was dropped by switching to `createDirectory` so the names are clean
   `tables/`, `images/cell_000/`.)
 
-`mvn test` green (12/12). Remaining for step 6: `cell_id`/`bleb_id` columns +
-table merging, multi-page TIFF stacks, and deterministic `labels.zip`.
+`mvn test` green (12/12). Remaining for step 6: multi-page TIFF stacks and
+deterministic `labels.zip`.
 
 ---
 
@@ -82,6 +82,26 @@ removed. Keys are the GUI labels (so `parameters.json` contains e.g. `"Spatial
 Resolution (µm/pixel)"`); no timestamp fields are captured. `mvn test` green
 (12/12), and a Fiji re-run produced `parameters.json` + `README.md` with no
 `properties.xml` at the output root.
+
+---
+
+## 2026-10-03 — `cell_id`/`bleb_id` columns + merged tidy tables (M4 step 6 / B2a)
+
+Added a `net.calm.adapt.output.CellTableAccumulator` that the parallel
+`RunnableOutputGenerator` tasks feed with their per-cell rows, then a single
+post-`terminate()` write merges them into tidy long-format tables:
+
+- `tables/velocity.csv` — `cell_id,frame,%_protruding,%_retracting,mean_protrusion_velocity_um_min,mean_retraction_velocity_um_min`.
+- `tables/boundary.csv` — `cell_id,frame,x,y`.
+- `tables/blebs.csv` — `cell_id,bleb_id,time_s,v_um_s,total_signal_au,mean_signal,length_um,normalised_length`.
+
+This replaces the per-cell `VelocityAnalysis.csv`, `cell_boundary.csv`, and
+`Bleb_Data_Files/bleb_data_N.csv`. The already-merged population tables were
+renamed to snake_case (`Trajectories.csv` → `trajectories.csv`, `Morphology.csv`
+→ `morphology.csv`, `Fluorescence.csv` → `fluorescence.csv`) and their cell-id
+headings normalised (`Cell_ID`/`Cell ID` → `cell_id`). Added a
+`CellTableAccumulatorTest` unit test (13/13 green), and a Fiji re-run confirmed
+the new `tables/*.csv` files and the removal of the old per-cell CSVs.
 
 ---
 

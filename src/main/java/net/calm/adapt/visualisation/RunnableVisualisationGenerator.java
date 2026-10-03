@@ -24,14 +24,10 @@ import ij.process.FloatProcessor;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.Cell.MorphMap;
 import net.calm.iaclasslibrary.IAClasses.Region;
-import net.calm.iaclasslibrary.IO.BioFormats.BioFormatsImageWriter;
 import net.calm.iaclasslibrary.Process.RunnableProcess;
 import net.calm.iaclasslibrary.UserVariables.UserVariables;
-import net.calm.iaclasslibrary.UtilClasses.GenUtils;
 
 import java.awt.image.IndexColorModel;
-import java.io.File;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class RunnableVisualisationGenerator extends RunnableProcess {
@@ -40,25 +36,23 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
     boolean protMode;
     ImageStack cytoStack;
     UserVariables uv;
-    File velDirName;
-    File curvDirName;
-    protected DecimalFormat numFormat;
     int t;
     private Overlay labels;
     private final IndexColorModel lut;
+    private final FloatProcessor[] velFrames;
+    private final FloatProcessor[] curveFrames;
 
-    public RunnableVisualisationGenerator(ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, File velDirName, File curvDirName, DecimalFormat numFormat, int t, Overlay labels, IndexColorModel lut) {
+    public RunnableVisualisationGenerator(ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, int t, Overlay labels, IndexColorModel lut, FloatProcessor[] velFrames, FloatProcessor[] curveFrames) {
         super(null);
         this.cellData = cellData;
         this.protMode = protMode;
         this.cytoStack = cytoStack;
         this.uv = uv;
-        this.velDirName = velDirName;
-        this.curvDirName = curvDirName;
-        this.numFormat = numFormat;
         this.t = t;
         this.labels = labels;
         this.lut = lut;
+        this.velFrames = velFrames;
+        this.curveFrames = curveFrames;
     }
 
     @Override
@@ -105,15 +99,7 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
                 labels.add(label);
             }
         }
-        String velFileName = String.format("%s%s%s.tiff", velDirName.getAbsolutePath(), File.separator, numFormat.format(t));
-        String curveFileName = String.format("%s%s%s.tiff", curvDirName.getAbsolutePath(), File.separator, numFormat.format(t));
-        try {
-//            IJ.log(String.format("Saving %s", velFileName));
-            BioFormatsImageWriter.saveImage(velOutput, new File(velFileName), lut);
-//            IJ.log(String.format("Saving %s", curveFileName));
-            BioFormatsImageWriter.saveImage(curveOutput, new File(curveFileName), lut);
-        } catch (Exception e) {
-            GenUtils.logError(e, "Failed to save visualisation image.");
-        }
+        velFrames[t] = velOutput;
+        curveFrames[t] = curveOutput;
     }
 }

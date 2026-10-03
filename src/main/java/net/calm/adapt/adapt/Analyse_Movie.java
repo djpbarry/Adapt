@@ -274,7 +274,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         } else if (parDir == null) {
             return false;
         }
-        visDir = new File(GenUtils.openResultsDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "Visualisations")));
         cellsDir = GenUtils.createDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "images"), false);
         popDir = GenUtils.createDirectory(String.format("%s%s%s", parDir.getAbsolutePath(), File.separator, "tables"), false);
         return true;
@@ -401,10 +400,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             if (stacks[1] != null && uv.isGetFluorDist()) {
                 saveFluorData(outGen.getFluorData());
             }
-            velDir = GenUtils.createDirectory(visDir + delimiter + "Velocity_Visualisation", false);
-            curveDir = GenUtils.createDirectory(visDir + delimiter + "Curvature_Visualisation", false);
+            velDir = cellsDir;
+            curveDir = cellsDir;
             genCurveVelVis(cellData);
         } else {
+            visDir = GenUtils.createDirectory(parDir + delimiter + "Visualisations", false);
             segDir = GenUtils.createDirectory(visDir + delimiter + "Segmentation_Visualisation", false);
             genSimpSegVis(cellData);
         }

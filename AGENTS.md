@@ -97,7 +97,9 @@ prefixes you'll see in imports:
   - `RunnableOutputGenerator.buildOutput()` is the longest, most intricate
     method; it writes CSV/visual outputs and handles protrusion/bleb detection.
   - `CsvWriter` writes UTF-8 CSV; `ParameterWriter` writes the `parameters.json`
-    + `README.md` manifest (replacing the external `PropertyWriter`).
+    + `README.md` manifest (replacing the external `PropertyWriter`);
+    `CellTableAccumulator` merges per-cell rows into the tidy `tables/`
+    `velocity.csv`/`boundary.csv`/`blebs.csv` with `cell_id`/`bleb_id` columns.
 - **`visualisation/`** — `MultiThreadedVisualisationGenerator` + per-frame
   `RunnableVisualisationGenerator`; renders velocity/curvature overlays as TIFF
   via `BioFormatsImageWriter`, one task per frame.

@@ -16,23 +16,25 @@
  */
 package net.calm.adapt.visualisation;
 
-import net.calm.adapt.adapt.StaticVariables;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Overlay;
 import ij.plugin.frame.RoiManager;
+import ij.process.FloatProcessor;
+import loci.formats.FormatTools;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.IO.BioFormats.BioFormatsImg;
+import net.calm.iaclasslibrary.IO.BioFormats.BioFormatsImageWriter;
 import net.calm.iaclasslibrary.IO.BioFormats.LocationAgnosticBioFormatsImg;
 import net.calm.iaclasslibrary.Lut.LUTCreator;
 import net.calm.iaclasslibrary.Overlay.OverlayToRoi;
 import net.calm.iaclasslibrary.Process.MultiThreadedProcess;
 import net.calm.iaclasslibrary.UserVariables.UserVariables;
+import net.calm.iaclasslibrary.UtilClasses.GenUtils;
 
 import java.awt.image.IndexColorModel;
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -46,7 +48,6 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
     UserVariables uv;
     File velDirName;
     File curvDirName;
-    protected DecimalFormat numFormat = StaticVariables.numFormat;
     private final Overlay labels;
 
     public MultiThreadedVisualisationGenerator() {
@@ -74,11 +75,36 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
         this.exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         int stackSize = cytoStack.getSize();
         IndexColorModel lut = (new LUTCreator()).getRedGreen();
+        FloatProcessor[] velFrames = new FloatProcessor[stackSize];
+        FloatProcessor[] curveFrames = new FloatProcessor[stackSize];
         for (int t = 0; t < stackSize; t++) {
-            exec.submit(new RunnableVisualisationGenerator(cellData, protMode, cytoStack, uv, velDirName, curvDirName, numFormat, t, labels, lut));
+            exec.submit(new RunnableVisualisationGenerator(cellData, protMode, cytoStack, uv, t, labels, lut, velFrames, curveFrames));
         }
         terminate("Error generating visualisations.");
+        saveStacks(velFrames, curveFrames, lut);
         saveOverlays();
+    }
+
+    void saveStacks(FloatProcessor[] velFrames, FloatProcessor[] curveFrames, IndexColorModel lut) {
+        int width = cytoStack.getWidth();
+        int height = cytoStack.getHeight();
+        ImageStack velStack = new ImageStack(width, height);
+        ImageStack curveStack = new ImageStack(width, height);
+        for (int t = 0; t < velFrames.length; t++) {
+            if (velFrames[t] != null) {
+                velStack.addSlice(velFrames[t]);
+            }
+            if (curveFrames[t] != null) {
+                curveStack.addSlice(curveFrames[t]);
+            }
+        }
+        int[] dims = {width, height, 1, 1, velStack.getSize()};
+        try {
+            BioFormatsImageWriter.saveStack(velStack, new File(velDirName, "velocity_visualisation.tif"), lut, FormatTools.FLOAT, "XYZCT", dims, false);
+            BioFormatsImageWriter.saveStack(curveStack, new File(curvDirName, "curvature_visualisation.tif"), lut, FormatTools.FLOAT, "XYZCT", dims, false);
+        } catch (Exception e) {
+            GenUtils.logError(e, "Failed to save visualisation stack.");
+        }
     }
 
     void saveOverlays() {
