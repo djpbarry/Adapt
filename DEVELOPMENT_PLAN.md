@@ -671,6 +671,48 @@ in Fiji before it is considered done. The plugin is installed and the H2 live
 smoke test has passed; the only remaining M11 work is the H5 output baseline
 (deferred until after the B2a output-structure simplification).
 
+## M4 + B2a — ordered work breakdown
+
+Each step is independently committable with its own verification gate.
+
+1. **Package rename → lowercase** (Decision 4 / A5.2). `Adapt`→`adapt`,
+   `Output`→`output`, `Visualisation`→`visualisation` (`ui` stays). Update all
+   imports, `plugins.config` FQNs, and `pom.xml` `main-class`/`package-name`.
+   First because it cascades into every later step. Gate: `mvn verify` + Fiji
+   smoke test.
+2. **`readParams()` CSV → JSON** (Decision 5 / A4.2). Add Jackson (or confirm
+   transitive), define a versioned schema, rewrite the parser, ship a
+   `params.json` example + migration note for old `params.csv`. Self-contained.
+   Gate: unit test + build.
+3. **Decompose `Analyse_Movie.analyse()`** (A4.1). Extract segmentation /
+   map-building / protrusion-analysis / output-writing into single-responsibility
+   methods; move pure math to static/package-private helpers with tests. No
+   behaviour change. Gate: build + existing 7 tests still green.
+4. **Fix output anomalies** (B2a, low-risk half). UTF-8 everywhere (fix Latin-1
+   `µ`), drop the `bleb_data_*.csv` spurious first line + trailing comma, decide
+   on blank `Skew`/`Kurt`. Still the old layout — just make output correct/
+   deterministic first. Gate: re-run in Fiji, eyeball the CSVs.
+5. **Decompose `RunnableOutputGenerator.buildOutput()`** (A4.1). Refactor the god
+   method into single-responsibility writers. Do this before/with step 6 so the
+   schema lands once. Gate: build + Fiji run (outputs unchanged so far).
+6. **Tidy output restructure** (B2a, breaking half). `tables/*.csv` (add
+   `cell_id`/`bleb_id`, merge per-cell files, ASCII column names),
+   `images/cell_NNN/*.tif` multi-page stacks, `parameters.json` + `README.md`
+   manifest, deterministic `labels.zip` (B1 fix). Gate: Fiji run + review the new
+   tree.
+7. **Remove static `GUI.UV`** (A4.3). Pass a `UserVariables` per run / introduce a
+   run-context object instead of the static singleton. Touches GUI +
+   `Analyse_Movie`/`Analyse_Batch`. Gate: build + batch/single GUI runs.
+8. **Normalise concurrency** (A4.4). Document (or consolidate) `NotificationThread`
+   vs `MultiThreadedProcess`. Low-risk: document + enforce; consolidate only if
+   warranted. Gate: docs.
+9. **Regenerate baseline + docs.** Run the H5 SHA-256 baseline against the new
+   structure, regenerate `Output_Folder_Structure.PNG`, update the plan/wiki.
+   Gate: baseline passes.
+
+Steps 2 and 3 are independent of each other and of 4–6; step 4 is a safe
+precursor to 6; 6 must precede 9.
+
 ## Decisions (resolved open questions)
 
 These were resolved with the maintainer on 2024-09-24 and are the authoritative

@@ -27,6 +27,18 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-02 — M4 + B2a broken into an ordered work breakdown
+
+Recorded a 9-step dependency-ordered sequence in `DEVELOPMENT_PLAN.md` to split
+the coupled M4 refactor and B2a output restructure into independently
+committable steps: package rename → JSON params → decompose `analyse()` → fix
+output anomalies → decompose `buildOutput()` → tidy output restructure → remove
+static `GUI.UV` → normalise concurrency → regenerate baseline + docs.
+
+Planning only — no code changed.
+
+---
+
 ## 2026-10-02 — M2: JUnit 5 test harness landed (first unit tests)
 
 Added JUnit 5 (`junit-jupiter-api` + `engine`, version managed by `pom-scijava`;
