@@ -27,6 +27,29 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-03 — Fixed output anomalies (M4 step 4 / B2a)
+
+Unified all CSV writers on **UTF-8** and removed two `bleb_data_*.csv` defects:
+
+- Added `net.calm.adapt.output.CsvWriter`, a UTF-8 replacement for the external
+  `DataWriter` (which hardcodes `GenVariables.ISO` = ISO-8859-1, so `µ` came out
+  as Latin-1 `0xB5`). Swapped the four `DataWriter.saveValues`/`saveResultsTable`
+  call sites (Morphology, Trajectories, Fluorescence, cell_boundary) to it.
+- Switched the remaining `new PrintWriter(new FileOutputStream(...))` sites
+  (VelocityAnalysis, FilopodiaVersusTime, cell_boundary_points) to an explicit
+  UTF-8 `OutputStreamWriter`.
+- Removed the spurious first line (`directory + "_" + count`) written before the
+  `bleb_data_*.csv` header, and fixed the header to drop the trailing comma
+  (now `String.join(",", headings)`). Fixed a latent trailing-space in the
+  `cell_boundary.csv` filename.
+- **Decision:** blank `Skew`/`Kurt` in `Morphology.csv` are left as ImageJ's
+  "undefined" (`" "`, NaN → space); pandas treats this as missing, so no change.
+
+`mvn clean test` green (12/12). The Fiji interactive re-run (eyeball the CSVs) is
+the remaining gate.
+
+---
+
 ## 2026-10-03 — Decomposed `Analyse_Movie.analyse()` (M4 step 3 / A4.1)
 
 Split the ~225-line `analyse()` into three single-responsibility private methods

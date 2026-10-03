@@ -36,7 +36,7 @@ import net.calm.iaclasslibrary.Cell.MorphMap;
 import net.calm.iaclasslibrary.Curvature.CurveAnalyser;
 import net.calm.iaclasslibrary.DateAndTime.Time;
 import net.calm.iaclasslibrary.IAClasses.*;
-import net.calm.iaclasslibrary.IO.DataWriter;
+import net.calm.adapt.output.CsvWriter;
 import net.calm.iaclasslibrary.IO.PropertyWriter;
 import net.calm.iaclasslibrary.Segmentation.RegionGrower;
 import net.calm.iaclasslibrary.TimeAndDate.TimeAndDate;
@@ -299,7 +299,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (protMode) {
             try {
                 filoData = new File(popDir + delimiter + "FilopodiaVersusTime.csv");
-                filoStream = new PrintWriter(new FileOutputStream(filoData));
+                filoStream = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filoData), GenVariables.UTF8));
                 filoStream.println("Frame,Number of Filopodia");
             } catch (FileNotFoundException e) {
                 IJ.log("Failed to create FilopodiaVersusTime.csv: " + e.getMessage());
@@ -454,7 +454,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
              */
             try {
                 segPointsFile = new File(childDir + delimiter + "cell_boundary_points.csv");
-                segStream = new PrintWriter(new FileOutputStream(segPointsFile));
+                segStream = new PrintWriter(new OutputStreamWriter(new FileOutputStream(segPointsFile), GenVariables.UTF8));
             } catch (FileNotFoundException e) {
                 IJ.log("Failed to create cell boundary points file: " + e.getMessage());
                 return;
@@ -543,7 +543,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         if (saveFile) {
-            DataWriter.saveResultsTable(rt, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, "Morphology.csv")), false, true);
+            CsvWriter.saveResultsTable(rt, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, "Morphology.csv")), false, true);
         }
         Window w = WindowManager.getWindow(rt.getTitle());
         if (w != null) {
@@ -698,7 +698,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         PrintWriter velStatWriter;
         try {
             velStats = new File(childDir + delimiter + "VelocityAnalysis.csv");
-            velStatWriter = new PrintWriter(new FileOutputStream(velStats));
+            velStatWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(velStats), GenVariables.UTF8));
             velStatWriter.println("Frame,% Protruding,% Retracting,Mean Protrusion Velocity (" + IJ.micronSymbol + "m/min), Mean Retraction Velocity (" + IJ.micronSymbol + "m/min)");
             if (!sigNull) {
                 sigchanges = cellData.getSigMap().smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
@@ -856,7 +856,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         if (trajData.size() > 0)
-            DataWriter.saveValues(trajData, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME)), trajDataHeadings, null, false);
+            CsvWriter.saveValues(trajData, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME)), trajDataHeadings, null, false);
         dialog.dispose();
     }
 
@@ -1155,11 +1155,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                          */
                         thisMeanData = new File(plotDataDir + delimiter + "bleb_data_" + count + ".csv");
                         thisDataStream = new OutputStreamWriter(new FileOutputStream(thisMeanData), GenVariables.UTF8);
-                        thisDataStream.write(directory.getAbsolutePath() + "_" + count + "\n");
-                        for (int d = 0; d < StaticVariables.DATA_STREAM_HEADINGS.length; d++) {
-                            thisDataStream.write(StaticVariables.DATA_STREAM_HEADINGS[d] + ",");
-                        }
-                        thisDataStream.write("\n");
+                        thisDataStream.write(String.join(",", StaticVariables.DATA_STREAM_HEADINGS) + "\n");
                         IJ.saveAs(new ImagePlus("", BlebAnalyser.drawBlebSigMap(currentBleb,
                                         uv.getSpatialRes(), uv.isUseSigThresh())),
                                 "TIF", mapDir + delimiter + "detection_" + numFormat.format(count) + "_map.tif");
@@ -1391,7 +1387,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         try {
             if (convertedData.size() > 0)
-                DataWriter.saveValues(convertedData, new File(String.format("%s%s%s", popDir, File.separator, "Fluorescence.csv")),
+                CsvWriter.saveValues(convertedData, new File(String.format("%s%s%s", popDir, File.separator, "Fluorescence.csv")),
                         FluorescenceDistAnalyser.PARAM_HEADINGS, null, false);
         } catch (IOException e) {
             GenUtils.logError(e, "Failed to save fluorescence information file.");

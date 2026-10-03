@@ -49,7 +49,6 @@ import net.calm.iaclasslibrary.IAClasses.CrossCorrelation;
 import net.calm.iaclasslibrary.IAClasses.DSPProcessor;
 import net.calm.iaclasslibrary.IAClasses.Region;
 import net.calm.iaclasslibrary.IAClasses.Utils;
-import net.calm.iaclasslibrary.IO.DataWriter;
 import net.calm.iaclasslibrary.Process.RunnableProcess;
 import net.calm.iaclasslibrary.Segmentation.RegionGrower;
 import net.calm.iaclasslibrary.UserVariables.UserVariables;
@@ -200,7 +199,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
             IJ.saveAs(CrossCorrelation.periodicity2D(greyVelMap, greyVelMap, 100), "TIF",
                     childDir + File.separator + "VelMap_AutoCorrelation.tif");
             try {
-                DataWriter.saveValues(boundaryPoints, new File(String.format("%s%s%s", childDir.getAbsolutePath(), File.separator, "cell_boundary.csv ")),
+                CsvWriter.saveValues(boundaryPoints, new File(String.format("%s%s%s", childDir.getAbsolutePath(), File.separator, "cell_boundary.csv")),
                         new String[]{"X", "Y", "Frame"}, null, false);
             } catch (IOException e) {
                 GenUtils.logError(e, "Failed to save boundary points file");
@@ -327,11 +326,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
                          */
                         thisMeanData = new File(plotDataDir + File.separator + "bleb_data_" + count + ".csv");
                         thisDataStream = new OutputStreamWriter(new FileOutputStream(thisMeanData), GenVariables.UTF8);
-                        thisDataStream.write(directory.getAbsolutePath() + "_" + count + "\n");
-                        for (int d = 0; d < StaticVariables.DATA_STREAM_HEADINGS.length; d++) {
-                            thisDataStream.write(StaticVariables.DATA_STREAM_HEADINGS[d] + ",");
-                        }
-                        thisDataStream.write("\n");
+                        thisDataStream.write(String.join(",", StaticVariables.DATA_STREAM_HEADINGS) + "\n");
                         IJ.saveAs(new ImagePlus("", BlebAnalyser.drawBlebSigMap(currentBleb,
                                 uv.getSpatialRes(), uv.isUseSigThresh())),
                                 "TIF", mapDir + File.separator + "detection_" + numFormat.format(count) + "_map.tif");
@@ -526,7 +521,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
         PrintWriter velStatWriter;
         try {
             velStats = new File(childDir + File.separator + "VelocityAnalysis.csv");
-            velStatWriter = new PrintWriter(new FileOutputStream(velStats));
+            velStatWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(velStats), GenVariables.UTF8));
             velStatWriter.println("Frame,% Protruding,% Retracting,Mean Protrusion Velocity (" + IJ.micronSymbol + "m/min), Mean Retraction Velocity (" + IJ.micronSymbol + "m/min)");
             if (!sigNull) {
                 sigchanges = cellData.getSigMap().smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());

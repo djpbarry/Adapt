@@ -234,15 +234,17 @@ Old → new mapping:
 
 Checklist:
 
-- [ ] Write all CSVs as **UTF-8** (fix the Latin-1 `µ` in `Trajectories.csv`); prefer
+- [x] Write all CSVs as **UTF-8** (fix the Latin-1 `µ` in `Trajectories.csv`); prefer
       ASCII column names (`x_um`, `time_s`, `v_um_s`) to remove the encoding bug class.
+      — UTF-8 done (2026-10-03); ASCII names deferred to step 6.
 - [ ] Add `cell_id` (and `bleb_id`) columns; merge per-cell / per-bleb files into one
       tidy table each.
 - [ ] Emit time-series visualisations as **multi-page TIFF stacks** (one file, not
       `NNN.tiff`).
 - [ ] Emit `parameters.json` and a `README.md` manifest.
 - [ ] Make `labels.zip` ROI order deterministic (B1 fix).
-- [ ] Remove the spurious first line and trailing comma in `bleb_data_*.csv`.
+- [x] Remove the spurious first line and trailing comma in `bleb_data_*.csv`.
+      — done (2026-10-03); blank `Skew`/`Kurt` left as ImageJ "undefined" (`" "`).
 - [ ] Regenerate `content/Output_Folder_Structure.PNG` and update the docs.
 
 Trade-off: this is a breaking change, so the H5 output baseline and the
@@ -700,7 +702,10 @@ Each step is independently committable with its own verification gate.
 4. **Fix output anomalies** (B2a, low-risk half). UTF-8 everywhere (fix Latin-1
    `µ`), drop the `bleb_data_*.csv` spurious first line + trailing comma, decide
    on blank `Skew`/`Kurt`. Still the old layout — just make output correct/
-   deterministic first. Gate: re-run in Fiji, eyeball the CSVs.
+   deterministic first. Gate: re-run in Fiji, eyeball the CSVs. — **done
+   (2026-10-03): added UTF-8 `CsvWriter` to replace `DataWriter` (ISO-8859-1),
+   switched `PrintWriter` sites to UTF-8, removed the spurious line + trailing
+   comma; blank `Skew`/`Kurt` left as ImageJ "undefined" (`" "`).**
 5. **Decompose `RunnableOutputGenerator.buildOutput()`** (A4.1). Refactor the god
    method into single-responsibility writers. Do this before/with step 6 so the
    schema lands once. Gate: build + Fiji run (outputs unchanged so far).
