@@ -37,7 +37,7 @@ import net.calm.iaclasslibrary.Curvature.CurveAnalyser;
 import net.calm.iaclasslibrary.DateAndTime.Time;
 import net.calm.iaclasslibrary.IAClasses.*;
 import net.calm.adapt.output.CsvWriter;
-import net.calm.iaclasslibrary.IO.PropertyWriter;
+import net.calm.adapt.output.ParameterWriter;
 import net.calm.iaclasslibrary.Segmentation.RegionGrower;
 import net.calm.iaclasslibrary.TimeAndDate.TimeAndDate;
 import net.calm.iaclasslibrary.Trajectory.TrajectoryAnalysis;
@@ -157,9 +157,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes() / 60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
         ta.run(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME));
         try {
-            PropertyWriter.saveProperties(props, parDir.getAbsolutePath(), TITLE, true);
+            ParameterWriter.saveParameters(props, parDir);
+            ParameterWriter.saveReadme(parDir, TITLE);
         } catch (IOException e) {
-            IJ.log("Failed to create properties file.");
+            IJ.log("Failed to create output metadata files.");
         }
         IJ.showStatus(TITLE + " done.");
         IJ.log(Time.getDurationAsString(startTime));
