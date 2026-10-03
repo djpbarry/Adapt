@@ -650,8 +650,8 @@ not silently accepted.
     (Phase G). Blocks A2 / Decision 2. — **done (2026-09-27).**
 11. **M11 — Interactive Fiji run & smoke-test harness:** stage the built plugin
     into a local Fiji, launch it, and run the two plugins against test data
-    (Phase H). Becomes a per-change gate once landed. — **Fiji wired (2026-09-27);
-    live smoke test + output baseline pending.**
+    (Phase H). Becomes a per-change gate once landed. — **Fiji wired + live smoke
+    test done (2026-10-02); output baseline (H5) pending.**
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
 parallel. Package renaming (Q4) should be done early in M4 before it cascades
@@ -667,9 +667,9 @@ Java 21 + TrackMate 8 are in place.
 
 **M11 (Phase H) is now the immediate gate for every change** — headless
 build/test is no longer sufficient; each change must be exercised interactively
-in Fiji before it is considered done. Fiji is wired and launching; the remaining
-work is to install the plugin + sibling jars into the local Fiji, run the H2
-smoke test, and establish the H5 output baseline.
+in Fiji before it is considered done. The plugin is installed and the H2 live
+smoke test has passed; the only remaining M11 work is the H5 output baseline
+(deferred until after the B2a output-structure simplification).
 
 ## Decisions (resolved open questions)
 
