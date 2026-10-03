@@ -708,7 +708,8 @@ Each step is independently committable with its own verification gate.
    comma; blank `Skew`/`Kurt` left as ImageJ "undefined" (`" "`).**
 5. **Decompose `RunnableOutputGenerator.buildOutput()`** (A4.1). Refactor the god
    method into single-responsibility writers. Do this before/with step 6 so the
-   schema lands once. Gate: build + Fiji run (outputs unchanged so far).
+   schema lands once. Gate: build + Fiji run (outputs unchanged so far). — **done
+   (2026-10-03): extracted `saveCellMapImages(...)` as the image/boundary writer.**
 6. **Tidy output restructure** (B2a, breaking half). `tables/*.csv` (add
    `cell_id`/`bleb_id`, merge per-cell files, ASCII column names),
    `images/cell_NNN/*.tif` multi-page stacks, `parameters.json` + `README.md`

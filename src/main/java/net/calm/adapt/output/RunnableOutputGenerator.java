@@ -194,27 +194,33 @@ public class RunnableOutputGenerator extends RunnableProcess {
             cellData.get(index).setGreySigMap(greySigMap);
             cellData.get(index).setSmoothVelocities(smoothVelocities);
             generateMaps(smoothVelocities, cellData.get(index), index, cellData.size());
-            IJ.saveAs(new ImagePlus("", greyVelMap), "TIF", childDir + File.separator + "VelocityMap.tif");
-            IJ.saveAs(new ImagePlus("", greyCurvMap), "TIF", childDir + File.separator + "CurvatureMap.tif");
-            IJ.saveAs(CrossCorrelation.periodicity2D(greyVelMap, greyVelMap, 100), "TIF",
-                    childDir + File.separator + "VelMap_AutoCorrelation.tif");
-            try {
-                CsvWriter.saveValues(boundaryPoints, new File(String.format("%s%s%s", childDir.getAbsolutePath(), File.separator, "cell_boundary.csv")),
-                        new String[]{"X", "Y", "Frame"}, null, false);
-            } catch (IOException e) {
-                GenUtils.logError(e, "Failed to save boundary points file");
-            }
-            if (sigStack != null) {
-                IJ.saveAs(new ImagePlus("", greySigMap), "TIF", childDir + File.separator
-                        + "SignalMap.tif");
-                IJ.saveAs(CrossCorrelation.periodicity2D(greySigMap, greyVelMap, 100), "TIF",
-                        childDir + File.separator + "VelMap_SigMap_CrossCorrelation.tif");
-                ImageProcessor rateOfSigChange = sigMap.calcRateOfChange(greySigMap);
-                IJ.saveAs(new ImagePlus("", rateOfSigChange), "TIF", childDir + File.separator
-                        + "ChangeInSignalMap.tif");
-                IJ.saveAs(CrossCorrelation.periodicity2D(rateOfSigChange, greyVelMap, 100), "TIF",
-                        childDir + File.separator + "VelMap_ChangeInSigMap_CrossCorrelation.tif");
-            }
+            saveCellMapImages(sigMap, greyVelMap, greyCurvMap, greySigMap, boundaryPoints);
+        }
+    }
+
+    private void saveCellMapImages(MorphMap sigMap, FloatProcessor greyVelMap,
+            FloatProcessor greyCurvMap, FloatProcessor greySigMap,
+            ArrayList<ArrayList<Double>> boundaryPoints) {
+        IJ.saveAs(new ImagePlus("", greyVelMap), "TIF", childDir + File.separator + "VelocityMap.tif");
+        IJ.saveAs(new ImagePlus("", greyCurvMap), "TIF", childDir + File.separator + "CurvatureMap.tif");
+        IJ.saveAs(CrossCorrelation.periodicity2D(greyVelMap, greyVelMap, 100), "TIF",
+                childDir + File.separator + "VelMap_AutoCorrelation.tif");
+        try {
+            CsvWriter.saveValues(boundaryPoints, new File(String.format("%s%s%s", childDir.getAbsolutePath(), File.separator, "cell_boundary.csv")),
+                    new String[]{"X", "Y", "Frame"}, null, false);
+        } catch (IOException e) {
+            GenUtils.logError(e, "Failed to save boundary points file");
+        }
+        if (sigMap != null) {
+            IJ.saveAs(new ImagePlus("", greySigMap), "TIF", childDir + File.separator
+                    + "SignalMap.tif");
+            IJ.saveAs(CrossCorrelation.periodicity2D(greySigMap, greyVelMap, 100), "TIF",
+                    childDir + File.separator + "VelMap_SigMap_CrossCorrelation.tif");
+            ImageProcessor rateOfSigChange = sigMap.calcRateOfChange(greySigMap);
+            IJ.saveAs(new ImagePlus("", rateOfSigChange), "TIF", childDir + File.separator
+                    + "ChangeInSignalMap.tif");
+            IJ.saveAs(CrossCorrelation.periodicity2D(rateOfSigChange, greyVelMap, 100), "TIF",
+                    childDir + File.separator + "VelMap_ChangeInSigMap_CrossCorrelation.tif");
         }
     }
 

@@ -27,6 +27,21 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-03 — Decomposed `RunnableOutputGenerator.buildOutput()` (M4 step 5 / A4.1)
+
+Extracted the image/boundary writing from `buildOutput()` into a single-
+responsibility `saveCellMapImages(sigMap, greyVelMap, greyCurvMap, greySigMap,
+boundaryPoints)` method. `buildOutput()` now reads: curve-map setup →
+`buildCurveMap` → vel/sig map building → smoothing/grey-map generation →
+`generateMaps` → `saveCellMapImages`. No behaviour change (the `sigStack != null`
+guard became the equivalent `sigMap != null`). `mvn test` green (12/12).
+
+This isolates the writer ahead of the B2a output restructure (step 6). The
+duplicate `Analyse_Movie.buildOutput()` (preview path) is deliberately left for
+step 6, when both writers will be updated together.
+
+---
+
 ## 2026-10-03 — Fixed output anomalies (M4 step 4 / B2a)
 
 Unified all CSV writers on **UTF-8** and removed two `bleb_data_*.csv` defects:
