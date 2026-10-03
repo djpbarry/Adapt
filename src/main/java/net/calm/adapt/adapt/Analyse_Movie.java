@@ -86,7 +86,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private ImageProcessor[] previewImages;
     private boolean selectiveOutput = false;
     private Properties props;
-    private final String TRAJ_FILE_NAME = "Trajectories.csv";
+    private final String TRAJ_FILE_NAME = "trajectories.csv";
 
     /**
      * Default constructor
@@ -538,13 +538,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                             current.getMask());
                     analyzer.analyze(maskImp);
                     saveRegionMorph(current, rt);
-                    rt.addValue("Cell_ID", index);
+                    rt.addValue("cell_id", index);
                     rt.addValue("Frame", h);
                 }
             }
         }
         if (saveFile) {
-            CsvWriter.saveResultsTable(rt, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, "Morphology.csv")), false, true);
+            CsvWriter.saveResultsTable(rt, new File(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, "morphology.csv")), false, true);
         }
         Window w = WindowManager.getWindow(rt.getTitle());
         if (w != null) {
@@ -1383,7 +1383,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         try {
             if (convertedData.size() > 0)
-                CsvWriter.saveValues(convertedData, new File(String.format("%s%s%s", popDir, File.separator, "Fluorescence.csv")),
+                CsvWriter.saveValues(convertedData, new File(String.format("%s%s%s", popDir, File.separator, "fluorescence.csv")),
                         FluorescenceDistAnalyser.PARAM_HEADINGS, null, false);
         } catch (IOException e) {
             GenUtils.logError(e, "Failed to save fluorescence information file.");

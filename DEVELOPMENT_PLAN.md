@@ -245,7 +245,11 @@ Checklist:
       tidy table each.
 - [ ] Emit time-series visualisations as **multi-page TIFF stacks** (one file, not
       `NNN.tiff`).
-- [ ] Emit `parameters.json` and a `README.md` manifest.
+- [x] Emit `parameters.json` and a `README.md` manifest.
+      — done (2026-10-03): `net.calm.adapt.output.ParameterWriter` writes a sorted,
+      pretty-printed UTF-8 `parameters.json` from the GUI `Properties` plus a short
+      `README.md`; `Analyse_Movie.run()` no longer calls the external
+      `PropertyWriter`.
 - [ ] Make `labels.zip` ROI order deterministic (B1 fix).
 - [x] Remove the spurious first line and trailing comma in `bleb_data_*.csv`.
       — done (2026-10-03); blank `Skew`/`Kurt` left as ImageJ "undefined" (`" "`).
@@ -719,7 +723,8 @@ Each step is independently committable with its own verification gate.
    `images/cell_NNN/*.tif` multi-page stacks, `parameters.json` + `README.md`
    manifest, deterministic `labels.zip` (B1 fix). Gate: Fiji run + review the new
    tree. — **in progress (2026-10-03): ASCII column names done; top-level dirs
-   renamed `tables/` + `images/`, per-cell dirs → `cell_NNN`.**
+   renamed `tables/` + `images/`, per-cell dirs → `cell_NNN`; `parameters.json`
+   + `README.md` manifest done.**
 7. **Remove static `GUI.UV`** (A4.3). Pass a `UserVariables` per run / introduce a
    run-context object instead of the static singleton. Touches GUI +
    `Analyse_Movie`/`Analyse_Batch`. Gate: build + batch/single GUI runs.

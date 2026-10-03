@@ -64,7 +64,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,12 +80,12 @@ public class RunnableOutputGenerator extends RunnableProcess {
     int length;
     File directory;
     PointRoi roi;
-    final String BLEB_DATA_FILES = "Bleb_Data_Files";
     private final double trajMin = 5.0;
     DecimalFormat numFormat = StaticVariables.numFormat;
     private final ArrayList<ArrayList<Double>> fluorData;
+    private final CellTableAccumulator accumulator;
 
-    public RunnableOutputGenerator(ArrayList<CellData> cellData, String parDir, boolean protMode, UserVariables uv, File childDir, ImageStack sigStack, ImageStack cytoStack, int index, int length, File directory, PointRoi roi, ArrayList<ArrayList<Double>> fluorData) {
+    public RunnableOutputGenerator(ArrayList<CellData> cellData, String parDir, boolean protMode, UserVariables uv, File childDir, ImageStack sigStack, ImageStack cytoStack, int index, int length, File directory, PointRoi roi, ArrayList<ArrayList<Double>> fluorData, CellTableAccumulator accumulator) {
         super(null);
         this.cellData = cellData;
         this.parDir = parDir;
@@ -100,6 +99,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
         this.directory = directory;
         this.roi = roi;
         this.fluorData = fluorData;
+        this.accumulator = accumulator;
     }
 
     @Override
@@ -205,11 +205,12 @@ public class RunnableOutputGenerator extends RunnableProcess {
         IJ.saveAs(new ImagePlus("", greyCurvMap), "TIF", childDir + File.separator + "CurvatureMap.tif");
         IJ.saveAs(CrossCorrelation.periodicity2D(greyVelMap, greyVelMap, 100), "TIF",
                 childDir + File.separator + "VelMap_AutoCorrelation.tif");
-        try {
-            CsvWriter.saveValues(boundaryPoints, new File(String.format("%s%s%s", childDir.getAbsolutePath(), File.separator, "cell_boundary.csv")),
-                    new String[]{"X", "Y", "Frame"}, null, false);
-        } catch (IOException e) {
-            GenUtils.logError(e, "Failed to save boundary points file");
+        ArrayList<Double> xs = boundaryPoints.get(0);
+        ArrayList<Double> ys = boundaryPoints.get(1);
+        ArrayList<Double> frames = boundaryPoints.get(2);
+        for (int j = 0; j < xs.size(); j++) {
+            accumulator.addBoundaryRow(index, index + "," + frames.get(j).intValue()
+                    + "," + xs.get(j) + "," + ys.get(j));
         }
         if (sigMap != null) {
             IJ.saveAs(new ImagePlus("", greySigMap), "TIF", childDir + File.separator
@@ -274,9 +275,8 @@ public class RunnableOutputGenerator extends RunnableProcess {
         ImageProcessor velMapWithDetections = cellData.getGreyVelMap().duplicate(); // Regions of interest will be drawn on
         cellData.getGreyVelMap().resetRoi();
         cellData.setVelMapWithDetections(velMapWithDetections);
-        File thisMeanData, blebCount;
-        OutputStreamWriter thisDataStream, blebCountStream;
-        File plotDataDir = GenUtils.createDirectory(childDir + File.separator + BLEB_DATA_FILES, false);
+        File blebCount;
+        OutputStreamWriter blebCountStream;
         File detectDir = GenUtils.createDirectory(childDir + File.separator + "Detection_Visualisation", false);
         File mapDir = GenUtils.createDirectory(childDir + File.separator + "Bleb_Signal_Maps", false);
         ImageStack detectionStack = new ImageStack(cytoStack.getWidth(),
@@ -328,11 +328,8 @@ public class RunnableOutputGenerator extends RunnableProcess {
                                 "" + count, cellData.getVelRois()[i].getBounds(), Color.white, 3,
                                 new Font("Helvetica", Font.PLAIN, 20), false);
                         /*
-                         * Open files to save data for current protrusion
+                         * Save image map for current protrusion
                          */
-                        thisMeanData = new File(plotDataDir + File.separator + "bleb_data_" + count + ".csv");
-                        thisDataStream = new OutputStreamWriter(new FileOutputStream(thisMeanData), GenVariables.UTF8);
-                        thisDataStream.write(String.join(",", StaticVariables.DATA_STREAM_HEADINGS) + "\n");
                         IJ.saveAs(new ImagePlus("", BlebAnalyser.drawBlebSigMap(currentBleb,
                                 uv.getSpatialRes(), uv.isUseSigThresh())),
                                 "TIF", mapDir + File.separator + "detection_" + numFormat.format(count) + "_map.tif");
@@ -343,18 +340,14 @@ public class RunnableOutputGenerator extends RunnableProcess {
                         for (int z = 0; z < meanVel.size(); z++) {
                             int t = z + bounds.x;
                             double time = t * 60.0 / uv.getTimeRes();
-                            double currentMeanSig;
-                            currentMeanSig = sumSig.get(z) / protrusionLength.get(z);
-                            thisDataStream.write(String.valueOf(time - time0) + ", "
-                                    + String.valueOf(meanVel.get(z)) + ", "
-                                    + String.valueOf(sumSig.get(z)) + ", "
-                                    + String.valueOf(currentMeanSig) + ", "
-                                    + String.valueOf(protrusionLength.get(z)) + ", "
-                                    + String.valueOf(protrusionLength.get(z) / protrusionLength.get(0)));
-                            thisDataStream.write("\n");
+                            double currentMeanSig = sumSig.get(z) / protrusionLength.get(z);
+                            accumulator.addBlebRow(index, index + "," + count + ","
+                                    + (time - time0) + "," + meanVel.get(z) + ","
+                                    + sumSig.get(z) + "," + currentMeanSig + ","
+                                    + protrusionLength.get(z) + ","
+                                    + (protrusionLength.get(z) / protrusionLength.get(0)));
                             blebFrameCount[t]++;
                         }
-                        thisDataStream.close();
                         count++;
                     }
                     IJ.freeMemory();
@@ -523,44 +516,32 @@ public class RunnableOutputGenerator extends RunnableProcess {
         FloatProcessor greySigMap = null;
         double curvatures[][] = curveMap.smoothMap(0.0, 0.0);
         double sigchanges[][] = null;
-        File velStats;
-        PrintWriter velStatWriter;
-        try {
-            velStats = new File(childDir + File.separator + "VelocityAnalysis.csv");
-            velStatWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(velStats), GenVariables.UTF8));
-            velStatWriter.println("frame,%_protruding,%_retracting,mean_protrusion_velocity_um_min,mean_retraction_velocity_um_min");
-            if (!sigNull) {
-                sigchanges = cellData.getSigMap().smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
-                greySigMap = cellData.getGreySigMap();
-            }
-            for (int i = 0; i < l; i++) {
-                int neg = 0, pos = 0;
-                double negVals = 0.0, posVals = 0.0;
-                for (int j = 0; j < upLength; j++) {
-                    if (smoothVelocities[i][j] > 0.0) {
-                        pos++;
-                        posVals += smoothVelocities[i][j];
-                    } else {
-                        neg++;
-                        negVals += smoothVelocities[i][j];
-                    }
-                    greyVelMap.putPixelValue(i, j, smoothVelocities[i][j]);
-                    greyCurvMap.putPixelValue(i, j, curvatures[i][j]);
-                    if (!sigNull && greySigMap != null) {
-                        greySigMap.putPixelValue(i, j, sigchanges[i][j]);
-                    }
+        if (!sigNull) {
+            sigchanges = cellData.getSigMap().smoothMap(uv.getTempFiltRad() * uv.getTimeRes() / 60.0, uv.getSpatFiltRad() / uv.getSpatialRes());
+            greySigMap = cellData.getGreySigMap();
+        }
+        for (int i = 0; i < l; i++) {
+            int neg = 0, pos = 0;
+            double negVals = 0.0, posVals = 0.0;
+            for (int j = 0; j < upLength; j++) {
+                if (smoothVelocities[i][j] > 0.0) {
+                    pos++;
+                    posVals += smoothVelocities[i][j];
+                } else {
+                    neg++;
+                    negVals += smoothVelocities[i][j];
                 }
-                double pProt = (100.0 * pos) / upLength;
-                double meanPos = pos > 0 ? posVals / pos : 0.0;
-                double meanNeg = neg > 0 ? negVals / neg : 0.0;
-                String pProtS = String.valueOf(pProt);
-                String nProtS = String.valueOf(100.0 - pProt);
-                velStatWriter.println(i + "," + pProtS + "," + nProtS + ","
-                        + String.valueOf(meanPos) + "," + String.valueOf(meanNeg));
+                greyVelMap.putPixelValue(i, j, smoothVelocities[i][j]);
+                greyCurvMap.putPixelValue(i, j, curvatures[i][j]);
+                if (!sigNull && greySigMap != null) {
+                    greySigMap.putPixelValue(i, j, sigchanges[i][j]);
+                }
             }
-            velStatWriter.close();
-        } catch (FileNotFoundException e) {
-            IJ.log("Failed to create VelocityAnalysis.csv: " + e.getMessage());
+            double pProt = (100.0 * pos) / upLength;
+            double meanPos = pos > 0 ? posVals / pos : 0.0;
+            double meanNeg = neg > 0 ? negVals / neg : 0.0;
+            accumulator.addVelocityRow(index, index + "," + i + "," + pProt + ","
+                    + (100.0 - pProt) + "," + meanPos + "," + meanNeg);
         }
     }
 

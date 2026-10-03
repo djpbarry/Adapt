@@ -27,6 +27,7 @@ import net.calm.iaclasslibrary.UserVariables.UserVariables;
 import net.calm.iaclasslibrary.UtilClasses.GenUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -44,6 +45,7 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
     File directory;
     PointRoi roi;
     private final ArrayList<ArrayList<ArrayList<Double>>> fluorData;
+    private final CellTableAccumulator accumulator;
 
     public MultiThreadedOutputGenerator() {
         this(null, null, null, false, null, null, null, null, null, null);
@@ -67,6 +69,7 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
         this.directory = directory;
         this.roi = roi;
         this.fluorData = new ArrayList();
+        this.accumulator = new CellTableAccumulator(cellData == null ? 0 : cellData.size());
     }
 
     @Override
@@ -81,10 +84,15 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
                 childDir = GenUtils.createDirectory(String.format("%s%scell_%03d", parDir, File.separator, index), false);
                 exec.submit(new RunnableOutputGenerator(cellData, parDir,
                         protMode, uv, childDir, sigStack,
-                        cytoStack, index, length, directory, roi, fluorData.get(index)));
+                        cytoStack, index, length, directory, roi, fluorData.get(index), accumulator));
             }
         }
         terminate("Error generating outputs.");
+        try {
+            accumulator.save(new File(new File(parDir).getParentFile(), "tables"));
+        } catch (IOException e) {
+            IJ.log("Failed to write merged cell tables: " + e.getMessage());
+        }
         IJ.log("\nAll cells done.\n");
     }
 

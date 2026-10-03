@@ -76,7 +76,8 @@ prefixes you'll see in imports:
   - `Analyse_Movie` — main single-movie analysis pipeline. `run()` prompts for
     an output dir, then `analyse()` does segmentation → morphology → velocity/
     signal map building → protrusion analysis, and finally runs
-    `TrajectoryAnalysis` and saves a properties file. Note: it extends
+    `TrajectoryAnalysis` and writes `parameters.json` + `README.md` via
+    `net.calm.adapt.output.ParameterWriter`. Note: it extends
     `NotificationThread` (not `Thread`).
   - `Analyse_Batch` — extends `Analyse_Movie`; iterates over a directory of
     image files, reusing the same `analyse()` per file. Also contains
@@ -95,6 +96,8 @@ prefixes you'll see in imports:
     constructing a *new* `Analyse_Movie` in `protMode`.
   - `RunnableOutputGenerator.buildOutput()` is the longest, most intricate
     method; it writes CSV/visual outputs and handles protrusion/bleb detection.
+  - `CsvWriter` writes UTF-8 CSV; `ParameterWriter` writes the `parameters.json`
+    + `README.md` manifest (replacing the external `PropertyWriter`).
 - **`visualisation/`** — `MultiThreadedVisualisationGenerator` + per-frame
   `RunnableVisualisationGenerator`; renders velocity/curvature overlays as TIFF
   via `BioFormatsImageWriter`, one task per frame.

@@ -32,7 +32,7 @@ public class FluorescenceDistAnalyser {
     int offset;
     double contrast, homogeneity, energy, mean, std, skew, kurt;
 //    public static final String PARAM_HEADINGS = "Contrast\tHomogeneity\tEnergy\tMean\tStandard Deviation\tSkewness\tKurtosis";
-    public static final String[] PARAM_HEADINGS = {"Cell ID", "Frame", "Contrast", "Homogeneity", "Energy", "Mean", "Standard Deviation", "Skewness", "Kurtosis"};
+    public static final String[] PARAM_HEADINGS = {"cell_id", "Frame", "Contrast", "Homogeneity", "Energy", "Mean", "Standard Deviation", "Skewness", "Kurtosis"};
 
     public FluorescenceDistAnalyser(ImagePlus imp, ImageProcessor mask, int offset) {
         this.imp = imp;

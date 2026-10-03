@@ -59,9 +59,29 @@ First slice of the breaking output restructure:
   was dropped by switching to `createDirectory` so the names are clean
   `tables/`, `images/cell_000/`.)
 
-`mvn test` green (12/12). Remaining for step 6: `parameters.json` + `README.md`,
-`cell_id`/`bleb_id` columns + table merging, multi-page TIFF stacks, and
-deterministic `labels.zip`.
+`mvn test` green (12/12). Remaining for step 6: `cell_id`/`bleb_id` columns +
+table merging, multi-page TIFF stacks, and deterministic `labels.zip`.
+
+---
+
+## 2026-10-03 — `parameters.json` + `README.md` manifest (M4 step 6 / B2a)
+
+Replaced the external `PropertyWriter` (which wrote a `properties.xml`) with a
+new `net.calm.adapt.output.ParameterWriter`:
+
+- `saveParameters(Properties, File)` converts the GUI `Properties` to a sorted
+  `TreeMap`, then writes a pretty-printed UTF-8 `parameters.json` with Jackson
+  (`ObjectMapper` + `SerializationFeature.INDENT_OUTPUT`).
+- `saveReadme(File, String)` writes a short `README.md` describing the
+  `parameters.json` / `tables/` / `images/` / `labels.zip` layout and noting the
+  snake_case ASCII column names.
+
+`Analyse_Movie.run()` now calls both methods instead of
+`PropertyWriter.saveProperties(...)`; the now-unused `PropertyWriter` import was
+removed. Keys are the GUI labels (so `parameters.json` contains e.g. `"Spatial
+Resolution (µm/pixel)"`); no timestamp fields are captured. `mvn test` green
+(12/12), and a Fiji re-run produced `parameters.json` + `README.md` with no
+`properties.xml` at the output root.
 
 ---
 
