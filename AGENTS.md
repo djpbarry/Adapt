@@ -47,10 +47,11 @@ libraries first, not this repo.
   `bin/smoke-test-fiji.cmd` stage/launch/test the plugin in a local Fiji.
   Machine-specific `FIJI_DIR`/`JAVA_HOME` live in `bin/local-env.cmd`
   (gitignored; template is `bin/local-env.cmd.example`).
-- **No unit tests exist.** There is no `src/test`, no test framework configured,
-  and no lint/format tooling. Verification is compilation plus manual runs in
-  Fiji. Test data ships as extracted `.ome.tiff` stacks under `test_data/`
-  (Git LFS-tracked); ADAPT output trees are gitignored.
+- **JUnit 5 unit tests** exist (7 tests across `CurveMapAnalyserTest` and
+  `FluorescenceDistAnalyserTest`), but there is **no lint/format tooling**.
+  Verification is `mvn verify` (compile + tests) plus manual runs in Fiji. Test
+  data ships as extracted `.ome.tiff` stacks under `test_data/` (Git
+  LFS-tracked); ADAPT output trees are gitignored.
 
 ## Entry points / plugin registration
 

@@ -33,8 +33,8 @@ code.
   Java 21 (build JDK is Temurin 21). A Maven wrapper (`mvnw`/`mvnw.cmd`, pinned
   to 3.9.16) is committed; the vestigial `mvn_settings.xml` (GitHub Packages)
   has been removed.
-- There are **no unit tests** and **no lint/format tooling**. A `.gitignore`
-  (and `.gitattributes`) have been added.
+- JUnit 5 unit tests exist (7 across two classes); there is **no lint/format
+  tooling**. A `.gitignore` (and `.gitattributes`) have been added.
 - The GUI is a NetBeans-generated `JDialog` (`ui/GUI.java` + `ui/GUI.form`), with
   parameters held in a single **static** `UserVariables` instance.
 - Documentation currently lives in the GitHub wiki and a short `README.md`, with
