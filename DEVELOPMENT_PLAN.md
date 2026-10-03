@@ -33,6 +33,10 @@ code.
   Java 21 (build JDK is Temurin 21). A Maven wrapper (`mvnw`/`mvnw.cmd`, pinned
   to 3.9.16) is committed; the vestigial `mvn_settings.xml` (GitHub Packages)
   has been removed.
+- **Versioning:** `pom.xml` `<version>` is a plain `X.Y.Z` with **no `-SNAPSHOT`**
+  suffix (sibling convention — see `IAClassLibrary`'s `development` branch), and
+  releases are tagged `vX.Y.Z` via `maven-release-plugin`. Bump the version as
+  development progresses.
 - JUnit 5 unit tests exist (12 across three classes); there is **no lint/format
   tooling**. A `.gitignore` (and `.gitattributes`) have been added.
 - The GUI is a NetBeans-generated `JDialog` (`ui/GUI.java` + `ui/GUI.form`), with
@@ -782,5 +786,5 @@ input for the phases above.
    2026-10-03).** ADAPT follows the sibling convention (see `IAClassLibrary`'s
    `development` branch): `pom.xml` `<version>` is a plain `X.Y.Z` (no
    `-SNAPSHOT`), and `maven-release-plugin` tags releases as
-   `v@{project.version}` (e.g. `v4.0.0`). The `v4.0.0` tag is created only once
+   `v@{project.version}` (e.g. `v4.0.1`). The `v4.0.1` tag is created only once
    the modernisation work lands.

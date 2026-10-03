@@ -127,8 +127,11 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
   wired into CSV writers; changing a string here changes output schema.
 - **Versioning:** the reported title is `Adapt_v<version>` where `<version>` is
   read at runtime from `project.properties`, which Maven filters from
-  `${project.version}` (`pom.xml` sets `<filtering>true</filtering>`). Bump the
-  `pom.xml` version; do not edit `project.properties` by hand.
+  `${project.version}` (`pom.xml` sets `<filtering>true</filtering>`); do not edit
+  `project.properties` by hand. **`pom.xml` `<version>` is a plain `X.Y.Z` with no
+  `-SNAPSHOT` suffix (sibling convention — see `IAClassLibrary`'s `development`
+  branch), and releases are tagged `vX.Y.Z` via `maven-release-plugin`.** Bump the
+  `pom.xml` version as development progresses.
 - **`readParams()`** in `Analyse_Batch` loads `params.json` (a versioned JSON
   object, `version: 1`) via Jackson and applies each field through typed
   `reqBool`/`reqInt`/`reqDouble`/`reqText` helpers. Old positional `params.csv`

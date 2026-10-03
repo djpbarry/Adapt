@@ -33,7 +33,7 @@ dated narrative plus the "what not to do again" notes.
 (no `-SNAPSHOT`) and tags releases as `v@{project.version}`. ADAPT's `pom.xml`
 was still `4.0.0-SNAPSHOT`, so it now follows the same convention:
 
-- `<version>4.0.0</version>` (dropped the `-SNAPSHOT` suffix).
+- `<version>4.0.1</version>` (bumped from `4.0.0-SNAPSHOT`; dropped the suffix).
 - Added `maven-release-plugin` with
   `<tagNameFormat>v@{project.version}</tagNameFormat>` so future releases tag as
   `v4.0.0`, `v4.0.1`, …
