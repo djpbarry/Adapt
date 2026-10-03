@@ -123,6 +123,11 @@
             <artifactId>TrackerLibrary</artifactId>
             <version>v4.0.2</version>
         </dependency>
+        <!-- JSON parsing (Decision 5: params.json) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
         <!-- Test framework (JUnit 5, version managed by pom-scijava parent) -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

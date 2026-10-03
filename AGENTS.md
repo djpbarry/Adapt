@@ -47,8 +47,9 @@ libraries first, not this repo.
   `bin/smoke-test-fiji.cmd` stage/launch/test the plugin in a local Fiji.
   Machine-specific `FIJI_DIR`/`JAVA_HOME` live in `bin/local-env.cmd`
   (gitignored; template is `bin/local-env.cmd.example`).
-- **JUnit 5 unit tests** exist (7 tests across `CurveMapAnalyserTest` and
-  `FluorescenceDistAnalyserTest`), but there is **no lint/format tooling**.
+- **JUnit 5 unit tests** exist (12 tests across `Analyse_BatchReadParamsTest`,
+  `CurveMapAnalyserTest`, and `FluorescenceDistAnalyserTest`), but there is
+  **no lint/format tooling**.
   Verification is `mvn verify` (compile + tests) plus manual runs in Fiji. Test
   data ships as extracted `.ome.tiff` stacks under `test_data/` (Git
   LFS-tracked); ADAPT output trees are gitignored.
@@ -71,7 +72,7 @@ implement `PlugIn`.
 Package `net.calm.adapt` is split into four sub-packages, matching the class
 prefixes you'll see in imports:
 
-- **`Adapt/`** — core plugin logic and domain classes.
+- **`adapt/`** — core plugin logic and domain classes.
   - `Analyse_Movie` — main single-movie analysis pipeline. `run()` prompts for
     an output dir, then `analyse()` does segmentation → morphology → velocity/
     signal map building → protrusion analysis, and finally runs
@@ -79,14 +80,14 @@ prefixes you'll see in imports:
     `NotificationThread` (not `Thread`).
   - `Analyse_Batch` — extends `Analyse_Movie`; iterates over a directory of
     image files, reusing the same `analyse()` per file. Also contains
-    `readParams()` which parses a `params.csv` line-by-line with a positional
-    `Scanner` — this is brittle and order-sensitive.
+    `readParams()` which loads a versioned `params.json` (Jackson) and rejects
+    unknown schema versions with a clear message.
   - Domain/helper classes: `Bleb` (extends `Protrusion`), `BlebAnalyser`,
     `CurveMapAnalyser`, `FluorescenceDistAnalyser`,
     `RegionFluorescenceQuantifier`, `Protrusion`, `StaticVariables` (all GUI
     label strings + output column headings + shared `DecimalFormat`s),
     `NotificationThread`/`TaskListener` (observer pattern for thread completion).
-- **`Output/`** — result writing.
+- **`output/`** — result writing.
   - `MultiThreadedOutputGenerator extends MultiThreadedProcess`; submits one
     `RunnableOutputGenerator` (a `RunnableProcess`) per cell to a
     `fixedThreadPool(availableProcessors())`. Per cell it builds morphology/
@@ -94,7 +95,7 @@ prefixes you'll see in imports:
     constructing a *new* `Analyse_Movie` in `protMode`.
   - `RunnableOutputGenerator.buildOutput()` is the longest, most intricate
     method; it writes CSV/visual outputs and handles protrusion/bleb detection.
-- **`Visualisation/`** — `MultiThreadedVisualisationGenerator` + per-frame
+- **`visualisation/`** — `MultiThreadedVisualisationGenerator` + per-frame
   `RunnableVisualisationGenerator`; renders velocity/curvature overlays as TIFF
   via `BioFormatsImageWriter`, one task per frame.
 - **`ui/`** — `GUI` (a `javax.swing.JDialog` netbeans-generated form; source and
@@ -107,10 +108,10 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
 
 ## Concurrency model
 
-- Two patterns coexist. `NotificationThread` (in `Adapt/`) is an
+- Two patterns coexist. `NotificationThread` (in `adapt/`) is an
   observer/callback wrapper: subclasses implement `doWork()`; it notifies
   registered `TaskListener`s on completion. The `MultiThreaded*` generators (in
-  `Output/`/`Visualisation/`) instead extend the IAClassLibrary
+  `output/`/`visualisation/`) instead extend the IAClassLibrary
   `MultiThreadedProcess`/`RunnableProcess` base classes and manage their own
   `ExecutorService` with `terminate(msg)`.
 - Thread pools are always sized to `Runtime.getRuntime().availableProcessors()`.
@@ -119,8 +120,8 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
 
 ## Conventions and gotchas
 
-- **Package names map to directories with mixed case** (`Adapt`, `Output`,
-  `Visualisation`, `ui`) — unusual for Java but intentional; keep it consistent.
+- **Package names map to directories with lowercase** (`adapt`, `output`,
+  `visualisation`, `ui`); keep it consistent.
 - **`StaticVariables` is the single source of truth** for GUI labels and output
   column names (e.g. `TIME`, `VELOCITY`, `TOTAL_SIGNAL`). Column headings are
   wired into CSV writers; changing a string here changes output schema.
@@ -128,9 +129,11 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
   read at runtime from `project.properties`, which Maven filters from
   `${project.version}` (`pom.xml` sets `<filtering>true</filtering>`). Bump the
   `pom.xml` version; do not edit `project.properties` by hand.
-- **`readParams()`** in `Analyse_Batch` parses `params.csv` with hard-coded
-  `br.readLine()` skips and positional `Scanner` calls; any change to parameter
-  ordering in the file breaks it silently (caught as a generic `Exception`).
+- **`readParams()`** in `Analyse_Batch` loads `params.json` (a versioned JSON
+  object, `version: 1`) via Jackson and applies each field through typed
+  `reqBool`/`reqInt`/`reqDouble`/`reqText` helpers. Old positional `params.csv`
+  files are rejected (see `src/main/resources/params.example.md` for the
+  CSV→JSON migration).
 - **Directory delimiter:** code uses `GenUtils.getDelimiter()` (in
   `Analyse_Movie`) rather than `File.separator` in some paths; `Analyse_Batch`
   also does `directory.getAbsolutePath() + delimiter + ".."` for the parent.

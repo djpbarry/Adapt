@@ -27,6 +27,46 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-03 — `readParams()` CSV → JSON (M4 step 2 / Decision 5)
+
+Replaced the positional `Scanner` + `br.readLine()` CSV parser in
+`Analyse_Batch.readParams()` with a versioned JSON parser. Jackson
+(`jackson-databind` 2.19.2, previously only transitive) is now an explicit
+dependency. The parser validates the top-level object, rejects any `version`
+other than `1`, and reads every field through typed `reqBool`/`reqInt`/
+`reqDouble`/`reqText` helpers so missing/ill-typed fields fail loudly instead of
+silently mis-parsing.
+
+`src/main/resources/params.example.json` (canonical example) and
+`src/main/resources/params.example.md` (CSV→JSON migration note) are shipped so
+existing `params.csv` users can migrate. Added 5 unit tests
+(`Analyse_BatchReadParamsTest`): applies-all-fields, rejects unsupported/missing
+version, rejects missing field, rejects non-object. `mvn clean verify` green —
+12/12 tests.
+
+Lesson: the old parser's silent positional coupling (3 header lines skipped, then
+26 ordered `Scanner` reads) meant a single added/removed line broke every
+subsequent field with only a generic `Exception` to show for it. Versioned,
+named-key JSON makes the failure mode explicit.
+
+---
+
+## 2026-10-03 — Fiji harness fixes (M11 follow-up)
+
+Two `bin/` scripts had gone stale/buggy against the post-rename plugin:
+
+- `smoke-test-fiji.cmd` still checked the old mixed-case classes
+  (`net.calm.adapt.Adapt.*`); updated to `net.calm.adapt.adapt.*` so the
+  headless load-check matches the lowercase package names from M4 step 1.
+- `install-to-fiji.cmd` copied `target/adapt-*-tests.jar` into Fiji `plugins/`
+  (its filter only excluded `sources`/`javadoc`). Added `tests` to the filter so
+  the JUnit test jar never ships to a live Fiji.
+
+`install-to-fiji.cmd && smoke-test-fiji.cmd` now installs exactly the plugin +
+the two sibling libraries and reports `ALL_ADAPT_PLUGINS_LOADABLE`.
+
+---
+
 ## 2026-10-03 — Package rename to lowercase (M4 step 1 / Decision 4)
 
 Renamed the three mixed-case packages `Adapt`→`adapt`, `Output`→`output`,

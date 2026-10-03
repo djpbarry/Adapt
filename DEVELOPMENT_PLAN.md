@@ -33,7 +33,7 @@ code.
   Java 21 (build JDK is Temurin 21). A Maven wrapper (`mvnw`/`mvnw.cmd`, pinned
   to 3.9.16) is committed; the vestigial `mvn_settings.xml` (GitHub Packages)
   has been removed.
-- JUnit 5 unit tests exist (7 across two classes); there is **no lint/format
+- JUnit 5 unit tests exist (12 across three classes); there is **no lint/format
   tooling**. A `.gitignore` (and `.gitattributes`) have been added.
 - The GUI is a NetBeans-generated `JDialog` (`ui/GUI.java` + `ui/GUI.form`), with
   parameters held in a single **static** `UserVariables` instance.
@@ -80,7 +80,8 @@ code.
      homogeneity) extracted to a `static` helper and tested.
    - `BlebAnalyser` (boundary/anchoring math) — still deferred (touches
      `ImageProcessor`/`MorphMap`).
-   - `Analyse_Batch.readParams()` (positional CSV parsing) — still deferred.
+   - `Analyse_Batch.readParams()` (JSON params parsing) — ✔ done (2026-10-03):
+     replaced the positional CSV parser with a versioned JSON parser (Decision 5).
 3. **Add golden-file tests** for CSV output — *deferred*: needs the headless Fiji
    pipeline; do it after the B2a output-structure simplification and H5 baseline
    (still targets the schema-drift risk flagged in `AGENTS.md`).
@@ -96,10 +97,11 @@ Targets, priority-ordered:
    single-responsibility private methods (segmentation, map building, protrusion
    analysis, output writing) and move pure math into package-private/static
    helpers.
-2. **`Analyse_Batch.readParams()`** — per Decision 5, replace the brittle
-   positional `Scanner` + `br.readLine()` parsing with JSON (validated via
-   Jackson), including a schema/version field so old files are detected and
-   rejected with a clear message.
+2. **`Analyse_Batch.readParams()`** — ✔ per Decision 5 (done 2026-10-03):
+   replaced the brittle positional `Scanner` + `br.readLine()` parsing with JSON
+   (validated via Jackson), including a `version` field so old files are detected
+   and rejected with a clear message. `params.example.json` +
+   `params.example.md` (migration note) ship under `src/main/resources/`.
 3. **Reduce mutable static/config state** — `GUI.UV` is a genuine static
    singleton (returned by `GUI.getUv()`), so all runs share one `UserVariables`
    instance. `Analyse_Movie` also carries many `protected` *instance* fields that
@@ -585,7 +587,7 @@ A short checklist run against the `test_data/` inputs (`blebbing_cell`,
 `migrating_cell`):
 
 1. `Plugins>Adapt>Analyse Movie` — GUI opens, run completes, output tree written.
-2. `Plugins>Adapt>Batch Analysis` — the `params.csv` / directory flow completes.
+2. `Plugins>Adapt>Batch Analysis` — the `params.json` / directory flow completes.
 3. Confirm the produced CSVs/TIFFs match the documented
    `Output_Folder_Structure` screenshot.
 
@@ -683,7 +685,9 @@ Each step is independently committable with its own verification gate.
 2. **`readParams()` CSV → JSON** (Decision 5 / A4.2). Add Jackson (or confirm
    transitive), define a versioned schema, rewrite the parser, ship a
    `params.json` example + migration note for old `params.csv`. Self-contained.
-   Gate: unit test + build.
+   Gate: unit test + build. — **done (2026-10-03): Jackson 2.19.2 added,
+   5 unit tests green (`Analyse_BatchReadParamsTest`), `params.example.json` +
+   `params.example.md` shipped.**
 3. **Decompose `Analyse_Movie.analyse()`** (A4.1). Extract segmentation /
    map-building / protrusion-analysis / output-writing into single-responsibility
    methods; move pure math to static/package-private helpers with tests. No
@@ -754,6 +758,9 @@ input for the phases above.
    `Analyse_Batch.readParams()` with JSON (validated via Jackson, adding it as a
    dependency if it is not already transitive via Bio-Formats/SciJava),
    including a schema/version for forward-compatibility.
+   *(Applied in M4 step 2 — `readParams()` now loads `version: 1` JSON via
+   Jackson; old `params.csv` files are rejected; `params.example.json` +
+   `params.example.md` ship in `src/main/resources/`.)*
 6. **Plugin framework — stay ImageJ 1.x (resolved 2026-09-27).** ADAPT remains a
    `plugins.config` + `ij.plugin.PlugIn` plugin. A modern SciJava
    reimplementation (`@Plugin` + `@Parameter`) is recorded as a future option,

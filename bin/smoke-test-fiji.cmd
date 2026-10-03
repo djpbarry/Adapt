@@ -37,8 +37,8 @@ set "CHECK=%TEMP%\AdaptPluginCheck.java"
     echo public class AdaptPluginCheck {
     echo     public static void main(String[] a^) throws Exception {
     echo         String[] plugins = {
-    echo             "net.calm.adapt.Adapt.Analyse_Movie",
-    echo             "net.calm.adapt.Adapt.Analyse_Batch"
+    echo             "net.calm.adapt.adapt.Analyse_Movie",
+    echo             "net.calm.adapt.adapt.Analyse_Batch"
     echo         };
     echo         for (String p : plugins^) {
     echo             System.out.println("OK  " + Class.forName(p^).getName(^)^);

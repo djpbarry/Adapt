@@ -52,7 +52,7 @@ del /q "%PLUGINS%\adapt-*.jar" 2>nul
 rem Copy the freshly built plugin jar (skip -sources / -javadoc).
 set "INSTALLED="
 for %%f in ("%~dp0..\target\adapt-*.jar") do (
-    echo %%~nxf | findstr /i "sources javadoc" >nul
+    echo %%~nxf | findstr /i "sources javadoc tests" >nul
     if errorlevel 1 (
         copy /y "%%f" "%PLUGINS%\" >nul
         echo [install-to-fiji] Installed plugin %%~nxf
