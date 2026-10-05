@@ -41,9 +41,11 @@ Replaced the embedded preview with non-destructive overlays:
 - Batch preview is a temporary regression (no open windows); it will be restored
   when the layout is rewritten in M5 step 3/4.
 
-`mvn test` green (13/13); version bumped to `4.0.9` (preview now auto-detects
+`mvn test` green (13/13); version bumped to `4.0.10` (preview now auto-detects
 seed points itself via a new `detectSeedPoints()` helper, avoiding the external
-`RegionGrower.hideWindows()` side effect that was hiding the source windows).
+`RegionGrower.hideWindows()` side effect that was hiding the source windows; the
+original `ImagePlus` is navigated to the preview slice via `setSlice()`, and the
+toggle button became a single-click "Preview" button).
 
 ---
 

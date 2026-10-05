@@ -1377,6 +1377,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return previewOverlay;
     }
 
+    public int getPreviewSlice() {
+        return previewSlice;
+    }
+
     public void preparePreview(int slice, UserVariables uv) {
         this.previewSlice = slice;
         this.uv = uv;

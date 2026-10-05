@@ -152,7 +152,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         filoMinSizeTextField = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         cytoCanvas = new ImageCanvas(cytoImp);
-        previewToggleButton = new javax.swing.JToggleButton();
+        previewButton = new javax.swing.JButton();
         previewField = new javax.swing.JTextField();
         cytoLabel = new javax.swing.JLabel();
         sigCanvas = new ImageCanvas(sigImp);
@@ -769,10 +769,10 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         jPanel3.add(cytoCanvas, gridBagConstraints);
 
-        previewToggleButton.setText("Preview");
-        previewToggleButton.addActionListener(new java.awt.event.ActionListener() {
+        previewButton.setText("Preview");
+        previewButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                previewToggleButtonActionPerformed(evt);
+                previewButtonActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -780,7 +780,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        jPanel3.add(previewToggleButton, gridBagConstraints);
+        jPanel3.add(previewButton, gridBagConstraints);
 
         previewField.setText(String.valueOf(previewScrollBar.getValue()));
         previewField.setEditable(false);
@@ -818,7 +818,6 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
 
         previewScrollBar.setOrientation(javax.swing.JScrollBar.HORIZONTAL);
         previewScrollBar.setModel(new DefaultBoundedRangeModel(1, 0, 1, stacks[0].getSize()));
-        previewScrollBar.setEnabled(previewToggleButton.isSelected());
         previewScrollBar.addAdjustmentListener(new java.awt.event.AdjustmentListener() {
             public void adjustmentValueChanged(java.awt.event.AdjustmentEvent evt) {
                 previewScrollBarAdjustmentValueChanged(evt);
@@ -899,11 +898,9 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         enableComponentOnSelect(threshLabel, threshComboBox, autoThreshToggleButton, autoThreshToggleButton.isEnabled());
     }//GEN-LAST:event_autoThreshToggleButtonActionPerformed
 
-    private void previewToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previewToggleButtonActionPerformed
-        previewScrollBar.setEnabled(previewToggleButton.isSelected());
-        enableComponentOnSelect(null, previewField, previewToggleButton, previewToggleButton.isEnabled());
-        previewScrollBarAdjustmentValueChanged(null);
-    }//GEN-LAST:event_previewToggleButtonActionPerformed
+    private void previewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previewButtonActionPerformed
+        generatePreview();
+    }//GEN-LAST:event_previewButtonActionPerformed
 
     private void anaProtToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anaProtToggleButtonActionPerformed
         blebDetectRadioButton.setEnabled(anaProtToggleButton.isSelected());
@@ -917,18 +914,15 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     }//GEN-LAST:event_useSigThreshToggleButtonActionPerformed
 
     private void previewScrollBarAdjustmentValueChanged(java.awt.event.AdjustmentEvent evt) {//GEN-FIRST:event_previewScrollBarAdjustmentValueChanged
-        if (previewScrollBar.getValueIsAdjusting() || !setVariables()) {
+        previewField.setText(String.valueOf(previewScrollBar.getValue()));
+    }//GEN-LAST:event_previewScrollBarAdjustmentValueChanged
+
+    private void generatePreview() {
+        if (!setVariables()) {
             return;
         }
         for (int i = 0; i < previewThreads.size(); i++) {
-            Thread currentThread = previewThreads.get(i);
-//            try {
-            currentThread.interrupt();
-//                currentThread.join();
-//            } catch (InterruptedException e) {
-//                IJ.error("Failed to generate preview.");
-//                return;
-//            }
+            previewThreads.get(i).interrupt();
         }
         previewThreads = new ArrayList<>();
         previewField.setText(String.valueOf(previewScrollBar.getValue()));
@@ -944,16 +938,19 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         Thread previewThread = new Thread(previewAnalyser);
         previewThread.start();
         previewThreads.add(previewThread);
-    }//GEN-LAST:event_previewScrollBarAdjustmentValueChanged
+    }
 
     private void generatePreviewComplete(Analyse_Movie analyser) {
         final Overlay overlay = analyser.getPreviewOverlay();
+        final int slice = analyser.getPreviewSlice();
         java.awt.EventQueue.invokeLater(() -> {
             if (cytoOrig != null) {
+                cytoOrig.setSlice(slice);
                 cytoOrig.setOverlay(overlay);
                 cytoOrig.updateAndDraw();
             }
             if (sigOrig != null) {
+                sigOrig.setSlice(slice);
                 sigOrig.setOverlay(overlay);
                 sigOrig.updateAndDraw();
             }
@@ -1157,7 +1154,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private javax.swing.JTextField minTrajTextField;
     private javax.swing.JTextField previewField;
     private javax.swing.JScrollBar previewScrollBar;
-    private javax.swing.JToggleButton previewToggleButton;
+    private javax.swing.JButton previewButton;
     private javax.swing.JButton runButton;
     private java.awt.Canvas sigCanvas;
     private javax.swing.JLabel sigLabel;
