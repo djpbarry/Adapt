@@ -101,8 +101,10 @@ prefixes you'll see in imports:
     `CellTableAccumulator` merges per-cell rows into the tidy `tables/`
     `velocity.csv`/`boundary.csv`/`blebs.csv` with `cell_id`/`bleb_id` columns.
 - **`visualisation/`** — `MultiThreadedVisualisationGenerator` + per-frame
-  `RunnableVisualisationGenerator`; renders velocity/curvature overlays as TIFF
-  via `BioFormatsImageWriter`, one task per frame.
+  `RunnableVisualisationGenerator`; renders velocity/curvature overlays into
+  per-frame `FloatProcessor`s (one task per frame), then assembles them into the
+  multi-page `images/velocity_visualisation.tif` + `curvature_visualisation.tif`
+  stacks via `BioFormatsImageWriter.saveStack` and writes `labels.zip`.
 - **`ui/`** — `GUI` (a `javax.swing.JDialog` netbeans-generated form; source and
   layout defined jointly by `GUI.java` + `GUI.form`). Holds a single **static**
   `UserVariables` instance (`UV`) populated when the user OKs the dialog;

@@ -27,6 +27,26 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-05 — Deterministic `labels.zip` + step-6 completion (M4 step 6 / B2a)
+
+Made the `labels.zip` ROI order deterministic and closed out the step-6 output
+restructure:
+
+- `RunnableVisualisationGenerator` now writes its `TextRoi` labels into a
+  per-frame `List<Roi>` slot instead of appending to a shared `Overlay`, removing
+  a cross-thread race; `MultiThreadedVisualisationGenerator` assembles the
+  `Overlay` in frame/cell order after `terminate()`.
+- Two back-to-back Fiji runs produced identical `labels.zip` entry order and
+  identical `.roi` file contents (the zip bytes differ only in embedded
+  timestamps).
+- Regenerated `content/Output_Folder_Structure.PNG` to show the new `tables/` +
+  `images/` tree.
+
+Step 6 (B2a tidy output restructure) is now complete. Remaining M4 steps: remove
+static `GUI.UV` (7), normalise concurrency (8), regenerate H5 baseline + docs (9).
+
+---
+
 ## 2026-10-05 — Version bump convention enforced (`4.0.1` → `4.0.2`)
 
 Following the sibling convention, `pom.xml` `<version>` is now bumped on every

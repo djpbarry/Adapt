@@ -258,10 +258,16 @@ Checklist:
       pretty-printed UTF-8 `parameters.json` from the GUI `Properties` plus a short
       `README.md`; `Analyse_Movie.run()` no longer calls the external
       `PropertyWriter`.
-- [ ] Make `labels.zip` ROI order deterministic (B1 fix).
+- [x] Make `labels.zip` ROI order deterministic (B1 fix).
+      — done (2026-10-05): `RunnableVisualisationGenerator` writes its `TextRoi`
+      labels into per-frame `List<Roi>` slots and `MultiThreadedVisualisationGenerator`
+      assembles the `Overlay` in frame/cell order after `terminate()` (also removes a
+      cross-thread race on the shared `Overlay`).
 - [x] Remove the spurious first line and trailing comma in `bleb_data_*.csv`.
       — done (2026-10-03); blank `Skew`/`Kurt` left as ImageJ "undefined" (`" "`).
-- [ ] Regenerate `content/Output_Folder_Structure.PNG` and update the docs.
+- [x] Regenerate `content/Output_Folder_Structure.PNG` and update the docs.
+      — done (2026-10-05): regenerated to reflect the new `tables/` + `images/`
+      tree (programmatic text-tree render).
 
 Trade-off: this is a breaking change, so the H5 output baseline and the
 `Output_Folder_Structure.PNG` screenshot must be regenerated; do it before the
@@ -730,11 +736,11 @@ Each step is independently committable with its own verification gate.
    `cell_id`/`bleb_id`, merge per-cell files, ASCII column names),
    `images/cell_NNN/*.tif` multi-page stacks, `parameters.json` + `README.md`
    manifest, deterministic `labels.zip` (B1 fix). Gate: Fiji run + review the new
-   tree. — **in progress (2026-10-03): ASCII column names done; top-level dirs
-   renamed `tables/` + `images/`, per-cell dirs → `cell_NNN`; `parameters.json`
-   + `README.md` manifest done; `cell_id`/`bleb_id` columns + merged
-   `velocity.csv`/`boundary.csv`/`blebs.csv` done; multi-page TIFF
-   visualisation stacks done.**
+   tree. — **done (2026-10-05): ASCII column names; `tables/` + `images/cell_NNN/`
+   restructure; `parameters.json` + `README.md` manifest; `cell_id`/`bleb_id`
+   columns + merged `velocity.csv`/`boundary.csv`/`blebs.csv`; multi-page TIFF
+   visualisation stacks; deterministic `labels.zip` ROI order; `Output_Folder_Structure.PNG`
+   regenerated.**
 7. **Remove static `GUI.UV`** (A4.3). Pass a `UserVariables` per run / introduce a
    run-context object instead of the static singleton. Touches GUI +
    `Analyse_Movie`/`Analyse_Batch`. Gate: build + batch/single GUI runs.
