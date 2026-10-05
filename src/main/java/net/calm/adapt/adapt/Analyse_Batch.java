@@ -38,6 +38,8 @@ public class Analyse_Batch extends Analyse_Movie {
 
     private boolean showGUI = true, mono = false;
     private File c1Directory, c2Directory;
+    private File[] cytoImageFiles, sigImageFiles;
+    private int cytoSize, sigSize;
 //
 
     public Analyse_Batch() {
@@ -54,8 +56,6 @@ public class Analyse_Batch extends Analyse_Movie {
     }
 
     public void run(String arg) {
-//        MacroWriter.write();
-//        Utilities.setLookAndFeel(GUI.class);
         String version = null;
         try {
             final Properties properties = new Properties();
@@ -66,10 +66,7 @@ public class Analyse_Batch extends Analyse_Movie {
             version = "unknown";
         }
         TITLE = TITLE + "_v" + version;
-        File cytoImageFiles[] = null; // Obtain file list
-        File sigImageFiles[] = null;
         batchMode = true;
-//        if (arg == null) {
         try {
             if (c1Directory == null) {
                 directory = Utilities.getFolder(directory, "Select directory for reference channel", true);
@@ -88,14 +85,8 @@ public class Analyse_Batch extends Analyse_Movie {
             IJ.log("Failed to locate image directories: " + e.getMessage());
             return;
         }
-//        } else {
-//            directory = new File(arg + delimiter + "cyto");
-//            cytoImageFiles = directory.listFiles(); // Obtain file list
-//            secondChannel = new File(arg + delimiter + "sig");
-//            directory = new File(directory.getAbsolutePath() + delimiter + "..");
-//        }
-        int cytoSize = cytoImageFiles.length;
-        int sigSize = 0;
+        cytoSize = cytoImageFiles.length;
+        sigSize = 0;
         if (c2Directory != null) {
             sigImageFiles = c2Directory.listFiles();
             sigSize = sigImageFiles.length;
@@ -104,34 +95,51 @@ public class Analyse_Batch extends Analyse_Movie {
         if (sigImageFiles != null) {
             Arrays.sort(sigImageFiles);
         }
+        if (showGUI) {
+            showGUI = false;
+            if (cytoSize == 0 || !prepareBatchStacks(0)) {
+                IJ.error("No images found.");
+                return;
+            }
+            GUI gui = new GUI(null, false, TITLE, stacks, roi);
+            gui.setOnRun(() -> {
+                uv = gui.getUv();
+                new Thread(this::runBatch).start();
+            });
+            gui.setVisible(true);
+            return;
+        }
+        runBatch();
+    }
+
+    private boolean prepareBatchStacks(int f) {
+        ImagePlus cytoImp = new ImagePlus(cytoImageFiles[f].getAbsolutePath());
+        ImageStack cytoStack = cytoImp.getImageStack();
+        roi = (PointRoi) cytoImp.getRoi();
+        if (cytoStack == null || cytoStack.getSize() == 0) {
+            return false;
+        }
+        ImageStack sigStack;
+        if (cytoSize == sigSize) {
+            ImagePlus sigImp = new ImagePlus(sigImageFiles[f].getAbsolutePath());
+            sigStack = sigImp.getImageStack();
+        } else {
+            sigStack = null;
+        }
+        stacks[0] = cytoStack;
+        stacks[1] = sigStack;
+        return true;
+    }
+
+    private void runBatch() {
         for (int f = 0; f < cytoSize; f++) {
-            ImagePlus cytoImp = new ImagePlus(cytoImageFiles[f].getAbsolutePath());
-            ImageStack cytoStack = cytoImp.getImageStack();
-            roi = (PointRoi) cytoImp.getRoi();
-            if (cytoStack != null && cytoStack.getSize() > 0) {
-                try {
-                    ImageStack sigStack;
-                    if (cytoSize == sigSize) {
-                        ImagePlus sigImp = new ImagePlus(sigImageFiles[f].getAbsolutePath());
-                        sigStack = sigImp.getImageStack();
-                    } else {
-                        sigStack = null;
-                    }
-                    stacks[0] = cytoStack;
-                    stacks[1] = sigStack;
-                    if (showGUI) {
-                        showGUI = false;
-                        GUI gui = new GUI(null, true, TITLE, stacks, roi);
-                        gui.setVisible(true);
-                        if (!gui.isWasOKed()) {
-                            return;
-                        }
-                        uv = gui.getUv();
-                    }
-                    analyse(cytoImageFiles[f].getName());
-                } catch (Exception e) {
-                    IJ.log("Failed to analyse " + cytoImageFiles[f].getName() + ": " + e.getMessage());
-                }
+            if (!prepareBatchStacks(f)) {
+                continue;
+            }
+            try {
+                analyse(cytoImageFiles[f].getName());
+            } catch (Exception e) {
+                IJ.log("Failed to analyse " + cytoImageFiles[f].getName() + ": " + e.getMessage());
             }
         }
         IJ.showStatus(TITLE + " done.");

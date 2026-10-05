@@ -86,6 +86,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private ImageProcessor[] previewImages;
     private boolean selectiveOutput = false;
     private Properties props;
+    private LocalDateTime startTime;
     private final String TRAJ_FILE_NAME = "trajectories.csv";
 
     /**
@@ -123,7 +124,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      */
     @Override
     public void run(String arg) {
-        LocalDateTime startTime = LocalDateTime.now();
+        startTime = LocalDateTime.now();
         String version = null;
         try {
             final Properties properties = new Properties();
@@ -151,19 +152,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             return;
         }
         IJ.log(String.format("Using %d parallel processes.\n", Runtime.getRuntime().availableProcessors()));
-        if (!analyse(arg)) {
-            return;
-        }
-        TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes() / 60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
-        ta.run(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME));
-        try {
-            ParameterWriter.saveParameters(props, parDir);
-            ParameterWriter.saveReadme(parDir, TITLE);
-        } catch (IOException e) {
-            IJ.log("Failed to create output metadata files.");
-        }
-        IJ.showStatus(TITLE + " done.");
-        IJ.log(Time.getDurationAsString(startTime));
+        analyse(arg);
     }
 
     public boolean analyse(String imageName) {
@@ -218,22 +207,29 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (!createOutputDirectories(cytoImp, imageName)) {
             return false;
         }
-        int width = cytoStack.getWidth();
-        int height = cytoStack.getHeight();
         /*
          Convert cyto channel to 8-bit for faster segmentation
          */
         cytoStack = GenUtils.convertStack(stacks[0], 8);
         stacks[0] = cytoStack;
         if (!(batchMode || protMode)) {
-            GUI gui = new GUI(null, true, TITLE, stacks, roi);
+            GUI gui = new GUI(null, false, TITLE, stacks, roi);
+            gui.setOnRun(() -> {
+                uv = gui.getUv();
+                props = gui.getProperties();
+                new Thread(this::finishAnalysis).start();
+            });
             gui.setVisible(true);
-            if (!gui.isWasOKed()) {
-                return false;
-            }
-            uv = gui.getUv();
-            props = gui.getProperties();
+            return true;
         }
+        return runPipeline();
+    }
+
+    private boolean runPipeline() {
+        ImageStack cytoStack = stacks[0];
+        int width = cytoStack.getWidth();
+        int height = cytoStack.getHeight();
+        int cytoSize = cytoStack.getSize();
         if (!segmentCells(cytoStack, width, height, cytoSize)) {
             return false;
         }
@@ -256,6 +252,22 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             GenUtils.logError(e, "Error: Failed to create cell trajectories file.");
         }
         return true;
+    }
+
+    private void finishAnalysis() {
+        if (!runPipeline()) {
+            return;
+        }
+        TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes() / 60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
+        ta.run(String.format("%s%s%s", popDir.getAbsolutePath(), File.separator, TRAJ_FILE_NAME));
+        try {
+            ParameterWriter.saveParameters(props, parDir);
+            ParameterWriter.saveReadme(parDir, TITLE);
+        } catch (IOException e) {
+            IJ.log("Failed to create output metadata files.");
+        }
+        IJ.showStatus(TITLE + " done.");
+        IJ.log(Time.getDurationAsString(startTime));
     }
 
     private boolean createOutputDirectories(ImagePlus cytoImp, String imageName) {

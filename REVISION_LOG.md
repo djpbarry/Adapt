@@ -27,6 +27,25 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-05 — Non-modal GUI + run lifecycle (M5 step 1)
+
+Started the M5 GUI rework:
+
+- `GUI` is now non-modal and exposes `setOnRun(Runnable)`, invoked by the Run
+  button after `setVariables()` succeeds (the dialog disposes and the callback
+  starts the analysis on a background thread).
+- `Analyse_Movie.analyse()` was split: setup + (non-modal GUI + callback) for the
+  interactive path, and `runPipeline()` for the batch/protrusion paths. The
+  single-movie finalisation (`TrajectoryAnalysis` + `parameters.json`/`README.md`)
+  moved into `finishAnalysis()`.
+- `Analyse_Batch` now shows the GUI once and runs its file loop from the callback
+  (`runBatch()`), preserving the existing per-file synchronous `analyse()` path.
+
+`mvn test` green (13/13); version bumped to `4.0.6`. The overlay-based preview is
+the next M5 step.
+
+---
+
 ## 2026-10-05 — M5 GUI rework broken into an ordered plan (planning only)
 
 Recorded a six-step M5 execution plan in `DEVELOPMENT_PLAN.md` (under "B1

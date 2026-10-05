@@ -196,6 +196,9 @@ baseline.
 1. **Non-modal dialog + run lifecycle.** Make `GUI` non-modal and change
    `Analyse_Movie`/`Analyse_Batch` to start analysis on an explicit "Run" event
    rather than blocking on `setVisible(true)`.
+   — **done (2026-10-05): `GUI` is non-modal and exposes `setOnRun(Runnable)`;
+   `Analyse_Movie.analyse()` split into `runPipeline()` + `finishAnalysis()`;
+   `Analyse_Batch` uses a `runBatch()` loop started from the callback.**
 2. **Overlay-based preview.** Replace the embedded `cytoImp`/`sigImp` preview
    canvases with `Overlay`/`RoiManager` rendering on the original `ImageWindow`s
    (input stacks stay untouched); refresh the overlay on the EDT.

@@ -110,10 +110,12 @@ prefixes you'll see in imports:
   stacks via `BioFormatsImageWriter.saveStack` and writes `labels.zip`.
 - **`ui/`** — `GUI` (a `javax.swing.JDialog` netbeans-generated form; source and
   layout defined jointly by `GUI.java` + `GUI.form`). Holds a per-instance
-  `UserVariables` (`UV`) populated when the user OKs the dialog; `Analyse_Movie`
-  and `Analyse_Batch` read it back via `gui.getUv()`.
+  `UserVariables` (`UV`) populated when the user clicks Run; `Analyse_Movie`
+  and `Analyse_Batch` read it back via `gui.getUv()` and start analysis through
+  the `gui.setOnRun(Runnable)` callback (non-modal).
 
-Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
+Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()`
+(non-modal GUI + `setOnRun` callback) → `runPipeline()`/`finishAnalysis()` →
 `MultiThreadedOutputGenerator` → (optional) `MultiThreadedVisualisationGenerator`.
 
 ## Concurrency model
@@ -163,7 +165,8 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
   also does `directory.getAbsolutePath() + delimiter + ".."` for the parent.
 - **Statics on `GUI`:** the `VERSION`-style labels are static/shared;
   `UserVariables UV` is now a per-instance field (the static singleton was removed
-  in M4 step 7). The GUI dialog is modal and populated once per batch run.
+  in M4 step 7). The GUI dialog is non-modal and starts analysis via a
+  `setOnRun` callback (M5 step 1).
 - **Dead code was removed in M1.** The commented-out experiments in `Main.java`,
   `Analyse_Movie`, `BlebAnalyser`, and `RunnableOutputGenerator` were stripped
   (recoverable from git history); remaining comments are legitimate

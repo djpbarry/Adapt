@@ -59,6 +59,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     ArrayList<Thread> previewThreads = new ArrayList<>();
     private final PointRoi roi;
     private final Properties props = new Properties();
+    private Runnable onRun;
 
     /**
      * Creates new form GUI
@@ -882,8 +883,11 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         if (!setVariables()) {
             return;
         }
-        this.dispose();
         wasOKed = true;
+        this.dispose();
+        if (onRun != null) {
+            onRun.run();
+        }
     }//GEN-LAST:event_runButtonActionPerformed
 
     private void autoThreshToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoThreshToggleButtonActionPerformed
@@ -1033,6 +1037,10 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
 
     public UserVariables getUv() {
         return UV;
+    }
+
+    public void setOnRun(Runnable onRun) {
+        this.onRun = onRun;
     }
 
     public boolean isWasOKed() {
