@@ -951,12 +951,10 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         java.awt.EventQueue.invokeLater(() -> {
             if (cytoOrig != null) {
                 cytoOrig.setOverlay(overlay);
-                cytoOrig.show();
                 cytoOrig.updateAndDraw();
             }
             if (sigOrig != null) {
                 sigOrig.setOverlay(overlay);
-                sigOrig.show();
                 sigOrig.updateAndDraw();
             }
         });

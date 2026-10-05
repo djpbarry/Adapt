@@ -1240,7 +1240,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int height = cytoProc.getHeight();
         (new GaussianBlur()).blurGaussian(cytoProc, uv.getGaussRad(), uv.getGaussRad(), 0.01);
         int threshold = RegionGrower.getThreshold(cytoProc, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
-        int nCell = RegionGrower.initialiseROIs(null, -1, sliceIndex, cytoProc, roi, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
+        PointRoi seeds = roi;
+        if (seeds == null) {
+            seeds = detectSeedPoints(cytoProc, threshold, RegionGrower.getMinCellArea(uv));
+        }
+        int nCell = RegionGrower.initialiseROIs(null, -1, sliceIndex, cytoProc, seeds, stacks[0].getWidth(), stacks[0].getHeight(), stacks[0].getSize(), cellData, uv, protMode, selectiveOutput);
         Region[][] allRegions = new Region[nCell][stacks[0].getSize()];
         ArrayList<Region> detectedRegions = RegionGrower.watershedRegions(cytoProc, threshold, cellData);
         for (int k = 0; k < nCell; k++) {
@@ -1331,6 +1335,37 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         roi.setStrokeWidth(uv.getVisLineWidth());
         roi.setPosition(sliceIndex);
         return roi;
+    }
+
+    /**
+     * Auto-detects cell seed points without the side effect of
+     * {@code RegionGrower.analyzeDetections()} (which calls
+     * {@code RegionGrower.hideWindows()} and hides the most recently opened
+     * image window).
+     */
+    private PointRoi detectSeedPoints(ImageProcessor ip, double threshold, double minArea) {
+        ByteProcessor binary = (ByteProcessor) ip.convertToByteProcessor(true);
+        binary.threshold((int) Math.round(threshold));
+        binary.invert();
+        if (binary.isInvertedLut()) {
+            binary.invertLut();
+        }
+        ResultsTable rt = new ResultsTable();
+        Prefs.blackBackground = false;
+        ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES,
+                Measurements.CENTROID, rt, minArea, Double.POSITIVE_INFINITY);
+        ParticleAnalyzer.setRoiManager(null);
+        analyzer.analyze(new ImagePlus("", binary));
+        PointRoi seeds = new PointRoi();
+        int count = rt.getCounter();
+        if (count > 0) {
+            float[] x = rt.getColumn(rt.getColumnIndex("X"));
+            float[] y = rt.getColumn(rt.getColumnIndex("Y"));
+            for (int i = 0; i < count; i++) {
+                seeds.addPoint(x[i], y[i]);
+            }
+        }
+        return seeds;
     }
 
     @Deprecated

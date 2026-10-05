@@ -41,9 +41,9 @@ Replaced the embedded preview with non-destructive overlays:
 - Batch preview is a temporary regression (no open windows); it will be restored
   when the layout is rewritten in M5 step 3/4.
 
-`mvn test` green (13/13); version bumped to `4.0.8` (includes a fix so the
-preview re-shows the source windows on the EDT — `RegionGrower.hideWindows()`
-was hiding them during auto-seeding).
+`mvn test` green (13/13); version bumped to `4.0.9` (preview now auto-detects
+seed points itself via a new `detectSeedPoints()` helper, avoiding the external
+`RegionGrower.hideWindows()` side effect that was hiding the source windows).
 
 ---
 
