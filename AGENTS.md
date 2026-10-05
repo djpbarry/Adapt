@@ -106,9 +106,9 @@ prefixes you'll see in imports:
   multi-page `images/velocity_visualisation.tif` + `curvature_visualisation.tif`
   stacks via `BioFormatsImageWriter.saveStack` and writes `labels.zip`.
 - **`ui/`** — `GUI` (a `javax.swing.JDialog` netbeans-generated form; source and
-  layout defined jointly by `GUI.java` + `GUI.form`). Holds a single **static**
-  `UserVariables` instance (`UV`) populated when the user OKs the dialog;
-  `Analyse_Batch` reads it back via `GUI.getUv()`.
+  layout defined jointly by `GUI.java` + `GUI.form`). Holds a per-instance
+  `UserVariables` (`UV`) populated when the user OKs the dialog; `Analyse_Movie`
+  and `Analyse_Batch` read it back via `gui.getUv()`.
 
 Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
 `MultiThreadedOutputGenerator` → (optional) `MultiThreadedVisualisationGenerator`.
@@ -150,8 +150,9 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
 - **Directory delimiter:** code uses `GenUtils.getDelimiter()` (in
   `Analyse_Movie`) rather than `File.separator` in some paths; `Analyse_Batch`
   also does `directory.getAbsolutePath() + delimiter + ".."` for the parent.
-- **Statics on `GUI`:** `UserVariables UV` and the `VERSION`-style labels are
-  static/shared; the GUI dialog is modal and populated once per batch run.
+- **Statics on `GUI`:** the `VERSION`-style labels are static/shared;
+  `UserVariables UV` is now a per-instance field (the static singleton was removed
+  in M4 step 7). The GUI dialog is modal and populated once per batch run.
 - **Dead code was removed in M1.** The commented-out experiments in `Main.java`,
   `Analyse_Movie`, `BlebAnalyser`, and `RunnableOutputGenerator` were stripped
   (recoverable from git history); remaining comments are legitimate

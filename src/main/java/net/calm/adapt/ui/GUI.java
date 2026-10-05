@@ -55,7 +55,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private final String title;
     private boolean wasOKed = false;
     private final int MAX_DIM = 512;
-    private final static UserVariables UV = new UserVariables();
+    private final UserVariables UV = new UserVariables();
     ArrayList<Thread> previewThreads = new ArrayList<>();
     private final PointRoi roi;
     private final Properties props = new Properties();
@@ -1031,7 +1031,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         return props;
     }
 
-    public static UserVariables getUv() {
+    public UserVariables getUv() {
         return UV;
     }
 

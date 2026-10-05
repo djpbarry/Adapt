@@ -231,7 +231,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             if (!gui.isWasOKed()) {
                 return false;
             }
-            uv = GUI.getUv();
+            uv = gui.getUv();
             props = gui.getProperties();
         }
         if (!segmentCells(cytoStack, width, height, cytoSize)) {

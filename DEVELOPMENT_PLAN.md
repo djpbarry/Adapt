@@ -756,6 +756,8 @@ Each step is independently committable with its own verification gate.
    `Analyse_Movie`/`Analyse_Batch`. Gate: build + batch/single GUI runs.
    *(Pair with the B1.1 overlay-based preview reconfiguration so the GUI is
    restructured once rather than twice.)*
+   — **done (2026-10-05): `GUI.UV` is now an instance field; `getUv()` is an
+   instance method; `Analyse_Movie`/`Analyse_Batch` call `gui.getUv()`.**
 8. **Normalise concurrency** (A4.4). Document (or consolidate) `NotificationThread`
    vs `MultiThreadedProcess`. Low-risk: document + enforce; consolidate only if
    warranted. Gate: docs.

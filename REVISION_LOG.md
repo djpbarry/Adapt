@@ -27,6 +27,20 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-05 — Removed static `GUI.UV` (M4 step 7 / A4.3)
+
+Eliminated the shared `UserVariables` singleton on `GUI`:
+
+- `GUI.UV` is now a per-instance `final UserVariables` field (was `static final`).
+- `GUI.getUv()` is now an instance method returning that field.
+- `Analyse_Movie` and `Analyse_Batch` now read `gui.getUv()` on their local
+  `GUI` instance instead of `GUI.getUv()`.
+
+This removes cross-session stale/shared state (each dialog now starts from fresh
+`UserVariables` defaults). `mvn test` green (13/13); version bumped to `4.0.3`.
+
+---
+
 ## 2026-10-05 — GUI preview redesign planned (overlay-based, deferred to M5)
 
 Recorded in `DEVELOPMENT_PLAN.md` (Phase B1): rework ADAPT's preview model so the
