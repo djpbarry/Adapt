@@ -20,6 +20,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Overlay;
+import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 import ij.process.FloatProcessor;
 import loci.formats.FormatTools;
@@ -36,6 +37,7 @@ import net.calm.iaclasslibrary.UtilClasses.GenUtils;
 import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,7 +50,6 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
     UserVariables uv;
     File velDirName;
     File curvDirName;
-    private final Overlay labels;
 
     public MultiThreadedVisualisationGenerator() {
         this(null, null, false, null, null, null, null);
@@ -66,7 +67,6 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
         this.uv = uv;
         this.velDirName = velDirName;
         this.curvDirName = curvDirName;
-        this.labels = new Overlay();
     }
 
     @Override
@@ -77,12 +77,14 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
         IndexColorModel lut = (new LUTCreator()).getRedGreen();
         FloatProcessor[] velFrames = new FloatProcessor[stackSize];
         FloatProcessor[] curveFrames = new FloatProcessor[stackSize];
+        List<List<Roi>> frameLabels = new ArrayList<>(stackSize);
         for (int t = 0; t < stackSize; t++) {
-            exec.submit(new RunnableVisualisationGenerator(cellData, protMode, cytoStack, uv, t, labels, lut, velFrames, curveFrames));
+            frameLabels.add(new ArrayList<>());
+            exec.submit(new RunnableVisualisationGenerator(cellData, protMode, cytoStack, uv, t, frameLabels.get(t), lut, velFrames, curveFrames));
         }
         terminate("Error generating visualisations.");
         saveStacks(velFrames, curveFrames, lut);
-        saveOverlays();
+        saveOverlays(frameLabels);
     }
 
     void saveStacks(FloatProcessor[] velFrames, FloatProcessor[] curveFrames, IndexColorModel lut) {
@@ -107,7 +109,13 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
         }
     }
 
-    void saveOverlays() {
+    void saveOverlays(List<List<Roi>> frameLabels) {
+        Overlay labels = new Overlay();
+        for (List<Roi> frameLabel : frameLabels) {
+            for (Roi roi : frameLabel) {
+                labels.add(roi);
+            }
+        }
         ImagePlus c1Imp = new ImagePlus("", cytoStack);
         c1Imp.setOverlay(labels);
         OverlayToRoi.toRoi(c1Imp);

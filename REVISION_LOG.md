@@ -27,6 +27,16 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-05 — Version bump convention enforced (`4.0.1` → `4.0.2`)
+
+Following the sibling convention, `pom.xml` `<version>` is now bumped on every
+change (plain `X.Y.Z`, no `-SNAPSHOT`). Bumped `4.0.1` → `4.0.2` to cover the
+step-6 output restructure (manifest, merged tables, multi-page TIFF stacks,
+deterministic `labels.zip`) and the dependency re-pin. This convention is now
+stated explicitly in `AGENTS.md`.
+
+---
+
 ## 2026-10-05 — Dependency pins bumped (IAClassLibrary `2.0.22`, TrackerLibrary `v4.0.8`)
 
 The sibling libraries were modernised again and their latest release tags
@@ -41,6 +51,26 @@ still reports a cached build error on JitPack, while the tag-without-`v`
 coordinate (`2.0.22`) builds cleanly. ADAPT therefore pins `2.0.22` (no `v`)
 for `IAClassLibrary` but `v4.0.8` for `TrackerLibrary`. `install-to-fiji.cmd`
 now ships `IAClassLibrary-2.0.22.jar` and `TrackerLibrary-v4.0.8.jar`.
+
+---
+
+## 2026-10-05 — Multi-page TIFF visualisation stacks (M4 step 6 / B2a)
+
+Replaced the per-frame `NNN.tiff` visualisation output with single multi-page
+stacks:
+
+- `RunnableVisualisationGenerator` now renders each frame into shared
+  `FloatProcessor[]` slots instead of writing `NNN.tiff`.
+- `MultiThreadedVisualisationGenerator` assembles those frames after
+  `terminate()` and writes `images/velocity_visualisation.tif` +
+  `images/curvature_visualisation.tif` via `BioFormatsImageWriter.saveStack`.
+- `labels.zip` moved to the output root (was `Visualisations_Output/labels.zip`),
+  and the unconditional `Visualisations_Output` directory is gone (it is now
+  created only on the segmentation-visualisation path).
+
+Fiji re-run confirmed the two `.tif` stacks under `images/`, `labels.zip` at the
+root, and no `Visualisations_Output` tree. ROI order in `labels.zip` remains
+non-deterministic and is the next step-6 item.
 
 ---
 

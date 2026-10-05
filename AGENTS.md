@@ -136,7 +136,10 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
   `project.properties` by hand. **`pom.xml` `<version>` is a plain `X.Y.Z` with no
   `-SNAPSHOT` suffix (sibling convention — see `IAClassLibrary`'s `development`
   branch), and releases are tagged `vX.Y.Z` via `maven-release-plugin`.** Bump the
-  `pom.xml` version as development progresses.
+  `pom.xml` version as development progresses. **Bump the `pom.xml` `<version>`
+  (`X.Y.Z`, no `-SNAPSHOT`) after each change** — this is the sibling convention
+  in `IAClassLibrary` and `TrackerLibrary` and must be followed here too, so the
+  runtime title and jar name advance with every committed change.
 - **`readParams()`** in `Analyse_Batch` loads `params.json` (a versioned JSON
   object, `version: 1`) via Jackson and applies each field through typed
   `reqBool`/`reqInt`/`reqDouble`/`reqText` helpers. Old positional `params.csv`

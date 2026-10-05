@@ -247,8 +247,12 @@ Checklist:
       parallel per-cell writers into `tables/velocity.csv`, `tables/boundary.csv`,
       and `tables/blebs.csv` (with `cell_id`/`bleb_id`); population tables renamed to
       snake_case and `Cell_ID`/`Cell ID` → `cell_id`.
-- [ ] Emit time-series visualisations as **multi-page TIFF stacks** (one file, not
+- [x] Emit time-series visualisations as **multi-page TIFF stacks** (one file, not
       `NNN.tiff`).
+      — done (2026-10-05): `RunnableVisualisationGenerator` collects per-frame
+      `FloatProcessor`s and `MultiThreadedVisualisationGenerator` writes
+      `images/velocity_visualisation.tif` + `images/curvature_visualisation.tif`
+      via `BioFormatsImageWriter.saveStack`.
 - [x] Emit `parameters.json` and a `README.md` manifest.
       — done (2026-10-03): `net.calm.adapt.output.ParameterWriter` writes a sorted,
       pretty-printed UTF-8 `parameters.json` from the GUI `Properties` plus a short
@@ -729,7 +733,8 @@ Each step is independently committable with its own verification gate.
    tree. — **in progress (2026-10-03): ASCII column names done; top-level dirs
    renamed `tables/` + `images/`, per-cell dirs → `cell_NNN`; `parameters.json`
    + `README.md` manifest done; `cell_id`/`bleb_id` columns + merged
-   `velocity.csv`/`boundary.csv`/`blebs.csv` done.**
+   `velocity.csv`/`boundary.csv`/`blebs.csv` done; multi-page TIFF
+   visualisation stacks done.**
 7. **Remove static `GUI.UV`** (A4.3). Pass a `UserVariables` per run / introduce a
    run-context object instead of the static singleton. Touches GUI +
    `Analyse_Movie`/`Analyse_Batch`. Gate: build + batch/single GUI runs.

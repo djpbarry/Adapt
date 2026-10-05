@@ -18,7 +18,7 @@ package net.calm.adapt.visualisation;
 
 import ij.IJ;
 import ij.ImageStack;
-import ij.gui.Overlay;
+import ij.gui.Roi;
 import ij.gui.TextRoi;
 import ij.process.FloatProcessor;
 import net.calm.iaclasslibrary.Cell.CellData;
@@ -29,6 +29,7 @@ import net.calm.iaclasslibrary.UserVariables.UserVariables;
 
 import java.awt.image.IndexColorModel;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RunnableVisualisationGenerator extends RunnableProcess {
 
@@ -37,12 +38,12 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
     ImageStack cytoStack;
     UserVariables uv;
     int t;
-    private Overlay labels;
+    private List<Roi> labels;
     private final IndexColorModel lut;
     private final FloatProcessor[] velFrames;
     private final FloatProcessor[] curveFrames;
 
-    public RunnableVisualisationGenerator(ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, int t, Overlay labels, IndexColorModel lut, FloatProcessor[] velFrames, FloatProcessor[] curveFrames) {
+    public RunnableVisualisationGenerator(ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, int t, List<Roi> labels, IndexColorModel lut, FloatProcessor[] velFrames, FloatProcessor[] curveFrames) {
         super(null);
         this.cellData = cellData;
         this.protMode = protMode;
