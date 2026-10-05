@@ -115,15 +115,23 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()` →
 
 ## Concurrency model
 
-- Two patterns coexist. `NotificationThread` (in `adapt/`) is an
-  observer/callback wrapper: subclasses implement `doWork()`; it notifies
-  registered `TaskListener`s on completion. The `MultiThreaded*` generators (in
-  `output/`/`visualisation/`) instead extend the IAClassLibrary
-  `MultiThreadedProcess`/`RunnableProcess` base classes and manage their own
-  `ExecutorService` with `terminate(msg)`.
+- Two patterns coexist, each with a distinct job. Do not conflate them.
+  - `NotificationThread` (in `adapt/`) is a single-background-thread
+    observer/callback wrapper: subclasses implement `doWork()`, and `run()`
+    calls `doWork()` then notifies registered `TaskListener`s. It is used only
+    for the GUI **preview** path — `GUI` creates a `new Analyse_Movie(...)`,
+    calls `preparePreview(...)`, adds a `TaskListener`, and starts it via
+    `new Thread(previewAnalyser).start()`.
+  - `MultiThreadedProcess`/`RunnableProcess` (external IAClassLibrary) is the
+    executor-pool pattern for parallel work. `MultiThreadedOutputGenerator`
+    submits one `RunnableOutputGenerator` per cell and
+    `MultiThreadedVisualisationGenerator` submits one
+    `RunnableVisualisationGenerator` per frame; both finish with
+    `terminate(msg)`.
 - Thread pools are always sized to `Runtime.getRuntime().availableProcessors()`.
-- Do not confuse the two custom bases: `RunnableProcess` (external lib) and
-  `NotificationThread` (in repo) are unrelated.
+- Consolidation of the two patterns is intentionally **not** done: a
+  single-thread preview callback and a parallel executor pool serve different
+  needs, and merging them would obscure both.
 
 ## Conventions and gotchas
 

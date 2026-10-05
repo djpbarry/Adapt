@@ -20,27 +20,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
+ * A single-background-thread observer/callback wrapper. Subclasses implement
+ * {@link #doWork()} (where all work is performed); {@link #run()} calls
+ * {@code doWork()} and then notifies any registered {@link TaskListener}s.
  *
- * @author David Barry <david.barry at cancer.org.uk>
- */
-/**
- *
- * This abstract class implements the Runnable interface and can be used to
- * notify listeners when the runnable thread has completed. To use this class,
- * first extend it and implement the doRun function - the doRun function is
- * where all work should be performed. Add any listener to update upon completion,
- * then create a new thread with this new object and run. 
  * @author Greg Cope
- *
- *
- *
  */
 public abstract class NotificationThread implements Runnable {
 
     /**
-     *
-     * An abstract function that children must implement. This function is where      *
-     * all work - typically placed in the run of runnable - should be placed.      *
+     * Where subclasses perform all work.
      */
     public abstract void doWork();
 
@@ -96,12 +85,7 @@ public abstract class NotificationThread implements Runnable {
     }
 
     /**
-     *
-     * Implementation of the Runnable interface. This function first calls
-     * doRun(), then
-     *
-     * notifies all listeners of completion.
-     *
+     * Runs {@link #doWork()} and then notifies all registered listeners.
      */
     public void run() {
 

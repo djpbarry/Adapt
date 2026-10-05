@@ -27,6 +27,24 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-05 — Concurrency normalised (M4 step 8 / A4.4)
+
+Documented the two coexisting concurrency patterns and their distinct jobs in
+`AGENTS.md`, and cleaned up the misleading `NotificationThread` Javadoc:
+
+- `NotificationThread` (in-repo) is a single-background-thread observer/callback
+  wrapper used only for the GUI preview path (`new Thread(previewAnalyser)`).
+- `MultiThreadedProcess`/`RunnableProcess` (external) is the executor-pool
+  pattern used by `MultiThreadedOutputGenerator` (one task per cell) and
+  `MultiThreadedVisualisationGenerator` (one task per frame), finishing via
+  `terminate(msg)`.
+
+Consolidation was decided against — a single-thread preview callback and a
+parallel executor pool serve different needs. `mvn test` green (13/13); version
+bumped to `4.0.4`.
+
+---
+
 ## 2026-10-05 — Removed static `GUI.UV` (M4 step 7 / A4.3)
 
 Eliminated the shared `UserVariables` singleton on `GUI`:

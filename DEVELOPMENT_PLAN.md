@@ -761,6 +761,11 @@ Each step is independently committable with its own verification gate.
 8. **Normalise concurrency** (A4.4). Document (or consolidate) `NotificationThread`
    vs `MultiThreadedProcess`. Low-risk: document + enforce; consolidate only if
    warranted. Gate: docs.
+   — **done (2026-10-05): documented the two patterns and their distinct jobs in
+   `AGENTS.md` (`NotificationThread` = single-thread preview callback;
+   `MultiThreadedProcess` = parallel output/visualisation pool); cleaned up the
+   `NotificationThread` Javadoc (`doRun` → `doWork`). Consolidation decided
+   against.**
 9. **Regenerate baseline + docs.** Run the H5 SHA-256 baseline against the new
    structure, regenerate `Output_Folder_Structure.PNG`, update the plan/wiki.
    Gate: baseline passes.
