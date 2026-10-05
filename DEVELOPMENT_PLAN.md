@@ -159,20 +159,29 @@ frame order before saving. Include an order-assurance assertion.
 
 ### B1. Rework the GUI
 
-1. **Replace the NetBeans `.form` coupling** — the hand-versus-generator split
+1. **Move previews to `Overlay`s, keep input images untouched** — the current
+   dialog embeds preview segmentations directly into the image pixel data, which
+   is destructive and blocks interaction with the source `ImageWindow`. Instead,
+   keep the inputs in their original `ImageWindow` containers and render preview
+   segmentations as ImageJ `Overlay`s / `RoiManager` ROIs, refreshed live as
+   parameters change. This mirrors TrackMate and GIANI and makes the preview
+   non-destructive, live, and reversible. This is a dedicated reconfiguration,
+   not a tail-end tweak; pair it with step 7 (static `GUI.UV` removal) and the
+   step-8 concurrency normalisation so the GUI is touched once.
+2. **Replace the NetBeans `.form` coupling** — the hand-versus-generator split
    between `GUI.java` and `GUI.form` is risky to edit. Migrate to a hand-managed
    layout (GridBag/GroupLayout written by hand) so the UI is version-controllable
    and diffable.
-2. **Eliminate the static `UserVariables` singleton** — pass a `UserVariables`
+3. **Eliminate the static `UserVariables` singleton** — pass a `UserVariables`
    instance explicitly; this fixes a class of bugs from stale/shared state across
    sessions.
-3. **Group parameters into collapsible sections** mirroring the *Simple /
+4. **Group parameters into collapsible sections** mirroring the *Simple /
    Advanced / Protrusions* screenshots already in `content/`, and add tooltips
    or inline help for every parameter (wording drawn from `StaticVariables`).
-4. **Add validation and sane defaults** at the UI layer: numeric ranges, required
+5. **Add validation and sane defaults** at the UI layer: numeric ranges, required
    fields, and a "load/save parameter preset" feature (the raw material exists in
    `Analyse_Batch.readParams()`).
-5. **Add cancellation & progress** — the GUI has a Cancel button, but it only
+6. **Add cancellation & progress** — the GUI has a Cancel button, but it only
    `dispose()`s the setup dialog; the background analysis threads
    (`MultiThreaded*` generators) have no cancellation path. Wire the existing
    `NotificationThread`/`TaskListener` and `MultiThreadedProcess` mechanisms to a
@@ -664,8 +673,9 @@ not silently accepted.
    `readParams()` with JSON, remove static state, rename packages. (Phase A4,
    A5.2) — **steps 1–3 done (2026-10-03): package rename, JSON `readParams()`,
    `analyse()` decomposed; steps 4–9 remain (see the M4 + B2a breakdown).**
-5. **M5 — GUI & UX:** hand-managed layout, parameter presets, progress/cancel,
-   simplified output structure. (Phase B, including B2a)
+5. **M5 — GUI & UX:** hand-managed layout, overlay-based non-destructive
+   previews, parameter presets, progress/cancel, simplified output structure.
+   (Phase B, including B2a)
 6. **M6 — Distribution:** update site, semver, in-product help links. (Phase B3)
 7. **M7 — TrackMate interop:** Stage-1 XML import/export bridge (Phase D1);
    Stage-2 `TrackAnalyzer` module only after M4 lands.
@@ -744,6 +754,8 @@ Each step is independently committable with its own verification gate.
 7. **Remove static `GUI.UV`** (A4.3). Pass a `UserVariables` per run / introduce a
    run-context object instead of the static singleton. Touches GUI +
    `Analyse_Movie`/`Analyse_Batch`. Gate: build + batch/single GUI runs.
+   *(Pair with the B1.1 overlay-based preview reconfiguration so the GUI is
+   restructured once rather than twice.)*
 8. **Normalise concurrency** (A4.4). Document (or consolidate) `NotificationThread`
    vs `MultiThreadedProcess`. Low-risk: document + enforce; consolidate only if
    warranted. Gate: docs.

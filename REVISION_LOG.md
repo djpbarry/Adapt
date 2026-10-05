@@ -27,6 +27,18 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-05 — GUI preview redesign planned (overlay-based, deferred to M5)
+
+Recorded in `DEVELOPMENT_PLAN.md` (Phase B1): rework ADAPT's preview model so the
+input images stay in their original `ImageWindow` containers and segmentation
+previews are rendered as ImageJ `Overlay`s / `RoiManager` ROIs instead of being
+embedded into the pixel data. This matches TrackMate and GIANI, is non-destructive
+and live, and will be paired with M4 step 7 (static `GUI.UV` removal) and step 8
+(concurrency normalisation) so the GUI is restructured once. Planning only — no
+code changed.
+
+---
+
 ## 2026-10-05 — Deterministic `labels.zip` + step-6 completion (M4 step 6 / B2a)
 
 Made the `labels.zip` ROI order deterministic and closed out the step-6 output
