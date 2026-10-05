@@ -671,8 +671,10 @@ not silently accepted.
 3. **M3 — Docs migration:** stand up Sphinx/RTD, migrate wiki content. (Phase C)
 4. **M4 — Refactor core:** decompose `analyse()`/`buildOutput()`, replace
    `readParams()` with JSON, remove static state, rename packages. (Phase A4,
-   A5.2) — **steps 1–3 done (2026-10-03): package rename, JSON `readParams()`,
-   `analyse()` decomposed; steps 4–9 remain (see the M4 + B2a breakdown).**
+   A5.2) — **done (2026-10-05): all 9 steps complete (package rename, JSON
+   `readParams()`, `analyse()`/`buildOutput()` decomposition, output anomalies,
+   B2a output restructure, static `GUI.UV` removal, concurrency normalisation,
+   H5 baseline).**
 5. **M5 — GUI & UX:** hand-managed layout, overlay-based non-destructive
    previews, parameter presets, progress/cancel, simplified output structure.
    (Phase B, including B2a)
@@ -769,6 +771,11 @@ Each step is independently committable with its own verification gate.
 9. **Regenerate baseline + docs.** Run the H5 SHA-256 baseline against the new
    structure, regenerate `Output_Folder_Structure.PNG`, update the plan/wiki.
    Gate: baseline passes.
+   — **done (2026-10-05): added `bin/BaselineTool.java` + `bin/compute-baseline.cmd`
+   + `bin/verify-baseline.cmd`; generated `test_data/baselines/blebbing_cell.sha256`
+   (15 deterministic text outputs, `BASELINE_PASS`); regenerated
+   `content/Output_Folder_Structure.PNG` version-agnostic. Binary-output and
+   `labels.zip` normalisation remain deferred (pixel/ROI comparison).**
 
 Steps 2 and 3 are independent of each other and of 4–6; step 4 is a safe
 precursor to 6; 6 must precede 9.

@@ -47,12 +47,15 @@ libraries first, not this repo.
   `bin/smoke-test-fiji.cmd` stage/launch/test the plugin in a local Fiji.
   Machine-specific `FIJI_DIR`/`JAVA_HOME` live in `bin/local-env.cmd`
   (gitignored; template is `bin/local-env.cmd.example`).
-- **JUnit 5 unit tests** exist (12 tests across `Analyse_BatchReadParamsTest`,
-  `CurveMapAnalyserTest`, and `FluorescenceDistAnalyserTest`), but there is
-  **no lint/format tooling**.
+- **JUnit 5 unit tests** exist (13 tests across `Analyse_BatchReadParamsTest`,
+  `CurveMapAnalyserTest`, `FluorescenceDistAnalyserTest`, and
+  `CellTableAccumulatorTest`), but there is **no lint/format tooling**.
   Verification is `mvn verify` (compile + tests) plus manual runs in Fiji. Test
   data ships as extracted `.ome.tiff` stacks under `test_data/` (Git
   LFS-tracked); ADAPT output trees are gitignored.
+- **Output baseline (H5):** `bin/compute-baseline.cmd` and
+  `bin/verify-baseline.cmd` SHA-256 the deterministic text outputs (UTF-8 CSVs
+  + `parameters.json`) against `test_data/baselines/*.sha256`.
 
 ## Entry points / plugin registration
 

@@ -27,6 +27,23 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-05 — H5 output baseline established (M4 step 9)
+
+Added a minimal quantitative output-baseline gate and closed out M4:
+
+- `bin/BaselineTool.java` + `bin/compute-baseline.cmd` + `bin/verify-baseline.cmd`
+  hash the deterministic text outputs (UTF-8 CSVs + `parameters.json`) by SHA-256
+  and compare against a committed manifest.
+- Generated `test_data/baselines/blebbing_cell.sha256` (15 files) from the
+  verified `Adapt_v4.0.3` output; `verify-baseline` reports `BASELINE_PASS`.
+- Regenerated `content/Output_Folder_Structure.PNG` with a version-agnostic root.
+
+Binary outputs (multi-page TIFF/PNG) and `labels.zip` remain out of the v1
+baseline (they need pixel-payload / sorted-ROI normalisation, not raw hashes).
+All nine M4 steps are now complete; version bumped to `4.0.5`.
+
+---
+
 ## 2026-10-05 — Concurrency normalised (M4 step 8 / A4.4)
 
 Documented the two coexisting concurrency patterns and their distinct jobs in
