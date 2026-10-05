@@ -202,6 +202,10 @@ baseline.
 2. **Overlay-based preview.** Replace the embedded `cytoImp`/`sigImp` preview
    canvases with `Overlay`/`RoiManager` rendering on the original `ImageWindow`s
    (input stacks stay untouched); refresh the overlay on the EDT.
+   — **done (2026-10-05): `Analyse_Movie.generatePreview()` now builds a
+   per-slice `Overlay` (boundary/centre/cortex/bleb ROIs); `GUI` sets it on the
+   original `ImagePlus`es via `setOverlay()`/`updateAndDraw()`. Batch preview is
+   a temporary regression (deferred until the layout rewrite).**
 3. **Hand-managed layout.** Rewrite `GUI.java` programmatically (GridBagLayout)
    and drop the `GUI.form` coupling.
 4. **Collapsible sections + tooltips.** Group controls into Simple/Advanced/

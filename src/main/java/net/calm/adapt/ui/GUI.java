@@ -23,6 +23,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.ImageCanvas;
+import ij.gui.Overlay;
 import ij.gui.PointRoi;
 import ij.process.AutoThresholder;
 import ij.process.ByteProcessor;
@@ -50,6 +51,7 @@ import javax.swing.JToggleButton;
 public class GUI extends javax.swing.JDialog implements GUIMethods {
 
     private final ImagePlus cytoImp, sigImp;
+    private final ImagePlus cytoOrig, sigOrig;
     private ImageProcessor cytoProc, sigProc;
     private final ImageStack[] stacks;
     private final String title;
@@ -64,7 +66,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     /**
      * Creates new form GUI
      */
-    public GUI(java.awt.Frame parent, boolean modal, String title, ImageStack[] stacks, PointRoi roi) {
+    public GUI(java.awt.Frame parent, boolean modal, String title, ImageStack[] stacks, PointRoi roi, ImagePlus cytoOrig, ImagePlus sigOrig) {
         super(parent, modal);
         this.stacks = stacks;
         this.title = title;
@@ -72,6 +74,8 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         cytoProc = checkImageDimensions(cytoProc);
         cytoImp = new ImagePlus("", cytoProc);
         this.roi = roi;
+        this.cytoOrig = cytoOrig;
+        this.sigOrig = sigOrig;
         if (stacks[1] != null) {
             sigProc = stacks[1].getProcessor(1).duplicate();
             sigProc = checkImageDimensions(sigProc);
@@ -943,14 +947,14 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     }//GEN-LAST:event_previewScrollBarAdjustmentValueChanged
 
     private void generatePreviewComplete(Analyse_Movie analyser) {
-        ImageProcessor updates[] = analyser.getPreviewImages();
-        ImageProcessor cytoUpdate = checkImageDimensions(updates[0]);
-        cytoImp.setProcessor(cytoUpdate);
-        cytoCanvas.repaint();
-        if (stacks[1] != null) {
-            ImageProcessor sigUpdate = checkImageDimensions(updates[1]);
-            sigImp.setProcessor(sigUpdate);
-            sigCanvas.repaint();
+        Overlay overlay = analyser.getPreviewOverlay();
+        if (cytoOrig != null) {
+            cytoOrig.setOverlay(overlay);
+            cytoOrig.updateAndDraw();
+        }
+        if (sigOrig != null) {
+            sigOrig.setOverlay(overlay);
+            sigOrig.updateAndDraw();
         }
         IJ.log("Preview complete");
     }

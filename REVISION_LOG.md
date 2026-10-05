@@ -27,6 +27,24 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-05 — Overlay-based segmentation preview (M5 step 2)
+
+Replaced the embedded preview with non-destructive overlays:
+
+- `Analyse_Movie.generatePreview()` now builds a per-slice `Overlay`
+  (red boundary `PolygonRoi`, blue centre `OvalRoi`, green cortex band, yellow
+  bleb markers) instead of drawing into pixel data; `getPreviewImages()` became
+  `getPreviewOverlay()`.
+- `GUI` now takes the original `ImagePlus`es and, on preview completion, applies
+  the overlay via `setOverlay()`/`updateAndDraw()`, so the input `ImageStack`s
+  stay untouched and the source `ImageWindow`s remain interactive.
+- Batch preview is a temporary regression (no open windows); it will be restored
+  when the layout is rewritten in M5 step 3/4.
+
+`mvn test` green (13/13); version bumped to `4.0.7`.
+
+---
+
 ## 2026-10-05 — Non-modal GUI + run lifecycle (M5 step 1)
 
 Started the M5 GUI rework:

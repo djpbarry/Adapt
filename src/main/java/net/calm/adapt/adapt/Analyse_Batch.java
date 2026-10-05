@@ -101,7 +101,7 @@ public class Analyse_Batch extends Analyse_Movie {
                 IJ.error("No images found.");
                 return;
             }
-            GUI gui = new GUI(null, false, TITLE, stacks, roi);
+            GUI gui = new GUI(null, false, TITLE, stacks, roi, null, null);
             gui.setOnRun(() -> {
                 uv = gui.getUv();
                 new Thread(this::runBatch).start();

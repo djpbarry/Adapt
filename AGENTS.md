@@ -112,7 +112,9 @@ prefixes you'll see in imports:
   layout defined jointly by `GUI.java` + `GUI.form`). Holds a per-instance
   `UserVariables` (`UV`) populated when the user clicks Run; `Analyse_Movie`
   and `Analyse_Batch` read it back via `gui.getUv()` and start analysis through
-  the `gui.setOnRun(Runnable)` callback (non-modal).
+  the `gui.setOnRun(Runnable)` callback (non-modal). Segmentation previews are
+  rendered as `Overlay`s on the original `ImageWindow`s (not embedded in the
+  dialog).
 
 Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()`
 (non-modal GUI + `setOnRun` callback) → `runPipeline()`/`finishAnalysis()` →

@@ -17,6 +17,8 @@
 package net.calm.adapt.adapt;
 
 import ij.*;
+import ij.gui.OvalRoi;
+import ij.gui.Overlay;
 import ij.gui.PointRoi;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
@@ -83,7 +85,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     protected UserVariables uv;
     private double minLength;
     private int previewSlice;
-    private ImageProcessor[] previewImages;
+    private Overlay previewOverlay;
     private boolean selectiveOutput = false;
     private Properties props;
     private LocalDateTime startTime;
@@ -158,7 +160,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     public boolean analyse(String imageName) {
         int cytoSize, sigSize;
         ImageStack cytoStack;
-        ImagePlus cytoImp = new ImagePlus(), sigImp;
+        ImagePlus cytoImp = new ImagePlus(), sigImp = null;
         if (IJ.getInstance() == null || batchMode || protMode) {
             cytoStack = stacks[0];
             cytoSize = cytoStack.getSize();
@@ -213,7 +215,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         cytoStack = GenUtils.convertStack(stacks[0], 8);
         stacks[0] = cytoStack;
         if (!(batchMode || protMode)) {
-            GUI gui = new GUI(null, false, TITLE, stacks, roi);
+            GUI gui = new GUI(null, false, TITLE, stacks, roi, cytoImp, sigImp);
             gui.setOnRun(() -> {
                 uv = gui.getUv();
                 props = gui.getProperties();
@@ -1256,15 +1258,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
 
         /*
-         * Generate output for segmentation preview.
+         * Build an overlay of the segmentation preview for the original
+         * ImageWindows (non-destructive).
          */
         int channels = (stacks[1] == null) ? 1 : 2;
-        ImageProcessor regionsOutput[] = new ImageProcessor[channels];
-        for (int i = 0; i < channels; i++) {
-            TypeConverter outToColor = new TypeConverter(stacks[i].getProcessor(sliceIndex).duplicate(), true);
-            regionsOutput[i] = outToColor.convertToRGB();
-            regionsOutput[i].setLineWidth(uv.getVisLineWidth());
-        }
+        Overlay overlay = new Overlay();
         for (int r = 0; r < nCell; r++) {
             Region region = detectedRegions.get(r);
             if (region != null) {
@@ -1272,17 +1270,15 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 float[] c = centres.get(centres.size() - 1);
                 short[] centre = new short[]{(short) Math.round(c[0]), (short) Math.round(c[1])};
                 short[][] borderPix = region.getOrderedBoundary(width, height, region.getMask(), centre);
-                for (int i = 0; i < channels; i++) {
-                    regionsOutput[i].setColor(Color.red);
-                    for (short[] b : borderPix) {
-                        regionsOutput[i].drawDot(b[0], b[1]);
-                    }
-                }
-                for (int i = 0; i < channels; i++) {
-                    regionsOutput[i].setColor(Color.blue);
-                    Utils.drawCross(regionsOutput[i], (int) Math.round(centre[0]),
-                            (int) Math.round(centre[1]), 6);
-                }
+
+                overlay.add(toPolygonRoi(borderPix, Color.red, sliceIndex));
+
+                OvalRoi centreRoi = new OvalRoi(centre[0] - 3, centre[1] - 3, 6, 6);
+                centreRoi.setStrokeColor(Color.blue);
+                centreRoi.setStrokeWidth(uv.getVisLineWidth());
+                centreRoi.setPosition(sliceIndex);
+                overlay.add(centreRoi);
+
                 if (channels > 1) {
                     ImageProcessor origMask = region.getMask();
                     ImageProcessor shrunkMask = origMask.duplicate();
@@ -1297,60 +1293,44 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     Region enlargedRegion = new Region(enlargedMask, centre);
                     short[][] enlargedBorder = enlargedRegion.getOrderedBoundary(width, height, enlargedMask, centre);
                     if (shrunkBorder != null) {
-                        for (int i = 0; i < channels; i++) {
-                            regionsOutput[i].setColor(Color.green);
-                            for (short[] sCurrent : shrunkBorder) {
-                                regionsOutput[i].drawDot(sCurrent[0], sCurrent[1]);
-                            }
-                        }
+                        overlay.add(toPolygonRoi(shrunkBorder, Color.green, sliceIndex));
                     }
                     if (enlargedBorder != null) {
-                        int esize = enlargedBorder.length;
-                        for (int i = 0; i < channels; i++) {
-                            regionsOutput[i].setColor(Color.green);
-                            for (int eb = 0; eb < esize; eb++) {
-                                short[] eCurrent = enlargedBorder[eb];
-                                regionsOutput[i].drawDot(eCurrent[0], eCurrent[1]);
-                            }
-                        }
+                        overlay.add(toPolygonRoi(enlargedBorder, Color.green, sliceIndex));
                     }
                 }
-                if (uv.isAnalyseProtrusions()) {
-                    if (uv.isBlebDetect()) {
-                        ArrayList<ArrayList<BoundaryPixel>> minPos = cellData.get(r).getCurvatureMinima();
-                        for (int i = 0; i < channels; i++) {
-                            if (minPos != null && minPos.get(0) != null) {
-                                regionsOutput[i].setColor(Color.yellow);
-                                int minpSize = minPos.get(0).size();
-                                for (int j = 0; j < minpSize; j++) {
-                                    BoundaryPixel currentMin = minPos.get(0).get(j);
-                                    int x = (int) Math.round(currentMin.getX());
-                                    int y = (int) Math.round(currentMin.getY());
-                                    regionsOutput[i].drawOval(x - 4, y - 4, 9, 9);
-                                }
-                            }
-                        }
-                    } else {
-                        for (int i = 0; i < channels; i++) {
-                            regionsOutput[i].setColor(Color.yellow);
-                        }
-                        ImageStack filoStack = findProtrusionsBasedOnMorph(cellData.get(r), (int) Math.round(getMaxFilArea()), sliceIndex, sliceIndex);
-                        ByteProcessor filoBin = (ByteProcessor) filoStack.getProcessor(1);
-                        filoBin.outline();
-                        for (int y = 0; y < filoBin.getHeight(); y++) {
-                            for (int x = 0; x < filoBin.getWidth(); x++) {
-                                if (filoBin.getPixel(x, y) < Region.MASK_BACKGROUND) {
-                                    for (int i = 0; i < channels; i++) {
-                                        regionsOutput[i].drawPixel(x, y);
-                                    }
-                                }
-                            }
+                if (uv.isAnalyseProtrusions() && uv.isBlebDetect()) {
+                    ArrayList<ArrayList<BoundaryPixel>> minPos = cellData.get(r).getCurvatureMinima();
+                    if (minPos != null && minPos.get(0) != null) {
+                        for (BoundaryPixel currentMin : minPos.get(0)) {
+                            int x = (int) Math.round(currentMin.getX());
+                            int y = (int) Math.round(currentMin.getY());
+                            OvalRoi blebRoi = new OvalRoi(x - 4, y - 4, 9, 9);
+                            blebRoi.setStrokeColor(Color.yellow);
+                            blebRoi.setStrokeWidth(uv.getVisLineWidth());
+                            blebRoi.setPosition(sliceIndex);
+                            overlay.add(blebRoi);
                         }
                     }
                 }
             }
         }
-        previewImages = regionsOutput;
+        previewOverlay = overlay;
+    }
+
+    private Roi toPolygonRoi(short[][] points, Color color, int sliceIndex) {
+        int n = points.length;
+        int[] x = new int[n];
+        int[] y = new int[n];
+        for (int i = 0; i < n; i++) {
+            x[i] = points[i][0];
+            y[i] = points[i][1];
+        }
+        PolygonRoi roi = new PolygonRoi(x, y, n, Roi.POLYGON);
+        roi.setStrokeColor(color);
+        roi.setStrokeWidth(uv.getVisLineWidth());
+        roi.setPosition(sliceIndex);
+        return roi;
     }
 
     @Deprecated
@@ -1358,8 +1338,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return Math.sqrt(uv.getFiloSizeMax() / (Math.pow(uv.getSpatialRes(), 2.0)));
     }
 
-    public ImageProcessor[] getPreviewImages() {
-        return previewImages;
+    public Overlay getPreviewOverlay() {
+        return previewOverlay;
     }
 
     public void preparePreview(int slice, UserVariables uv) {
