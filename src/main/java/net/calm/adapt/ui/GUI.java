@@ -947,15 +947,19 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     }//GEN-LAST:event_previewScrollBarAdjustmentValueChanged
 
     private void generatePreviewComplete(Analyse_Movie analyser) {
-        Overlay overlay = analyser.getPreviewOverlay();
-        if (cytoOrig != null) {
-            cytoOrig.setOverlay(overlay);
-            cytoOrig.updateAndDraw();
-        }
-        if (sigOrig != null) {
-            sigOrig.setOverlay(overlay);
-            sigOrig.updateAndDraw();
-        }
+        final Overlay overlay = analyser.getPreviewOverlay();
+        java.awt.EventQueue.invokeLater(() -> {
+            if (cytoOrig != null) {
+                cytoOrig.setOverlay(overlay);
+                cytoOrig.show();
+                cytoOrig.updateAndDraw();
+            }
+            if (sigOrig != null) {
+                sigOrig.setOverlay(overlay);
+                sigOrig.show();
+                sigOrig.updateAndDraw();
+            }
+        });
         IJ.log("Preview complete");
     }
 

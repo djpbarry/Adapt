@@ -13,7 +13,7 @@
 
     <groupId>net.calm</groupId>
     <artifactId>adapt</artifactId>
-    <version>4.0.7</version>
+    <version>4.0.8</version>
 
     <name>net.calm.adapt</name>
     <description>Maven implementation of net.calm.adapt.Adapt plugin.</description>
