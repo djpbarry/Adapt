@@ -27,6 +27,18 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-05 — Curvature extrema detection bug recorded (planning only)
+
+Diagnosed why the yellow curvature-extrema markers disappeared from the preview:
+`CurveMapAnalyser.isLocalCurvatureExtreme(minima=true)` requires negative
+curvature (`C0 < -threshold`), but the library's `CurveAnalyser.calcCurvature()`
+returns unsigned Menger curvature (`1/R`, always ≥ 0), so no extrema are ever
+flagged. Recorded in `DEVELOPMENT_PLAN.md` as a known bug with two fix options
+(signed curvature in the library, or rework the extrema threshold logic). Bleb
+detection is unaffected (velocity-based). Planning only — no code changed.
+
+---
+
 ## 2026-10-05 — Overlay-based segmentation preview (M5 step 2)
 
 Replaced the embedded preview with non-destructive overlays:

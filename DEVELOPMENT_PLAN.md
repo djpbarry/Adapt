@@ -157,6 +157,21 @@ CSVs are written independently in cell order), but the fix is still warranted:
 collect labels into per-frame slots and assemble the overlay in deterministic
 frame order before saving. Include an order-assurance assertion.
 
+### Known bug to fix — curvature extrema detection (unsigned curvature)
+
+`CurveMapAnalyser.isLocalCurvatureExtreme(..., minima=true, threshold=...)`
+flags a curvature minimum only when `C0 < -threshold` (i.e. negative curvature).
+With `Min Curvature Threshold = 0`, this requires `C0 < 0`. But the library's
+`CurveAnalyser.calculateMengerCurvature()` returns **unsigned** Menger curvature
+(`1/R`, always ≥ 0), so no point ever qualifies and the extrema list is empty.
+This is why the yellow curvature-extrema markers no longer appear in the preview
+(and why `cellData.getCurvatureMinima()` is empty).
+
+Fix options: (a) make `CurveAnalyser.calcCurvature()` return signed curvature
+(library change), or (b) rework `isLocalCurvatureExtreme()` /
+`findAllCurvatureExtrema()` to use the correct signed convention. Bleb detection
+itself is unaffected (it uses velocity ROIs, not curvature).
+
 ### B1. Rework the GUI
 
 1. **Move previews to `Overlay`s, keep input images untouched** — the current
