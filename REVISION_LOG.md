@@ -27,6 +27,16 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-05 — M5 GUI rework broken into an ordered plan (planning only)
+
+Recorded a six-step M5 execution plan in `DEVELOPMENT_PLAN.md` (under "B1
+execution plan (M5)"): non-modal dialog + run lifecycle → overlay-based preview →
+hand-managed layout → collapsible sections + tooltips → validation/presets →
+cancellation/progress. Ordering is dependency-driven (non-modal first, overlay
+second, layout before sections/presets). Planning only — no code changed.
+
+---
+
 ## 2026-10-05 — H5 output baseline established (M4 step 9)
 
 Added a minimal quantitative output-baseline gate and closed out M4:

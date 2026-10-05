@@ -165,16 +165,16 @@ frame order before saving. Include an order-assurance assertion.
    keep the inputs in their original `ImageWindow` containers and render preview
    segmentations as ImageJ `Overlay`s / `RoiManager` ROIs, refreshed live as
    parameters change. This mirrors TrackMate and GIANI and makes the preview
-   non-destructive, live, and reversible. This is a dedicated reconfiguration,
-   not a tail-end tweak; pair it with step 7 (static `GUI.UV` removal) and the
-   step-8 concurrency normalisation so the GUI is touched once.
+   non-destructive, live, and reversible. This is a dedicated reconfiguration
+   and the centrepiece of M5 (M4 steps 7–8 are already done, so it lands on top
+   of a non-static `GUI.UV` and the documented concurrency model).
 2. **Replace the NetBeans `.form` coupling** — the hand-versus-generator split
    between `GUI.java` and `GUI.form` is risky to edit. Migrate to a hand-managed
    layout (GridBag/GroupLayout written by hand) so the UI is version-controllable
    and diffable.
 3. **Eliminate the static `UserVariables` singleton** — pass a `UserVariables`
    instance explicitly; this fixes a class of bugs from stale/shared state across
-   sessions.
+   sessions. *(Done in M4 step 7.)*
 4. **Group parameters into collapsible sections** mirroring the *Simple /
    Advanced / Protrusions* screenshots already in `content/`, and add tooltips
    or inline help for every parameter (wording drawn from `StaticVariables`).
@@ -186,6 +186,27 @@ frame order before saving. Include an order-assurance assertion.
    (`MultiThreaded*` generators) have no cancellation path. Wire the existing
    `NotificationThread`/`TaskListener` and `MultiThreadedProcess` mechanisms to a
    progress dialog whose Cancel actually interrupts the running analysis.
+
+#### B1 execution plan (M5)
+
+Ordered by dependency and risk; each step bumps the version, runs `mvn test`,
+and is verified interactively in Fiji. GUI-only steps must not move the H5
+baseline.
+
+1. **Non-modal dialog + run lifecycle.** Make `GUI` non-modal and change
+   `Analyse_Movie`/`Analyse_Batch` to start analysis on an explicit "Run" event
+   rather than blocking on `setVisible(true)`.
+2. **Overlay-based preview.** Replace the embedded `cytoImp`/`sigImp` preview
+   canvases with `Overlay`/`RoiManager` rendering on the original `ImageWindow`s
+   (input stacks stay untouched); refresh the overlay on the EDT.
+3. **Hand-managed layout.** Rewrite `GUI.java` programmatically (GridBagLayout)
+   and drop the `GUI.form` coupling.
+4. **Collapsible sections + tooltips.** Group controls into Simple/Advanced/
+   Protrusions; add tooltips from `StaticVariables`; refresh `content/UI_*.PNG`.
+5. **Validation, defaults, presets.** Numeric ranges, required fields, and
+   save/load presets reusing `params.json`.
+6. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts
+   the `MultiThreaded*` executors.
 
 ### B2. Onboarding & output UX
 
@@ -675,9 +696,9 @@ not silently accepted.
    `readParams()`, `analyse()`/`buildOutput()` decomposition, output anomalies,
    B2a output restructure, static `GUI.UV` removal, concurrency normalisation,
    H5 baseline).**
-5. **M5 — GUI & UX:** hand-managed layout, overlay-based non-destructive
-   previews, parameter presets, progress/cancel, simplified output structure.
-   (Phase B, including B2a)
+5. **M5 — GUI & UX:** non-modal dialog, overlay-based non-destructive previews,
+   hand-managed layout, parameter presets, progress/cancel. (Phase B1 — see the
+   "B1 execution plan (M5)" above.)
 6. **M6 — Distribution:** update site, semver, in-product help links. (Phase B3)
 7. **M7 — TrackMate interop:** Stage-1 XML import/export bridge (Phase D1);
    Stage-2 `TrackAnalyzer` module only after M4 lands.
