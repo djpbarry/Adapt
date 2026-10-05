@@ -25,7 +25,7 @@ code.
 - The heavy lifting — segmentation (`RegionGrower`), curvature computation,
   particle/trajectory tracking (`TrajectoryAnalysis`, `TrajectoryBuilder`),
   Bio-Formats I/O, and CSV writing — lives in two external libraries pulled
-  from JitPack: `IAClassLibrary` `v2.0.1` and `TrackerLibrary` `v4.0.2` (tagged
+  from JitPack: `IAClassLibrary` `2.0.22` and `TrackerLibrary` `v4.0.8` (tagged
   releases). ADAPT also contains substantial in-repo domain logic
   (protrusion/bleb/fluorescence analysis and cell-trajectory extraction), so it
   is not purely orchestration/glue.

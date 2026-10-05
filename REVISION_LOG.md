@@ -27,6 +27,23 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-05 — Dependency pins bumped (IAClassLibrary `2.0.22`, TrackerLibrary `v4.0.8`)
+
+The sibling libraries were modernised again and their latest release tags
+re-pointed ADAPT. `mvn clean test` (13/13) confirms the APIs are unchanged for
+ADAPT's use.
+
+- `IAClassLibrary` `v2.0.1` → `2.0.22`
+- `TrackerLibrary` `v4.0.2` → `v4.0.8`
+
+JitPack quirk: for `IAClassLibrary` the `v`-prefixed coordinate (`v2.0.22`)
+still reports a cached build error on JitPack, while the tag-without-`v`
+coordinate (`2.0.22`) builds cleanly. ADAPT therefore pins `2.0.22` (no `v`)
+for `IAClassLibrary` but `v4.0.8` for `TrackerLibrary`. `install-to-fiji.cmd`
+now ships `IAClassLibrary-2.0.22.jar` and `TrackerLibrary-v4.0.8.jar`.
+
+---
+
 ## 2026-10-03 — Version aligned with sibling convention (dropped `-SNAPSHOT`)
 
 `IAClassLibrary`'s `development` branch uses a plain `<version>X.Y.Z</version>`
