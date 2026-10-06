@@ -1,8 +1,9 @@
 # ADAPT Development Plan
 
-> **Keep this plan and `REVISION_LOG.md` in sync:** after any repo change,
-> review and update one or both in the same pass (mark phases/milestones done,
-> record decisions, log lessons).
+> **Keep this plan, `REVISION_LOG.md`, and `RELEASE_NOTES.md` in sync:** after
+> any repo change, review and update the relevant files in the same pass (mark
+> phases/milestones done, record decisions and lessons, and update the
+> user-facing release notes when behaviour changes).
 
 This plan outlines a multi-phase effort to (a) make ADAPT more robust and
 maintainable, (b) improve the user experience, and (c) overhaul the
@@ -12,11 +13,13 @@ the current state of the codebase as of the plan's writing.
 ## Maintenance convention
 
 **Every time anything in the codebase is changed, update this
-`DEVELOPMENT_PLAN.md` and `REVISION_LOG.md` in the same pass.** Mark phases,
-milestones, and decisions as done or deviated in the plan, and add a dated
-narrative entry to the revision log. The plan and the log are the single source
-of truth for what has actually been done; they must not drift stale behind the
-code.
+`DEVELOPMENT_PLAN.md`, `REVISION_LOG.md`, and `RELEASE_NOTES.md` in the same
+pass.** Mark phases, milestones, and decisions as done or deviated in the plan,
+add a dated narrative entry to the revision log, and keep the user-facing
+changelog up to date when behaviour changes. `RELEASE_NOTES.md` records what
+changed and what affects behaviour for the next public release. These three
+files are the single source of truth for what has actually been done; they must
+not drift stale behind the code.
 
 ## Current state (context for the plan)
 
