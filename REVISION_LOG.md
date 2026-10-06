@@ -27,6 +27,21 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-06 — Hand-managed GUI layout (M5 step 3)
+
+Dropped the NetBeans form coupling:
+
+- Deleted `GUI.form`.
+- Stripped the generated-code markers from `GUI.java` (`@SuppressWarnings`, the
+  "do not modify" warning, the editor-fold, and all `//GEN-*` markers on
+  `initComponents()`, the variables block, and the event handlers).
+
+The layout is now a hand-managed `GridBagLayout` in `GUI.java` (single source of
+truth), with no runtime/visual change. `mvn test` green (13/13); version bumped
+to `4.0.11`.
+
+---
+
 ## 2026-10-05 — Curvature extrema detection bug recorded (planning only)
 
 Diagnosed why the yellow curvature-extrema markers disappeared from the preview:

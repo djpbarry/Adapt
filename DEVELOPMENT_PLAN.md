@@ -223,6 +223,9 @@ baseline.
    a temporary regression (deferred until the layout rewrite).**
 3. **Hand-managed layout.** Rewrite `GUI.java` programmatically (GridBagLayout)
    and drop the `GUI.form` coupling.
+   — **done (2026-10-06): deleted `GUI.form` and stripped the NetBeans generated-
+   code markers (editor-fold, `//GEN-*`, `@SuppressWarnings`, "do not modify"
+   warning) from `initComponents()`; layout is now hand-editable GridBagLayout.**
 4. **Collapsible sections + tooltips.** Group controls into Simple/Advanced/
    Protrusions; add tooltips from `StaticVariables`; refresh `content/UI_*.PNG`.
 5. **Validation, defaults, presets.** Numeric ranges, required fields, and

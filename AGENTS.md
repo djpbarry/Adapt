@@ -108,8 +108,8 @@ prefixes you'll see in imports:
   per-frame `FloatProcessor`s (one task per frame), then assembles them into the
   multi-page `images/velocity_visualisation.tif` + `curvature_visualisation.tif`
   stacks via `BioFormatsImageWriter.saveStack` and writes `labels.zip`.
-- **`ui/`** — `GUI` (a `javax.swing.JDialog` netbeans-generated form; source and
-  layout defined jointly by `GUI.java` + `GUI.form`). Holds a per-instance
+- **`ui/`** — `GUI` (a `javax.swing.JDialog` with a hand-managed GridBagLayout in
+  `GUI.java`; the NetBeans `GUI.form` was removed in M5 step 3). Holds a per-instance
   `UserVariables` (`UV`) populated when the user clicks Run; `Analyse_Movie`
   and `Analyse_Batch` read it back via `gui.getUv()` and start analysis through
   the `gui.setOnRun(Runnable)` callback (non-modal). Segmentation previews are
