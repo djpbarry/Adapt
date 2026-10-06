@@ -342,6 +342,30 @@ Trade-off: this is a breaking change, so the H5 output baseline and the
 2. Version under semantic versioning and surface the version prominently (today
    the version is injected into `project.properties` from `pom.xml` at build time).
 
+### B3a. Automatic update-site upload (GitHub Actions)
+
+Ship releases to the Fiji update site automatically via GitHub Actions
+(ImageJ docs: <https://imagej.net/update-sites/automatic-uploads>; prior art:
+TWOMBLI's `.github/workflows/release.yml`). ADAPT-specific decisions:
+
+1. **Trigger on tagged releases (`v*`), not every push.** Matches the
+   `maven-release-plugin` `vX.Y.Z` tag convention and the "release when ready"
+   intent; optionally add `workflow_dispatch` for manual runs.
+2. **Build with JDK 21** (`actions/setup-java`, Temurin 21). ADAPT compiles to
+   Java 21 (`scijava.jvm.version=21`), so the reference workflow's bare `mvn`
+   step is not enough.
+3. **Deploy three jars, not one.** Install the plugin with
+   `-Dscijava.ignoreDependencies=true` (leaving TrackMate, Bio-Formats, and
+   Jackson to Fiji's own update sites), then copy `IAClassLibrary-*.jar` and
+   `TrackerLibrary-*.jar` from `target/` into `Fiji.app/jars/`. This mirrors
+   `bin/install-to-fiji.cmd`.
+4. **Secrets:** `UPDATE_USER` (Wiki account) and `UPDATE_PASS` (upload
+   password), created on imagej.net when the update site is set up. The
+   update-site name in the workflow must match the one created on imagej.net.
+5. **Caveat:** `upload-complete-site` replaces the whole site, so the local
+   `Fiji.app` must contain every jar the site should serve (plugin + both
+   siblings) or existing content will be deleted.
+
 ---
 
 ## Phase C — Documentation (GitHub wiki → ReadTheDocs)

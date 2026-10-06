@@ -36,6 +36,16 @@ LinkedIn/Bluesky and GitHub.
 
 ---
 
+## 2026-10-06 — maintenance convention now includes `RELEASE_NOTES.md` (planning only)
+
+Updated `DEVELOPMENT_PLAN.md` so its maintenance convention requires keeping
+`RELEASE_NOTES.md` up to date alongside `REVISION_LOG.md`. The three files now
+form a single source of truth: the plan tracks what is done/next, the revision
+log records the engineering narrative, and the release notes capture the
+user-facing changelog.
+
+---
+
 ## 2026-10-06 — GUI tooltips (M5 step 4)
 
 Parameters were already grouped into the Simple/Advanced/Protrusion Analysis
