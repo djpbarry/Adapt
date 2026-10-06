@@ -228,6 +228,9 @@ baseline.
    warning) from `initComponents()`; layout is now hand-editable GridBagLayout.**
 4. **Collapsible sections + tooltips.** Group controls into Simple/Advanced/
    Protrusions; add tooltips from `StaticVariables`; refresh `content/UI_*.PNG`.
+   — **done (2026-10-06): parameters already grouped into the Simple/Advanced/
+   Protrusion Analysis tabs; added per-parameter tooltips via a `setToolTips()`
+   method (no visual change, so the `UI_*.PNG` screenshots remain valid).**
 5. **Validation, defaults, presets.** Numeric ranges, required fields, and
    save/load presets reusing `params.json`.
 6. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts

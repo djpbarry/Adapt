@@ -27,6 +27,16 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-06 — GUI tooltips (M5 step 4)
+
+Parameters were already grouped into the Simple/Advanced/Protrusion Analysis
+tabs, so step 4 added per-parameter tooltips via a new `GUI.setToolTips()`
+method (called after `initComponents()`). No layout/visual change, so the
+`content/UI_*.PNG` screenshots remain valid. `mvn test` green (13/13); version
+bumped to `4.0.12`.
+
+---
+
 ## 2026-10-06 — Hand-managed GUI layout (M5 step 3)
 
 Dropped the NetBeans form coupling:

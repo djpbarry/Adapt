@@ -84,8 +84,42 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
             sigImp = new ImagePlus("", new ByteProcessor(cytoProc.getWidth(), cytoProc.getHeight()));
         }
         initComponents();
+        setToolTips();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width / 2 - this.getWidth() / 2, dim.height / 2 - this.getHeight() / 2);
+    }
+
+    private void setToolTips() {
+        greyThreshField.setToolTipText("Manual grey-level threshold used for segmentation when Auto Threshold is off.");
+        spatResField.setToolTipText("Image pixel size in micrometres (used to convert pixels to physical units).");
+        timeResField.setToolTipText("Acquisition rate in frames per minute (used for velocity and time axes).");
+        autoThreshToggleButton.setToolTipText("Automatically determine the segmentation threshold using the selected method.");
+        genVisToggleButton.setToolTipText("Generate velocity and curvature visualisation stacks.");
+        genMorphToggleButton.setToolTipText("Generate per-frame morphology measurements.");
+        minTrajTextField.setToolTipText("Minimum number of frames a cell must be tracked to be analysed.");
+        genSigDistToggleButton.setToolTipText("Generate the fluorescence (GLCM) distribution measurements.");
+        minMorphAreaTextField.setToolTipText("Minimum object area (in micrometres squared) considered a cell.");
+        erosionField.setToolTipText("Number of erosion iterations used to refine the segmentation border.");
+        spatFiltRadField.setToolTipText("Spatial smoothing radius (in micrometres) applied to the maps.");
+        tempFiltRadField.setToolTipText("Temporal smoothing radius (in seconds) applied to the maps.");
+        threshComboBox.setToolTipText("Algorithm used to compute the threshold when Auto Threshold is on.");
+        gaussRadField.setToolTipText("Gaussian blur radius applied before segmentation.");
+        cortexDepthField.setToolTipText("Width (in micrometres) of the cortex band sampled for velocity and signal.");
+        visLineWidthTextField.setToolTipText("Line thickness used when drawing overlays and visualisations.");
+        minCurveRangeField.setToolTipText("Window size used for curvature calculation.");
+        minCurveThreshField.setToolTipText("Curvature threshold used to detect curvature extrema.");
+        cutOffField.setToolTipText("Time cut-off (in seconds) for protrusion analysis.");
+        sigThreshFactField.setToolTipText("Multiplier of the signal standard deviation used as the detection threshold.");
+        anaProtToggleButton.setToolTipText("Run per-protrusion analysis (blebs or filopodia).");
+        useSigThreshToggleButton.setToolTipText("Threshold the protrusion signal maps.");
+        blebDetectRadioButton.setToolTipText("Detect blebs using the velocity map.");
+        filoDetectRadioButton.setToolTipText("Detect filopodia using morphology.");
+        filoSizeField.setToolTipText("Maximum filopodia area (in micrometres squared).");
+        filoMinSizeTextField.setToolTipText("Minimum filopodia area (in micrometres squared).");
+        displayPlotsToggleButton.setToolTipText("Display protrusion analysis plots.");
+        previewButton.setToolTipText("Generate a segmentation preview overlay on the source image.");
+        previewScrollBar.setToolTipText("Time point (frame) to preview.");
+        previewField.setToolTipText("Time point (frame) to preview.");
     }
 
     private void initComponents() {
