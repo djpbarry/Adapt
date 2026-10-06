@@ -27,6 +27,15 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-06 — `RELEASE_NOTES.md` created (planning only)
+
+Added `RELEASE_NOTES.md` as the user-facing changelog (what changed / what
+affects behaviour), distinct from this developer log. It will be updated
+incrementally and finalised when the next public release is announced on
+LinkedIn/Bluesky and GitHub.
+
+---
+
 ## 2026-10-06 — GUI tooltips (M5 step 4)
 
 Parameters were already grouped into the Simple/Advanced/Protrusion Analysis
