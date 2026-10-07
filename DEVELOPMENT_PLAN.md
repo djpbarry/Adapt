@@ -238,9 +238,16 @@ baseline.
    — **done (2026-10-06): parameters already grouped into the Simple/Advanced/
    Protrusion Analysis tabs; added per-parameter tooltips via a `setToolTips()`
    method (no visual change, so the `UI_*.PNG` screenshots remain valid).**
-5. **Validation, defaults, presets.** Numeric ranges, required fields, and
+5. **Remove the redundant preview canvases + slider.** Delete the embedded
+   `cytoCanvas`/`sigCanvas` (and their `cytoImp`/`sigImp` stack copies and the
+   `Cyto Channel`/`Sig Channel` labels); move the Preview button below the
+   parameter tabs; drop the frame slider/readout and infer the preview frame
+   from the active source window's current slice
+   (`ImagePlus.getCurrentSlice()`). Batch preview remains a regression (no open
+   source windows to infer the frame from).
+6. **Validation, defaults, presets.** Numeric ranges, required fields, and
    save/load presets reusing `params.json`.
-6. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts
+7. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts
    the `MultiThreaded*` executors.
 
 ### B2. Onboarding & output UX

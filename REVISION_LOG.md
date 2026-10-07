@@ -27,6 +27,19 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-07 — Preview-panel cleanup planned (M5 step 5, planning only)
+
+Recorded the next M5 step in `DEVELOPMENT_PLAN.md`: the embedded
+`cytoCanvas`/`sigCanvas` (and their `cytoImp`/`sigImp` stack copies + channel
+labels) are now redundant because the preview renders as an overlay on the
+original `ImagePlus`es. The step removes them, moves the Preview button below
+the parameter tabs, and drops the frame slider/readout — the preview frame will
+be inferred from the active source window's current slice instead of a separate
+slider. Batch preview remains a regression (no open source window to infer the
+frame from). Planning only — no code changed.
+
+---
+
 ## 2026-10-06 — `RELEASE_NOTES.md` created (planning only)
 
 Added `RELEASE_NOTES.md` as the user-facing changelog (what changed / what
