@@ -254,6 +254,11 @@ baseline.
    stack. Pre-execution checks: active image is a hyperstack with Z=1 and T>1.
    ROI seeds come from the active image. Single-movie mode only; batch keeps
    its directory flow.
+   — **done (2026-10-07): `Analyse_Movie.analyse()` now reads the active
+   hyperstack (validates `isHyperStack()`, `getNSlices() == 1`,
+   `getNFrames() > 1`); `GUI` gained cytosol/signal channel dropdowns and
+   `getSelectedStacks()` extracts them as 2D+time stacks via
+   `Analyse_Movie.extractChannel(...)`. Batch keeps its directory flow.**
 7. **Validation, defaults, presets.** Numeric ranges, required fields, and
    save/load presets reusing `params.json`.
 8. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts

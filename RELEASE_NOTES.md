@@ -40,6 +40,10 @@ output has been restructured into a cleaner, more portable layout.
 - **Parameter-file format** — the old positional `params.csv` is no longer
   supported; use the versioned `params.json` (see
   `src/main/resources/params.example.md`).
+- **Single-hyperstack input.** `Analyse Movie` no longer asks for two separate
+  image windows — it uses the active image window as a single multi-channel
+  timelapse hyperstack (Z=1, T>1), and you choose the cytosol and signal
+  channels in the dialog (they may be the same channel).
 
 ### Improvements
 

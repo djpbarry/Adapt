@@ -25,6 +25,7 @@ import ij.ImageStack;
 import ij.gui.ImageCanvas;
 import ij.gui.Overlay;
 import ij.gui.PointRoi;
+import ij.gui.Roi;
 import ij.process.AutoThresholder;
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
@@ -52,6 +53,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
 
     private final ImagePlus cytoImp, sigImp;
     private final ImagePlus cytoOrig, sigOrig;
+    private final ImagePlus hyperstack;
     private ImageProcessor cytoProc, sigProc;
     private final ImageStack[] stacks;
     private final String title;
@@ -70,6 +72,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         super(parent, modal);
         this.stacks = stacks;
         this.title = title;
+        this.hyperstack = null;
         cytoProc = stacks[0].getProcessor(1).duplicate();
         cytoProc = checkImageDimensions(cytoProc);
         cytoImp = new ImagePlus("", cytoProc);
@@ -83,6 +86,27 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         } else {
             sigImp = new ImagePlus("", new ByteProcessor(cytoProc.getWidth(), cytoProc.getHeight()));
         }
+        initComponents();
+        setToolTips();
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width / 2 - this.getWidth() / 2, dim.height / 2 - this.getHeight() / 2);
+    }
+
+    public GUI(java.awt.Frame parent, boolean modal, String title, ImagePlus hyperstack, PointRoi roi) {
+        super(parent, modal);
+        this.stacks = null;
+        this.title = title;
+        this.hyperstack = hyperstack;
+        this.cytoOrig = hyperstack;
+        this.sigOrig = hyperstack;
+        this.roi = roi;
+        ImageStack defaultCyto = Analyse_Movie.extractChannel(hyperstack, 1);
+        cytoProc = checkImageDimensions(defaultCyto.getProcessor(1).duplicate());
+        cytoImp = new ImagePlus("", cytoProc);
+        int defaultSigChannel = Math.min(2, hyperstack.getNChannels());
+        ImageStack defaultSig = Analyse_Movie.extractChannel(hyperstack, defaultSigChannel);
+        sigProc = checkImageDimensions(defaultSig.getProcessor(1).duplicate());
+        sigImp = new ImagePlus("", sigProc);
         initComponents();
         setToolTips();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -331,8 +355,8 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         simpleTab.add(minTrajTextField, gridBagConstraints);
 
         genSigDistToggleButton.setText(StaticVariables.GEN_SIG_DIST);
-        genSigDistToggleButton.setSelected(stacks[1]!=null&&UV.isGetFluorDist());
-        genSigDistToggleButton.setEnabled(stacks[1]!=null);
+        genSigDistToggleButton.setSelected(hasSignalChannel()&&UV.isGetFluorDist());
+        genSigDistToggleButton.setEnabled(hasSignalChannel());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 8;
@@ -481,7 +505,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         advancedTab.add(gaussRadLabel, gridBagConstraints);
 
         cortexDepthField.setText(String.valueOf(UV.getCortexDepth()));
-        cortexDepthField.setEnabled(stacks[1]!=null);
+        cortexDepthField.setEnabled(hasSignalChannel());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 5;
@@ -493,7 +517,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         advancedTab.add(cortexDepthField, gridBagConstraints);
 
         cortexDepthLabel.setText(StaticVariables.CORTEX_DEPTH);
-        cortexDepthLabel.setEnabled(stacks[1]!=null);
+        cortexDepthLabel.setEnabled(hasSignalChannel());
         cortexDepthLabel.setLabelFor(cortexDepthField);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -844,7 +868,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         jPanel3.add(sigLabel, gridBagConstraints);
 
         previewScrollBar.setOrientation(javax.swing.JScrollBar.HORIZONTAL);
-        previewScrollBar.setModel(new DefaultBoundedRangeModel(1, 0, 1, stacks[0].getSize()));
+        previewScrollBar.setModel(new DefaultBoundedRangeModel(1, 0, 1, getFrameCount()));
         previewScrollBar.addAdjustmentListener(new java.awt.event.AdjustmentListener() {
             public void adjustmentValueChanged(java.awt.event.AdjustmentEvent evt) {
                 previewScrollBarAdjustmentValueChanged(evt);
@@ -872,6 +896,42 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
 
         jPanel5.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jPanel5.setLayout(new java.awt.GridBagLayout());
+
+        if (hyperstack != null) {
+            cytoChannelLabel = new javax.swing.JLabel();
+            cytoChannelLabel.setText("Cytosol channel:");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
+            jPanel5.add(cytoChannelLabel, gridBagConstraints);
+
+            cytoChannelCombo = new javax.swing.JComboBox<>();
+            for (int c = 1; c <= hyperstack.getNChannels(); c++) {
+                cytoChannelCombo.addItem("Channel " + c);
+            }
+            cytoChannelCombo.setSelectedIndex(0);
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 1;
+            gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
+            jPanel5.add(cytoChannelCombo, gridBagConstraints);
+
+            sigChannelLabel = new javax.swing.JLabel();
+            sigChannelLabel.setText("Signal channel:");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 2;
+            gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
+            jPanel5.add(sigChannelLabel, gridBagConstraints);
+
+            sigChannelCombo = new javax.swing.JComboBox<>();
+            for (int c = 1; c <= hyperstack.getNChannels(); c++) {
+                sigChannelCombo.addItem("Channel " + c);
+            }
+            sigChannelCombo.setSelectedIndex(Math.min(1, hyperstack.getNChannels() - 1));
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 3;
+            gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
+            jPanel5.add(sigChannelCombo, gridBagConstraints);
+        }
 
         runButton.setText("Run");
         runButton.addActionListener(new java.awt.event.ActionListener() {
@@ -953,7 +1013,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         }
         previewThreads = new ArrayList<>();
         previewField.setText(String.valueOf(previewScrollBar.getValue()));
-        final Analyse_Movie previewAnalyser = new Analyse_Movie(stacks, false, false, UV, null, roi);
+        final Analyse_Movie previewAnalyser = new Analyse_Movie(getSelectedStacks(), false, false, UV, null, roi);
         previewAnalyser.preparePreview(previewScrollBar.getValue(), (UserVariables) UV.clone());
         previewAnalyser.addListener(new TaskListener() {
             public void threadComplete(Runnable runner) {
@@ -971,15 +1031,29 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         final Overlay overlay = analyser.getPreviewOverlay();
         final int slice = analyser.getPreviewSlice();
         java.awt.EventQueue.invokeLater(() -> {
-            if (cytoOrig != null) {
-                cytoOrig.setSlice(slice);
-                cytoOrig.setOverlay(overlay);
-                cytoOrig.updateAndDraw();
-            }
-            if (sigOrig != null) {
-                sigOrig.setSlice(slice);
-                sigOrig.setOverlay(overlay);
-                sigOrig.updateAndDraw();
+            if (hyperstack != null) {
+                int cyto = cytoChannelCombo.getSelectedIndex() + 1;
+                int nChannels = hyperstack.getNChannels();
+                for (Roi r : overlay.toArray()) {
+                    int pos = r.getPosition();
+                    if (pos > 0) {
+                        r.setPosition((pos - 1) * nChannels + cyto);
+                    }
+                }
+                hyperstack.setPosition(cyto, 1, slice);
+                hyperstack.setOverlay(overlay);
+                hyperstack.updateAndDraw();
+            } else {
+                if (cytoOrig != null) {
+                    cytoOrig.setSlice(slice);
+                    cytoOrig.setOverlay(overlay);
+                    cytoOrig.updateAndDraw();
+                }
+                if (sigOrig != null) {
+                    sigOrig.setSlice(slice);
+                    sigOrig.setOverlay(overlay);
+                    sigOrig.updateAndDraw();
+                }
             }
         });
         IJ.log("Preview complete");
@@ -1073,6 +1147,24 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         this.onRun = onRun;
     }
 
+    public ImageStack[] getSelectedStacks() {
+        if (hyperstack == null) {
+            return stacks;
+        }
+        ImageStack[] selected = new ImageStack[2];
+        selected[0] = Analyse_Movie.extractChannel(hyperstack, cytoChannelCombo.getSelectedIndex() + 1);
+        selected[1] = Analyse_Movie.extractChannel(hyperstack, sigChannelCombo.getSelectedIndex() + 1);
+        return selected;
+    }
+
+    private boolean hasSignalChannel() {
+        return hyperstack != null || (stacks != null && stacks[1] != null);
+    }
+
+    private int getFrameCount() {
+        return hyperstack != null ? hyperstack.getNFrames() : stacks[0].getSize();
+    }
+
     public boolean isWasOKed() {
         return wasOKed;
     }
@@ -1150,6 +1242,8 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private javax.swing.JTextField cutOffField;
     private javax.swing.JLabel cutOffLabel;
     private java.awt.Canvas cytoCanvas;
+    private javax.swing.JComboBox<String> cytoChannelCombo;
+    private javax.swing.JLabel cytoChannelLabel;
     private javax.swing.JLabel cytoLabel;
     private javax.swing.JToggleButton displayPlotsToggleButton;
     private javax.swing.JTextField erosionField;
@@ -1184,6 +1278,8 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private javax.swing.JButton previewButton;
     private javax.swing.JButton runButton;
     private java.awt.Canvas sigCanvas;
+    private javax.swing.JComboBox<String> sigChannelCombo;
+    private javax.swing.JLabel sigChannelLabel;
     private javax.swing.JLabel sigLabel;
     private javax.swing.JTextField sigRecThreshField;
     private javax.swing.JLabel sigRecThreshLabel;

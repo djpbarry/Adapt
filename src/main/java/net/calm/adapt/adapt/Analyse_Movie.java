@@ -74,7 +74,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     protected String TITLE = StaticVariables.TITLE;
     final String BLEB_DATA_FILES = "Bleb_Data_Files";
     protected final String delimiter = GenUtils.getDelimiter(); // delimiter in directory strings
-    private final String channelLabels[] = {"Cytoplasmic channel", "Signal to be correlated"};
     protected DecimalFormat numFormat = StaticVariables.numFormat; // For formatting results
     protected PointRoi roi = null; // Points used as seeds for cell detection
     private ArrayList<CellData> cellData;
@@ -158,65 +157,32 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     public boolean analyse(String imageName) {
-        int cytoSize, sigSize;
-        ImageStack cytoStack;
-        ImagePlus cytoImp = new ImagePlus(), sigImp = null;
+        ImagePlus cytoImp = new ImagePlus();
         if (IJ.getInstance() == null || batchMode || protMode) {
-            cytoStack = stacks[0];
-            cytoSize = cytoStack.getSize();
+            // stacks[0]/stacks[1] are already populated (batch / protrusion / preview paths)
         } else {
-            ImagePlus images[] = GenUtils.specifyInputs(channelLabels);
-            if (images == null) {
+            cytoImp = WindowManager.getCurrentImage();
+            if (cytoImp == null) {
+                IJ.error("No active image.");
                 return false;
             }
-            cytoImp = images[0];
-            if (images[1] != null) {
-                sigImp = images[1];
-            } else {
-                sigImp = null;
+            if (!cytoImp.isHyperStack() || cytoImp.getNSlices() != 1 || cytoImp.getNFrames() < 2) {
+                IJ.error("The active image must be a hyperstack with a single z-slice and multiple frames (T > 1).");
+                return false;
             }
             roi = (PointRoi) cytoImp.getRoi(); // Points specified by the user indicate cells of interest
-
-            cytoStack = cytoImp.getImageStack();
-            cytoSize = cytoImp.getImageStackSize();
-            if (sigImp != null) {
-                sigSize = sigImp.getStackSize();
-                if (cytoSize != sigSize) {
-                    Toolkit.getDefaultToolkit().beep();
-                    IJ.error("File number mismatch!");
-                    return false;
-                }
-            }
-            stacks[0] = cytoStack;
-            if (sigImp != null) {
-                stacks[1] = sigImp.getImageStack();
-            } else {
-                stacks[1] = null;
-            }
         }
         cytoImp.setTitle(cytoImp.getTitle().replace(" ", "_"));
         if (roi != null) {
             selectiveOutput = true;
         }
-        if (stacks[0].getProcessor(1) instanceof ColorProcessor
-                || (stacks[1] != null && stacks[1].getProcessor(1) instanceof ColorProcessor)) {
-            IJ.showMessage("Warning: greyscale images should be used for optimal results.");
-        }
-        if (stacks[0].getSize() < 2) {
-            IJ.error("Timelapse dataset required - aborting.");
-            return false;
-        }
         if (!createOutputDirectories(cytoImp, imageName)) {
             return false;
         }
-        /*
-         Convert cyto channel to 8-bit for faster segmentation
-         */
-        cytoStack = GenUtils.convertStack(stacks[0], 8);
-        stacks[0] = cytoStack;
         if (!(batchMode || protMode)) {
-            GUI gui = new GUI(null, false, TITLE, stacks, roi, cytoImp, sigImp);
+            GUI gui = new GUI(null, false, TITLE, cytoImp, roi);
             gui.setOnRun(() -> {
+                stacks = gui.getSelectedStacks();
                 uv = gui.getUv();
                 props = gui.getProperties();
                 new Thread(this::finishAnalysis).start();
@@ -227,7 +193,34 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return runPipeline();
     }
 
+    /**
+     * Extracts a single channel from a multi-channel hyperstack as a 2D+time
+     * stack (Z is assumed to be 1). {@code channel} is 1-based.
+     */
+    public static ImageStack extractChannel(ImagePlus hyperstack, int channel) {
+        int nChannels = hyperstack.getNChannels();
+        int nFrames = hyperstack.getNFrames();
+        ImageStack source = hyperstack.getImageStack();
+        ImageStack out = new ImageStack(hyperstack.getWidth(), hyperstack.getHeight());
+        for (int t = 0; t < nFrames; t++) {
+            out.addSlice(source.getProcessor(t * nChannels + channel));
+        }
+        return out;
+    }
+
     private boolean runPipeline() {
+        /*
+         * Convert cyto channel to 8-bit for faster segmentation
+         */
+        stacks[0] = GenUtils.convertStack(stacks[0], 8);
+        if (stacks[0].getProcessor(1) instanceof ColorProcessor
+                || (stacks[1] != null && stacks[1].getProcessor(1) instanceof ColorProcessor)) {
+            IJ.showMessage("Warning: greyscale images should be used for optimal results.");
+        }
+        if (stacks[0].getSize() < 2) {
+            IJ.error("Timelapse dataset required - aborting.");
+            return false;
+        }
         ImageStack cytoStack = stacks[0];
         int width = cytoStack.getWidth();
         int height = cytoStack.getHeight();

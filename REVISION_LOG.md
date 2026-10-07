@@ -40,6 +40,31 @@ frame from). Planning only — no code changed.
 
 ---
 
+## 2026-10-07 — Single-hyperstack input implemented (M5 step 6)
+
+Single-movie input is now a single multi-channel timelapse hyperstack (Z=1,
+T>1), matching the TrackMate convention:
+
+- `Analyse_Movie.analyse()` no longer calls `GenUtils.specifyInputs()`; it reads
+  the active window (`WindowManager.getCurrentImage()`) and rejects anything
+  that is not a hyperstack with a single z-slice and multiple frames.
+- `Analyse_Movie.extractChannel(ImagePlus, int)` extracts one channel across all
+  frames as a 2D+time `ImageStack`.
+- `GUI` gained two channel dropdowns (cytosol/signal; signal may equal cytosol)
+  in the bottom bar; `getSelectedStacks()` returns the extracted stacks, used by
+  both the preview and the Run callback.
+- The 8-bit conversion and pre-flight checks (greyscale warning, T>1) moved into
+  `runPipeline()` so they apply after channel extraction; batch keeps its
+  directory flow and is unchanged.
+
+`mvn clean verify` green (13/13). Version bumped to `4.0.13`.
+
+Note: the debug-only `Main`/`Analyse_Movie.initialise()` path (two-dialog input)
+is now stale — it still sets `stacks` via `IJ.openImage()`, which `analyse()`
+ignores in single-movie mode. Left for the H4 dead-code sweep.
+
+---
+
 ## 2026-10-07 — Single-hyperstack input + in-GUI channel selection (M5 step 6, planning only)
 
 Recorded in `DEVELOPMENT_PLAN.md`: assume the active image window is a
