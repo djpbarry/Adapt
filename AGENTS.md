@@ -39,9 +39,11 @@ libraries first, not this repo.
 - **Packaging:** the parent POM is `org.scijava:pom-scijava:45.1.0`; the
   `maven-dependency-plugin` copies all dependencies into `target/` on `package`.
 - **Run/debug:** `main-class` is `net.calm.adapt.adapt.Main`. Its `main()` calls
-  `Analyse_Movie.initialise()` then `run(null)`, which is a debug path that opens
-  images via dialog (`IJ.openImage()`), not the normal plugin entry point. Under
-  Fiji the real entry points are the two plugins declared in
+  `Analyse_Movie.initialise()` then `run(null)`, a debug path that opens images
+  via dialog (`IJ.openImage()`). This path is **stale** — single-movie
+  `analyse()` now reads the active hyperstack window instead of the stacks
+  `initialise()` set — and is left for the H4 dead-code sweep. Under Fiji the
+  real entry points are the two plugins declared in
   `src/main/resources/plugins.config`.
 - **Local Fiji testing:** `bin/install-to-fiji.cmd`, `bin/run-fiji.cmd`, and
   `bin/smoke-test-fiji.cmd` stage/launch/test the plugin in a local Fiji.
@@ -112,13 +114,17 @@ prefixes you'll see in imports:
   `GUI.java`; the NetBeans `GUI.form` was removed in M5 step 3). Holds a per-instance
   `UserVariables` (`UV`) populated when the user clicks Run; `Analyse_Movie`
   and `Analyse_Batch` read it back via `gui.getUv()` and start analysis through
-  the `gui.setOnRun(Runnable)` callback (non-modal). Segmentation previews are
-  rendered as `Overlay`s on the original `ImageWindow`s (not embedded in the
-  dialog).
+  the `gui.setOnRun(Runnable)` callback (non-modal). In single-movie mode it
+  exposes cytosol/signal channel dropdowns over the active hyperstack (they may
+  be the same channel); `Analyse_Movie.extractChannel(...)` turns a selection
+  into a 2D+time stack. Segmentation previews are rendered as `Overlay`s on the
+  original `ImageWindow`s (not embedded in the dialog).
 
 Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()`
-(non-modal GUI + `setOnRun` callback) → `runPipeline()`/`finishAnalysis()` →
-`MultiThreadedOutputGenerator` → (optional) `MultiThreadedVisualisationGenerator`.
+(non-modal GUI + `setOnRun` callback; single-movie reads the active hyperstack
+and extracts the selected cytosol/signal channels) → `runPipeline()`/
+`finishAnalysis()` → `MultiThreadedOutputGenerator` → (optional)
+`MultiThreadedVisualisationGenerator`.
 
 ## Concurrency model
 

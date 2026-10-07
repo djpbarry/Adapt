@@ -217,10 +217,20 @@ the 8-bit requirement explicitly) before attempting to remove the conversion.
    Advanced / Protrusions* screenshots already in `content/`, and add tooltips
    or inline help for every parameter (wording drawn from `StaticVariables`).
    *(Done in M5 step 4.)*
-5. **Add validation and sane defaults** at the UI layer: numeric ranges, required
+5. **Remove the redundant preview canvases + slider** — delete the embedded
+   `cytoCanvas`/`sigCanvas` (and their `cytoImp`/`sigImp` stack copies + channel
+   labels), move the Preview button below the parameter tabs, and drop the frame
+   slider/readout in favour of the active source window's current slice.
+   *(Planned — not yet done; see M5 execution plan step 5.)*
+6. **Single-hyperstack input + in-GUI channel selection** — assume the active
+   image window is a multi-channel timelapse hyperstack and use it as the input
+   (TrackMate convention), replacing the two-window `GenUtils.specifyInputs()`
+   flow, with cytosol/signal channel dropdowns in the dialog. *(Done in M5
+   step 6.)*
+7. **Add validation and sane defaults** at the UI layer: numeric ranges, required
    fields, and a "load/save parameter preset" feature (the raw material exists in
    `Analyse_Batch.readParams()`).
-6. **Add cancellation & progress** — the GUI has a Cancel button, but it only
+8. **Add cancellation & progress** — the GUI has a Cancel button, but it only
    `dispose()`s the setup dialog; the background analysis threads
    (`MultiThreaded*` generators) have no cancellation path. Wire the existing
    `NotificationThread`/`TaskListener` and `MultiThreadedProcess` mechanisms to a
@@ -275,7 +285,9 @@ baseline.
    hyperstack (validates `isHyperStack()`, `getNSlices() == 1`,
    `getNFrames() > 1`); `GUI` gained cytosol/signal channel dropdowns and
    `getSelectedStacks()` extracts them as 2D+time stacks via
-   `Analyse_Movie.extractChannel(...)`. Batch keeps its directory flow.**
+   `Analyse_Movie.extractChannel(...)`. Batch keeps its directory flow.
+   Live-confirmed in Fiji: the preview overlay renders on the selected
+   hyperstack when Preview is clicked.**
 7. **Validation, defaults, presets.** Numeric ranges, required fields, and
    save/load presets reusing `params.json`.
 8. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts
@@ -397,10 +409,14 @@ TWOMBLI's `.github/workflows/release.yml`). ADAPT-specific decisions:
    Java 21 (`scijava.jvm.version=21`), so the reference workflow's bare `mvn`
    step is not enough.
 3. **Deploy three jars, not one.** Install the plugin with
-   `-Dscijava.ignoreDependencies=true` (leaving TrackMate, Bio-Formats, and
-   Jackson to Fiji's own update sites), then copy `IAClassLibrary-*.jar` and
-   `TrackerLibrary-*.jar` from `target/` into `Fiji.app/jars/`. This mirrors
-   `bin/install-to-fiji.cmd`.
+   `-Dscijava.ignoreDependencies=true`, then copy `IAClassLibrary-*.jar` and
+   `TrackerLibrary-*.jar` from `target/` into `Fiji.app/jars/` (mirrors
+   `bin/install-to-fiji.cmd`). Everything else is provided by *other* update
+   sites the ADAPT site must declare as dependencies: TrackMate + Bio-Formats +
+   Jackson (Fiji/scijava core), MorphoLibJ (`IJPB-plugins`), and 3D ImageJ
+   Suite (`3D ImageJ Suite`). The runtime `checkDependencies()` guard depends on
+   MorphoLibJ and `mcib3d-core`, so those two are hard requirements, not
+   optional.
 4. **Secrets:** `UPDATE_USER` (Wiki account) and `UPDATE_PASS` (upload
    password), created on imagej.net when the update site is set up. The
    update-site name in the workflow must match the one created on imagej.net.
