@@ -245,14 +245,15 @@ baseline.
    from the active source window's current slice
    (`ImagePlus.getCurrentSlice()`). Batch preview remains a regression (no open
    source windows to infer the frame from).
-6. **Fold input selection into the main GUI.** Replace the separate
-   `GenUtils.specifyInputs()` dialog with cyto/signal channel dropdowns in
-   `GUI` (listing the open images; signal optional); default the cyto channel
-   to the active image window (`WindowManager.getCurrentImage()`).
-   `Analyse_Movie.analyse()` stops prompting and instead builds `stacks` from
-   the chosen channels when the user clicks Run, with the ROI seeds taken from
-   the selected cyto image. Single-movie mode only; batch keeps its directory
-   flow.
+6. **Single-hyperstack input + in-GUI channel selection.** Assume the active
+   image window is a multi-channel timelapse hyperstack and use that one window
+   as the input (TrackMate convention), replacing the two-window
+   `GenUtils.specifyInputs()` flow. `GUI` gains two channel dropdowns (cytosol,
+   signal) over the hyperstack's channels — the signal channel may equal the
+   cytosol channel — and `analyse()` extracts the selected channel as a 2D+time
+   stack. Pre-execution checks: active image is a hyperstack with Z=1 and T>1.
+   ROI seeds come from the active image. Single-movie mode only; batch keeps
+   its directory flow.
 7. **Validation, defaults, presets.** Numeric ranges, required fields, and
    save/load presets reusing `params.json`.
 8. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts

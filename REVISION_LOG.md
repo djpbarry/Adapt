@@ -40,15 +40,16 @@ frame from). Planning only — no code changed.
 
 ---
 
-## 2026-10-07 — Input selection folded into the main GUI (M5 step 6, planning only)
+## 2026-10-07 — Single-hyperstack input + in-GUI channel selection (M5 step 6, planning only)
 
-Recorded in `DEVELOPMENT_PLAN.md`: replace the separate
-`GenUtils.specifyInputs()` input-selection dialog with cyto/signal channel
-dropdowns inside `GUI` (signal optional), defaulting the cyto channel to the
-active image window (`WindowManager.getCurrentImage()`). `Analyse_Movie.analyse()`
-will stop prompting for inputs and instead read the chosen channels on Run, with
-the ROI seeds taken from the selected cyto image. Single-movie mode only; batch
-keeps its directory flow. Planning only — no code changed.
+Recorded in `DEVELOPMENT_PLAN.md`: assume the active image window is a
+multi-channel timelapse hyperstack and use that single window as the input
+(TrackMate convention), replacing the two-window `GenUtils.specifyInputs()`
+flow. `GUI` will gain cytosol/signal channel dropdowns over the hyperstack's
+channels (signal may equal cytosol), and `analyse()` will extract the selected
+channel as a 2D+time stack, with ROI seeds from the active image. Pre-execution
+checks: active image is a hyperstack with Z=1 and T>1. Single-movie mode only;
+batch keeps its directory flow. Planning only — no code changed.
 
 ---
 
