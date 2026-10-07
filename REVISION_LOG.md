@@ -27,6 +27,21 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-07 — Missing-dependency pre-execution check
+
+Added a `checkDependencies()` guard at the top of `Analyse_Movie.analyse()` so a
+missing runtime library fails fast with a clear message instead of a cryptic
+`NoClassDefFoundError` deep in a worker thread (the preview path hit
+`inra.ijpb...FloodFillComponentsLabeling`). It verifies the two third-party
+update-site libraries the segmentation pipeline needs:
+
+- MorphoLibJ — `inra.ijpb.binary.conncomp.FloodFillComponentsLabeling` (IJPB-plugins)
+- 3D ImageJ Suite — `mcib3d.image3d.ImageInt` (mcib3d-core)
+
+Runs before the hyperstack dimension check. Version bumped to `4.0.14`.
+
+---
+
 ## 2026-10-07 — Preview-panel cleanup planned (M5 step 5, planning only)
 
 Recorded the next M5 step in `DEVELOPMENT_PLAN.md`: the embedded

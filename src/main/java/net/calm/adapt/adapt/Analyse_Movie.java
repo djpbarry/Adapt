@@ -89,6 +89,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private Properties props;
     private LocalDateTime startTime;
     private final String TRAJ_FILE_NAME = "trajectories.csv";
+    private static final String[][] REQUIRED_DEPENDENCIES = {
+            {"inra.ijpb.binary.conncomp.FloodFillComponentsLabeling", "MorphoLibJ (IJPB-plugins update site)"},
+            {"mcib3d.image3d.ImageInt", "3D ImageJ Suite (mcib3d-core)"}
+    };
 
     /**
      * Default constructor
@@ -157,6 +161,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     public boolean analyse(String imageName) {
+        if (!checkDependencies()) {
+            return false;
+        }
         ImagePlus cytoImp = new ImagePlus();
         if (IJ.getInstance() == null || batchMode || protMode) {
             // stacks[0]/stacks[1] are already populated (batch / protrusion / preview paths)
@@ -206,6 +213,19 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             out.addSlice(source.getProcessor(t * nChannels + channel));
         }
         return out;
+    }
+
+    private boolean checkDependencies() {
+        for (String[] dependency : REQUIRED_DEPENDENCIES) {
+            try {
+                Class.forName(dependency[0]);
+            } catch (ClassNotFoundException e) {
+                IJ.error("Required dependency is missing: " + dependency[1]
+                        + ".\nInstall it from the Fiji update site before running ADAPT.");
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean runPipeline() {
