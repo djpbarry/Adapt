@@ -27,6 +27,18 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-07 — Fixed preview overlay (8-bit conversion restored on preview path)
+
+The overlay-based preview stopped rendering after the single-hyperstack change:
+`generatePreview()` segmented the raw (16-bit) cytosol channel, but
+`RegionGrower.initialiseROIs()` assumes 8-bit (it scales internally then applies
+a bit-depth-mismatched threshold), so no cells were detected and the overlay was
+empty. Restored the 8-bit conversion at the top of `Analyse_Movie.generatePreview()`
+(mirroring `runPipeline()`), so the preview segments 8-bit data again. Version
+bumped to `4.0.15`.
+
+---
+
 ## 2026-10-07 — Missing-dependency pre-execution check
 
 Added a `checkDependencies()` guard at the top of `Analyse_Movie.analyse()` so a

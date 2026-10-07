@@ -1247,6 +1247,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
      * @param sliceIndex Frame number of stack to be previewed
      */
     public void generatePreview(int sliceIndex) {
+        stacks[0] = GenUtils.convertStack(stacks[0], 8);
         cellData = new ArrayList<>();
         ImageProcessor cytoProc = stacks[0].getProcessor(sliceIndex).duplicate();
         int width = cytoProc.getWidth();
