@@ -931,8 +931,8 @@ code before merge.
 
 ### L7 — Clean up *all* legacy IDE artifacts, not just the obvious ones *(inherited)*
 
-`.gitignore` now covers `.idea/`, `*.iml`, etc., but the NetBeans-generated
-`GUI.form` coupling remains (Phase B1).
+`.gitignore` now covers `.idea/`, `*.iml`, etc., and the NetBeans-generated
+`GUI.form` coupling was removed in M5 step 3 (hand-managed `GridBagLayout`).
 
 **Rule:** after removing an IDE/legacy build, sweep for remaining config/output
 files.

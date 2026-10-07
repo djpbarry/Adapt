@@ -40,10 +40,12 @@ not drift stale behind the code.
   suffix (sibling convention — see `IAClassLibrary`'s `development` branch), and
   releases are tagged `vX.Y.Z` via `maven-release-plugin`. Bump the version as
   development progresses.
-- JUnit 5 unit tests exist (12 across three classes); there is **no lint/format
+- JUnit 5 unit tests exist (13 across four classes); there is **no lint/format
   tooling**. A `.gitignore` (and `.gitattributes`) have been added.
-- The GUI is a NetBeans-generated `JDialog` (`ui/GUI.java` + `ui/GUI.form`), with
-  parameters held in a single **static** `UserVariables` instance.
+- The GUI is a hand-managed `GridBagLayout` `JDialog` (`ui/GUI.java`; the
+  NetBeans `GUI.form` was removed in M5 step 3). `UserVariables UV` is a
+  per-instance field; the dialog is non-modal and starts analysis via a
+  `setOnRun(Runnable)` callback.
 - Documentation currently lives in the GitHub wiki and a short `README.md`, with
   screenshots under `content/` and test data (`.ome.tiff` inputs, Git LFS) under
   `test_data/`.
@@ -185,17 +187,19 @@ itself is unaffected (it uses velocity ROIs, not curvature).
    parameters change. This mirrors TrackMate and GIANI and makes the preview
    non-destructive, live, and reversible. This is a dedicated reconfiguration
    and the centrepiece of M5 (M4 steps 7–8 are already done, so it lands on top
-   of a non-static `GUI.UV` and the documented concurrency model).
+   of a non-static `GUI.UV` and the documented concurrency model). *(Done in
+   M5 step 2.)*
 2. **Replace the NetBeans `.form` coupling** — the hand-versus-generator split
    between `GUI.java` and `GUI.form` is risky to edit. Migrate to a hand-managed
    layout (GridBag/GroupLayout written by hand) so the UI is version-controllable
-   and diffable.
+   and diffable. *(Done in M5 step 3.)*
 3. **Eliminate the static `UserVariables` singleton** — pass a `UserVariables`
    instance explicitly; this fixes a class of bugs from stale/shared state across
    sessions. *(Done in M4 step 7.)*
 4. **Group parameters into collapsible sections** mirroring the *Simple /
    Advanced / Protrusions* screenshots already in `content/`, and add tooltips
    or inline help for every parameter (wording drawn from `StaticVariables`).
+   *(Done in M5 step 4.)*
 5. **Add validation and sane defaults** at the UI layer: numeric ranges, required
    fields, and a "load/save parameter preset" feature (the raw material exists in
    `Analyse_Batch.readParams()`).
@@ -768,7 +772,7 @@ not silently accepted.
 11. **M11 — Interactive Fiji run & smoke-test harness:** stage the built plugin
     into a local Fiji, launch it, and run the two plugins against test data
     (Phase H). Becomes a per-change gate once landed. — **Fiji wired + live smoke
-    test done (2026-10-02); output baseline (H5) pending.**
+    test done (2026-10-02); output baseline (H5) done (2026-10-06).**
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
 parallel. Package renaming (Q4) should be done early in M4 before it cascades
@@ -784,9 +788,10 @@ Java 21 + TrackMate 8 are in place.
 
 **M11 (Phase H) is now the immediate gate for every change** — headless
 build/test is no longer sufficient; each change must be exercised interactively
-in Fiji before it is considered done. The plugin is installed and the H2 live
-smoke test has passed; the only remaining M11 work is the H5 output baseline
-(deferred until after the B2a output-structure simplification).
+in Fiji before it is considered done. The plugin is installed, the H2 live smoke
+test has passed, and the H5 baseline tooling + manifest are committed
+(`bin/compute-baseline.cmd`, `bin/verify-baseline.cmd`,
+`test_data/baselines/*.sha256`).
 
 ## M4 + B2a — ordered work breakdown
 
