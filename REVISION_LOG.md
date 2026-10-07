@@ -40,6 +40,18 @@ frame from). Planning only — no code changed.
 
 ---
 
+## 2026-10-07 — Input selection folded into the main GUI (M5 step 6, planning only)
+
+Recorded in `DEVELOPMENT_PLAN.md`: replace the separate
+`GenUtils.specifyInputs()` input-selection dialog with cyto/signal channel
+dropdowns inside `GUI` (signal optional), defaulting the cyto channel to the
+active image window (`WindowManager.getCurrentImage()`). `Analyse_Movie.analyse()`
+will stop prompting for inputs and instead read the chosen channels on Run, with
+the ROI seeds taken from the selected cyto image. Single-movie mode only; batch
+keeps its directory flow. Planning only — no code changed.
+
+---
+
 ## 2026-10-06 — `RELEASE_NOTES.md` created (planning only)
 
 Added `RELEASE_NOTES.md` as the user-facing changelog (what changed / what

@@ -245,9 +245,17 @@ baseline.
    from the active source window's current slice
    (`ImagePlus.getCurrentSlice()`). Batch preview remains a regression (no open
    source windows to infer the frame from).
-6. **Validation, defaults, presets.** Numeric ranges, required fields, and
+6. **Fold input selection into the main GUI.** Replace the separate
+   `GenUtils.specifyInputs()` dialog with cyto/signal channel dropdowns in
+   `GUI` (listing the open images; signal optional); default the cyto channel
+   to the active image window (`WindowManager.getCurrentImage()`).
+   `Analyse_Movie.analyse()` stops prompting and instead builds `stacks` from
+   the chosen channels when the user clicks Run, with the ROI seeds taken from
+   the selected cyto image. Single-movie mode only; batch keeps its directory
+   flow.
+7. **Validation, defaults, presets.** Numeric ranges, required fields, and
    save/load presets reusing `params.json`.
-7. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts
+8. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts
    the `MultiThreaded*` executors.
 
 ### B2. Onboarding & output UX
