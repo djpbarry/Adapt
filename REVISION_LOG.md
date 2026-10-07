@@ -27,15 +27,26 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
-## 2026-10-07 — Fixed preview overlay (8-bit conversion restored on preview path)
+## 2026-10-07 — Fixed preview overlay (two issues)
 
-The overlay-based preview stopped rendering after the single-hyperstack change:
-`generatePreview()` segmented the raw (16-bit) cytosol channel, but
-`RegionGrower.initialiseROIs()` assumes 8-bit (it scales internally then applies
-a bit-depth-mismatched threshold), so no cells were detected and the overlay was
-empty. Restored the 8-bit conversion at the top of `Analyse_Movie.generatePreview()`
-(mirroring `runPipeline()`), so the preview segments 8-bit data again. Version
-bumped to `4.0.15`.
+The overlay-based preview stopped rendering after the single-hyperstack change,
+for two independent reasons:
+
+1. **8-bit conversion missing on the preview path.** `generatePreview()` segmented
+   the raw (16-bit) cytosol channel, but `RegionGrower.initialiseROIs()` assumes
+   8-bit (it scales internally then applies a bit-depth-mismatched threshold), so
+   no cells were detected and the overlay was empty. Restored the 8-bit conversion
+   at the top of `Analyse_Movie.generatePreview()` (mirroring `runPipeline()`).
+
+2. **ROI positions used the linear stack index instead of the hyperstack
+   C/Z/T.** The overlay ROIs were remapped with `Roi.setPosition(int)` (linear
+   `position`), but ImageJ keeps `Roi`'s linear `position` and its
+   `(channel, slice, frame)` as mutually exclusive representations; a hyperstack
+   ROI must use the 3-arg form. `GUI.generatePreviewComplete()` now calls
+   `r.setPosition(cyto, 1, frame)` per ROI so the overlay draws on the selected
+   channel + frame.
+
+Version bumped to `4.0.16`.
 
 ---
 

@@ -1033,11 +1033,10 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         java.awt.EventQueue.invokeLater(() -> {
             if (hyperstack != null) {
                 int cyto = cytoChannelCombo.getSelectedIndex() + 1;
-                int nChannels = hyperstack.getNChannels();
                 for (Roi r : overlay.toArray()) {
                     int pos = r.getPosition();
                     if (pos > 0) {
-                        r.setPosition((pos - 1) * nChannels + cyto);
+                        r.setPosition(cyto, 1, pos);
                     }
                 }
                 hyperstack.setPosition(cyto, 1, slice);
