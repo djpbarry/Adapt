@@ -177,6 +177,23 @@ Fix options: (a) make `CurveAnalyser.calcCurvature()` return signed curvature
 `findAllCurvatureExtrema()` to use the correct signed convention. Bleb detection
 itself is unaffected (it uses velocity ROIs, not curvature).
 
+### Known issue — 8-bit cyto conversion is load-bearing (needs revising)
+
+`runPipeline()` converts the cytosol stack to 8-bit
+(`GenUtils.convertStack(stacks[0], 8)`) before segmentation. This is **not** just
+a display/speed optimisation — two external `IAClassLibrary` methods assume an
+8-bit cyto channel for correct behaviour:
+
+- `RegionGrower.initialiseROIs()` scales the input to 8-bit internally
+  (`convertToByteProcessor(true)`) but then applies a threshold computed on the
+  original bit-depth, so a 16-bit input would produce a mismatched threshold.
+- `Region.buildVelImage()` computes optical-flow velocity from raw pixel
+  intensity; 16-bit values would be reinterpreted as signed shorts and the
+  velocity scale would change.
+
+Revisit later (fix the two library methods to be bit-depth-agnostic, or document
+the 8-bit requirement explicitly) before attempting to remove the conversion.
+
 ### B1. Rework the GUI
 
 1. **Move previews to `Overlay`s, keep input images untouched** — the current
