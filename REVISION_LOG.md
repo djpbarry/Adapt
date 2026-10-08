@@ -27,7 +27,7 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
-## 2026-10-08 — Preview/channel-selection polish (4.0.19)
+## 2026-10-08 — Preview/channel-selection polish (4.0.20)
 
 Three follow-ups to M5 step 6, from a live-test review:
 
@@ -41,7 +41,8 @@ Three follow-ups to M5 step 6, from a live-test review:
   thing a user sets.
 - **Channel names from metadata.** The dropdowns now read the per-channel slice
   label (`ImageStack.getSliceLabel`) and fall back to "Channel N" when the label
-  is missing/blank/numeric.
+  is missing/blank/numeric, or is an auto-generated hyperstack label (e.g.
+  `c:1/2 t:1/500 title.tif`).
 
 `mvn test` green (13/13).
 

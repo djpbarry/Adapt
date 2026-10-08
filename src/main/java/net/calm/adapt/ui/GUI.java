@@ -1229,7 +1229,9 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
             String label = stack.getSliceLabel(index);
             if (label != null) {
                 String name = label.trim();
-                if (!name.isEmpty() && !name.matches("\\d+")) {
+                if (!name.isEmpty()
+                        && !name.matches("\\d+")
+                        && !name.matches("(?i).*\\b[ct]:\\d+/\\d+\\b.*")) {
                     return name;
                 }
             }
