@@ -27,6 +27,26 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-08 — Preview/channel-selection polish (4.0.19)
+
+Three follow-ups to M5 step 6, from a live-test review:
+
+- **Suppressed the spurious `ParticleAnalyzer: threshold not set` log** on
+  Preview. `Analyse_Movie.detectSeedPoints()` now sets an explicit
+  `binary.setThreshold(0, 0, NO_LUT_UPDATE)` before analysing, so the analyzer
+  no longer falls into its "no threshold, assumed 0-0" branch (the cells are the
+  black pixels after threshold+invert, so behaviour is unchanged).
+- **Moved the cytosol/signal channel dropdowns to the top** of the dialog (a new
+  `channelPanel` above the parameter tabs), since channel selection is the first
+  thing a user sets.
+- **Channel names from metadata.** The dropdowns now read the per-channel slice
+  label (`ImageStack.getSliceLabel`) and fall back to "Channel N" when the label
+  is missing/blank/numeric.
+
+`mvn test` green (13/13).
+
+---
+
 ## 2026-10-08 — Output review: TrajectoryAnalysis tables still CamelCase
 
 Live test (`4.0.17`) confirmed the B2a output structure is correct (`README.md`,

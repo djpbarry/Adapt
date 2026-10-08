@@ -1364,6 +1364,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (binary.isInvertedLut()) {
             binary.invertLut();
         }
+        // The cells are the black (0) pixels after thresholding and inverting.
+        // Set an explicit threshold so ParticleAnalyzer does not log the
+        // "threshold not set; assumed to be 0-0" message.
+        binary.setThreshold(0, 0, ImageProcessor.NO_LUT_UPDATE);
         ResultsTable rt = new ResultsTable();
         Prefs.blackBackground = false;
         ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES,

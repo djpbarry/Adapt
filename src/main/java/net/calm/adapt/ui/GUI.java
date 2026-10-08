@@ -179,6 +179,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         filoMinSizeTextField = new javax.swing.JTextField();
         previewButton = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
+        channelPanel = new javax.swing.JPanel();
         runButton = new javax.swing.JButton();
         loadPresetButton = new javax.swing.JButton();
         savePresetButton = new javax.swing.JButton();
@@ -187,6 +188,53 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(title);
         getContentPane().setLayout(new java.awt.GridBagLayout());
+
+        channelPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        channelPanel.setLayout(new java.awt.GridBagLayout());
+
+        if (hyperstack != null) {
+            cytoChannelLabel = new javax.swing.JLabel();
+            cytoChannelLabel.setText("Cytosol channel:");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
+            channelPanel.add(cytoChannelLabel, gridBagConstraints);
+
+            cytoChannelCombo = new javax.swing.JComboBox<>();
+            for (int c = 1; c <= hyperstack.getNChannels(); c++) {
+                cytoChannelCombo.addItem(channelLabel(c));
+            }
+            cytoChannelCombo.setSelectedIndex(0);
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 1;
+            gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
+            channelPanel.add(cytoChannelCombo, gridBagConstraints);
+
+            sigChannelLabel = new javax.swing.JLabel();
+            sigChannelLabel.setText("Signal channel:");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 2;
+            gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
+            channelPanel.add(sigChannelLabel, gridBagConstraints);
+
+            sigChannelCombo = new javax.swing.JComboBox<>();
+            for (int c = 1; c <= hyperstack.getNChannels(); c++) {
+                sigChannelCombo.addItem(channelLabel(c));
+            }
+            sigChannelCombo.setSelectedIndex(Math.min(1, hyperstack.getNChannels() - 1));
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 3;
+            gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
+            channelPanel.add(sigChannelCombo, gridBagConstraints);
+        }
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.0;
+        getContentPane().add(channelPanel, gridBagConstraints);
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
@@ -796,6 +844,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         jPanel2.add(previewButton, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 0.9;
@@ -803,42 +852,6 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
 
         jPanel5.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jPanel5.setLayout(new java.awt.GridBagLayout());
-
-        if (hyperstack != null) {
-            cytoChannelLabel = new javax.swing.JLabel();
-            cytoChannelLabel.setText("Cytosol channel:");
-            gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 0;
-            gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
-            jPanel5.add(cytoChannelLabel, gridBagConstraints);
-
-            cytoChannelCombo = new javax.swing.JComboBox<>();
-            for (int c = 1; c <= hyperstack.getNChannels(); c++) {
-                cytoChannelCombo.addItem("Channel " + c);
-            }
-            cytoChannelCombo.setSelectedIndex(0);
-            gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 1;
-            gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
-            jPanel5.add(cytoChannelCombo, gridBagConstraints);
-
-            sigChannelLabel = new javax.swing.JLabel();
-            sigChannelLabel.setText("Signal channel:");
-            gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 2;
-            gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
-            jPanel5.add(sigChannelLabel, gridBagConstraints);
-
-            sigChannelCombo = new javax.swing.JComboBox<>();
-            for (int c = 1; c <= hyperstack.getNChannels(); c++) {
-                sigChannelCombo.addItem("Channel " + c);
-            }
-            sigChannelCombo.setSelectedIndex(Math.min(1, hyperstack.getNChannels() - 1));
-            gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 3;
-            gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
-            jPanel5.add(sigChannelCombo, gridBagConstraints);
-        }
 
         loadPresetButton.setText("Load Preset");
         loadPresetButton.addActionListener(new java.awt.event.ActionListener() {
@@ -882,7 +895,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 0.1;
@@ -1206,6 +1219,24 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         return hyperstack != null || (stacks != null && stacks[1] != null);
     }
 
+    private String channelLabel(int channel) {
+        if (hyperstack == null) {
+            return "Channel " + channel;
+        }
+        ImageStack stack = hyperstack.getImageStack();
+        int index = hyperstack.getStackIndex(channel, 1, 1);
+        if (index >= 1 && index <= stack.getSize()) {
+            String label = stack.getSliceLabel(index);
+            if (label != null) {
+                String name = label.trim();
+                if (!name.isEmpty() && !name.matches("\\d+")) {
+                    return name;
+                }
+            }
+        }
+        return "Channel " + channel;
+    }
+
     public boolean isWasOKed() {
         return wasOKed;
     }
@@ -1255,6 +1286,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private javax.swing.JToggleButton autoThreshToggleButton;
     private javax.swing.JRadioButton blebDetectRadioButton;
     private javax.swing.JButton cancelButton;
+    private javax.swing.JPanel channelPanel;
     private javax.swing.JTextField cortexDepthField;
     private javax.swing.JLabel cortexDepthLabel;
     private javax.swing.JTextField cutOffField;
