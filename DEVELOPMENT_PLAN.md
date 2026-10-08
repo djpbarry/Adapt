@@ -154,13 +154,13 @@ Targets, priority-ordered:
 ### Resolved bug — non-deterministic `labels.zip` ROI order (Issue #2)
 
 Issue #2 ("ROIs in random order"): `MultiThreadedVisualisationGenerator.run()`
-submits one thread per frame, all sharing a single unsynchronized `Overlay`
+submitted one thread per frame, all sharing a single unsynchronized `Overlay`
 `labels`. Concurrent `labels.add(...)` in `RunnableVisualisationGenerator.run()`
-(line 105) produces non-deterministic ROI ordering in the saved `labels.zip`.
-Measurements are unaffected (cell index is baked into each ROI's text; per-cell
-CSVs are written independently in cell order), but the fix is still warranted:
-collect labels into per-frame slots and assemble the overlay in deterministic
-frame order before saving. Include an order-assurance assertion.
+produced non-deterministic ROI ordering in the saved `labels.zip`. Measurements
+were unaffected (cell index is baked into each ROI's text; per-cell CSVs are
+written independently in cell order). Fixed (2026-10-05): labels are now
+collected into per-frame slots and the overlay is assembled in deterministic
+frame order before saving (see REVISION_LOG).
 
 ### Known bug to fix — curvature extrema detection (unsigned curvature)
 
@@ -179,7 +179,7 @@ itself is unaffected (it uses velocity ROIs, not curvature).
 
 ### Known issue — 8-bit cyto conversion is load-bearing (needs revising)
 
-`runPipeline()` converts the cytosol stack to 8-bit
+`runPipeline()` and `generatePreview()` convert the cytosol stack to 8-bit
 (`GenUtils.convertStack(stacks[0], 8)`) before segmentation. This is **not** just
 a display/speed optimisation — two external `IAClassLibrary` methods assume an
 8-bit cyto channel for correct behaviour:
@@ -831,7 +831,8 @@ not silently accepted.
    H5 baseline).**
 5. **M5 — GUI & UX:** non-modal dialog, overlay-based non-destructive previews,
    hand-managed layout, parameter presets, progress/cancel. (Phase B1 — see the
-   "B1 execution plan (M5)" above.)
+   "B1 execution plan (M5)" above.) — **steps 1–7 done (2026-10-08); only
+   cancellation & progress (step 8) remains.**
 6. **M6 — Distribution:** update site, semver, in-product help links. (Phase B3)
 7. **M7 — TrackMate interop:** Stage-1 XML import/export bridge (Phase D1);
    Stage-2 `TrackAnalyzer` module only after M4 lands.
