@@ -27,6 +27,19 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-08 — IAClassLibrary bug noted for upstream fix (review note)
+
+Flagged a `NullPointerException` in `IAClassLibrary`'s `Region.findSeed()` (the
+`FloatProcessor` `fp` is null inside `ij.plugin.filter.EDM.toEDM` →
+`ByteProcessor.setPixels`) that fires when a cell mask has no foreground pixels,
+reached from `FluorescenceAnalyser.getFluorDists()` → `morphFilter()` →
+`getOrderedBoundary()` → `getMaskOutline()` → `findSeed()`. ADAPT catches and
+logs it (non-fatal), but the fix belongs in IAClassLibrary (guard
+`findSeed`/`EDM.toEDM` against empty/degenerate masks). Recorded in
+`DEVELOPMENT_PLAN.md` Phase G6. No code change — note only.
+
+---
+
 ## 2026-10-08 — Cancellation & progress (M5 step 8, 4.0.22)
 
 Closed out M5: the background analysis can now be cancelled.

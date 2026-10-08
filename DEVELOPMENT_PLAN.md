@@ -732,6 +732,17 @@ multi-repo overhead is too high, revisit "no vendoring" (Decision 2) and conside
 merging the three libraries into one repo (or into ADAPT) to make dependency
 management tractable.
 
+### G6. Known upstream bug to fix (IAClassLibrary)
+
+`Region.findSeed()` (in `net.calm.iaclasslibrary.IAClasses`) throws a
+`NullPointerException` (`fp` is null inside `ij.plugin.filter.EDM.toEDM` →
+`ByteProcessor.setPixels`) when the cell mask has no foreground pixels. It is
+reached from `FluorescenceAnalyser.getFluorDists()` →
+`Region.morphFilter()` → `getOrderedBoundary()` → `getMaskOutline()` →
+`findSeed()`. ADAPT catches and logs it (non-fatal), but the fix belongs in
+**IAClassLibrary** (guard `findSeed`/`EDM.toEDM` against empty or degenerate
+masks). Tracked for the next IAClassLibrary modernisation pass.
+
 ---
 
 ## Phase H — Interactive Fiji run & smoke-test harness
