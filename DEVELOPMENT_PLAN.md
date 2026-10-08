@@ -236,6 +236,7 @@ the 8-bit requirement explicitly) before attempting to remove the conversion.
    (`MultiThreaded*` generators) have no cancellation path. Wire the existing
    `NotificationThread`/`TaskListener` and `MultiThreadedProcess` mechanisms to a
    progress dialog whose Cancel actually interrupts the running analysis.
+   *(Done in M5 step 8.)*
 
 #### B1 execution plan (M5)
 
@@ -303,6 +304,12 @@ baseline.
    the three GUI-only fields (`visLineWidth`, `displayPlots`, `filoSizeMin`).**
 8. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts
    the `MultiThreaded*` executors.
+   — **done (2026-10-08): added `net.calm.adapt.ui.ProgressMonitor` (non-modal
+   progress bar + Cancel); the `MultiThreaded*` generators now show it, and its
+   Cancel sets a shared flag + `exec.shutdownNow()`. Workers check the flag at
+   the start and report progress via `monitor.step(...)`; `Analyse_Movie`/
+   `Analyse_Batch` check the flag and abort the pipeline/batch loop. `mvn test`
+   green (13/13).**
 
 ### B2. Onboarding & output UX
 

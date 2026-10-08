@@ -134,6 +134,9 @@ public class Analyse_Batch extends Analyse_Movie {
 
     private void runBatch() {
         for (int f = 0; f < cytoSize; f++) {
+            if (cancelled) {
+                break;
+            }
             if (!prepareBatchStacks(f)) {
                 continue;
             }
@@ -143,7 +146,7 @@ public class Analyse_Batch extends Analyse_Movie {
                 IJ.log("Failed to analyse " + cytoImageFiles[f].getName() + ": " + e.getMessage());
             }
         }
-        IJ.showStatus(TITLE + " done.");
+        IJ.showStatus(cancelled ? TITLE + " cancelled." : TITLE + " done.");
     }
 
     private static final int PARAMS_SCHEMA_VERSION = 1;

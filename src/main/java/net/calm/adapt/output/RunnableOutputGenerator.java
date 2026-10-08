@@ -22,6 +22,7 @@ import net.calm.adapt.adapt.BlebAnalyser;
 import net.calm.adapt.adapt.CurveMapAnalyser;
 import net.calm.adapt.adapt.RegionFluorescenceQuantifier;
 import net.calm.adapt.adapt.StaticVariables;
+import net.calm.adapt.ui.ProgressMonitor;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -84,8 +85,9 @@ public class RunnableOutputGenerator extends RunnableProcess {
     DecimalFormat numFormat = StaticVariables.numFormat;
     private final ArrayList<ArrayList<Double>> fluorData;
     private final CellTableAccumulator accumulator;
+    private final ProgressMonitor monitor;
 
-    public RunnableOutputGenerator(ArrayList<CellData> cellData, String parDir, boolean protMode, UserVariables uv, File childDir, ImageStack sigStack, ImageStack cytoStack, int index, int length, File directory, PointRoi roi, ArrayList<ArrayList<Double>> fluorData, CellTableAccumulator accumulator) {
+    public RunnableOutputGenerator(ArrayList<CellData> cellData, String parDir, boolean protMode, UserVariables uv, File childDir, ImageStack sigStack, ImageStack cytoStack, int index, int length, File directory, PointRoi roi, ArrayList<ArrayList<Double>> fluorData, CellTableAccumulator accumulator, ProgressMonitor monitor) {
         super(null);
         this.cellData = cellData;
         this.parDir = parDir;
@@ -100,10 +102,14 @@ public class RunnableOutputGenerator extends RunnableProcess {
         this.roi = roi;
         this.fluorData = fluorData;
         this.accumulator = accumulator;
+        this.monitor = monitor;
     }
 
     @Override
     public void run() {
+        if (monitor.isCancelled()) {
+            return;
+        }
         IJ.log(String.format("Building outputs for cell %d", index));
         buildOutput(index, length, false);
         if (uv.isGetFluorDist() && sigStack != null) {
@@ -139,6 +145,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
                 protAM.analyse(null);
             }
         }
+        monitor.step(String.format("Cell %d complete", index + 1));
     }
 
     void buildOutput(int index, int length, boolean preview) {

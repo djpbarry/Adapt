@@ -19,6 +19,7 @@ package net.calm.adapt.output;
 import ij.IJ;
 import ij.ImageStack;
 import ij.gui.PointRoi;
+import net.calm.adapt.ui.ProgressMonitor;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.IO.BioFormats.BioFormatsImg;
 import net.calm.iaclasslibrary.IO.BioFormats.LocationAgnosticBioFormatsImg;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
 
@@ -46,6 +48,8 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
     PointRoi roi;
     private final ArrayList<ArrayList<ArrayList<Double>>> fluorData;
     private final CellTableAccumulator accumulator;
+    private final AtomicBoolean cancelled = new AtomicBoolean(false);
+    private ProgressMonitor monitor;
 
     public MultiThreadedOutputGenerator() {
         this(null, null, null, false, null, null, null, null, null, null);
@@ -76,24 +80,46 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
     public void run() {
         IJ.log("Building individual cell outputs...");
         this.exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        monitor = new ProgressMonitor("ADAPT", "Building cell outputs...", () -> {
+            cancelled.set(true);
+            exec.shutdownNow();
+        });
         double minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
+        int total = 0;
         for (int index = 0; index < cellData.size(); index++) {
+            if (cellData.get(index).getLength() > minLength) {
+                total++;
+            }
+        }
+        monitor.setTotal(total);
+        monitor.show();
+        for (int index = 0; index < cellData.size(); index++) {
+            if (cancelled.get()) {
+                break;
+            }
             int length = cellData.get(index).getLength();
             fluorData.add(new ArrayList());
             if (length > minLength) {
                 childDir = GenUtils.createDirectory(String.format("%s%scell_%03d", parDir, File.separator, index), false);
                 exec.submit(new RunnableOutputGenerator(cellData, parDir,
                         protMode, uv, childDir, sigStack,
-                        cytoStack, index, length, directory, roi, fluorData.get(index), accumulator));
+                        cytoStack, index, length, directory, roi, fluorData.get(index), accumulator, monitor));
             }
         }
         terminate("Error generating outputs.");
-        try {
-            accumulator.save(new File(new File(parDir).getParentFile(), "tables"));
-        } catch (IOException e) {
-            IJ.log("Failed to write merged cell tables: " + e.getMessage());
+        if (!cancelled.get()) {
+            try {
+                accumulator.save(new File(new File(parDir).getParentFile(), "tables"));
+            } catch (IOException e) {
+                IJ.log("Failed to write merged cell tables: " + e.getMessage());
+            }
         }
-        IJ.log("\nAll cells done.\n");
+        monitor.close();
+        IJ.log(cancelled.get() ? "\nOutput generation cancelled.\n" : "\nAll cells done.\n");
+    }
+
+    public boolean isCancelled() {
+        return cancelled.get();
     }
 
     public ArrayList<ArrayList<ArrayList<Double>>> getFluorData() {

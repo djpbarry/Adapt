@@ -27,6 +27,29 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-08 — Cancellation & progress (M5 step 8, 4.0.21)
+
+Closed out M5: the background analysis can now be cancelled.
+
+- Added `net.calm.adapt.ui.ProgressMonitor` — a non-modal dialog with a progress
+  bar and a Cancel button. UI mutations are marshalled onto the EDT; worker
+  threads poll `isCancelled()` and call `step(...)` to advance the bar.
+- `MultiThreadedOutputGenerator` and `MultiThreadedVisualisationGenerator` now
+  create and show a `ProgressMonitor`; its Cancel button sets a shared
+  `AtomicBoolean` and calls `exec.shutdownNow()`, so queued cell/frame tasks are
+  dropped and running workers bail out at their next checkpoint.
+- The workers (`RunnableOutputGenerator`, `RunnableVisualisationGenerator`)
+  check the flag at the start of `run()` and report completion via
+  `monitor.step(...)`.
+- `Analyse_Movie` propagates the flag (`cancelled`) from the generators and
+  `runPipeline()`/`finishAnalysis()` abort (skipping trajectories,
+  `TrajectoryAnalysis`, and metadata); `Analyse_Batch.runBatch()` breaks out of
+  the file loop and reports "cancelled".
+
+`mvn test` green (13/13).
+
+---
+
 ## 2026-10-08 — Preview/channel-selection polish (4.0.20)
 
 Three follow-ups to M5 step 6, from a live-test review:

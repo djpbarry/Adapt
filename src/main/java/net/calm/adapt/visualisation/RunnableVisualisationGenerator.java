@@ -21,6 +21,7 @@ import ij.ImageStack;
 import ij.gui.Roi;
 import ij.gui.TextRoi;
 import ij.process.FloatProcessor;
+import net.calm.adapt.ui.ProgressMonitor;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.Cell.MorphMap;
 import net.calm.iaclasslibrary.IAClasses.Region;
@@ -42,8 +43,9 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
     private final IndexColorModel lut;
     private final FloatProcessor[] velFrames;
     private final FloatProcessor[] curveFrames;
+    private final ProgressMonitor monitor;
 
-    public RunnableVisualisationGenerator(ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, int t, List<Roi> labels, IndexColorModel lut, FloatProcessor[] velFrames, FloatProcessor[] curveFrames) {
+    public RunnableVisualisationGenerator(ArrayList<CellData> cellData, boolean protMode, ImageStack cytoStack, UserVariables uv, int t, List<Roi> labels, IndexColorModel lut, FloatProcessor[] velFrames, FloatProcessor[] curveFrames, ProgressMonitor monitor) {
         super(null);
         this.cellData = cellData;
         this.protMode = protMode;
@@ -54,10 +56,14 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
         this.lut = lut;
         this.velFrames = velFrames;
         this.curveFrames = curveFrames;
+        this.monitor = monitor;
     }
 
     @Override
     public void run() {
+        if (monitor.isCancelled()) {
+            return;
+        }
         IJ.showStatus(String.format("Generating visualisations... %d%%", (int) Math.round(t * 100.0 / cytoStack.getSize())));
         int N = cellData.size();
         double minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
@@ -102,5 +108,6 @@ public class RunnableVisualisationGenerator extends RunnableProcess {
         }
         velFrames[t] = velOutput;
         curveFrames[t] = curveOutput;
+        monitor.step(String.format("Frame %d of %d", t + 1, cytoStack.getSize()));
     }
 }

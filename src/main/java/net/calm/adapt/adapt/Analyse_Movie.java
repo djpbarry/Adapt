@@ -86,6 +86,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private int previewSlice;
     private Overlay previewOverlay;
     private boolean selectiveOutput = false;
+    protected volatile boolean cancelled = false;
     private Properties props;
     private LocalDateTime startTime;
     private final String TRAJ_FILE_NAME = "trajectories.csv";
@@ -254,6 +255,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             cellData = filteredCells;
         }
         generateOutputs();
+        if (cancelled) {
+            return false;
+        }
         if (uv.isGetMorph()) {
             try {
                 getMorphologyData(cellData, true, -1, null, 0.0);
@@ -271,6 +275,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 
     private void finishAnalysis() {
         if (!runPipeline()) {
+            if (cancelled) {
+                IJ.showStatus(TITLE + " cancelled.");
+                IJ.log("Analysis cancelled by user.");
+            }
             return;
         }
         TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes() / 60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
@@ -424,6 +432,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     cellsDir.getAbsolutePath(), protMode, uv, childDir, stacks[1],
                     stacks[0], directory, roi);
             outGen.run();
+            if (outGen.isCancelled()) {
+                cancelled = true;
+                return;
+            }
             if (stacks[1] != null && uv.isGetFluorDist()) {
                 saveFluorData(outGen.getFluorData());
             }
@@ -766,8 +778,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     void genCurveVelVis(ArrayList<CellData> cellDatas) {
-        (new MultiThreadedVisualisationGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()),
-                cellData, protMode, stacks[0], uv, velDir, curveDir)).run();
+        MultiThreadedVisualisationGenerator visGen = new MultiThreadedVisualisationGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()),
+                cellData, protMode, stacks[0], uv, velDir, curveDir);
+        visGen.run();
+        if (visGen.isCancelled()) {
+            cancelled = true;
+        }
     }
 
     void genSimpSegVis(ArrayList<CellData> cellDatas) {
