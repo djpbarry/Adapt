@@ -27,6 +27,37 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-08 — Output review: TrajectoryAnalysis tables still CamelCase
+
+Live test (`4.0.17`) confirmed the B2a output structure is correct (`README.md`,
+`parameters.json`, `labels.zip`, `tables/`, `images/`; tidy snake_case tables with
+`cell_id`/`bleb_id`). One inconsistency found: the five cell-migration tables
+written by the external `net.calm.iaclasslibrary.Trajectory.TrajectoryAnalysis`
+(`Instantaneous_Velocities.csv`, `Mean_Square_Displacements.csv`,
+`Mean_Velocities.csv`, `Run_Lengths.csv`, `Spider_Plot_Data.csv`) still use
+CamelCase and sit in `tables/` alongside ADAPT's snake_case tables. These need a
+naming fix in **IAClassLibrary** (not TrackerLibrary) — flagged for the
+maintainer.
+
+---
+
+## 2026-10-08 — mcib3d (3D ImageJ Suite) likely not required (review note)
+
+Investigation of `IAClassLibrary`'s source shows `mcib3d-core` (the 3D ImageJ
+Suite) is used **only by its 3D path** (`Cell3D`/`CellRegion3D`/`Nucleus3D`/
+`Cytoplasm3D`/`Spot3D`, the 3D `MultiThreadedWatershed`, `RiemannianDistanceTransform`,
+`MultiThreadedSobelFilter`, and the deprecated `Region3D`). The 2D segmentation
+path ADAPT actually uses (`RegionGrower`, `Region`, `CellData`) depends on
+**MorphoLibJ** but *not* mcib3d; ADAPT's own source never imports mcib3d (only
+`checkDependencies()` references `mcib3d.image3d.ImageInt`).
+
+So the `checkDependencies()` mcib3d check and the B3a "3D ImageJ Suite = hard
+requirement" note are likely **over-inclusive**. To confirm empirically: remove
+`mcib3d-core` from the runtime and run ADAPT — if no `NoClassDefFoundError`,
+drop the requirement. Not acted on yet — note only.
+
+---
+
 ## 2026-10-08 — Removed redundant preview canvases + slider (M5 step 5)
 
 Closed out the last of the embedded-preview UI: the two `ImageCanvas`es

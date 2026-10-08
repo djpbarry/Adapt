@@ -393,6 +393,11 @@ Trade-off: this is a breaking change, so the H5 output baseline and the
 `v4.0.0` tag. Consider doing the writer changes alongside the M4
 `RunnableOutputGenerator.buildOutput()` decomposition so the schema lands once.
 
+*(Note 2026-10-08: the five cell-migration tables emitted by the external
+`TrajectoryAnalysis` (`Instantaneous_Velocities.csv`, `Mean_Square_Displacements.csv`,
+`Mean_Velocities.csv`, `Run_Lengths.csv`, `Spider_Plot_Data.csv`) remain CamelCase
+in `tables/`. A naming fix belongs in IAClassLibrary, not ADAPT.)*
+
 ### B3. Package & distribute more cleanly
 
 1. Ensure the plugin is discoverable via a Fiji update site (this is the *de
@@ -421,6 +426,10 @@ TWOMBLI's `.github/workflows/release.yml`). ADAPT-specific decisions:
    Suite (`3D ImageJ Suite`). The runtime `checkDependencies()` guard depends on
    MorphoLibJ and `mcib3d-core`, so those two are hard requirements, not
    optional.
+   *(Note 2026-10-08: `mcib3d-core` (3D ImageJ Suite) is likely **not** actually
+   required — it is used only by IAClassLibrary's 3D path, which ADAPT does not
+   exercise. See `REVISION_LOG.md`; verify before finalising the update-site
+   dependencies.)*
 4. **Secrets:** `UPDATE_USER` (Wiki account) and `UPDATE_PASS` (upload
    password), created on imagej.net when the update site is set up. The
    update-site name in the workflow must match the one created on imagej.net.
