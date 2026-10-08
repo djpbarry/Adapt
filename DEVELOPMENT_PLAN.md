@@ -71,10 +71,10 @@ not drift stale behind the code.
 
 ### A2. Fix the dependency pinning problem
 
-1. ✔ Done (2026-09-27): `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` →
-   `v4.0.2` (both tagged, Javadoc-published). ✔ `AdaptDataProcessing` removed
-   (deprecated/obsolete — its README recommends Python); the `Bleb_Data_Analysis`
-   plugin was retired with it.
+1. ✔ Done: `IAClassLibrary` → `2.0.22`, `TrackerLibrary` → `v4.0.8` (tagged,
+   Javadoc-published; re-pinned again 2026-10-05). ✔ `AdaptDataProcessing`
+   removed (deprecated/obsolete — its README recommends Python); the
+   `Bleb_Data_Analysis` plugin was retired with it.
 
 ### A3. Introduce tests (the single biggest maintainability win)
 
@@ -151,7 +151,7 @@ Targets, priority-ordered:
 
 ## Phase B — User-friendliness
 
-### B1. Known bug to fix — non-deterministic `labels.zip` ROI order
+### Resolved bug — non-deterministic `labels.zip` ROI order (Issue #2)
 
 Issue #2 ("ROIs in random order"): `MultiThreadedVisualisationGenerator.run()`
 submits one thread per frame, all sharing a single unsynchronized `Overlay`
@@ -220,8 +220,8 @@ the 8-bit requirement explicitly) before attempting to remove the conversion.
 5. **Remove the redundant preview canvases + slider** — delete the embedded
    `cytoCanvas`/`sigCanvas` (and their `cytoImp`/`sigImp` stack copies + channel
    labels), move the Preview button below the parameter tabs, and drop the frame
-   slider/readout in favour of the active source window's current slice.
-   *(Planned — not yet done; see M5 execution plan step 5.)*
+   slider/readout in favour of the active source window's current frame.
+   *(Done in M5 step 5.)*
 6. **Single-hyperstack input + in-GUI channel selection** — assume the active
    image window is a multi-channel timelapse hyperstack and use it as the input
    (TrackMate convention), replacing the two-window `GenUtils.specifyInputs()`
@@ -269,9 +269,13 @@ baseline.
    `cytoCanvas`/`sigCanvas` (and their `cytoImp`/`sigImp` stack copies and the
    `Cyto Channel`/`Sig Channel` labels); move the Preview button below the
    parameter tabs; drop the frame slider/readout and infer the preview frame
-   from the active source window's current slice
-   (`ImagePlus.getCurrentSlice()`). Batch preview remains a regression (no open
-   source windows to infer the frame from).
+   from the active source window's current frame (`ImagePlus.getFrame()`).
+   Batch preview remains a regression (no open source windows to infer the frame
+   from).
+   — **done (2026-10-08): canvases, `cytoImp`/`sigImp`, `cytoProc`/`sigProc`,
+   slider + readout, `cytoLabel`/`sigLabel`, `checkImageDimensions`,
+   `getFrameCount`, and `jPanel3` removed; Preview button moved below the tabs;
+   `generatePreview()` uses `hyperstack.getFrame()` (frame 1 for batch).**
 6. **Single-hyperstack input + in-GUI channel selection.** Assume the active
    image window is a multi-channel timelapse hyperstack and use that one window
    as the input (TrackMate convention), replacing the two-window
@@ -645,8 +649,8 @@ over Ultrack CSV. Only if Ultrack CSV proves insufficient.
 
 ## Phase G — Upstream dependency hygiene (do first)
 
-> **Status (2026-09-28): complete.** `IAClassLibrary` (`v2.0.1`) and
-> `TrackerLibrary` (`v4.0.2`) are modernised and tagged (GPL-3.0-or-later, Java
+> **Status: complete.** `IAClassLibrary` (`2.0.22`) and `TrackerLibrary`
+> (`v4.0.8`) are modernised and tagged (GPL-3.0-or-later, Java
 > 21, Maven wrapper, Javadoc published). `AdaptDataProcessing` was **removed**
 > (deprecated/obsolete — its README recommends Python); the `Bleb_Data_Analysis`
 > plugin and the inline `DataFileAverager` call were retired with it. See
@@ -836,7 +840,7 @@ refactor. M8's Stage-1 (external-mask import) is likewise Java-target
 independent. M9 is a self-contained exporter and can land at any point.
 
 **M10 (Phase G) is done.** The two upstream libraries are tagged
-(`IAClassLibrary v2.0.1`, `TrackerLibrary v4.0.2`) and re-pointed; the obsolete
+(`IAClassLibrary 2.0.22`, `TrackerLibrary v4.0.8`) and re-pointed; the obsolete
 `AdaptDataProcessing` was dropped (along with the `Bleb_Data_Analysis` plugin).
 Java 21 + TrackMate 8 are in place.
 
@@ -931,8 +935,8 @@ input for the phases above.
    GitHub Packages. Tag `IAClassLibrary` and `TrackerLibrary` with releases in
    their own repos; JitPack resolves tagged versions auth-free. Update the
    `pom.xml` versions from commit hashes to those tags.
-   *(Applied: `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.2`.
-   `AdaptDataProcessing` was **removed** as deprecated/obsolete — its README
+   *(Applied: `IAClassLibrary` → `2.0.22`, `TrackerLibrary` → `v4.0.8` (re-pinned
+   2026-10-05). `AdaptDataProcessing` was **removed** as deprecated/obsolete — its README
    recommends a Python rewrite; the `Bleb_Data_Analysis` plugin was retired
    with it.)*
    - **`mvn_settings.xml` / GitHub Packages is vestigial.** Investigation shows
@@ -946,7 +950,7 @@ input for the phases above.
    - ✔ `scijava.jvm.version=21` set; `maven.compiler.release=21` verified; clean
      compile of all 17 sources at `release 21` passes.
    - ✔ `TrackMate:7.14.0` pin removed — the parent now resolves TrackMate 8.0.0.
-   - ✔ `IAClassLibrary` → `v2.0.1`, `TrackerLibrary` → `v4.0.2` (clean compile).
+   - ✔ `IAClassLibrary` → `2.0.22`, `TrackerLibrary` → `v4.0.8` (clean compile).
    - ✔ `AdaptDataProcessing` removed (deprecated/obsolete) and `Bleb_Data_Analysis`
      retired.
 4. **Package names — rename to lowercase.** ✔ Done (2026-10-03): `Adapt`→`adapt`,

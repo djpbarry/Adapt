@@ -27,6 +27,23 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-08 — Removed redundant preview canvases + slider (M5 step 5)
+
+Closed out the last of the embedded-preview UI: the two `ImageCanvas`es
+(`cytoCanvas`/`sigCanvas`), their backing `ImagePlus`/`ImageProcessor` copies
+(`cytoImp`/`sigImp`, `cytoProc`/`sigProc`), the frame `JScrollBar` + readout
+`JTextField`, the `Cyto Channel`/`Sig Channel` labels, and the now-empty `jPanel3`
+are gone. The Preview button now sits below the parameter tabs, and
+`generatePreview()` infers the frame from `hyperstack.getFrame()` (frame 1 for
+batch — no open source window to infer from). Also removed the now-unused
+`checkImageDimensions()`, `getFrameCount()`, `previewScrollBarAdjustmentValueChanged()`,
+and `MAX_DIM`, plus the `ImageCanvas`/`ByteProcessor`/`ColorProcessor`/
+`ImageProcessor`/`TypeConverter`/`DefaultBoundedRangeModel` imports.
+
+`mvn clean test` green (13/13). Version bumped to `4.0.17`.
+
+---
+
 ## 2026-10-07 — M5 step 6 live-confirmed in Fiji
 
 Built and installed `adapt-4.0.16.jar` (plus the two sibling libraries) into the

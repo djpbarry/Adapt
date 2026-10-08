@@ -22,15 +22,10 @@ import net.calm.adapt.adapt.TaskListener;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.gui.ImageCanvas;
 import ij.gui.Overlay;
 import ij.gui.PointRoi;
 import ij.gui.Roi;
 import ij.process.AutoThresholder;
-import ij.process.ByteProcessor;
-import ij.process.ColorProcessor;
-import ij.process.ImageProcessor;
-import ij.process.TypeConverter;
 import net.calm.iaclasslibrary.UIClasses.GUIMethods;
 import net.calm.iaclasslibrary.UIClasses.PropertyExtractor;
 import net.calm.iaclasslibrary.UserVariables.UserVariables;
@@ -40,7 +35,6 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Properties;
-import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
 import javax.swing.JToggleButton;
@@ -51,14 +45,11 @@ import javax.swing.JToggleButton;
  */
 public class GUI extends javax.swing.JDialog implements GUIMethods {
 
-    private final ImagePlus cytoImp, sigImp;
     private final ImagePlus cytoOrig, sigOrig;
     private final ImagePlus hyperstack;
-    private ImageProcessor cytoProc, sigProc;
     private final ImageStack[] stacks;
     private final String title;
     private boolean wasOKed = false;
-    private final int MAX_DIM = 512;
     private final UserVariables UV = new UserVariables();
     ArrayList<Thread> previewThreads = new ArrayList<>();
     private final PointRoi roi;
@@ -73,19 +64,9 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         this.stacks = stacks;
         this.title = title;
         this.hyperstack = null;
-        cytoProc = stacks[0].getProcessor(1).duplicate();
-        cytoProc = checkImageDimensions(cytoProc);
-        cytoImp = new ImagePlus("", cytoProc);
         this.roi = roi;
         this.cytoOrig = cytoOrig;
         this.sigOrig = sigOrig;
-        if (stacks[1] != null) {
-            sigProc = stacks[1].getProcessor(1).duplicate();
-            sigProc = checkImageDimensions(sigProc);
-            sigImp = new ImagePlus("", sigProc);
-        } else {
-            sigImp = new ImagePlus("", new ByteProcessor(cytoProc.getWidth(), cytoProc.getHeight()));
-        }
         initComponents();
         setToolTips();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -100,13 +81,6 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         this.cytoOrig = hyperstack;
         this.sigOrig = hyperstack;
         this.roi = roi;
-        ImageStack defaultCyto = Analyse_Movie.extractChannel(hyperstack, 1);
-        cytoProc = checkImageDimensions(defaultCyto.getProcessor(1).duplicate());
-        cytoImp = new ImagePlus("", cytoProc);
-        int defaultSigChannel = Math.min(2, hyperstack.getNChannels());
-        ImageStack defaultSig = Analyse_Movie.extractChannel(hyperstack, defaultSigChannel);
-        sigProc = checkImageDimensions(defaultSig.getProcessor(1).duplicate());
-        sigImp = new ImagePlus("", sigProc);
         initComponents();
         setToolTips();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -142,8 +116,6 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         filoMinSizeTextField.setToolTipText("Minimum filopodia area (in micrometres squared).");
         displayPlotsToggleButton.setToolTipText("Display protrusion analysis plots.");
         previewButton.setToolTipText("Generate a segmentation preview overlay on the source image.");
-        previewScrollBar.setToolTipText("Time point (frame) to preview.");
-        previewField.setToolTipText("Time point (frame) to preview.");
     }
 
     private void initComponents() {
@@ -201,14 +173,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         displayPlotsToggleButton = new javax.swing.JToggleButton();
         filoMinSizeLabel = new javax.swing.JLabel();
         filoMinSizeTextField = new javax.swing.JTextField();
-        jPanel3 = new javax.swing.JPanel();
-        cytoCanvas = new ImageCanvas(cytoImp);
         previewButton = new javax.swing.JButton();
-        previewField = new javax.swing.JTextField();
-        cytoLabel = new javax.swing.JLabel();
-        sigCanvas = new ImageCanvas(sigImp);
-        sigLabel = new javax.swing.JLabel();
-        previewScrollBar = new javax.swing.JScrollBar();
         jPanel5 = new javax.swing.JPanel();
         runButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
@@ -805,20 +770,12 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         jTabbedPane1.addTab("Protrusion Analysis", jPanel4);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 0.2;
-        gridBagConstraints.weighty = 1.0;
-        jPanel2.add(jTabbedPane1, gridBagConstraints);
-
-        jPanel3.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jPanel3.setLayout(new java.awt.GridBagLayout());
-
-        cytoCanvas.setPreferredSize(new java.awt.Dimension(256, 256));
-        gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        jPanel3.add(cytoCanvas, gridBagConstraints);
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.9;
+        jPanel2.add(jTabbedPane1, gridBagConstraints);
 
         previewButton.setText("Preview");
         previewButton.addActionListener(new java.awt.event.ActionListener() {
@@ -828,65 +785,9 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        jPanel3.add(previewButton, gridBagConstraints);
-
-        previewField.setText(String.valueOf(previewScrollBar.getValue()));
-        previewField.setEditable(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.weightx = 0.2;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        jPanel3.add(previewField, gridBagConstraints);
-
-        cytoLabel.setText("Cyto Channel");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        jPanel3.add(cytoLabel, gridBagConstraints);
-
-        sigCanvas.setPreferredSize(new java.awt.Dimension(250, 250));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        jPanel3.add(sigCanvas, gridBagConstraints);
-
-        sigLabel.setText("Sig Channel");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        jPanel3.add(sigLabel, gridBagConstraints);
-
-        previewScrollBar.setOrientation(javax.swing.JScrollBar.HORIZONTAL);
-        previewScrollBar.setModel(new DefaultBoundedRangeModel(1, 0, 1, getFrameCount()));
-        previewScrollBar.addAdjustmentListener(new java.awt.event.AdjustmentListener() {
-            public void adjustmentValueChanged(java.awt.event.AdjustmentEvent evt) {
-                previewScrollBarAdjustmentValueChanged(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.weightx = 0.8;
-        jPanel3.add(previewScrollBar, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 0.8;
-        gridBagConstraints.weighty = 1.0;
-        jPanel2.add(jPanel3, gridBagConstraints);
+        jPanel2.add(previewButton, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -1000,10 +901,6 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         enableComponentOnSelect(sigRecThreshLabel, sigRecThreshField, useSigThreshToggleButton, anaProtToggleButton.isSelected() && useSigThreshToggleButton.isEnabled());
     }
 
-    private void previewScrollBarAdjustmentValueChanged(java.awt.event.AdjustmentEvent evt) {
-        previewField.setText(String.valueOf(previewScrollBar.getValue()));
-    }
-
     private void generatePreview() {
         if (!setVariables()) {
             return;
@@ -1012,9 +909,9 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
             previewThreads.get(i).interrupt();
         }
         previewThreads = new ArrayList<>();
-        previewField.setText(String.valueOf(previewScrollBar.getValue()));
+        int frame = (hyperstack != null) ? hyperstack.getFrame() : 1;
         final Analyse_Movie previewAnalyser = new Analyse_Movie(getSelectedStacks(), false, false, UV, null, roi);
-        previewAnalyser.preparePreview(previewScrollBar.getValue(), (UserVariables) UV.clone());
+        previewAnalyser.preparePreview(frame, (UserVariables) UV.clone());
         previewAnalyser.addListener(new TaskListener() {
             public void threadComplete(Runnable runner) {
                 if (!Thread.interrupted()) {
@@ -1160,37 +1057,10 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         return hyperstack != null || (stacks != null && stacks[1] != null);
     }
 
-    private int getFrameCount() {
-        return hyperstack != null ? hyperstack.getNFrames() : stacks[0].getSize();
-    }
-
     public boolean isWasOKed() {
         return wasOKed;
     }
 
-    private ImageProcessor checkImageDimensions(ImageProcessor inputImage) {
-        ColorProcessor colorImage = (ColorProcessor) (new TypeConverter(inputImage, false)).convertToRGB();
-        int width = inputImage.getWidth();
-        int height = inputImage.getHeight();
-        int pixsize = width * height;
-        double widthscale = ((double) width) / MAX_DIM;
-        double heightscale = ((double) height) / MAX_DIM;
-        if (widthscale > 1.0 || heightscale > 1.0) {
-            double scale = 1.0 / Math.max(widthscale, heightscale);
-            int scaledwidth = (int) Math.round(scale * colorImage.getWidth());
-            byte redPix[] = new byte[pixsize], greenPix[] = new byte[pixsize],
-                    bluePix[] = new byte[pixsize];
-            colorImage.getRGB(redPix, greenPix, bluePix);
-            ImageProcessor red = (new ByteProcessor(width, height, redPix)).resize(scaledwidth);
-            ImageProcessor green = (new ByteProcessor(width, height, greenPix)).resize(scaledwidth);
-            ImageProcessor blue = (new ByteProcessor(width, height, bluePix)).resize(scaledwidth);
-            ColorProcessor output = new ColorProcessor(red.getWidth(), red.getHeight());
-            output.setRGB((byte[]) red.getPixels(), (byte[]) green.getPixels(), (byte[]) blue.getPixels());
-            return output;
-        } else {
-            return colorImage;
-        }
-    }
 //    public static void main(String args[]) {
 //        /* Set the Nimbus look and feel */
 //        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -1240,10 +1110,8 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private javax.swing.JLabel cortexDepthLabel;
     private javax.swing.JTextField cutOffField;
     private javax.swing.JLabel cutOffLabel;
-    private java.awt.Canvas cytoCanvas;
     private javax.swing.JComboBox<String> cytoChannelCombo;
     private javax.swing.JLabel cytoChannelLabel;
-    private javax.swing.JLabel cytoLabel;
     private javax.swing.JToggleButton displayPlotsToggleButton;
     private javax.swing.JTextField erosionField;
     private javax.swing.JLabel erosionLabel;
@@ -1260,7 +1128,6 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private javax.swing.JTextField greyThreshField;
     private javax.swing.JLabel greyThreshLabel;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -1272,14 +1139,10 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private javax.swing.JTextField minMorphAreaTextField;
     private javax.swing.JLabel minTrajLabel;
     private javax.swing.JTextField minTrajTextField;
-    private javax.swing.JTextField previewField;
-    private javax.swing.JScrollBar previewScrollBar;
     private javax.swing.JButton previewButton;
     private javax.swing.JButton runButton;
-    private java.awt.Canvas sigCanvas;
     private javax.swing.JComboBox<String> sigChannelCombo;
     private javax.swing.JLabel sigChannelLabel;
-    private javax.swing.JLabel sigLabel;
     private javax.swing.JTextField sigRecThreshField;
     private javax.swing.JLabel sigRecThreshLabel;
     private javax.swing.JTextField sigThreshFactField;

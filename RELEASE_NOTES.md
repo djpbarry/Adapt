@@ -53,6 +53,9 @@ output has been restructured into a cleaner, more portable layout.
 - **Non-destructive previews.** The segmentation preview is drawn as an overlay
   on the original image windows; input pixel data is never modified. Preview is
   now a single-click button rather than a toggle.
+- **Simplified preview UI** — removed the embedded preview canvases and frame
+  slider; the preview renders as an overlay on the active image at its current
+  frame.
 - **Tooltips** on every parameter.
 - **Reproducible output baseline** — `bin/compute-baseline.cmd` and
   `bin/verify-baseline.cmd` SHA-256 the deterministic text outputs.
