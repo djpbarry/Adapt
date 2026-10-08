@@ -41,6 +41,28 @@ maintainer.
 
 ---
 
+## 2026-10-08 — M5 step 7: validation + parameter presets
+
+Added UI validation and JSON parameter presets:
+
+- `GUI.setVariables()` now validates numeric ranges with per-field error dialogs
+  (`spatialRes`/`timeRes`/`cortexDepth`/`morphSizeMin` > 0; `erosion` ≥ 0;
+  `minLength`/`visLineWidth`/`curveRange` ≥ 1; `sigRecoveryThresh` in [0,1];
+  `filoSizeMin ≤ filoSizeMax`); the `NumberFormatException` message now points
+  users at the parameter fields.
+- Added **Save Preset** / **Load Preset** buttons to the bottom bar. Save
+  serialises `UV` to `params.json` (`Analyse_Batch.writeParams()`); Load reads it
+  back (`Analyse_Batch.readParams()`) and refreshes the GUI via a new
+  `GUI.populateFields()`.
+- Reconciled the `params.json` schema: added the three GUI-only fields
+  (`visLineWidth`, `displayPlots`, `filoSizeMin`) as optional (read with a
+  `root.has(...)` guard, always written), and updated `params.example.json`.
+  `blebLenThresh`/`blebDurThresh` are kept (real UV params, not shown in the GUI).
+
+`mvn clean test` green (13/13). Version bumped to `4.0.18`.
+
+---
+
 ## 2026-10-08 — mcib3d (3D ImageJ Suite) likely not required (review note)
 
 Investigation of `IAClassLibrary`'s source shows `mcib3d-core` (the 3D ImageJ

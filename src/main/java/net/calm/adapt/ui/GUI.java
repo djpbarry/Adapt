@@ -16,6 +16,7 @@
  */
 package net.calm.adapt.ui;
 
+import net.calm.adapt.adapt.Analyse_Batch;
 import net.calm.adapt.adapt.Analyse_Movie;
 import net.calm.adapt.adapt.StaticVariables;
 import net.calm.adapt.adapt.TaskListener;
@@ -25,6 +26,8 @@ import ij.ImageStack;
 import ij.gui.Overlay;
 import ij.gui.PointRoi;
 import ij.gui.Roi;
+import ij.io.OpenDialog;
+import ij.io.SaveDialog;
 import ij.process.AutoThresholder;
 import net.calm.iaclasslibrary.UIClasses.GUIMethods;
 import net.calm.iaclasslibrary.UIClasses.PropertyExtractor;
@@ -33,6 +36,7 @@ import net.calm.iaclasslibrary.UserVariables.UserVariables;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Properties;
 import javax.swing.DefaultComboBoxModel;
@@ -176,6 +180,8 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         previewButton = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         runButton = new javax.swing.JButton();
+        loadPresetButton = new javax.swing.JButton();
+        savePresetButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -834,6 +840,26 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
             jPanel5.add(sigChannelCombo, gridBagConstraints);
         }
 
+        loadPresetButton.setText("Load Preset");
+        loadPresetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadPresetButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
+        jPanel5.add(loadPresetButton, gridBagConstraints);
+
+        savePresetButton.setText("Save Preset");
+        savePresetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                savePresetButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
+        jPanel5.add(savePresetButton, gridBagConstraints);
+
         runButton.setText("Run");
         runButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -879,6 +905,74 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         if (onRun != null) {
             onRun.run();
         }
+    }
+
+    private void loadPresetButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        OpenDialog od = new OpenDialog("Load parameter preset", null, "params.json");
+        String dir = od.getDirectory();
+        String name = od.getFileName();
+        if (dir == null || name == null) {
+            return;
+        }
+        if (!Analyse_Batch.readParams(UV, new File(dir, name))) {
+            IJ.error("Failed to load parameter preset.");
+            return;
+        }
+        populateFields();
+    }
+
+    private void savePresetButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        if (!setVariables()) {
+            return;
+        }
+        SaveDialog sd = new SaveDialog("Save parameter preset", null, "params.json");
+        String dir = sd.getDirectory();
+        String name = sd.getFileName();
+        if (dir == null || name == null) {
+            return;
+        }
+        if (!Analyse_Batch.writeParams(UV, new File(dir, name))) {
+            IJ.error("Failed to save parameter preset.");
+        }
+    }
+
+    private void populateFields() {
+        greyThreshField.setText(String.valueOf(UV.getGreyThresh()));
+        spatResField.setText(String.valueOf(UV.getSpatialRes()));
+        timeResField.setText(String.valueOf(UV.getTimeRes()));
+        autoThreshToggleButton.setSelected(UV.isAutoThreshold());
+        genVisToggleButton.setSelected(UV.isGenVis());
+        genMorphToggleButton.setSelected(UV.isGetMorph());
+        minTrajTextField.setText(String.valueOf(UV.getMinLength()));
+        genSigDistToggleButton.setSelected(hasSignalChannel() && UV.isGetFluorDist());
+        minMorphAreaTextField.setText(String.valueOf(UV.getMorphSizeMin()));
+        erosionField.setText(String.valueOf(UV.getErosion()));
+        spatFiltRadField.setText(String.valueOf(UV.getSpatFiltRad()));
+        tempFiltRadField.setText(String.valueOf(UV.getTempFiltRad()));
+        try {
+            threshComboBox.setSelectedItem(AutoThresholder.Method.valueOf(UV.getThreshMethod()));
+        } catch (IllegalArgumentException e) {
+            threshComboBox.setSelectedItem(AutoThresholder.Method.Otsu);
+        }
+        gaussRadField.setText(String.valueOf(UV.getGaussRad()));
+        cortexDepthField.setText(String.valueOf(UV.getCortexDepth()));
+        visLineWidthTextField.setText(String.valueOf(UV.getVisLineWidth()));
+        minCurveRangeField.setText(String.valueOf(UV.getCurveRange()));
+        minCurveThreshField.setText(String.valueOf(UV.getMinCurveThresh()));
+        cutOffField.setText(String.valueOf(UV.getCutOffTime()));
+        sigThreshFactField.setText(String.valueOf(UV.getSigThreshFact()));
+        sigRecThreshField.setText(String.valueOf(UV.getSigRecoveryThresh()));
+        anaProtToggleButton.setSelected(UV.isAnalyseProtrusions());
+        useSigThreshToggleButton.setSelected(UV.isUseSigThresh());
+        blebDetectRadioButton.setSelected(UV.isBlebDetect());
+        filoDetectRadioButton.setSelected(!UV.isBlebDetect());
+        filoSizeField.setText(String.valueOf(UV.getFiloSizeMax()));
+        displayPlotsToggleButton.setSelected(UV.isDisplayPlots());
+        filoMinSizeTextField.setText(String.valueOf(UV.getFiloSizeMin()));
+        autoThreshToggleButtonActionPerformed(null);
+        anaProtToggleButtonActionPerformed(null);
+        blebDetectRadioButtonActionPerformed(null);
+        useSigThreshToggleButtonActionPerformed(null);
     }
 
     private void autoThreshToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -1020,10 +1114,65 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
             UV.setDisplayPlots(displayPlotsToggleButton.isSelected());
             UV.setFiloSizeMin(Double.parseDouble(filoMinSizeTextField.getText()));
         } catch (NumberFormatException e) {
-            IJ.error("Number formatting error " + e.toString());
+            IJ.error("Invalid numeric input. Check that every parameter field contains a valid number.");
+            return false;
+        }
+        if (!validateRanges()) {
             return false;
         }
         setProperties(props, this);
+        return true;
+    }
+
+    private boolean validateRanges() {
+        if (UV.getSpatialRes() <= 0) {
+            IJ.error("Spatial Resolution must be greater than 0.");
+            return false;
+        }
+        if (UV.getTimeRes() <= 0) {
+            IJ.error("Frames per Minute must be greater than 0.");
+            return false;
+        }
+        if (UV.getErosion() < 0) {
+            IJ.error("Erosion Iterations must be 0 or more.");
+            return false;
+        }
+        if (UV.getCortexDepth() <= 0) {
+            IJ.error("Cortex Depth must be greater than 0.");
+            return false;
+        }
+        if (UV.getMinLength() < 1) {
+            IJ.error("Minimum Trajectory Length must be at least 1.");
+            return false;
+        }
+        if (UV.getMorphSizeMin() <= 0) {
+            IJ.error("Minimum Object Size must be greater than 0.");
+            return false;
+        }
+        if (UV.getVisLineWidth() < 1) {
+            IJ.error("Visualisation Line Thickness must be at least 1.");
+            return false;
+        }
+        if (UV.getCurveRange() < 1) {
+            IJ.error("Curvature Window must be at least 1.");
+            return false;
+        }
+        if (UV.getSigRecoveryThresh() < 0 || UV.getSigRecoveryThresh() > 1) {
+            IJ.error("Signal Map Threshold must be between 0 and 1.");
+            return false;
+        }
+        if (UV.getFiloSizeMax() <= 0) {
+            IJ.error("Max Filopodia Size must be greater than 0.");
+            return false;
+        }
+        if (UV.getFiloSizeMin() <= 0) {
+            IJ.error("Min Filopodia Size must be greater than 0.");
+            return false;
+        }
+        if (UV.getFiloSizeMin() > UV.getFiloSizeMax()) {
+            IJ.error("Min Filopodia Size must not exceed Max Filopodia Size.");
+            return false;
+        }
         return true;
     }
 
@@ -1141,6 +1290,8 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private javax.swing.JTextField minTrajTextField;
     private javax.swing.JButton previewButton;
     private javax.swing.JButton runButton;
+    private javax.swing.JButton loadPresetButton;
+    private javax.swing.JButton savePresetButton;
     private javax.swing.JComboBox<String> sigChannelCombo;
     private javax.swing.JLabel sigChannelLabel;
     private javax.swing.JTextField sigRecThreshField;

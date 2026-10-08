@@ -230,6 +230,7 @@ the 8-bit requirement explicitly) before attempting to remove the conversion.
 7. **Add validation and sane defaults** at the UI layer: numeric ranges, required
    fields, and a "load/save parameter preset" feature (the raw material exists in
    `Analyse_Batch.readParams()`).
+   *(Done in M5 step 7.)*
 8. **Add cancellation & progress** — the GUI has a Cancel button, but it only
    `dispose()`s the setup dialog; the background analysis threads
    (`MultiThreaded*` generators) have no cancellation path. Wire the existing
@@ -294,6 +295,12 @@ baseline.
    hyperstack when Preview is clicked.**
 7. **Validation, defaults, presets.** Numeric ranges, required fields, and
    save/load presets reusing `params.json`.
+   — **done (2026-10-08): `setVariables()` validates ranges (`spatialRes`/
+   `timeRes`/`cortexDepth`/`morphSizeMin` > 0, `erosion` ≥ 0,
+   `minLength`/`visLineWidth`/`curveRange` ≥ 1, `sigRecoveryThresh` in [0,1],
+   `filoSizeMin ≤ filoSizeMax`); added Save Preset / Load Preset buttons,
+   `Analyse_Batch.writeParams()`, and `GUI.populateFields()`; `params.json` gained
+   the three GUI-only fields (`visLineWidth`, `displayPlots`, `filoSizeMin`).**
 8. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts
    the `MultiThreaded*` executors.
 

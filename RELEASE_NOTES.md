@@ -56,6 +56,9 @@ output has been restructured into a cleaner, more portable layout.
 - **Simplified preview UI** — removed the embedded preview canvases and frame
   slider; the preview renders as an overlay on the active image at its current
   frame.
+- **Parameter validation and presets** — the dialog rejects out-of-range values
+  with clear messages, and you can save/load parameter presets as JSON
+  (`params.json`) from the dialog.
 - **Tooltips** on every parameter.
 - **Reproducible output baseline** — `bin/compute-baseline.cmd` and
   `bin/verify-baseline.cmd` SHA-256 the deterministic text outputs.

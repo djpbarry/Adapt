@@ -25,5 +25,8 @@
   "minLength": 7,
   "filoSizeMax": 2.5,
   "getFluorDist": false,
-  "morphSizeMin": 150.0
+  "morphSizeMin": 150.0,
+  "visLineWidth": 2,
+  "displayPlots": true,
+  "filoSizeMin": 1.0
 }

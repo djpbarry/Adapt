@@ -26,6 +26,7 @@ import net.calm.iaclasslibrary.UtilClasses.Utilities;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.*;
 import java.util.Arrays;
@@ -147,12 +148,56 @@ public class Analyse_Batch extends Analyse_Movie {
 
     private static final int PARAMS_SCHEMA_VERSION = 1;
 
-    public static void readParams(UserVariables uv, File input) {
+    public static boolean readParams(UserVariables uv, File input) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             applyParams(uv, mapper.readTree(input));
+            return true;
         } catch (Exception e) {
             IJ.log("Error reading parameter file: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean writeParams(UserVariables uv, File output) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode root = mapper.createObjectNode();
+            root.put("version", PARAMS_SCHEMA_VERSION);
+            root.put("autoThreshold", uv.isAutoThreshold());
+            root.put("threshMethod", uv.getThreshMethod());
+            root.put("greyThresh", uv.getGreyThresh());
+            root.put("spatialRes", uv.getSpatialRes());
+            root.put("timeRes", uv.getTimeRes());
+            root.put("erosion", uv.getErosion());
+            root.put("spatFiltRad", uv.getSpatFiltRad());
+            root.put("tempFiltRad", uv.getTempFiltRad());
+            root.put("gaussRad", uv.getGaussRad());
+            root.put("genVis", uv.isGenVis());
+            root.put("getMorph", uv.isGetMorph());
+            root.put("analyseProtrusions", uv.isAnalyseProtrusions());
+            root.put("blebDetect", uv.isBlebDetect());
+            root.put("curveRange", uv.getCurveRange());
+            root.put("minCurveThresh", uv.getMinCurveThresh());
+            root.put("blebLenThresh", uv.getBlebLenThresh());
+            root.put("blebDurThresh", uv.getBlebDurThresh());
+            root.put("cutOffTime", uv.getCutOffTime());
+            root.put("cortexDepth", uv.getCortexDepth());
+            root.put("useSigThresh", uv.isUseSigThresh());
+            root.put("sigThreshFact", uv.getSigThreshFact());
+            root.put("sigRecoveryThresh", uv.getSigRecoveryThresh());
+            root.put("minLength", uv.getMinLength());
+            root.put("filoSizeMax", uv.getFiloSizeMax());
+            root.put("getFluorDist", uv.isGetFluorDist());
+            root.put("morphSizeMin", uv.getMorphSizeMin());
+            root.put("visLineWidth", uv.getVisLineWidth());
+            root.put("displayPlots", uv.isDisplayPlots());
+            root.put("filoSizeMin", uv.getFiloSizeMin());
+            mapper.writerWithDefaultPrettyPrinter().writeValue(output, root);
+            return true;
+        } catch (Exception e) {
+            IJ.log("Error writing parameter file: " + e.getMessage());
+            return false;
         }
     }
 
@@ -192,6 +237,16 @@ public class Analyse_Batch extends Analyse_Movie {
         uv.setFiloSizeMax(reqDouble(root, "filoSizeMax"));
         uv.setGetFluorDist(reqBool(root, "getFluorDist"));
         uv.setMorphSizeMin(reqDouble(root, "morphSizeMin"));
+        // Optional GUI-only fields (added without a schema version bump).
+        if (root.has("visLineWidth")) {
+            uv.setVisLineWidth(reqInt(root, "visLineWidth"));
+        }
+        if (root.has("displayPlots")) {
+            uv.setDisplayPlots(reqBool(root, "displayPlots"));
+        }
+        if (root.has("filoSizeMin")) {
+            uv.setFiloSizeMin(reqDouble(root, "filoSizeMin"));
+        }
     }
 
     private static boolean reqBool(JsonNode root, String name) {
