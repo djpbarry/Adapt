@@ -33,6 +33,7 @@ import ij.process.*;
 import net.calm.adapt.output.MultiThreadedOutputGenerator;
 import net.calm.adapt.visualisation.MultiThreadedVisualisationGenerator;
 import net.calm.adapt.ui.GUI;
+import net.calm.adapt.ui.ProgressMonitor;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.Cell.MorphMap;
 import net.calm.iaclasslibrary.Curvature.CurveAnalyser;
@@ -342,8 +343,15 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         IJ.log(pdLabel);
+        ProgressMonitor monitor = new ProgressMonitor("ADAPT", pdLabel, () -> cancelled = true);
+        monitor.setTotal(cytoSize);
+        monitor.show();
         for (int i = 0; i < cytoSize; i++) {
-            IJ.showStatus(String.format("Segmenting %d%%", (int) Math.round(i * 100.0 / cytoSize)));
+            if (monitor.isCancelled()) {
+                cancelled = true;
+                break;
+            }
+            monitor.step(String.format("Segmenting frame %d of %d", i + 1, cytoSize));
             cytoImage = cytoStack.getProcessor(i + 1).duplicate();
             (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
             thresholds[i] = RegionGrower.getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
@@ -407,6 +415,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         if (protMode) {
             filoStream.close();
+        }
+        monitor.close();
+        if (cancelled) {
+            return false;
         }
         for (int i = 0; i < cellData.size(); i++) {
             Region regions[] = new Region[cytoSize];
@@ -573,8 +585,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     Region current = allRegions[h];
                     ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.SHOW_RESULTS,
                             measurements, rt, 0.0, Double.POSITIVE_INFINITY);
+                    ImageProcessor mask = current.getMask();
+                    mask.setThreshold(0, 0, ImageProcessor.NO_LUT_UPDATE);
                     ImagePlus maskImp = new ImagePlus(String.valueOf(index) + "_" + String.valueOf(h),
-                            current.getMask());
+                            mask);
                     analyzer.analyze(maskImp);
                     saveRegionMorph(current, rt);
                     rt.addValue("cell_id", index);

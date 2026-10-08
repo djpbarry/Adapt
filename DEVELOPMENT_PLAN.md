@@ -305,11 +305,12 @@ baseline.
 8. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts
    the `MultiThreaded*` executors.
    — **done (2026-10-08): added `net.calm.adapt.ui.ProgressMonitor` (non-modal
-   progress bar + Cancel); the `MultiThreaded*` generators now show it, and its
-   Cancel sets a shared flag + `exec.shutdownNow()`. Workers check the flag at
-   the start and report progress via `monitor.step(...)`; `Analyse_Movie`/
-   `Analyse_Batch` check the flag and abort the pipeline/batch loop. `mvn test`
-   green (13/13).**
+   progress bar + Cancel); `segmentCells()` and the `MultiThreaded*` generators
+   show it, and its Cancel sets a shared flag (cooperative — no thread
+   interruption, which broke Swing ops). Workers check the flag at the start and
+   between major steps, and report progress via `monitor.step(...)`;
+   `Analyse_Movie`/`Analyse_Batch` check the flag and abort the pipeline/batch
+   loop. `mvn test` green (13/13).**
 
 ### B2. Onboarding & output UX
 

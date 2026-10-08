@@ -77,10 +77,7 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
     public void run() {
         IJ.log("Building visualisations...");
         this.exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        monitor = new ProgressMonitor("ADAPT", "Building visualisations...", () -> {
-            cancelled.set(true);
-            exec.shutdownNow();
-        });
+        monitor = new ProgressMonitor("ADAPT", "Building visualisations...", () -> cancelled.set(true));
         int stackSize = cytoStack.getSize();
         monitor.setTotal(stackSize);
         monitor.show();

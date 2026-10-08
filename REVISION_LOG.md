@@ -27,24 +27,35 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
-## 2026-10-08 — Cancellation & progress (M5 step 8, 4.0.21)
+## 2026-10-08 — Cancellation & progress (M5 step 8, 4.0.22)
 
 Closed out M5: the background analysis can now be cancelled.
 
 - Added `net.calm.adapt.ui.ProgressMonitor` — a non-modal dialog with a progress
   bar and a Cancel button. UI mutations are marshalled onto the EDT; worker
   threads poll `isCancelled()` and call `step(...)` to advance the bar.
-- `MultiThreadedOutputGenerator` and `MultiThreadedVisualisationGenerator` now
-  create and show a `ProgressMonitor`; its Cancel button sets a shared
-  `AtomicBoolean` and calls `exec.shutdownNow()`, so queued cell/frame tasks are
-  dropped and running workers bail out at their next checkpoint.
+- `MultiThreadedOutputGenerator`, `MultiThreadedVisualisationGenerator`, and
+  `segmentCells()` now create and show a `ProgressMonitor`; its Cancel button
+  sets a shared `AtomicBoolean` (cooperative — no `shutdownNow()`, which
+  interrupted workers mid-Swing-operation and threw `InterruptedException` from
+  `ImagePlus.hide()`).
 - The workers (`RunnableOutputGenerator`, `RunnableVisualisationGenerator`)
-  check the flag at the start of `run()` and report completion via
+  check the flag at the start of `run()` and between major steps (skipping
+  fluorescence/protrusion work when cancelled), and report completion via
   `monitor.step(...)`.
 - `Analyse_Movie` propagates the flag (`cancelled`) from the generators and
   `runPipeline()`/`finishAnalysis()` abort (skipping trajectories,
   `TrajectoryAnalysis`, and metadata); `Analyse_Batch.runBatch()` breaks out of
   the file loop and reports "cancelled".
+
+Follow-ups from the first live test (same step, before commit):
+
+- Suppressed the per-frame `ParticleAnalyzer: threshold not set` message in
+  `getMorphologyData()` by setting an explicit `setThreshold(0, 0, NO_LUT_UPDATE)`
+  on the cell mask before `analyze()`.
+- Added a segmentation progress dialog (per-frame) so progress appears from the
+  start of the run, and fixed `ProgressMonitor.setTotal()` to size the bar
+  immediately.
 
 `mvn test` green (13/13).
 

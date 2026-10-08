@@ -112,6 +112,9 @@ public class RunnableOutputGenerator extends RunnableProcess {
         }
         IJ.log(String.format("Building outputs for cell %d", index));
         buildOutput(index, length, false);
+        if (monitor.isCancelled()) {
+            return;
+        }
         if (uv.isGetFluorDist() && sigStack != null) {
             try {
                 IJ.log("Quantifying fluorescence localisation...");
@@ -122,6 +125,9 @@ public class RunnableOutputGenerator extends RunnableProcess {
             } catch (Exception e) {
                 GenUtils.logError(e, "Error during fluorescence distribution quantification.");
             }
+        }
+        if (monitor.isCancelled()) {
+            return;
         }
         if (!protMode && uv.isAnalyseProtrusions()) {
             calcSigThresh(cellData.get(index));

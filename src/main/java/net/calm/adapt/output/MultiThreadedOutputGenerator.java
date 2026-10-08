@@ -80,10 +80,7 @@ public class MultiThreadedOutputGenerator extends MultiThreadedProcess {
     public void run() {
         IJ.log("Building individual cell outputs...");
         this.exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        monitor = new ProgressMonitor("ADAPT", "Building cell outputs...", () -> {
-            cancelled.set(true);
-            exec.shutdownNow();
-        });
+        monitor = new ProgressMonitor("ADAPT", "Building cell outputs...", () -> cancelled.set(true));
         double minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
         int total = 0;
         for (int index = 0; index < cellData.size(); index++) {
