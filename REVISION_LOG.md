@@ -27,6 +27,15 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-09 — Progress dialog sizing (4.0.24)
+
+Enlarged the `ProgressMonitor` dialog so the status label ("Segmenting frame
+NNN of 500") is no longer truncated, and gave the Cancel button a taller
+preferred size. The label was the actual source of the earlier confusion — the
+bar was correct, but the small window clipped the frame/total text.
+
+---
+
 ## 2026-10-09 — Progress bar + input-window fixes (4.0.23)
 
 Two follow-ups from the M5 step 8 live test:

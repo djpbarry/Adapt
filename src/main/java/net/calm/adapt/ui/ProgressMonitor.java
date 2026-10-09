@@ -17,6 +17,7 @@
 package net.calm.adapt.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,7 +50,9 @@ public class ProgressMonitor {
         label.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
         bar = new JProgressBar(0, 100);
         bar.setStringPainted(true);
+        bar.setPreferredSize(new Dimension(320, 22));
         JButton cancelButton = new JButton("Cancel");
+        cancelButton.setPreferredSize(new Dimension(120, 40));
         cancelButton.addActionListener(e -> {
             cancelled.set(true);
             dialog.dispose();
@@ -61,6 +64,7 @@ public class ProgressMonitor {
         dialog.add(bar, BorderLayout.CENTER);
         dialog.add(cancelButton, BorderLayout.SOUTH);
         dialog.pack();
+        dialog.setSize(Math.max(dialog.getWidth(), 360), Math.max(dialog.getHeight(), 130));
         dialog.setLocationRelativeTo(null);
     }
 
