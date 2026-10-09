@@ -844,6 +844,10 @@ not silently accepted.
    test. (Phase A3) — **unit tests landed (2026-10-02); golden-file test deferred
    to H5.**
 3. **M3 — Docs migration:** stand up Sphinx/RTD, migrate wiki content. (Phase C)
+   — **initial pass done (2026-10-09): Sphinx + MyST scaffolded under `docs/`,
+   `.readthedocs.yaml` added, five pages written, screenshots moved to
+   `docs/_static/`. Remaining: connect the repo to ReadTheDocs and convert the
+   GitHub wiki to a stub redirect.**
 4. **M4 — Refactor core:** decompose `analyse()`/`buildOutput()`, replace
    `readParams()` with JSON, remove static state, rename packages. (Phase A4,
    A5.2) — **done (2026-10-05): all 9 steps complete (package rename, JSON
@@ -852,8 +856,7 @@ not silently accepted.
    H5 baseline).**
 5. **M5 — GUI & UX:** non-modal dialog, overlay-based non-destructive previews,
    hand-managed layout, parameter presets, progress/cancel. (Phase B1 — see the
-   "B1 execution plan (M5)" above.) — **steps 1–7 done (2026-10-08); only
-   cancellation & progress (step 8) remains.**
+   "B1 execution plan (M5)" above.) — **all 8 steps done (2026-10-08).**
 6. **M6 — Distribution:** update site, semver, in-product help links. (Phase B3)
 7. **M7 — TrackMate interop:** Stage-1 XML import/export bridge (Phase D1);
    Stage-2 `TrackAnalyzer` module only after M4 lands.

@@ -145,6 +145,11 @@ and extracts the selected cytosol/signal channels) → `runPipeline()`/
 - Consolidation of the two patterns is intentionally **not** done: a
   single-thread preview callback and a parallel executor pool serve different
   needs, and merging them would obscure both.
+- **Cancellation is cooperative** (M5 step 8): `net.calm.adapt.ui.ProgressMonitor`
+  shows a non-modal progress bar + Cancel; workers poll an `AtomicBoolean`
+  `isCancelled()` flag at checkpoints rather than being interrupted
+  (`shutdownNow()`/`Thread.interrupt()` broke Swing ops). `Analyse_Movie` and
+  `Analyse_Batch` propagate the flag to abort the pipeline/batch loop.
 
 ## Conventions and gotchas
 
