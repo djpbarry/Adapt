@@ -24,6 +24,7 @@ import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 import ij.process.FloatProcessor;
 import loci.formats.FormatTools;
+import net.calm.adapt.ui.ProgressMonitor;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.IO.BioFormats.BioFormatsImg;
 import net.calm.iaclasslibrary.IO.BioFormats.BioFormatsImageWriter;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
 
@@ -50,6 +52,8 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
     UserVariables uv;
     File velDirName;
     File curvDirName;
+    private final AtomicBoolean cancelled = new AtomicBoolean(false);
+    private ProgressMonitor monitor;
 
     public MultiThreadedVisualisationGenerator() {
         this(null, null, false, null, null, null, null);
@@ -73,18 +77,31 @@ public class MultiThreadedVisualisationGenerator extends MultiThreadedProcess {
     public void run() {
         IJ.log("Building visualisations...");
         this.exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        monitor = new ProgressMonitor("ADAPT", "Building visualisations...", () -> cancelled.set(true));
         int stackSize = cytoStack.getSize();
+        monitor.setTotal(stackSize);
+        monitor.show();
         IndexColorModel lut = (new LUTCreator()).getRedGreen();
         FloatProcessor[] velFrames = new FloatProcessor[stackSize];
         FloatProcessor[] curveFrames = new FloatProcessor[stackSize];
         List<List<Roi>> frameLabels = new ArrayList<>(stackSize);
         for (int t = 0; t < stackSize; t++) {
+            if (cancelled.get()) {
+                break;
+            }
             frameLabels.add(new ArrayList<>());
-            exec.submit(new RunnableVisualisationGenerator(cellData, protMode, cytoStack, uv, t, frameLabels.get(t), lut, velFrames, curveFrames));
+            exec.submit(new RunnableVisualisationGenerator(cellData, protMode, cytoStack, uv, t, frameLabels.get(t), lut, velFrames, curveFrames, monitor));
         }
         terminate("Error generating visualisations.");
-        saveStacks(velFrames, curveFrames, lut);
-        saveOverlays(frameLabels);
+        if (!cancelled.get()) {
+            saveStacks(velFrames, curveFrames, lut);
+            saveOverlays(frameLabels);
+        }
+        monitor.close();
+    }
+
+    public boolean isCancelled() {
+        return cancelled.get();
     }
 
     void saveStacks(FloatProcessor[] velFrames, FloatProcessor[] curveFrames, IndexColorModel lut) {

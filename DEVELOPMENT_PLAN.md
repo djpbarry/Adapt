@@ -236,6 +236,7 @@ the 8-bit requirement explicitly) before attempting to remove the conversion.
    (`MultiThreaded*` generators) have no cancellation path. Wire the existing
    `NotificationThread`/`TaskListener` and `MultiThreadedProcess` mechanisms to a
    progress dialog whose Cancel actually interrupts the running analysis.
+   *(Done in M5 step 8.)*
 
 #### B1 execution plan (M5)
 
@@ -303,6 +304,13 @@ baseline.
    the three GUI-only fields (`visLineWidth`, `displayPlots`, `filoSizeMin`).**
 8. **Cancellation & progress.** Wire a progress dialog whose Cancel interrupts
    the `MultiThreaded*` executors.
+   — **done (2026-10-08): added `net.calm.adapt.ui.ProgressMonitor` (non-modal
+   progress bar + Cancel); `segmentCells()` and the `MultiThreaded*` generators
+   show it, and its Cancel sets a shared flag (cooperative — no thread
+   interruption, which broke Swing ops). Workers check the flag at the start and
+   between major steps, and report progress via `monitor.step(...)`;
+   `Analyse_Movie`/`Analyse_Batch` check the flag and abort the pipeline/batch
+   loop. `mvn test` green (13/13).**
 
 ### B2. Onboarding & output UX
 
@@ -450,34 +458,36 @@ TWOMBLI's `.github/workflows/release.yml`). ADAPT-specific decisions:
 
 ### C1. Choose and scaffold the docs toolchain
 
-1. Adopt **Sphinx + MyST (Markdown)** hosted on **ReadTheDocs**, keeping the
-   source under `docs/` in this repo so docs and code version together.
-2. Add an RTD build job to CI and a `readthedocs.yaml` config.
-3. Redirect the GitHub wiki to the new site (a stub page pointing to RTD), and
-   add a prominent link in `README.md`.
+1. ✔ **Sphinx + MyST (Markdown)** scaffolded under `docs/` (`conf.py`,
+   `index.md`, `requirements.txt`).
+2. ✔ **`.readthedocs.yaml`** added for ReadTheDocs. RTD builds automatically on
+   push via its GitHub integration (no separate CI job — per maintainer
+   preference, the local Sphinx build is not wired into CI).
+3. **Partial.** `README.md` now links to `https://adapt.readthedocs.io/`
+   (done); the GitHub wiki stub redirect is still pending (wiki not yet
+   converted).
 
 ### C2. Migrate and restructure content
 
-Sections to establish (migrating wiki content → docs):
+✔ Done (initial pass) — five pages under `docs/`:
 
 - **Getting Started**: installation via update site, test-data tutorial (linked
   YouTube video + `test_data/`).
-- **User Guide**: explain each parameter (draw from `StaticVariables` labels);
-  the Simple / Advanced / Protrusion Analysis tabs; the output folder structure.
-- **Concepts / Method**: plain-English explanation of the analysis pipeline —
-  segmentation, curvature/velocity/signal maps, protrusion vs bleb detection —
-  with the DOI cited.
+- **User Guide**: each parameter (from `StaticVariables` labels); the Simple /
+  Advanced / Protrusion Analysis tabs; the output folder structure.
+- **Concepts / Method**: segmentation, curvature/velocity/signal maps,
+  protrusion vs bleb detection, with the DOI cited.
 - **Troubleshooting / FAQ**.
 - **Developer Guide**: build instructions (from `AGENTS.md`), architecture,
   entry points (`plugins.config`), and contribution workflow.
 
 ### C3. Automate doc quality
 
-1. Add a `make linkcheck` / docs-build to CI to catch broken links and RST/MD
-   errors.
-2. Optionally generate API reference from Javadoc and reference it from RTD.
-3. Keep screenshots (currently `content/*.png`) in `docs/_static/`, and update
-   them as the GUI changes in Phase B.
+1. Deferred — rely on RTD's build status for now; a CI `sphinx-build` check can
+   be added later if wanted.
+2. Deferred — API reference from Javadoc not yet generated.
+3. ✔ Screenshots moved from `content/` to `docs/_static/` and referenced from
+   the docs; regenerate as the GUI changes.
 
 ---
 
@@ -723,6 +733,17 @@ One maintainer, three repos, no tests/CI, and cross-repo pin skew. If the
 multi-repo overhead is too high, revisit "no vendoring" (Decision 2) and consider
 merging the three libraries into one repo (or into ADAPT) to make dependency
 management tractable.
+
+### G6. Known upstream bug to fix (IAClassLibrary)
+
+`Region.findSeed()` (in `net.calm.iaclasslibrary.IAClasses`) throws a
+`NullPointerException` (`fp` is null inside `ij.plugin.filter.EDM.toEDM` →
+`ByteProcessor.setPixels`) when the cell mask has no foreground pixels. It is
+reached from `FluorescenceAnalyser.getFluorDists()` →
+`Region.morphFilter()` → `getOrderedBoundary()` → `getMaskOutline()` →
+`findSeed()`. ADAPT catches and logs it (non-fatal), but the fix belongs in
+**IAClassLibrary** (guard `findSeed`/`EDM.toEDM` against empty or degenerate
+masks). Tracked for the next IAClassLibrary modernisation pass.
 
 ---
 

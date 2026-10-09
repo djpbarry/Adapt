@@ -33,6 +33,7 @@ import ij.process.*;
 import net.calm.adapt.output.MultiThreadedOutputGenerator;
 import net.calm.adapt.visualisation.MultiThreadedVisualisationGenerator;
 import net.calm.adapt.ui.GUI;
+import net.calm.adapt.ui.ProgressMonitor;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.Cell.MorphMap;
 import net.calm.iaclasslibrary.Curvature.CurveAnalyser;
@@ -55,6 +56,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
+import javax.swing.SwingUtilities;
 
 /**
  * Analyse_Movie is designed to quantify cell membrane dynamics and correlate
@@ -86,6 +88,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private int previewSlice;
     private Overlay previewOverlay;
     private boolean selectiveOutput = false;
+    protected volatile boolean cancelled = false;
+    protected ImagePlus inputImage;
     private Properties props;
     private LocalDateTime startTime;
     private final String TRAJ_FILE_NAME = "trajectories.csv";
@@ -178,6 +182,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 return false;
             }
             roi = (PointRoi) cytoImp.getRoi(); // Points specified by the user indicate cells of interest
+            inputImage = cytoImp;
         }
         cytoImp.setTitle(cytoImp.getTitle().replace(" ", "_"));
         if (roi != null) {
@@ -254,6 +259,9 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             cellData = filteredCells;
         }
         generateOutputs();
+        if (cancelled) {
+            return false;
+        }
         if (uv.isGetMorph()) {
             try {
                 getMorphologyData(cellData, true, -1, null, 0.0);
@@ -271,6 +279,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
 
     private void finishAnalysis() {
         if (!runPipeline()) {
+            if (cancelled) {
+                IJ.showStatus(TITLE + " cancelled.");
+                IJ.log("Analysis cancelled by user.");
+            }
+            restoreInputImage();
             return;
         }
         TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes() / 60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
@@ -283,6 +296,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         IJ.showStatus(TITLE + " done.");
         IJ.log(Time.getDurationAsString(startTime));
+        restoreInputImage();
+    }
+
+    private void restoreInputImage() {
+        if (inputImage != null && inputImage.getWindow() == null) {
+            SwingUtilities.invokeLater(inputImage::show);
+        }
     }
 
     private boolean createOutputDirectories(ImagePlus cytoImp, String imageName) {
@@ -334,8 +354,15 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             }
         }
         IJ.log(pdLabel);
+        ProgressMonitor monitor = new ProgressMonitor("ADAPT", pdLabel, () -> cancelled = true);
+        monitor.setTotal(cytoSize);
+        monitor.show();
         for (int i = 0; i < cytoSize; i++) {
-            IJ.showStatus(String.format("Segmenting %d%%", (int) Math.round(i * 100.0 / cytoSize)));
+            if (monitor.isCancelled()) {
+                cancelled = true;
+                break;
+            }
+            monitor.step(String.format("Segmenting frame %d of %d", i + 1, cytoSize));
             cytoImage = cytoStack.getProcessor(i + 1).duplicate();
             (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
             thresholds[i] = RegionGrower.getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
@@ -400,6 +427,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (protMode) {
             filoStream.close();
         }
+        monitor.close();
+        if (cancelled) {
+            return false;
+        }
         for (int i = 0; i < cellData.size(); i++) {
             Region regions[] = new Region[cytoSize];
             for (int j = 0; j < cytoSize; j++) {
@@ -424,6 +455,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     cellsDir.getAbsolutePath(), protMode, uv, childDir, stacks[1],
                     stacks[0], directory, roi);
             outGen.run();
+            if (outGen.isCancelled()) {
+                cancelled = true;
+                return;
+            }
             if (stacks[1] != null && uv.isGetFluorDist()) {
                 saveFluorData(outGen.getFluorData());
             }
@@ -561,8 +596,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                     Region current = allRegions[h];
                     ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.SHOW_RESULTS,
                             measurements, rt, 0.0, Double.POSITIVE_INFINITY);
+                    ImageProcessor mask = current.getMask();
+                    mask.setThreshold(0, 0, ImageProcessor.NO_LUT_UPDATE);
                     ImagePlus maskImp = new ImagePlus(String.valueOf(index) + "_" + String.valueOf(h),
-                            current.getMask());
+                            mask);
                     analyzer.analyze(maskImp);
                     saveRegionMorph(current, rt);
                     rt.addValue("cell_id", index);
@@ -766,8 +803,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     }
 
     void genCurveVelVis(ArrayList<CellData> cellDatas) {
-        (new MultiThreadedVisualisationGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()),
-                cellData, protMode, stacks[0], uv, velDir, curveDir)).run();
+        MultiThreadedVisualisationGenerator visGen = new MultiThreadedVisualisationGenerator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()),
+                cellData, protMode, stacks[0], uv, velDir, curveDir);
+        visGen.run();
+        if (visGen.isCancelled()) {
+            cancelled = true;
+        }
     }
 
     void genSimpSegVis(ArrayList<CellData> cellDatas) {
@@ -1364,6 +1405,10 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         if (binary.isInvertedLut()) {
             binary.invertLut();
         }
+        // The cells are the black (0) pixels after thresholding and inverting.
+        // Set an explicit threshold so ParticleAnalyzer does not log the
+        // "threshold not set; assumed to be 0-0" message.
+        binary.setThreshold(0, 0, ImageProcessor.NO_LUT_UPDATE);
         ResultsTable rt = new ResultsTable();
         Prefs.blackBackground = false;
         ParticleAnalyzer analyzer = new ParticleAnalyzer(ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES,

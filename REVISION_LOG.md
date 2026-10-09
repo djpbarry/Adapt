@@ -27,6 +27,118 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-09 — ReadTheDocs scaffold (Phase C1/C2, no code)
+
+Started the docs migration (GitHub wiki → ReadTheDocs):
+
+- Scaffolded **Sphinx + MyST** under `docs/` (`conf.py`, `index.md`,
+  `requirements.txt` with `sphinx`/`myst-parser`/`sphinx-rtd-theme`).
+- Added **`.readthedocs.yaml`** so RTD builds automatically on push via its
+  GitHub integration (no local/CI Sphinx build — maintainer preference).
+- Wrote five pages: **Getting Started**, **User Guide**, **Concepts & Method**,
+  **Troubleshooting**, **Developer Guide**.
+- Moved the `content/*.png` screenshots to `docs/_static/` and referenced them
+  from the docs; pointed `README.md` at `https://adapt.readthedocs.io/`.
+
+Remaining: connect the repo to ReadTheDocs (one-time dashboard step) and convert
+the GitHub wiki to a stub redirect.
+
+---
+
+## 2026-10-09 — Progress dialog sizing (4.0.24)
+
+Enlarged the `ProgressMonitor` dialog so the status label ("Segmenting frame
+NNN of 500") is no longer truncated, and gave the Cancel button a taller
+preferred size. The label was the actual source of the earlier confusion — the
+bar was correct, but the small window clipped the frame/total text.
+
+---
+
+## 2026-10-09 — Progress bar + input-window fixes (4.0.23)
+
+Two follow-ups from the M5 step 8 live test:
+
+- **Progress bar now reports a clean 0–100%.** `ProgressMonitor` now uses a
+  fixed 0–100 range and paints the percentage string, so the bar no longer shows
+  a mismatched fill (the earlier `setMaximum(total)` + raw-count `setValue`
+  combination rendered the fill incorrectly).
+- **The input image is restored after analysis.** `Analyse_Movie` now remembers
+  the active hyperstack (`inputImage`) and re-shows it in `finishAnalysis()`
+  (including the cancel path), so the external `RegionGrower.hideWindows()` side
+  effect no longer leaves the user's image hidden after the run.
+
+`mvn test` green (13/13).
+
+---
+
+## 2026-10-08 — IAClassLibrary bug noted for upstream fix (review note)
+
+Flagged a `NullPointerException` in `IAClassLibrary`'s `Region.findSeed()` (the
+`FloatProcessor` `fp` is null inside `ij.plugin.filter.EDM.toEDM` →
+`ByteProcessor.setPixels`) that fires when a cell mask has no foreground pixels,
+reached from `FluorescenceAnalyser.getFluorDists()` → `morphFilter()` →
+`getOrderedBoundary()` → `getMaskOutline()` → `findSeed()`. ADAPT catches and
+logs it (non-fatal), but the fix belongs in IAClassLibrary (guard
+`findSeed`/`EDM.toEDM` against empty/degenerate masks). Recorded in
+`DEVELOPMENT_PLAN.md` Phase G6. No code change — note only.
+
+---
+
+## 2026-10-08 — Cancellation & progress (M5 step 8, 4.0.22)
+
+Closed out M5: the background analysis can now be cancelled.
+
+- Added `net.calm.adapt.ui.ProgressMonitor` — a non-modal dialog with a progress
+  bar and a Cancel button. UI mutations are marshalled onto the EDT; worker
+  threads poll `isCancelled()` and call `step(...)` to advance the bar.
+- `MultiThreadedOutputGenerator`, `MultiThreadedVisualisationGenerator`, and
+  `segmentCells()` now create and show a `ProgressMonitor`; its Cancel button
+  sets a shared `AtomicBoolean` (cooperative — no `shutdownNow()`, which
+  interrupted workers mid-Swing-operation and threw `InterruptedException` from
+  `ImagePlus.hide()`).
+- The workers (`RunnableOutputGenerator`, `RunnableVisualisationGenerator`)
+  check the flag at the start of `run()` and between major steps (skipping
+  fluorescence/protrusion work when cancelled), and report completion via
+  `monitor.step(...)`.
+- `Analyse_Movie` propagates the flag (`cancelled`) from the generators and
+  `runPipeline()`/`finishAnalysis()` abort (skipping trajectories,
+  `TrajectoryAnalysis`, and metadata); `Analyse_Batch.runBatch()` breaks out of
+  the file loop and reports "cancelled".
+
+Follow-ups from the first live test (same step, before commit):
+
+- Suppressed the per-frame `ParticleAnalyzer: threshold not set` message in
+  `getMorphologyData()` by setting an explicit `setThreshold(0, 0, NO_LUT_UPDATE)`
+  on the cell mask before `analyze()`.
+- Added a segmentation progress dialog (per-frame) so progress appears from the
+  start of the run, and fixed `ProgressMonitor.setTotal()` to size the bar
+  immediately.
+
+`mvn test` green (13/13).
+
+---
+
+## 2026-10-08 — Preview/channel-selection polish (4.0.20)
+
+Three follow-ups to M5 step 6, from a live-test review:
+
+- **Suppressed the spurious `ParticleAnalyzer: threshold not set` log** on
+  Preview. `Analyse_Movie.detectSeedPoints()` now sets an explicit
+  `binary.setThreshold(0, 0, NO_LUT_UPDATE)` before analysing, so the analyzer
+  no longer falls into its "no threshold, assumed 0-0" branch (the cells are the
+  black pixels after threshold+invert, so behaviour is unchanged).
+- **Moved the cytosol/signal channel dropdowns to the top** of the dialog (a new
+  `channelPanel` above the parameter tabs), since channel selection is the first
+  thing a user sets.
+- **Channel names from metadata.** The dropdowns now read the per-channel slice
+  label (`ImageStack.getSliceLabel`) and fall back to "Channel N" when the label
+  is missing/blank/numeric, or is an auto-generated hyperstack label (e.g.
+  `c:1/2 t:1/500 title.tif`).
+
+`mvn test` green (13/13).
+
+---
+
 ## 2026-10-08 — Output review: TrajectoryAnalysis tables still CamelCase
 
 Live test (`4.0.17`) confirmed the B2a output structure is correct (`README.md`,

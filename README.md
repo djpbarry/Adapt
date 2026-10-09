@@ -14,6 +14,6 @@ David J. Barry, Charlotte H. Durkin, Jasmine V. Abella, Michael Way; Open source
 
 View the below tutorial on YouTube to get started with some [test data](https://github.com/djpbarry/Adapt/tree/master/test_data).
 
-[![YouTube ScreenShot](./content/YouTube.png)](https://youtu.be/TWD4mrTnXvk?feature=shared)
+[![YouTube ScreenShot](./docs/_static/YouTube.png)](https://youtu.be/TWD4mrTnXvk?feature=shared)
 
-For more detailed instructions on installation and usage, consult [the wiki](https://github.com/djpbarry/adapt/wiki).
+For more detailed instructions on installation and usage, consult [the documentation](https://adapt.readthedocs.io/).
