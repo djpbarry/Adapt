@@ -27,6 +27,23 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-09 — Progress bar + input-window fixes (4.0.23)
+
+Two follow-ups from the M5 step 8 live test:
+
+- **Progress bar now reports a clean 0–100%.** `ProgressMonitor` now uses a
+  fixed 0–100 range and paints the percentage string, so the bar no longer shows
+  a mismatched fill (the earlier `setMaximum(total)` + raw-count `setValue`
+  combination rendered the fill incorrectly).
+- **The input image is restored after analysis.** `Analyse_Movie` now remembers
+  the active hyperstack (`inputImage`) and re-shows it in `finishAnalysis()`
+  (including the cancel path), so the external `RegionGrower.hideWindows()` side
+  effect no longer leaves the user's image hidden after the run.
+
+`mvn test` green (13/13).
+
+---
+
 ## 2026-10-08 — IAClassLibrary bug noted for upstream fix (review note)
 
 Flagged a `NullPointerException` in `IAClassLibrary`'s `Region.findSeed()` (the

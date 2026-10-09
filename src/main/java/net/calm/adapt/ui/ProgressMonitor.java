@@ -47,7 +47,8 @@ public class ProgressMonitor {
         dialog.setLayout(new BorderLayout());
         label = new JLabel(initialLabel);
         label.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
-        bar = new JProgressBar(0, 1);
+        bar = new JProgressBar(0, 100);
+        bar.setStringPainted(true);
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(e -> {
             cancelled.set(true);
@@ -73,19 +74,16 @@ public class ProgressMonitor {
 
     public void setTotal(int total) {
         this.total = Math.max(1, total);
-        int max = this.total;
-        SwingUtilities.invokeLater(() -> bar.setMaximum(max));
     }
 
     public void step(String status) {
         int done = completed.incrementAndGet();
-        int max = total;
+        int percent = (int) Math.round(done * 100.0 / total);
         SwingUtilities.invokeLater(() -> {
             if (status != null) {
                 label.setText(status);
             }
-            bar.setMaximum(max);
-            bar.setValue(done);
+            bar.setValue(percent);
         });
     }
 

@@ -56,6 +56,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
+import javax.swing.SwingUtilities;
 
 /**
  * Analyse_Movie is designed to quantify cell membrane dynamics and correlate
@@ -88,6 +89,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private Overlay previewOverlay;
     private boolean selectiveOutput = false;
     protected volatile boolean cancelled = false;
+    protected ImagePlus inputImage;
     private Properties props;
     private LocalDateTime startTime;
     private final String TRAJ_FILE_NAME = "trajectories.csv";
@@ -180,6 +182,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 return false;
             }
             roi = (PointRoi) cytoImp.getRoi(); // Points specified by the user indicate cells of interest
+            inputImage = cytoImp;
         }
         cytoImp.setTitle(cytoImp.getTitle().replace(" ", "_"));
         if (roi != null) {
@@ -280,6 +283,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 IJ.showStatus(TITLE + " cancelled.");
                 IJ.log("Analysis cancelled by user.");
             }
+            restoreInputImage();
             return;
         }
         TrajectoryAnalysis ta = new TrajectoryAnalysis(0.0, 0.0, uv.getTimeRes() / 60.0, 0, false, false, false, true, false, new int[]{3, 4, 0, 2});
@@ -292,6 +296,13 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         IJ.showStatus(TITLE + " done.");
         IJ.log(Time.getDurationAsString(startTime));
+        restoreInputImage();
+    }
+
+    private void restoreInputImage() {
+        if (inputImage != null && inputImage.getWindow() == null) {
+            SwingUtilities.invokeLater(inputImage::show);
+        }
     }
 
     private boolean createOutputDirectories(ImagePlus cytoImp, String imageName) {
