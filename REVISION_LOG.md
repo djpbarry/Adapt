@@ -27,15 +27,20 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
-## 2026-10-09 — IAClassLibrary 2.0.23 (upstream fixes landed)
+## 2026-10-09 — IAClassLibrary v2.0.23 (upstream fixes landed)
 
-`IAClassLibrary` was bumped to `2.0.23`, resolving the two issues handed off in
+`IAClassLibrary` was bumped to `v2.0.23`, resolving the two issues handed off in
 `IAClassLibrary_ISSUES.md`:
 
 - **`Region.findSeed()` NPE** — now guards against empty/degenerate masks.
 - **`TrajectoryAnalysis` CamelCase tables** — renamed to snake_case
   (`instantaneous_velocities.csv`, `mean_square_displacements.csv`,
   `mean_velocities.csv`, `run_lengths.csv`, `spider_plot_data.csv`).
+
+Note on the JitPack coordinate: the tag is `v2.0.23`, and this time the
+`v`-prefixed Maven coordinate (`v2.0.23`) is the one that built successfully
+(the bare `2.0.23` build failed on a transient JDK download error). ADAPT
+therefore pins `v2.0.23` (reversing the previous `2.0.22` no-`v` pin).
 
 Consequences for ADAPT:
 
