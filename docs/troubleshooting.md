@@ -2,12 +2,9 @@
 
 ## "Required dependency is missing"
 
-ADAPT's segmentation needs two libraries that are not in base Fiji:
-
-- **MorphoLibJ** — from the **IJPB-plugins** update site.
-- **3D ImageJ Suite** (`mcib3d-core`) — from the **3D ImageJ Suite** update site.
-
-Enable both in *Help ▸ Update… ▸ Manage update sites*, apply, and restart Fiji.
+ADAPT's segmentation needs **MorphoLibJ**, which is not in base Fiji. Enable the
+**IJPB-plugins** update site in *Help ▸ Update… ▸ Manage update sites*, apply,
+and restart Fiji.
 
 ## "The active image must be a hyperstack..."
 

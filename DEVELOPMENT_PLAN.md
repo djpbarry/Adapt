@@ -437,14 +437,11 @@ TWOMBLI's `.github/workflows/release.yml`). ADAPT-specific decisions:
    `TrackerLibrary-*.jar` from `target/` into `Fiji.app/jars/` (mirrors
    `bin/install-to-fiji.cmd`). Everything else is provided by *other* update
    sites the ADAPT site must declare as dependencies: TrackMate + Bio-Formats +
-   Jackson (Fiji/scijava core), MorphoLibJ (`IJPB-plugins`), and 3D ImageJ
-   Suite (`3D ImageJ Suite`). The runtime `checkDependencies()` guard depends on
-   MorphoLibJ and `mcib3d-core`, so those two are hard requirements, not
-   optional.
-   *(Note 2026-10-08: `mcib3d-core` (3D ImageJ Suite) is likely **not** actually
-   required — it is used only by IAClassLibrary's 3D path, which ADAPT does not
-   exercise. See `REVISION_LOG.md`; verify before finalising the update-site
-   dependencies.)*
+   Jackson (Fiji/scijava core) and MorphoLibJ (`IJPB-plugins`). The runtime
+   `checkDependencies()` guard depends on MorphoLibJ only.
+   *(Resolved 2026-10-09: `mcib3d-core` (3D ImageJ Suite) was dropped — it was
+   only used by IAClassLibrary's 3D path, which ADAPT does not exercise. See
+   `REVISION_LOG.md`.)*
 4. **Secrets:** `UPDATE_USER` (Wiki account) and `UPDATE_PASS` (upload
    password), created on imagej.net when the update site is set up. The
    update-site name in the workflow must match the one created on imagej.net.
@@ -541,6 +538,47 @@ Interoperate at the **data boundary** rather than coupling codebases:
 
 Because this is XML parse/write only, it sidesteps the Java-version conflict
 (see D3 constraints) and needs no compile-time TrackMate dependency.
+
+### D1a. TrackMate XML import — execution plan (first-release scope)
+
+Scope for the next release: **import only** — parse a TrackMate session XML, map
+its tracks onto ADAPT cells, and run the existing protrusion/bleb analysis. No
+TrackMate export, and no full migration statistics (those ride on the export
+direction). The cytosol/signal image stacks still come from Fiji; the XML only
+supplies cell identity and boundaries.
+
+1. **Pin the TrackMate XML schema.** Inspect a saved TrackMate v8 session to
+   confirm how spots, tracks, edges, and the `SpotRoi` contour are serialised
+   (spot features as attributes vs. child elements; the base64 `ROI` blob).
+
+2. **Decide the parsing approach** (decision — see below). Either (a) parse with
+   JDOM2 only (no TrackMate compile dependency, but must re-implement `SpotRoi`
+   decoding), or (b) use `TmXmlReader` / `Spot` / `SpotRoi` (add
+   `sc.fiji:TrackMate` as a compile dependency — it is already on the runtime
+   classpath via `IAClassLibrary`, see D5).
+
+3. **Map tracks → `CellData`.** One `CellData` per TrackMate track; one `Region`
+   per spot. The `Region` boundary comes from the `SpotRoi` contour (fall back
+   to a circular region from `RADIUS` when no contour exists). Set
+   `cellRegions`, `startFrame`, `endFrame`, and the per-frame centroids.
+
+4. **Refactor `runPipeline()` to skip segmentation.** Extract a path that uses
+   the imported `CellData` directly — no watershed, no seed-following link — and
+   feeds it into `generateOutputs()` / the protrusion analyser. The cyto/signal
+   stacks are still read from Fiji for velocity/curve/signal map building.
+
+5. **Add a plugin entry point.** A new `plugins.config` command (e.g. "Analyse
+   TrackMate File") that prompts for the TrackMate XML and the matching image,
+   builds `CellData`, and runs the protrusion analysis.
+
+6. **Testing.** Ship a small TrackMate XML fixture (or a generator); unit-test
+   the parser and the track→cell mapping; Fiji smoke test against the fixture.
+
+**Decision to resolve:** add TrackMate as a compile dependency? Using
+`TmXmlReader` is far simpler and TrackMate is already transitive, but it ties the
+XML bridge to a specific TrackMate version. Manual JDOM2 parsing keeps the bridge
+version-agnostic at the cost of re-implementing `SpotRoi` decoding. Lean toward
+`TmXmlReader` for v1 (pragmatic), revisit if the version web bites.
 
 ### D2. Stage 2 — ADAPT as a TrackMate module (long-term, high effort)
 
@@ -858,8 +896,9 @@ not silently accepted.
    hand-managed layout, parameter presets, progress/cancel. (Phase B1 — see the
    "B1 execution plan (M5)" above.) — **all 8 steps done (2026-10-08).**
 6. **M6 — Distribution:** update site, semver, in-product help links. (Phase B3)
-7. **M7 — TrackMate interop:** Stage-1 XML import/export bridge (Phase D1);
-   Stage-2 `TrackAnalyzer` module only after M4 lands.
+7. **M7 — TrackMate interop:** Stage-1 bridge (Phase D1). First release ships
+   **import-only** (parse TrackMate XML → `CellData` → protrusion analysis, see
+   D1a); export and the Stage-2 `TrackAnalyzer` module come later.
 8. **M8 — Segmentation interop:** Stage-1 external-mask import (Phase E1); the
    cellpose → TrackMate → ADAPT route (Phase E2) rides on M7; in-UI cellpose
    (Phase E3) only after the Java-target question is revisited.

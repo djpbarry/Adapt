@@ -94,8 +94,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private LocalDateTime startTime;
     private final String TRAJ_FILE_NAME = "trajectories.csv";
     private static final String[][] REQUIRED_DEPENDENCIES = {
-            {"inra.ijpb.binary.conncomp.FloodFillComponentsLabeling", "MorphoLibJ (IJPB-plugins update site)"},
-            {"mcib3d.image3d.ImageInt", "3D ImageJ Suite (mcib3d-core)"}
+            {"inra.ijpb.binary.conncomp.FloodFillComponentsLabeling", "MorphoLibJ (IJPB-plugins update site)"}
     };
 
     /**

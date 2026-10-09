@@ -8,12 +8,10 @@
 2. **Enable the ADAPT update site** — in Fiji, open
    *Help ▸ Update…*, click *Manage update sites*, and tick the **ADAPT** site.
    Apply the changes and restart Fiji.
-3. **Install the required dependencies** — ADAPT's segmentation needs two
-   libraries that are *not* part of base Fiji. Enable these update sites too:
-   - **IJPB-plugins** (provides MorphoLibJ)
-   - **3D ImageJ Suite** (provides `mcib3d-core`)
+3. **Install the required dependency** — ADAPT's segmentation needs MorphoLibJ,
+   which is *not* part of base Fiji. Enable the **IJPB-plugins** update site.
 
-   If either is missing, ADAPT reports a clear error at launch.
+   If it is missing, ADAPT reports a clear error at launch.
 
 ## Test data
 

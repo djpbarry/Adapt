@@ -27,6 +27,29 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-09 — Dropped the 3D ImageJ Suite (`mcib3d-core`) dependency (4.0.25)
+
+Acted on the earlier review note: `mcib3d-core` was only used by
+IAClassLibrary's 3D path, which ADAPT never exercises, so it was never a real
+runtime requirement. Removed it from `Analyse_Movie.REQUIRED_DEPENDENCIES`, so
+`checkDependencies()` now verifies **MorphoLibJ only**. Updated the user-facing
+dependency lists in `RELEASE_NOTES.md`, `docs/getting_started.md`, and
+`docs/troubleshooting.md`, and marked the `B3a` update-site note as resolved.
+
+---
+
+## 2026-10-09 — TrackMate XML import planned (D1a, planning only)
+
+Scoped the TrackMate interop feature for the next release: **import-only** —
+parse a TrackMate session XML, map its tracks onto ADAPT `CellData`, and run the
+existing protrusion/bleb analysis (no export, no migration stats). Added a
+six-step execution plan to `DEVELOPMENT_PLAN.md` (D1a) covering the XML schema
+investigation, the parsing-approach decision (JDOM2 vs `TmXmlReader`),
+track→`CellData` mapping, a segmentation-skipping pipeline path, the new plugin
+entry point, and testing. Planning only — no code changed.
+
+---
+
 ## 2026-10-09 — ReadTheDocs scaffold (Phase C1/C2, no code)
 
 Started the docs migration (GitHub wiki → ReadTheDocs):

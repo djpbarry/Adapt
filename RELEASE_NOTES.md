@@ -18,9 +18,8 @@ output has been restructured into a cleaner, more portable layout.
 
 - **Java 21** — Fiji must run on a Java 21 runtime.
 - **TrackMate 8** — resolved transitively via the updated `IAClassLibrary`.
-- **Update sites:** segmentation requires **MorphoLibJ** (IJPB-plugins) and
-  **3D ImageJ Suite** (`mcib3d-core`); ADAPT now reports a clear error at launch
-  if either is missing.
+- **Update sites:** segmentation requires **MorphoLibJ** (IJPB-plugins); ADAPT
+  reports a clear error at launch if it is missing.
 - Existing scripts that referenced the old output paths or column headings will
   need updating (see "Behaviour-changing changes" below).
 
