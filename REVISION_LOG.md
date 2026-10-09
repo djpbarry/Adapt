@@ -27,6 +27,24 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-09 — ReadTheDocs scaffold (Phase C1/C2, no code)
+
+Started the docs migration (GitHub wiki → ReadTheDocs):
+
+- Scaffolded **Sphinx + MyST** under `docs/` (`conf.py`, `index.md`,
+  `requirements.txt` with `sphinx`/`myst-parser`/`sphinx-rtd-theme`).
+- Added **`.readthedocs.yaml`** so RTD builds automatically on push via its
+  GitHub integration (no local/CI Sphinx build — maintainer preference).
+- Wrote five pages: **Getting Started**, **User Guide**, **Concepts & Method**,
+  **Troubleshooting**, **Developer Guide**.
+- Moved the `content/*.png` screenshots to `docs/_static/` and referenced them
+  from the docs; pointed `README.md` at `https://adapt.readthedocs.io/`.
+
+Remaining: connect the repo to ReadTheDocs (one-time dashboard step) and convert
+the GitHub wiki to a stub redirect.
+
+---
+
 ## 2026-10-09 — Progress dialog sizing (4.0.24)
 
 Enlarged the `ProgressMonitor` dialog so the status label ("Segmenting frame

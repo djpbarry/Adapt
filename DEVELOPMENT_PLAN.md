@@ -458,34 +458,36 @@ TWOMBLI's `.github/workflows/release.yml`). ADAPT-specific decisions:
 
 ### C1. Choose and scaffold the docs toolchain
 
-1. Adopt **Sphinx + MyST (Markdown)** hosted on **ReadTheDocs**, keeping the
-   source under `docs/` in this repo so docs and code version together.
-2. Add an RTD build job to CI and a `readthedocs.yaml` config.
-3. Redirect the GitHub wiki to the new site (a stub page pointing to RTD), and
-   add a prominent link in `README.md`.
+1. ✔ **Sphinx + MyST (Markdown)** scaffolded under `docs/` (`conf.py`,
+   `index.md`, `requirements.txt`).
+2. ✔ **`.readthedocs.yaml`** added for ReadTheDocs. RTD builds automatically on
+   push via its GitHub integration (no separate CI job — per maintainer
+   preference, the local Sphinx build is not wired into CI).
+3. **Partial.** `README.md` now links to `https://adapt.readthedocs.io/`
+   (done); the GitHub wiki stub redirect is still pending (wiki not yet
+   converted).
 
 ### C2. Migrate and restructure content
 
-Sections to establish (migrating wiki content → docs):
+✔ Done (initial pass) — five pages under `docs/`:
 
 - **Getting Started**: installation via update site, test-data tutorial (linked
   YouTube video + `test_data/`).
-- **User Guide**: explain each parameter (draw from `StaticVariables` labels);
-  the Simple / Advanced / Protrusion Analysis tabs; the output folder structure.
-- **Concepts / Method**: plain-English explanation of the analysis pipeline —
-  segmentation, curvature/velocity/signal maps, protrusion vs bleb detection —
-  with the DOI cited.
+- **User Guide**: each parameter (from `StaticVariables` labels); the Simple /
+  Advanced / Protrusion Analysis tabs; the output folder structure.
+- **Concepts / Method**: segmentation, curvature/velocity/signal maps,
+  protrusion vs bleb detection, with the DOI cited.
 - **Troubleshooting / FAQ**.
 - **Developer Guide**: build instructions (from `AGENTS.md`), architecture,
   entry points (`plugins.config`), and contribution workflow.
 
 ### C3. Automate doc quality
 
-1. Add a `make linkcheck` / docs-build to CI to catch broken links and RST/MD
-   errors.
-2. Optionally generate API reference from Javadoc and reference it from RTD.
-3. Keep screenshots (currently `content/*.png`) in `docs/_static/`, and update
-   them as the GUI changes in Phase B.
+1. Deferred — rely on RTD's build status for now; a CI `sphinx-build` check can
+   be added later if wanted.
+2. Deferred — API reference from Javadoc not yet generated.
+3. ✔ Screenshots moved from `content/` to `docs/_static/` and referenced from
+   the docs; regenerate as the GUI changes.
 
 ---
 
