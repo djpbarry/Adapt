@@ -27,6 +27,28 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-09 — IAClassLibrary 2.0.23 (upstream fixes landed)
+
+`IAClassLibrary` was bumped to `2.0.23`, resolving the two issues handed off in
+`IAClassLibrary_ISSUES.md`:
+
+- **`Region.findSeed()` NPE** — now guards against empty/degenerate masks.
+- **`TrajectoryAnalysis` CamelCase tables** — renamed to snake_case
+  (`instantaneous_velocities.csv`, `mean_square_displacements.csv`,
+  `mean_velocities.csv`, `run_lengths.csv`, `spider_plot_data.csv`).
+
+Consequences for ADAPT:
+
+- The `TrajectoryAnalysis` output filenames change, so the **H5 output baseline
+  must be regenerated** (`bin/compute-baseline.cmd`) and the docs' "all snake_case"
+  claim is now fully true.
+- Updated the version references in `AGENTS.md` and `DEVELOPMENT_PLAN.md`, and
+  marked the two upstream items (Phase G6, the B2a note) as resolved.
+
+`mvn test` green; a full Fiji run against `test_data/` is the confirmation gate.
+
+---
+
 ## 2026-10-09 — Dropped the 3D ImageJ Suite (`mcib3d-core`) dependency (4.0.25)
 
 Acted on the earlier review note: `mcib3d-core` was only used by

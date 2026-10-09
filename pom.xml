@@ -13,7 +13,7 @@
 
     <groupId>net.calm</groupId>
     <artifactId>adapt</artifactId>
-    <version>4.0.25</version>
+    <version>4.0.26</version>
 
     <name>net.calm.adapt</name>
     <description>Maven implementation of net.calm.adapt.Adapt plugin.</description>
@@ -108,7 +108,7 @@
         <!--
         Core dependencies resolved from JitPack (auth-free).
 
-        * IAClassLibrary `2.0.22` - modernised (Java 21, GPL-3.0); API docs at
+        * IAClassLibrary `2.0.23` - modernised (Java 21, GPL-3.0); API docs at
           https://djpbarry.github.io/IAClassLibrary/
         * TrackerLibrary `v4.0.8` - modernised (Java 21, GPL-3.0); API docs at
           https://djpbarry.github.io/TrackerLibrary/
@@ -116,7 +116,7 @@
         <dependency>
             <groupId>com.github.djpbarry</groupId>
             <artifactId>IAClassLibrary</artifactId>
-            <version>2.0.22</version>
+            <version>2.0.23</version>
         </dependency>
         <dependency>
             <groupId>com.github.djpbarry</groupId>

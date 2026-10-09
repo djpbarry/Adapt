@@ -12,7 +12,7 @@ visualisations.
 
 The heavy lifting (segmentation, curvature analysis, trajectory analysis,
 Bio-Formats I/O, `UserVariables` parameters) is done by two external
-dependencies pulled from JitPack (`IAClassLibrary` `2.0.22` and `TrackerLibrary`
+dependencies pulled from JitPack (`IAClassLibrary` `2.0.23` and `TrackerLibrary`
 `v4.0.8`, both under `com.github.djpbarry`, pinned to tagged releases). ADAPT
 also contains substantial in-repo domain logic, so it is not purely
 orchestration/glue. When searching for how a step actually works, look at these

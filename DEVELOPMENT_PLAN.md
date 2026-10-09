@@ -28,7 +28,7 @@ not drift stale behind the code.
 - The heavy lifting — segmentation (`RegionGrower`), curvature computation,
   particle/trajectory tracking (`TrajectoryAnalysis`, `TrajectoryBuilder`),
   Bio-Formats I/O, and CSV writing — lives in two external libraries pulled
-  from JitPack: `IAClassLibrary` `2.0.22` and `TrackerLibrary` `v4.0.8` (tagged
+  from JitPack: `IAClassLibrary` `2.0.23` and `TrackerLibrary` `v4.0.8` (tagged
   releases). ADAPT also contains substantial in-repo domain logic
   (protrusion/bleb/fluorescence analysis and cell-trajectory extraction), so it
   is not purely orchestration/glue.
@@ -71,7 +71,7 @@ not drift stale behind the code.
 
 ### A2. Fix the dependency pinning problem
 
-1. ✔ Done: `IAClassLibrary` → `2.0.22`, `TrackerLibrary` → `v4.0.8` (tagged,
+1. ✔ Done: `IAClassLibrary` → `2.0.23`, `TrackerLibrary` → `v4.0.8` (tagged,
    Javadoc-published; re-pinned again 2026-10-05). ✔ `AdaptDataProcessing`
    removed (deprecated/obsolete — its README recommends Python); the
    `Bleb_Data_Analysis` plugin was retired with it.
@@ -408,10 +408,10 @@ Trade-off: this is a breaking change, so the H5 output baseline and the
 `v4.0.0` tag. Consider doing the writer changes alongside the M4
 `RunnableOutputGenerator.buildOutput()` decomposition so the schema lands once.
 
-*(Note 2026-10-08: the five cell-migration tables emitted by the external
-`TrajectoryAnalysis` (`Instantaneous_Velocities.csv`, `Mean_Square_Displacements.csv`,
-`Mean_Velocities.csv`, `Run_Lengths.csv`, `Spider_Plot_Data.csv`) remain CamelCase
-in `tables/`. A naming fix belongs in IAClassLibrary, not ADAPT.)*
+*(Resolved 2026-10-09: the five cell-migration tables emitted by the external
+`TrajectoryAnalysis` were renamed to snake_case in `IAClassLibrary 2.0.23`
+(`instantaneous_velocities.csv`, `mean_square_displacements.csv`,
+`mean_velocities.csv`, `run_lengths.csv`, `spider_plot_data.csv`).)*
 
 ### B3. Package & distribute more cleanly
 
@@ -713,7 +713,7 @@ over Ultrack CSV. Only if Ultrack CSV proves insufficient.
 
 ## Phase G — Upstream dependency hygiene (do first)
 
-> **Status: complete.** `IAClassLibrary` (`2.0.22`) and `TrackerLibrary`
+> **Status: complete.** `IAClassLibrary` (`2.0.23`) and `TrackerLibrary`
 > (`v4.0.8`) are modernised and tagged (GPL-3.0-or-later, Java
 > 21, Maven wrapper, Javadoc published). `AdaptDataProcessing` was **removed**
 > (deprecated/obsolete — its README recommends Python); the `Bleb_Data_Analysis`
@@ -774,14 +774,14 @@ management tractable.
 
 ### G6. Known upstream bug to fix (IAClassLibrary)
 
-`Region.findSeed()` (in `net.calm.iaclasslibrary.IAClasses`) throws a
+`Region.findSeed()` (in `net.calm.iaclasslibrary.IAClasses`) threw a
 `NullPointerException` (`fp` is null inside `ij.plugin.filter.EDM.toEDM` →
-`ByteProcessor.setPixels`) when the cell mask has no foreground pixels. It is
-reached from `FluorescenceAnalyser.getFluorDists()` →
-`Region.morphFilter()` → `getOrderedBoundary()` → `getMaskOutline()` →
-`findSeed()`. ADAPT catches and logs it (non-fatal), but the fix belongs in
-**IAClassLibrary** (guard `findSeed`/`EDM.toEDM` against empty or degenerate
-masks). Tracked for the next IAClassLibrary modernisation pass.
+`ByteProcessor.setPixels`) when the cell mask had no foreground pixels, reached
+from `FluorescenceAnalyser.getFluorDists()` → `morphFilter()` →
+`getOrderedBoundary()` → `getMaskOutline()` → `findSeed()`.
+
+**Resolved 2026-10-09** in `IAClassLibrary 2.0.23` — `findSeed()` now guards
+against empty/degenerate masks and returns a null seed instead of NPEing.
 
 ---
 
@@ -920,7 +920,7 @@ refactor. M8's Stage-1 (external-mask import) is likewise Java-target
 independent. M9 is a self-contained exporter and can land at any point.
 
 **M10 (Phase G) is done.** The two upstream libraries are tagged
-(`IAClassLibrary 2.0.22`, `TrackerLibrary v4.0.8`) and re-pointed; the obsolete
+(`IAClassLibrary 2.0.23`, `TrackerLibrary v4.0.8`) and re-pointed; the obsolete
 `AdaptDataProcessing` was dropped (along with the `Bleb_Data_Analysis` plugin).
 Java 21 + TrackMate 8 are in place.
 
@@ -1015,7 +1015,7 @@ input for the phases above.
    GitHub Packages. Tag `IAClassLibrary` and `TrackerLibrary` with releases in
    their own repos; JitPack resolves tagged versions auth-free. Update the
    `pom.xml` versions from commit hashes to those tags.
-   *(Applied: `IAClassLibrary` → `2.0.22`, `TrackerLibrary` → `v4.0.8` (re-pinned
+   *(Applied: `IAClassLibrary` → `2.0.23`, `TrackerLibrary` → `v4.0.8` (re-pinned
    2026-10-05). `AdaptDataProcessing` was **removed** as deprecated/obsolete — its README
    recommends a Python rewrite; the `Bleb_Data_Analysis` plugin was retired
    with it.)*
@@ -1030,7 +1030,7 @@ input for the phases above.
    - ✔ `scijava.jvm.version=21` set; `maven.compiler.release=21` verified; clean
      compile of all 17 sources at `release 21` passes.
    - ✔ `TrackMate:7.14.0` pin removed — the parent now resolves TrackMate 8.0.0.
-   - ✔ `IAClassLibrary` → `2.0.22`, `TrackerLibrary` → `v4.0.8` (clean compile).
+   - ✔ `IAClassLibrary` → `2.0.23`, `TrackerLibrary` → `v4.0.8` (clean compile).
    - ✔ `AdaptDataProcessing` removed (deprecated/obsolete) and `Bleb_Data_Analysis`
      retired.
 4. **Package names — rename to lowercase.** ✔ Done (2026-10-03): `Adapt`→`adapt`,
