@@ -45,12 +45,13 @@ therefore pins `v2.0.23` (reversing the previous `2.0.22` no-`v` pin).
 Consequences for ADAPT:
 
 - The `TrajectoryAnalysis` output filenames change, so the **H5 output baseline
-  must be regenerated** (`bin/compute-baseline.cmd`) and the docs' "all snake_case"
+  was regenerated** (`bin/compute-baseline.cmd`) and the docs' "all snake_case"
   claim is now fully true.
 - Updated the version references in `AGENTS.md` and `DEVELOPMENT_PLAN.md`, and
   marked the two upstream items (Phase G6, the B2a note) as resolved.
 
-`mvn test` green; a full Fiji run against `test_data/` is the confirmation gate.
+Live Fiji run (`4.0.26`) against `test_data/` completed with no issues; the
+regenerated baseline verifies (`BASELINE_PASS`, 15 files).
 
 ---
 
