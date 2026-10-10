@@ -59,6 +59,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private final PointRoi roi;
     private final Properties props = new Properties();
     private Runnable onRun;
+    private boolean importMode = false;
 
     /**
      * Creates new form GUI
@@ -78,6 +79,16 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     }
 
     public GUI(java.awt.Frame parent, boolean modal, String title, ImagePlus hyperstack, PointRoi roi) {
+        this(parent, modal, title, hyperstack, roi, false);
+    }
+
+    /**
+     * Creates the single-movie GUI. When {@code importMode} is {@code true} the
+     * cell boundaries are supplied externally (e.g. from a TrackMate import), so
+     * the segmentation controls are hidden/disabled and a banner explains that
+     * only channels and analysis settings need to be chosen.
+     */
+    public GUI(java.awt.Frame parent, boolean modal, String title, ImagePlus hyperstack, PointRoi roi, boolean importMode) {
         super(parent, modal);
         this.stacks = null;
         this.title = title;
@@ -85,6 +96,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         this.cytoOrig = hyperstack;
         this.sigOrig = hyperstack;
         this.roi = roi;
+        this.importMode = importMode;
         initComponents();
         setToolTips();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -189,6 +201,18 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         setTitle(title);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
+        if (importMode) {
+            importBannerLabel = new javax.swing.JLabel();
+            importBannerLabel.setText("<html><b>Cell boundaries imported from TrackMate.</b><br>Segmentation is skipped. Choose the cytosol/signal channels and analysis settings, then click Run.</html>");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridy = 0;
+            gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints.weightx = 1.0;
+            gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
+            getContentPane().add(importBannerLabel, gridBagConstraints);
+        }
+
         channelPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         channelPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -230,7 +254,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = importMode ? 1 : 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 0.0;
@@ -844,7 +868,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         jPanel2.add(previewButton, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = importMode ? 2 : 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 0.9;
@@ -895,13 +919,34 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = importMode ? 3 : 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 0.1;
         getContentPane().add(jPanel5, gridBagConstraints);
 
+        applyImportMode();
         pack();
+    }
+
+    private void applyImportMode() {
+        if (!importMode) {
+            return;
+        }
+        // Segmentation is supplied externally, so hide the preview and disable
+        // every segmentation-only control. Analysis controls stay enabled.
+        previewButton.setVisible(false);
+        greyThreshLabel.setEnabled(false);
+        greyThreshField.setEnabled(false);
+        autoThreshToggleButton.setEnabled(false);
+        threshLabel.setEnabled(false);
+        threshComboBox.setEnabled(false);
+        gaussRadLabel.setEnabled(false);
+        gaussRadField.setEnabled(false);
+        erosionLabel.setEnabled(false);
+        erosionField.setEnabled(false);
+        minMorphAreaLabel.setEnabled(false);
+        minMorphAreaTextField.setEnabled(false);
     }
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -986,6 +1031,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         anaProtToggleButtonActionPerformed(null);
         blebDetectRadioButtonActionPerformed(null);
         useSigThreshToggleButtonActionPerformed(null);
+        applyImportMode();
     }
 
     private void autoThreshToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -1305,6 +1351,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private javax.swing.JLabel filoSizeLabel;
     private javax.swing.JTextField gaussRadField;
     private javax.swing.JLabel gaussRadLabel;
+    private javax.swing.JLabel importBannerLabel;
     private javax.swing.JToggleButton genMorphToggleButton;
     private javax.swing.JToggleButton genSigDistToggleButton;
     private javax.swing.JToggleButton genVisToggleButton;

@@ -128,7 +128,7 @@ public class Analyse_TrackMate extends Analyse_Movie implements PlugIn {
             return false;
         }
         setImportedCells(imported);
-        GUI gui = new GUI(null, false, TITLE, cytoImp, roi);
+        GUI gui = new GUI(null, false, TITLE, cytoImp, roi, true);
         gui.setOnRun(() -> {
             stacks = gui.getSelectedStacks();
             uv = gui.getUv();
