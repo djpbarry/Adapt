@@ -29,8 +29,8 @@ dated narrative plus the "what not to do again" notes.
 
 ## 2026-10-09 — IAClassLibrary v2.0.23 (upstream fixes landed)
 
-`IAClassLibrary` was bumped to `v2.0.23`, resolving the two issues handed off in
-`IAClassLibrary_ISSUES.md`:
+`IAClassLibrary` was bumped to `v2.0.23`, resolving the two issues handed off to
+the `djpbarry/IAClassLibrary` repo:
 
 - **`Region.findSeed()` NPE** — now guards against empty/degenerate masks.
 - **`TrajectoryAnalysis` CamelCase tables** — renamed to snake_case

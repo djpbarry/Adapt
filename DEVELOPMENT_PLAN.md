@@ -461,8 +461,19 @@ TWOMBLI's `.github/workflows/release.yml`). ADAPT-specific decisions:
    push via its GitHub integration (no separate CI job — per maintainer
    preference, the local Sphinx build is not wired into CI).
 3. **Partial.** `README.md` now links to `https://adapt.readthedocs.io/`
-   (done); the GitHub wiki stub redirect is still pending (wiki not yet
-   converted).
+   (done). The GitHub wiki redirect is prepared — paste this into the wiki
+   `Home` page, then the wiki can be archived:
+
+   ```markdown
+   # ADAPT documentation has moved
+
+   The ADAPT documentation now lives at <https://adapt.readthedocs.io/>.
+   Please update your bookmarks — this wiki is no longer maintained.
+   ```
+
+   The two one-time manual steps remaining are (1) connect this repo to
+   ReadTheDocs in the RTD dashboard, and (2) paste the redirect into the GitHub
+   wiki.
 
 ### C2. Migrate and restructure content
 
