@@ -27,6 +27,23 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-09 — Removed the stale `Main`/`initialise()` debug path (H4)
+
+Closed out H4 entry-point hygiene: ADAPT is now loaded only via the two
+`plugins.config` commands, with no standalone `main-class`.
+
+- Deleted `Main.java` (a `main()` that called `Analyse_Movie.initialise()` then
+  `run(null)` and `System.exit(0)`).
+- Removed `Analyse_Movie.initialise()` (opened two images via `IJ.openImage()`
+  and set `stacks` — stale once single-movie `analyse()` switched to the active
+  hyperstack).
+- Removed the `pom.xml` `main-class` property (the jar no longer carries a
+  `Main-Class` manifest entry).
+
+`mvn compile` green. Version bumped to `4.0.27`.
+
+---
+
 ## 2026-10-09 — IAClassLibrary v2.0.23 (upstream fixes landed)
 
 `IAClassLibrary` was bumped to `v2.0.23`, resolving the two issues handed off to

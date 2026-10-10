@@ -113,18 +113,6 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         this.selectiveOutput = this.roi != null;
     }
 
-    /*
-     * For debugging - images loaded from file
-     */
-    void initialise() {
-        ImagePlus imp1 = IJ.openImage();
-        stacks[0] = imp1.getImageStack();
-        ImagePlus imp2 = IJ.openImage();
-        if (imp2 != null) {
-            stacks[1] = imp2.getImageStack();
-        }
-    }
-
     /**
      * Opens GUIs for user to specify directory for output then runs analysis
      *

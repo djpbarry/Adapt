@@ -38,13 +38,10 @@ libraries first, not this repo.
   `actions/setup-java@v5`.
 - **Packaging:** the parent POM is `org.scijava:pom-scijava:45.1.0`; the
   `maven-dependency-plugin` copies all dependencies into `target/` on `package`.
-- **Run/debug:** `main-class` is `net.calm.adapt.adapt.Main`. Its `main()` calls
-  `Analyse_Movie.initialise()` then `run(null)`, a debug path that opens images
-  via dialog (`IJ.openImage()`). This path is **stale** — single-movie
-  `analyse()` now reads the active hyperstack window instead of the stacks
-  `initialise()` set — and is left for the H4 dead-code sweep. Under Fiji the
-  real entry points are the two plugins declared in
-  `src/main/resources/plugins.config`.
+- **Run/debug:** there is no standalone `main-class` — ADAPT is a Fiji plugin
+  loaded via the two commands in `src/main/resources/plugins.config`, not run
+  via `java -jar`. The old `Main`/`Analyse_Movie.initialise()` debug entry point
+  was removed (H4).
 - **Local Fiji testing:** `bin/install-to-fiji.cmd`, `bin/run-fiji.cmd`, and
   `bin/smoke-test-fiji.cmd` stage/launch/test the plugin in a local Fiji.
   Machine-specific `FIJI_DIR`/`JAVA_HOME` live in `bin/local-env.cmd`
@@ -182,8 +179,8 @@ and extracts the selected cytosol/signal channels) → `runPipeline()`/
   `setOnRun` callback (M5 step 1).
 - **Dead code was removed in M1.** The commented-out experiments in `Main.java`,
   `Analyse_Movie`, `BlebAnalyser`, and `RunnableOutputGenerator` were stripped
-  (recoverable from git history); remaining comments are legitimate
-  documentation, not stale experiments.
+  (recoverable from git history); `Main.java` itself was later removed entirely
+  (H4). Remaining comments are legitimate documentation, not stale experiments.
 - **License is GPL-3.0** (aligned in M1): `pom.xml` (`license.licenseName=gpl_v3`)
   and source headers now agree. `license.copyrightOwners` is **David Barry**
   (development predates the Francis Crick Institute, so the Crick cannot claim

@@ -13,7 +13,7 @@
 
     <groupId>net.calm</groupId>
     <artifactId>adapt</artifactId>
-    <version>4.0.26</version>
+    <version>4.0.27</version>
 
     <name>net.calm.adapt</name>
     <description>Maven implementation of net.calm.adapt.Adapt plugin.</description>
@@ -81,7 +81,6 @@
 
     <properties>
         <package-name>net.calm.adapt</package-name>
-        <main-class>net.calm.adapt.adapt.Main</main-class>
         <license.licenseName>gpl_v3</license.licenseName>
         <license.copyrightOwners>David Barry</license.copyrightOwners>
         <scijava.jvm.version>21</scijava.jvm.version>

@@ -872,12 +872,15 @@ A short checklist run against the `test_data/` inputs (`blebbing_cell`,
   manual gate in `AGENTS.md` and `README.md`.
 - Track the outcome in `REVISION_LOG.md` alongside each change.
 
-### H4. Entry-point hygiene (prerequisite)
+### H4. Entry-point hygiene
 
-The current `Main.main()` debug path opens images via `IJ.openImage()` dialogs —
-it is *not* the real plugin entry point. Confirm the two `plugins.config`
-commands are the authoritative interactive entry points, and either document the
-`Main` path as debug-only or remove it in M4's dead-code sweep.
+The `Main.main()` debug path (which opened images via `IJ.openImage()` dialogs)
+was removed — it was not the real plugin entry point and had gone stale once
+single-movie `analyse()` switched to reading the active hyperstack. The two
+`plugins.config` commands are now the only entry points; there is no
+`main-class` (ADAPT is a plugin, not a runnable jar).
+— **done (2026-10-09): removed `Main.java`, `Analyse_Movie.initialise()`, and
+the `pom.xml` `main-class` property.**
 
 ### H5. Output-baseline comparison (quantitative, deferred)
 
