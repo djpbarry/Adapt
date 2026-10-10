@@ -1083,3 +1083,8 @@ input for the phases above.
    `-SNAPSHOT`), and `maven-release-plugin` tags releases as
    `v@{project.version}` (e.g. `v4.0.1`). The `v4.0.1` tag is created only once
    the modernisation work lands.
+   *(Resolved 2026-10-10: **no major bump** — the release stays in the `v4.x`
+   series. Nothing has been publicly released yet, so the development-time
+   breaking changes (output restructure, `params.json`, single-hyperstack input)
+   do not warrant `v5`. The maintainer notes a `-SNAPSHOT` during development
+   would have been cleaner, but the decision is to ship `v4`.)*

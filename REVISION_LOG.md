@@ -27,6 +27,17 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-10 — Version decision: stay on `v4` (no major bump)
+
+Resolved the version question in `DEVELOPMENT_PLAN.md` (Decision 7): the release
+stays in the **`v4.x`** series. Nothing has been publicly released yet, so the
+development-time breaking changes (output restructure, `params.json`,
+single-hyperstack input) do not warrant a `v5`. Noted that keeping a
+`-SNAPSHOT` during this redevelopment would have been cleaner, but the decision
+is to ship `v4`.
+
+---
+
 ## 2026-10-09 — Removed the stale `Main`/`initialise()` debug path (H4)
 
 Closed out H4 entry-point hygiene: ADAPT is now loaded only via the two
