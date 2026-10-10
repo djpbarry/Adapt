@@ -1,6 +1,6 @@
 @echo off
-rem Headless smoke test: verify the local Fiji runs on the JDK and that the two
-rem ADAPT plugin classes (plus their sibling-library dependencies) are loadable.
+rem Headless smoke test: verify the local Fiji runs on the JDK and that the ADAPT
+rem plugin classes (plus their sibling-library dependencies) are loadable.
 rem
 rem Usage:   smoke-test-fiji.cmd [path\to\Fiji]
 rem Default: FIJI_DIR from bin\local-env.cmd (gitignored); see local-env.cmd.example
@@ -38,7 +38,9 @@ set "CHECK=%TEMP%\AdaptPluginCheck.java"
     echo     public static void main(String[] a^) throws Exception {
     echo         String[] plugins = {
     echo             "net.calm.adapt.adapt.Analyse_Movie",
-    echo             "net.calm.adapt.adapt.Analyse_Batch"
+    echo             "net.calm.adapt.adapt.Analyse_Batch",
+    echo             "net.calm.adapt.adapt.Analyse_TrackMate",
+    echo             "net.calm.adapt.adapt.TrackMateImporter"
     echo         };
     echo         for (String p : plugins^) {
     echo             System.out.println("OK  " + Class.forName(p^).getName(^)^);

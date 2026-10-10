@@ -27,6 +27,31 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-10 — TrackMate import wired into the pipeline (D1a steps 4-6)
+
+Completed the import direction of the TrackMate bridge.
+
+- **Skip segmentation (step 4):** added `Analyse_Movie.setImportedCells()`; when
+  imported cells are present, `runPipeline()` bypasses `segmentCells()` and
+  feeds the supplied `CellData` straight into `generateOutputs()`, setting
+  `minLength` directly. Segmentation-only members that subclasses need
+  (`checkDependencies`, `createOutputDirectories`, `finishAnalysis`, `props`)
+  were widened to `protected`.
+- **Plugin entry point (step 5):** new `Analyse_TrackMate` (`PlugIns` command
+  "Analyse TrackMate File") prompts for the TrackMate XML, imports the active
+  image's tracks, and runs the standard ADAPT GUI/pipeline.
+- **Testing (step 6):** `TrackMateImporterTest` now imports the real
+  `test_data/migrating_cell/migrating_cell.ome.xml` fixture and asserts the
+  single 121-frame track maps to a 121-frame `CellData` with full-size masks.
+  16/16 tests green. Version bumped to `4.0.28`.
+
+Lesson: the real fixture immediately confirmed the model assumptions made in
+step 3 (single track, 121 spots, `ROI_N_POINTS` inline contour, `SpotRoi`
+offsets relative to the spot centre) — worth having a real session file as the
+test fixture rather than hand-built XML.
+
+---
+
 ## 2026-10-10 — TrackMate import mapping verified + tested (D1a step 3)
 
 Finished the TrackMate→`CellData` mapping step. Verified the API usage in

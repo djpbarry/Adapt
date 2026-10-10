@@ -90,7 +90,8 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     private boolean selectiveOutput = false;
     protected volatile boolean cancelled = false;
     protected ImagePlus inputImage;
-    private Properties props;
+    private ArrayList<CellData> importedCells;
+    protected Properties props;
     private LocalDateTime startTime;
     private final String TRAJ_FILE_NAME = "trajectories.csv";
     private static final String[][] REQUIRED_DEPENDENCIES = {
@@ -111,6 +112,15 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         this.parDir = parDir;
         this.roi = roi;
         this.selectiveOutput = this.roi != null;
+    }
+
+    /**
+     * Supplies externally derived cell data (for example from a TrackMate
+     * import) so that segmentation is bypassed and these cells are analysed
+     * directly.
+     */
+    public void setImportedCells(ArrayList<CellData> importedCells) {
+        this.importedCells = importedCells;
     }
 
     /**
@@ -207,7 +217,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return out;
     }
 
-    private boolean checkDependencies() {
+    protected boolean checkDependencies() {
         for (String[] dependency : REQUIRED_DEPENDENCIES) {
             try {
                 Class.forName(dependency[0]);
@@ -237,7 +247,12 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         int width = cytoStack.getWidth();
         int height = cytoStack.getHeight();
         int cytoSize = cytoStack.getSize();
-        if (!segmentCells(cytoStack, width, height, cytoSize)) {
+        if (importedCells != null) {
+            // TrackMate import path: cells and their per-frame regions are
+            // supplied externally, so segmentation is skipped entirely.
+            cellData = importedCells;
+            minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
+        } else if (!segmentCells(cytoStack, width, height, cytoSize)) {
             return false;
         }
         if (cellData.size() < 1) return false;
@@ -264,7 +279,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         return true;
     }
 
-    private void finishAnalysis() {
+    protected void finishAnalysis() {
         if (!runPipeline()) {
             if (cancelled) {
                 IJ.showStatus(TITLE + " cancelled.");
@@ -292,7 +307,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
     }
 
-    private boolean createOutputDirectories(ImagePlus cytoImp, String imageName) {
+    protected boolean createOutputDirectories(ImagePlus cytoImp, String imageName) {
         /*
          * Create new parent output directory - make sure directory name is
          * unique so old results are not overwritten

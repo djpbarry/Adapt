@@ -61,6 +61,12 @@ output has been restructured into a cleaner, more portable layout.
 - **Tooltips** on every parameter.
 - **Reproducible output baseline** — `bin/compute-baseline.cmd` and
   `bin/verify-baseline.cmd` SHA-256 the deterministic text outputs.
+- **TrackMate import** — the new `Plugins > Adapt > Analyse TrackMate File`
+  command runs the full ADAPT analysis (velocity/curvature/signal maps and
+  protrusion/bleb detection) on cells that were already segmented and tracked in
+  TrackMate. It reads the per-cell, per-frame boundaries from a TrackMate session
+  XML and skips ADAPT's own segmentation; the cytosol/signal image stacks still
+  come from Fiji (open the matching movie first).
 - **Concurrency model documented** (no behaviour change).
 
 ### Bug fixes

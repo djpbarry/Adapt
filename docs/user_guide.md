@@ -16,6 +16,23 @@ settings as a `params.json` file.
 The analysis runs on a background thread; a progress dialog shows the current
 phase and lets you **Cancel**.
 
+## Using existing TrackMate tracks
+
+If you have already segmented and tracked your cells in
+[TrackMate](https://imagej.net/plugins/trackmate/), you can skip ADAPT's own
+segmentation and analyse the TrackMate boundaries instead:
+
+1. Save your TrackMate session as an XML file (the `.xml` written by
+   *Save* in the TrackMate dialog).
+2. Open the matching movie as a multi-channel timelapse hyperstack in Fiji.
+3. Run **Plugins ▸ Adapt ▸ Analyse TrackMate File** and select the XML file.
+4. Choose the cytosol/signal channels and parameters as usual, then **Run**.
+
+ADAPT reads one cell per TrackMate track and one boundary per spot (using the
+spot contour, or a circle from the spot radius when no contour was saved), then
+runs the same velocity/curvature/signal and protrusion/bleb analysis. Protrusion
+detection and output layout are identical to **Analyse Movie**.
+
 ## Parameters
 
 ### Simple tab

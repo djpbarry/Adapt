@@ -26,9 +26,10 @@ Fiji discovers commands via `src/main/resources/plugins.config`:
 ```
 Plugins>Adapt, "Analyse Movie", net.calm.adapt.adapt.Analyse_Movie
 Plugins>Adapt, "Batch Analysis", net.calm.adapt.adapt.Analyse_Batch
+Plugins>Adapt, "Analyse TrackMate File", net.calm.adapt.adapt.Analyse_TrackMate
 ```
 
-Both classes implement `ij.plugin.PlugIn`. To add a command, add a line to
+All classes implement `ij.plugin.PlugIn`. To add a command, add a line to
 `plugins.config` **and** implement `PlugIn`.
 
 ## Architecture

@@ -21,10 +21,14 @@ import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.IAClasses.Region;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class TrackMateImporterTest {
 
@@ -65,5 +69,29 @@ class TrackMateImporterTest {
         Spot s = new Spot(x, y, 0.0, 5.0, 1.0);
         s.putFeature(Spot.FRAME, (double) frame);
         return s;
+    }
+
+    @Test
+    void importsRealMigratingCellTrackMateFile() {
+        File xml = new File("test_data/migrating_cell/migrating_cell.ome.xml");
+        assumeTrue(xml.exists(), "Migrating cell TrackMate fixture not available (Git LFS?).");
+
+        List<CellData> cells = TrackMateImporter.importTracks(xml, 512, 512);
+
+        // The fixture contains a single track spanning all 121 frames (0-based
+        // frames 0-120), which ADAPT maps to 1-based frames 1-121.
+        assertEquals(1, cells.size());
+        CellData cell = cells.get(0);
+        assertEquals(1, cell.getStartFrame());
+        assertEquals(121, cell.getEndFrame());
+        assertEquals(121, cell.getLength());
+
+        Region[] regions = cell.getCellRegions();
+        assertNotNull(regions);
+        assertEquals(121, regions.length);
+        for (Region region : regions) {
+            assertNotNull(region, "Every frame of the track should yield a region.");
+            assertTrue(region.getMask().getWidth() == 512 && region.getMask().getHeight() == 512);
+        }
     }
 }

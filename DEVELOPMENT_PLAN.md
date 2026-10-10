@@ -582,13 +582,23 @@ supplies cell identity and boundaries.
    the imported `CellData` directly — no watershed, no seed-following link — and
    feeds it into `generateOutputs()` / the protrusion analyser. The cyto/signal
    stacks are still read from Fiji for velocity/curve/signal map building.
+   — **done (2026-10-10): `Analyse_Movie.setImportedCells()` supplies
+   pre-segmented `CellData`; when set, `runPipeline()` bypasses `segmentCells()`
+   and reuses the supplied regions (setting `minLength` directly).**
 
 5. **Add a plugin entry point.** A new `plugins.config` command (e.g. "Analyse
    TrackMate File") that prompts for the TrackMate XML and the matching image,
    builds `CellData`, and runs the protrusion analysis.
+   — **done (2026-10-10): `Analyse_TrackMate` (registered as "Analyse TrackMate
+   File") prompts for the XML, imports the active image's tracks, and reuses the
+   standard ADAPT GUI/pipeline via `setImportedCells()`.**
 
 6. **Testing.** Ship a small TrackMate XML fixture (or a generator); unit-test
    the parser and the track→cell mapping; Fiji smoke test against the fixture.
+   — **done (2026-10-10): `TrackMateImporterTest` imports the real
+   `test_data/migrating_cell/migrating_cell.ome.xml` fixture and asserts the
+   single 121-frame track maps to a 121-frame `CellData` with full-size masks
+   (16/16 tests green). Fiji smoke test of the new command remains manual.**
 
 **Decision to resolve:** add TrackMate as a compile dependency? Using
 `TmXmlReader` is far simpler and TrackMate is already transitive, but it ties the

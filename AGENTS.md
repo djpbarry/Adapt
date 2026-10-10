@@ -63,9 +63,10 @@ Fiji discovers commands via `src/main/resources/plugins.config`, not annotations
 ```
 Plugins>Adapt, "Analyse Movie", net.calm.adapt.adapt.Analyse_Movie
 Plugins>Adapt, "Batch Analysis", net.calm.adapt.adapt.Analyse_Batch
+Plugins>Adapt, "Analyse TrackMate File", net.calm.adapt.adapt.Analyse_TrackMate
 ```
 
-These two classes implement ImageJ's `ij.plugin.PlugIn` (`run(String arg)`).
+These classes implement ImageJ's `ij.plugin.PlugIn` (`run(String arg)`).
 To add a new plugin command, add a line to `plugins.config` AND the class must
 implement `PlugIn`.
 
@@ -85,6 +86,14 @@ prefixes you'll see in imports:
     image files, reusing the same `analyse()` per file. Also contains
     `readParams()` which loads a versioned `params.json` (Jackson) and rejects
     unknown schema versions with a clear message.
+  - `Analyse_TrackMate` — extends `Analyse_Movie`; imports per-cell/per-frame
+    boundaries from a TrackMate session XML (via `TrackMateImporter`) and runs
+    the standard pipeline with segmentation bypassed
+    (`Analyse_Movie.setImportedCells()` populates `cellData` so `segmentCells()`
+    is skipped).
+  - `TrackMateImporter` — static helper that reads a TrackMate XML with
+    `TmXmlReader` and maps each track to a `CellData` (one `Region` per spot,
+    boundary from the `SpotRoi` contour, falling back to a circle from `RADIUS`).
   - Domain/helper classes: `Bleb` (extends `Protrusion`), `BlebAnalyser`,
     `CurveMapAnalyser`, `FluorescenceDistAnalyser`,
     `RegionFluorescenceQuantifier`, `Protrusion`, `StaticVariables` (all GUI
