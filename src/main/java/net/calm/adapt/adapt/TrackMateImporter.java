@@ -70,7 +70,7 @@ public class TrackMateImporter {
         return cells;
     }
 
-    private static CellData buildCell(List<Spot> spots, int imageWidth, int imageHeight) {
+    static CellData buildCell(List<Spot> spots, int imageWidth, int imageHeight) {
         // TrackMate FRAME is 0-based; ADAPT uses 1-based frame numbers
         // (ImageJ stack slices are 1-based).
         int startFrame = spots.get(0).getFeature(Spot.FRAME).intValue() + 1;
@@ -91,7 +91,7 @@ public class TrackMateImporter {
         return cell;
     }
 
-    private static Region buildRegion(int width, int height, double x, double y, double radius, SpotRoi roi) {
+    static Region buildRegion(int width, int height, double x, double y, double radius, SpotRoi roi) {
         ByteProcessor mask = new ByteProcessor(width, height);
         mask.setColor(Region.MASK_BACKGROUND);
         mask.fill();

@@ -572,6 +572,11 @@ supplies cell identity and boundaries.
    per spot. The `Region` boundary comes from the `SpotRoi` contour (fall back
    to a circular region from `RADIUS` when no contour exists). Set
    `cellRegions`, `startFrame`, `endFrame`, and the per-frame centroids.
+   — **done (2026-10-10): `TrackMateImporter.importTracks()`/`buildCell()`/
+   `buildRegion()` implement the mapping; `SpotRoi` coordinates (physical units,
+   relative to the spot centre) and the `Region(ImageProcessor, short[])`
+   constructor verified against TrackMate 8 and IAClassLibrary. Two unit tests
+   added (`TrackMateImporterTest`), 15/15 green.**
 
 4. **Refactor `runPipeline()` to skip segmentation.** Extract a path that uses
    the imported `CellData` directly — no watershed, no seed-following link — and

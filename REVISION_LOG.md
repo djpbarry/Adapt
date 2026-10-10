@@ -27,6 +27,20 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-10 — TrackMate import mapping verified + tested (D1a step 3)
+
+Finished the TrackMate→`CellData` mapping step. Verified the API usage in
+`TrackMateImporter` against TrackMate 8 (`SpotRoi.x`/`y` are physical-unit
+contour offsets relative to the spot centre; `TmXmlReader.getModel()`/
+`isReadingOk()`/`getErrorMessage()`) and IAClassLibrary (`Region(ImageProcessor,
+short[])`, `CellData.setEndFrame`/`setImageWidth`/`setImageHeight`). Made
+`buildCell`/`buildRegion` package-private and added `TrackMateImporterTest` (2
+tests: circle fallback centroid, per-spot frame mapping). 15/15 tests green.
+
+No runtime behaviour change (test + visibility only), so no version bump.
+
+---
+
 ## 2026-10-10 — Version decision: stay on `v4` (no major bump)
 
 Resolved the version question in `DEVELOPMENT_PLAN.md` (Decision 7): the release
