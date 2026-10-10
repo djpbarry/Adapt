@@ -38,9 +38,13 @@ and visualisation stages (unit tests stopped at the track→`CellData` mapping).
   killed `buildOutput` silently (the executor swallows worker exceptions). That
   left `smoothVelocities`/curve maps unset, which in turn made every
   visualisation worker fail, producing an empty velocity stack and the
-  "ROI Manager: The list is empty" dialog. Fix: `Analyse_Movie` now computes the
-  same per-frame threshold (blur + `RegionGrower.getThreshold`) for imported
-  cells without running the watershed.
+  "ROI Manager: The list is empty" dialog. Fix: give imported cells a zeroed
+  per-frame threshold array. The threshold only enters the velocity calculation
+  as the *difference* between two neighbouring frames' thresholds (`t2 - t1`),
+  so zeroing it is equivalent to assuming a stable background and reduces the
+  velocity to the raw temporal intensity difference — no invented segmentation
+  threshold needed (TrackMate/CellPose segmentation is irrelevant here; the
+  threshold is ADAPT's own cytosol background estimate).
 - **Physical-to-pixel unit conversion.** TrackMate stores spot positions,
   radii, and `SpotRoi` contours in physical units (microns), but
   `TrackMateImporter` rasterised them as pixel indices, so masks ended up tiny
