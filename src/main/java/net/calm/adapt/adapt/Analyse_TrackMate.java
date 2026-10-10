@@ -26,6 +26,7 @@ import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.UtilClasses.Utilities;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -54,6 +55,7 @@ public class Analyse_TrackMate extends Analyse_Movie implements PlugIn {
 
     @Override
     public void run(String arg) {
+        startTime = LocalDateTime.now();
         String version = "unknown";
         try {
             final Properties properties = new Properties();

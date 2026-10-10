@@ -34,7 +34,7 @@ class TrackMateImporterTest {
 
     @Test
     void buildRegionUsesSpotCentreWhenNoContour() {
-        Region region = TrackMateImporter.buildRegion(100, 100, 50, 60, 10, null);
+        Region region = TrackMateImporter.buildRegion(100, 100, 50, 60, 10, null, 1.0, 1.0);
 
         assertNotNull(region);
         float[] centre = region.getCentres().get(0);
@@ -48,7 +48,7 @@ class TrackMateImporterTest {
         Spot s1 = spot(1, 12, 10);
         Spot s2 = spot(2, 14, 10);
 
-        CellData cell = TrackMateImporter.buildCell(Arrays.asList(s0, s1, s2), 100, 100);
+        CellData cell = TrackMateImporter.buildCell(Arrays.asList(s0, s1, s2), 100, 100, 1.0, 1.0);
 
         assertEquals(1, cell.getStartFrame());
         assertEquals(3, cell.getEndFrame());
@@ -93,5 +93,12 @@ class TrackMateImporterTest {
             assertNotNull(region, "Every frame of the track should yield a region.");
             assertTrue(region.getMask().getWidth() == 512 && region.getMask().getHeight() == 512);
         }
+        // The fixture's ImageData declares a ~0.2116 micron pixel size; the
+        // first spot is at ~54.4, 52.4 microns, i.e. ~257, ~248 pixels. The
+        // importer must convert physical units to pixels rather than treating
+        // micron values as pixel indices.
+        float[] centre = regions[0].getCentres().get(0);
+        assertEquals(257, Math.round(centre[0]));
+        assertEquals(248, Math.round(centre[1]));
     }
 }

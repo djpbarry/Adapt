@@ -27,6 +27,40 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-10 — TrackMate import runtime fixes (D1a step 6 follow-up)
+
+Running "Analyse TrackMate File" against the migrating-cell fixture exposed
+three defects that only surface once the imported cells reach the map/velocity
+and visualisation stages (unit tests stopped at the track→`CellData` mapping).
+
+- **Missing per-frame grey thresholds.** Imported `CellData` had no
+  `greyThresholds`, so `Region.buildVelImage` hit an NPE on the second frame and
+  killed `buildOutput` silently (the executor swallows worker exceptions). That
+  left `smoothVelocities`/curve maps unset, which in turn made every
+  visualisation worker fail, producing an empty velocity stack and the
+  "ROI Manager: The list is empty" dialog. Fix: `Analyse_Movie` now computes the
+  same per-frame threshold (blur + `RegionGrower.getThreshold`) for imported
+  cells without running the watershed.
+- **Physical-to-pixel unit conversion.** TrackMate stores spot positions,
+  radii, and `SpotRoi` contours in physical units (microns), but
+  `TrackMateImporter` rasterised them as pixel indices, so masks ended up tiny
+  and displaced. Fix: read `pixelwidth`/`pixelheight` from the XML `<ImageData>`
+  element and divide coordinates by it; the test now asserts the first spot
+  lands at ~(257, 248) px rather than ~(54, 52).
+- **Missing `startTime`.** `Analyse_TrackMate.run()` overrode the parent's
+  `run()` without initialising `startTime`, so `finishAnalysis` NPE'd when
+  logging the elapsed time. Fix: initialise it (and widen the field to
+  `protected`).
+
+Version bumped to `4.0.29`. 16/16 tests green; Fiji smoke test passes.
+
+Lesson: the import unit test only validated structure, not the coordinates or
+the fields that downstream stages consume. The first real run was what caught
+these; a fixture-driven test that asserts a spot's pixel centre would have
+caught the unit bug at the mapping stage.
+
+---
+
 ## 2026-10-10 — TrackMate import wired into the pipeline (D1a steps 4-6)
 
 Completed the import direction of the TrackMate bridge.

@@ -92,7 +92,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     protected ImagePlus inputImage;
     private ArrayList<CellData> importedCells;
     protected Properties props;
-    private LocalDateTime startTime;
+    protected LocalDateTime startTime;
     private final String TRAJ_FILE_NAME = "trajectories.csv";
     private static final String[][] REQUIRED_DEPENDENCIES = {
             {"inra.ijpb.binary.conncomp.FloodFillComponentsLabeling", "MorphoLibJ (IJPB-plugins update site)"}
@@ -252,6 +252,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             // supplied externally, so segmentation is skipped entirely.
             cellData = importedCells;
             minLength = protMode ? uv.getBlebLenThresh() : uv.getMinLength();
+            computeImportedGreyThresholds(cytoStack, cytoSize);
         } else if (!segmentCells(cytoStack, width, height, cytoSize)) {
             return false;
         }
@@ -445,6 +446,26 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         IJ.log(String.format("%d cells found.\n", cellData.size()));
         return true;
+    }
+
+    /**
+     * Populates the per-frame grey thresholds on externally imported cells.
+     * Segmentation is skipped for these cells, but the velocity-map builder
+     * still needs the same per-frame background threshold that
+     * {@link #segmentCells} would have computed (see
+     * {@code Region.buildVelImage}), so we compute it here without running the
+     * watershed.
+     */
+    private void computeImportedGreyThresholds(ImageStack cytoStack, int cytoSize) {
+        int[] thresholds = new int[cytoSize];
+        for (int i = 0; i < cytoSize; i++) {
+            ImageProcessor cytoImage = cytoStack.getProcessor(i + 1).duplicate();
+            (new GaussianBlur()).blurGaussian(cytoImage, uv.getGaussRad(), uv.getGaussRad(), 0.01);
+            thresholds[i] = RegionGrower.getThreshold(cytoImage, uv.isAutoThreshold(), uv.getGreyThresh(), uv.getThreshMethod());
+        }
+        for (CellData cell : cellData) {
+            cell.setGreyThresholds(thresholds);
+        }
     }
 
     private void generateOutputs() {
