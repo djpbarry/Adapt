@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: "If you use ADAPT in your research, please cite it as below."
+title: "ADAPT: Automated Detection and Analysis of ProTrusions"
+abstract: "ADAPT is an ImageJ/Fiji plugin for automated detection and analysis of cell migration, membrane protrusions (blebs and filopodia), and associated fluorescence intensity."
+type: software
+authors:
+  - family-names: Barry
+    given-names: David J
+    orcid: "https://orcid.org/0000-0003-2763-5244"
+    affiliation: "The Francis Crick Institute"
+repository-code: "https://github.com/djpbarry/Adapt"
+url: "https://adapt.readthedocs.io/"
+license: GPL-3.0-or-later
+keywords:
+  - cell migration
+  - membrane protrusions
+  - filopodia
+  - blebs
+  - fluorescence
+  - ImageJ
+  - Fiji
+identifiers:
+  - type: doi
+    value: 10.1083/jcb.201501081
+    description: "The J Cell Biol 2015 paper describing ADAPT."
+preferred-citation:
+  type: article
+  title: "Open source software for quantification of cell migration, protrusions, and fluorescence intensities"
+  authors:
+    - family-names: Barry
+      given-names: David J
+      orcid: "https://orcid.org/0000-0003-2763-5244"
+    - family-names: Durkin
+      given-names: Charlotte H
+    - family-names: Abella
+      given-names: Jasmine V
+    - family-names: Way
+      given-names: Michael
+  journal: "Journal of Cell Biology"
+  volume: 209
+  issue: 1
+  start: 163
+  end: 180
+  year: 2015
+  doi: "10.1083/jcb.201501081"
