@@ -19,6 +19,7 @@ package net.calm.adapt.adapt;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.Macro;
 import ij.gui.PointRoi;
 import net.calm.adapt.ui.GUI;
 import net.calm.iaclasslibrary.UserVariables.UserVariables;
@@ -68,7 +69,9 @@ public class Analyse_Batch extends Analyse_Movie {
         }
         TITLE = TITLE + "_v" + version;
         batchMode = true;
-        MacroArguments macroArgs = MacroArguments.parse(arg);
+        String macroOptions = Macro.getOptions();
+        String macroArg = (macroOptions != null && !macroOptions.trim().isEmpty()) ? macroOptions : arg;
+        MacroArguments macroArgs = MacroArguments.parse(macroArg);
         if (!macroArgs.isEmpty()) {
             runBatchMacro(macroArgs);
             return;

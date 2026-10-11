@@ -52,6 +52,13 @@ Stage 1 adds the ImageJ-1.x macro path (Decision 6 — no SciJava rewrite):
   `run("Analyse Movie", "params=... cytosol=... signal=... output=...")` via the
   ImageJ `Recorder` on a GUI Run, auto-saving a `params.json` beside the output
   directory when no preset was loaded.
+- **`Macro.getOptions()` gotcha (found during the smoke test).** A `PlugIn`
+  registered in `plugins.config` (no `("arg")` suffix) always receives an empty
+  `arg`; the macro options string is held by `Macro.setOptions(...)` and must be
+  read via `Macro.getOptions()`. Also, `Executer` records a generic empty
+  `run("Analyse Movie")` on the menu click, so `run(arg)` suppresses it
+  (`Recorder.setCommand(null)`) before the non-modal GUI returns; `recordMacro()`
+  then emits the full command on Run.
 
 Version bumped to `4.0.31`. 28/28 tests green (`MacroArgumentsTest`,
 `ParameterPropertiesTest` added). The record-and-replay smoke test against the H5
@@ -60,6 +67,11 @@ baseline is still pending (I1 step 7).
 Lesson: a macro-callable path is most valuable when it reuses the existing
 parameter file (`params.json`) rather than re-listing every parameter inline —
 users tune in the GUI, save a preset, and the macro just references it.
+
+Lesson: for an ImageJ 1.x `PlugIn`, macro options never arrive in `run(String arg)`
+— `arg` is empty unless the `plugins.config` entry carries a `("arg")` suffix.
+Read `Macro.getOptions()` instead, and remember `Executer` also records the bare
+menu command, which must be suppressed for a clean single-command recording.
 
 ---
 

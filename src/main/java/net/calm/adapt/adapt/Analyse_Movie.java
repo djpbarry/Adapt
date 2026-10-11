@@ -143,11 +143,16 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         TITLE = TITLE + "_v" + version;
         IJ.log(TITLE);
         IJ.log(TimeAndDate.getCurrentTimeAndDate());
-        MacroArguments macroArgs = MacroArguments.parse(arg);
+        String macroOptions = Macro.getOptions();
+        String macroArg = (macroOptions != null && !macroOptions.trim().isEmpty()) ? macroOptions : arg;
+        MacroArguments macroArgs = MacroArguments.parse(macroArg);
         if (!macroArgs.isEmpty()) {
             runMacro(macroArgs);
             return;
         }
+        // Suppress the generic run("Analyse Movie") that Executer records for the
+        // menu click; recordMacro() emits the full command when Run is clicked.
+        Recorder.setCommand(null);
         if (IJ.getInstance() != null && WindowManager.getIDList() == null) {
             IJ.error("No Images Open.");
             return;
