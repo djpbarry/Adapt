@@ -75,6 +75,11 @@ output has been restructured into a cleaner, more portable layout.
 
 ### Known issues
 
-- **Curvature-extrema markers are missing from the preview** because the
-  curvature calculation is unsigned. Bleb detection is unaffected (it is
-  velocity-based). See `DEVELOPMENT_PLAN.md` / `REVISION_LOG.md`.
+- **Curvature-extrema markers are missing from the preview** because
+  `CurveAnalyser.calcCurvature()` returns unsigned Menger curvature (`1/R`), so
+  no point ever registers as a negative-curvature minimum. This also degrades
+  bleb-anchor tracking, which relies on the curvature minima. Planned fix: make
+  the curvature **signed** (Menger magnitude with a cross-product sign) in
+  `IAClassLibrary` `v2.0.24`; ADAPT then bumps its pin. This changes the
+  `Min Curvature Threshold` unit from degrees to `1/pixels`. See
+  `DEVELOPMENT_PLAN.md` / `REVISION_LOG.md`.

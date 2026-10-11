@@ -166,16 +166,32 @@ frame order before saving (see REVISION_LOG).
 
 `CurveMapAnalyser.isLocalCurvatureExtreme(..., minima=true, threshold=...)`
 flags a curvature minimum only when `C0 < -threshold` (i.e. negative curvature).
-With `Min Curvature Threshold = 0`, this requires `C0 < 0`. But the library's
-`CurveAnalyser.calculateMengerCurvature()` returns **unsigned** Menger curvature
+With `Min Curvature Threshold = 0`, this requires `C0 < 0`. But
+`CurveAnalyser.calcCurvature()` now returns **unsigned** Menger curvature
 (`1/R`, always ≥ 0), so no point ever qualifies and the extrema list is empty.
 This is why the yellow curvature-extrema markers no longer appear in the preview
 (and why `cellData.getCurvatureMinima()` is empty).
 
-Fix options: (a) make `CurveAnalyser.calcCurvature()` return signed curvature
-(library change), or (b) rework `isLocalCurvatureExtreme()` /
-`findAllCurvatureExtrema()` to use the correct signed convention. Bleb detection
-itself is unaffected (it uses velocity ROIs, not curvature).
+**Root cause (refined 2026-10-11):** the unsigned result is a regression from the
+July 2024 migration in IAClassLibrary (`da53d73`) that replaced the original
+signed turning-angle (`theta1 - theta2`, in degrees) with Menger `1/R`. Menger is
+the more robust magnitude (sampling-density independent), but the migration
+dropped the **sign**, which the closed-contour pipeline depends on to distinguish
+convex (protrusion) from concave (bleb neck). The extrema detector and
+`BlebAnalyser.updateAnchorPoint()` (both read `getCurvatureMinima()`) therefore
+degrade silently — not just the preview markers.
+
+**Decision:** fix in `IAClassLibrary`, not ADAPT. Restore a **signed** Menger
+curvature — keep `1/R` and multiply by the sign of the cross product of the two
+boundary segments (`(j−i) × (k−j)`), which matches the original `theta1 - theta2`
+sign convention exactly. Do **not** revert to the angle-based formula.
+
+Consequence to flag: the `Min Curvature Threshold` unit changes from degrees to
+`1/pixels`. The default `0.0` ("any concavity") is unaffected, but any non-zero
+`minCurveThresh` in existing `params.json` files must be re-interpreted (the
+`params.example.json` value of `2.0` needs updating). Ships as `IAClassLibrary`
+`v2.0.24` (combined with the G7 `getSeedPoints` threshold fix); ADAPT then bumps
+its pin and regenerates the H5 baseline.
 
 ### Known issue — 8-bit cyto conversion is load-bearing (needs revising)
 
