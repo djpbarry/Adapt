@@ -18,6 +18,7 @@ package net.calm.adapt.ui;
 
 import net.calm.adapt.adapt.Analyse_Batch;
 import net.calm.adapt.adapt.Analyse_Movie;
+import net.calm.adapt.adapt.ParameterValidator;
 import net.calm.adapt.adapt.StaticVariables;
 import net.calm.adapt.adapt.TaskListener;
 import ij.IJ;
@@ -1176,62 +1177,10 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
             IJ.error("Invalid numeric input. Check that every parameter field contains a valid number.");
             return false;
         }
-        if (!validateRanges()) {
+        if (!ParameterValidator.validate(UV)) {
             return false;
         }
         setProperties(props, this);
-        return true;
-    }
-
-    private boolean validateRanges() {
-        if (UV.getSpatialRes() <= 0) {
-            IJ.error("Spatial Resolution must be greater than 0.");
-            return false;
-        }
-        if (UV.getTimeRes() <= 0) {
-            IJ.error("Frames per Minute must be greater than 0.");
-            return false;
-        }
-        if (UV.getErosion() < 0) {
-            IJ.error("Erosion Iterations must be 0 or more.");
-            return false;
-        }
-        if (UV.getCortexDepth() <= 0) {
-            IJ.error("Cortex Depth must be greater than 0.");
-            return false;
-        }
-        if (UV.getMinLength() < 1) {
-            IJ.error("Minimum Trajectory Length must be at least 1.");
-            return false;
-        }
-        if (UV.getMorphSizeMin() <= 0) {
-            IJ.error("Minimum Object Size must be greater than 0.");
-            return false;
-        }
-        if (UV.getVisLineWidth() < 1) {
-            IJ.error("Visualisation Line Thickness must be at least 1.");
-            return false;
-        }
-        if (UV.getCurveRange() < 1) {
-            IJ.error("Curvature Window must be at least 1.");
-            return false;
-        }
-        if (UV.getSigRecoveryThresh() < 0 || UV.getSigRecoveryThresh() > 1) {
-            IJ.error("Signal Map Threshold must be between 0 and 1.");
-            return false;
-        }
-        if (UV.getFiloSizeMax() <= 0) {
-            IJ.error("Max Filopodia Size must be greater than 0.");
-            return false;
-        }
-        if (UV.getFiloSizeMin() <= 0) {
-            IJ.error("Min Filopodia Size must be greater than 0.");
-            return false;
-        }
-        if (UV.getFiloSizeMin() > UV.getFiloSizeMax()) {
-            IJ.error("Min Filopodia Size must not exceed Max Filopodia Size.");
-            return false;
-        }
         return true;
     }
 
