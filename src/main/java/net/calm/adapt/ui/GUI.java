@@ -61,6 +61,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
     private final Properties props = new Properties();
     private Runnable onRun;
     private boolean importMode = false;
+    private String presetPath;
 
     /**
      * Creates new form GUI
@@ -977,6 +978,7 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
             IJ.error("Failed to load parameter preset.");
             return;
         }
+        presetPath = new File(dir, name).getAbsolutePath();
         populateFields();
     }
 
@@ -992,7 +994,9 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
         }
         if (!Analyse_Batch.writeParams(UV, new File(dir, name))) {
             IJ.error("Failed to save parameter preset.");
+            return;
         }
+        presetPath = new File(dir, name).getAbsolutePath();
     }
 
     private void populateFields() {
@@ -1190,6 +1194,18 @@ public class GUI extends javax.swing.JDialog implements GUIMethods {
 
     public Properties getProperties() {
         return props;
+    }
+
+    public String getPresetPath() {
+        return presetPath;
+    }
+
+    public int getCytoChannelIndex() {
+        return cytoChannelCombo == null ? 1 : cytoChannelCombo.getSelectedIndex() + 1;
+    }
+
+    public int getSignalChannelIndex() {
+        return sigChannelCombo == null ? 2 : sigChannelCombo.getSelectedIndex() + 1;
     }
 
     public UserVariables getUv() {

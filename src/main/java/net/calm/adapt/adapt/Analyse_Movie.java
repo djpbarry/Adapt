@@ -28,6 +28,7 @@ import ij.plugin.PlugIn;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.ParticleAnalyzer;
+import ij.plugin.frame.Recorder;
 import ij.plugin.frame.RoiManager;
 import ij.process.*;
 import net.calm.adapt.output.MultiThreadedOutputGenerator;
@@ -224,6 +225,30 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         finishAnalysis();
     }
 
+    /**
+     * Records the current single-movie run as a replayable macro command when
+     * the ImageJ macro recorder is active. Parameters are referenced via a
+     * {@code params.json} preset (the last loaded/saved preset, or one
+     * auto-saved beside the output directory), with the cytosol/signal channel
+     * indices and output directory as the remaining options.
+     */
+    private void recordMacro(GUI gui) {
+        String paramsPath = gui.getPresetPath();
+        if (paramsPath == null) {
+            File preset = new File(directory, "params.json");
+            if (!Analyse_Batch.writeParams(uv, preset)) {
+                return;
+            }
+            paramsPath = preset.getAbsolutePath();
+        }
+        Recorder.setCommand("Analyse Movie");
+        Recorder.recordPath("params", paramsPath);
+        Recorder.recordOption("cytosol", String.valueOf(gui.getCytoChannelIndex()));
+        Recorder.recordOption("signal", String.valueOf(gui.getSignalChannelIndex()));
+        Recorder.recordPath("output", directory.getAbsolutePath());
+        Recorder.saveCommand();
+    }
+
     public boolean analyse(String imageName) {
         if (!checkDependencies()) {
             return false;
@@ -257,6 +282,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
                 stacks = gui.getSelectedStacks();
                 uv = gui.getUv();
                 props = gui.getProperties();
+                recordMacro(gui);
                 new Thread(this::finishAnalysis).start();
             });
             gui.setVisible(true);
