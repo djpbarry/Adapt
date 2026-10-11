@@ -1013,8 +1013,11 @@ Inline `key=value` overrides are explicitly out of scope for v1.
 6. **Registration.** Reuse the existing command names as arg-aware commands (no
    `(Macro)` variants), to avoid menu clutter.
 7. **Testing.** Unit-test the entry-arg parser and the label-keyed `Properties`
-   builder; add a headless Fiji macro smoke test that compares against the H5
-   baseline.
+   builder; then write a small macro (e.g.
+   `run("Analyse Movie", "params=... cytosol=... signal=... output=...")`), run
+   it headless against `test_data/`, and confirm the output is byte-identical to
+   the H5 baseline — same preset + same active image ⇒ same results as the GUI
+   run that produced the baseline.
 8. **Docs.** Document the macro contract in the ReadTheDocs User Guide and
    `AGENTS.md` entry points.
 
