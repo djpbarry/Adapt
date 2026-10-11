@@ -68,6 +68,11 @@ public class Analyse_Batch extends Analyse_Movie {
         }
         TITLE = TITLE + "_v" + version;
         batchMode = true;
+        MacroArguments macroArgs = MacroArguments.parse(arg);
+        if (!macroArgs.isEmpty()) {
+            runBatchMacro(macroArgs);
+            return;
+        }
         try {
             if (c1Directory == null) {
                 directory = Utilities.getFolder(directory, "Select directory for reference channel", true);
@@ -130,6 +135,66 @@ public class Analyse_Batch extends Analyse_Movie {
         stacks[0] = cytoStack;
         stacks[1] = sigStack;
         return true;
+    }
+
+    /**
+     * Runs a batch analysis headlessly from a macro. The {@code arg} string must
+     * contain {@code params=} (path to a params.json preset), {@code cytodir=}
+     * (reference-channel directory) and {@code output=} (output directory);
+     * {@code sigdir=} optionally supplies a second-channel directory.
+     */
+    private void runBatchMacro(MacroArguments args) {
+        String paramsPath = args.get("params");
+        if (paramsPath == null) {
+            IJ.error("Macro mode requires a 'params=' path to a params.json preset.");
+            return;
+        }
+        uv = new UserVariables();
+        if (!readParams(uv, new File(paramsPath))) {
+            IJ.error("Failed to load parameters from " + paramsPath + ".");
+            return;
+        }
+        if (!ParameterValidator.validate(uv)) {
+            return;
+        }
+        String cytoDir = args.get("cytodir");
+        if (cytoDir == null) {
+            IJ.error("Macro mode requires a 'cytodir=' directory.");
+            return;
+        }
+        String output = args.get("output");
+        if (output == null) {
+            IJ.error("Macro mode requires an 'output=' directory.");
+            return;
+        }
+        c1Directory = new File(cytoDir);
+        String sigDir = args.get("sigdir");
+        c2Directory = sigDir == null ? null : new File(sigDir);
+        mono = c2Directory == null;
+        directory = new File(output);
+        try {
+            cytoImageFiles = c1Directory.listFiles();
+            if (cytoImageFiles == null || cytoImageFiles.length == 0) {
+                IJ.error("No images found in cytosol directory.");
+                return;
+            }
+            cytoSize = cytoImageFiles.length;
+            sigSize = 0;
+            if (c2Directory != null) {
+                sigImageFiles = c2Directory.listFiles();
+                if (sigImageFiles != null) {
+                    sigSize = sigImageFiles.length;
+                }
+            }
+        } catch (Exception e) {
+            IJ.log("Failed to locate image directories: " + e.getMessage());
+            return;
+        }
+        Arrays.sort(cytoImageFiles);
+        if (sigImageFiles != null) {
+            Arrays.sort(sigImageFiles);
+        }
+        runBatch();
     }
 
     private void runBatch() {

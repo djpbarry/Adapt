@@ -40,7 +40,7 @@ not drift stale behind the code.
   suffix (sibling convention — see `IAClassLibrary`'s `development` branch), and
   releases are tagged `vX.Y.Z` via `maven-release-plugin`. Bump the version as
   development progresses.
-- JUnit 5 unit tests exist (13 across four classes); there is **no lint/format
+- JUnit 5 unit tests exist (28 across eight classes); there is **no lint/format
   tooling**. A `.gitignore` (and `.gitattributes`) have been added.
 - The GUI is a hand-managed `GridBagLayout` `JDialog` (`ui/GUI.java`; the
   NetBeans `GUI.form` was removed in M5 step 3). `UserVariables UV` is a
@@ -992,34 +992,46 @@ Inline `key=value` overrides are explicitly out of scope for v1.
    `UserVariables → label-keyed Properties` builder so
    `ParameterWriter.saveParameters` writes the same `parameters.json` without a
    Swing component tree (today the GUI builds `props` via `PropertyExtractor`).
-   — *Gate: unit tests + existing 20 tests green.*
+   — **done (2026-10-11): `ParameterValidator` + `ParameterProperties`
+   (`fromUserVariables`) added; 28/28 tests green.**
 2. **Add a small entry-arg parser.** Parse `params`, `cytosol`, `signal`,
    `output` (and `cytodir`/`sigdir` for batch) from the `run(String arg)` string.
    No new dependency (plain token split).
+   — **done (2026-10-11): `MacroArguments` added.**
 3. **Make `Analyse_Movie.run(arg)` macro-aware.** Non-empty `arg` → macro mode:
    skip `Utilities.getFolder` and the GUI; read the active hyperstack; extract the
    cytosol/signal channels via `extractChannel(...)`; `readParams` the preset;
    validate; run `finishAnalysis()`. Headless-safe: `IJ.log` only, no dialogs.
-   — *Gate: headless Fiji run against `test_data/`; output matches H5 baseline.*
+   — **done (2026-10-11): `runMacro()` added.** *(Gate: headless Fiji run — see
+   step 7.)*
 4. **Make the GUI recordable.** On Run, emit
    `Recorder.record("run", "Analyse Movie", "params=... cytosol=... signal=... output=...")`
    with the real values. If no preset was loaded, auto-save the current params to
    a `params.json` (e.g. beside the output) and record `params=<that path>` so the
    recorded macro is self-contained.
-   — *Gate: record a run and confirm the emitted macro replays.*
+   — **done (2026-10-11): `recordMacro()` + `GUI.getPresetPath()`/
+   `getCytoChannelIndex()`/`getSignalChannelIndex()` added.** *(Gate: record &
+   replay — see step 7.)*
 5. **Batch macro path.** `Analyse_Batch.run(arg)` already has a `showGUI=false`
    path; add `arg` parsing for `cytodir`/`sigdir`/`output`/`params` and call
    `runBatch()` directly.
+   — **done (2026-10-11): `runBatchMacro()` added.**
 6. **Registration.** Reuse the existing command names as arg-aware commands (no
    `(Macro)` variants), to avoid menu clutter.
+   — **done (2026-10-11): no `plugins.config` change needed — `run(arg)` is now
+   arg-aware.**
 7. **Testing.** Unit-test the entry-arg parser and the label-keyed `Properties`
    builder; then write a small macro (e.g.
    `run("Analyse Movie", "params=... cytosol=... signal=... output=...")`), run
    it headless against `test_data/`, and confirm the output is byte-identical to
    the H5 baseline — same preset + same active image ⇒ same results as the GUI
    run that produced the baseline.
+   — **unit tests done (2026-10-11): `MacroArgumentsTest` +
+   `ParameterPropertiesTest`; 28/28 green.** Macro smoke test pending (record a
+   GUI run, replay the macro, compare to baseline).
 8. **Docs.** Document the macro contract in the ReadTheDocs User Guide and
    `AGENTS.md` entry points.
+   — **`AGENTS.md` done (2026-10-11).** ReadTheDocs User Guide still pending.
 
 ### I2. Stage 2 — SciJava `Command` wrappers (optional, only if H0 is revisited)
 
@@ -1085,6 +1097,11 @@ decision is made.
     GUI-free parameter applier shared with `GUI`, then a macro-callable
     `Analyse Movie`/`Batch` command and a headless smoke test. Optionally the
     SciJava `Command` wrappers (Phase I2) if the H0 decision is revisited.
+    — **Stage 1 landed (2026-10-11): `MacroArguments`, `ParameterValidator`,
+    `ParameterProperties`, `runMacro()`/`runBatchMacro()` macro paths, and the
+    GUI `Recorder` hook are in. Version `4.0.31`; 28/28 tests green. Remaining:
+    the record-and-replay smoke test (I1 step 7) and the ReadTheDocs User Guide
+    note (I1 step 8).**
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
 parallel. Package renaming (Q4) should be done early in M4 before it cascades

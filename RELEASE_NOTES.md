@@ -67,6 +67,13 @@ output has been restructured into a cleaner, more portable layout.
   TrackMate. It reads the per-cell, per-frame boundaries from a TrackMate session
   XML and skips ADAPT's own segmentation; the cytosol/signal image stacks still
   come from Fiji (open the matching movie first).
+- **Macro-callable and recordable.** `Analyse Movie` and `Batch Analysis` now
+  accept a `run("...", "...")` macro argument string, so the pipeline can be run
+  headlessly from a `params.json` preset — e.g.
+  `run("Analyse Movie", "params=/path/params.json cytosol=1 signal=2 output=/path/out")`.
+  A GUI Run records the same command via the ImageJ macro recorder (auto-saving a
+  `params.json` beside the output when no preset was loaded), so an interactive
+  session can be replayed as a macro.
 - **Concurrency model documented** (no behaviour change).
 
 ### Bug fixes

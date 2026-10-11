@@ -27,6 +27,42 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-11 — Macro-callable + recordable entry points (Phase I1, Stage 1)
+
+ADAPT was GUI-only; there was no way to drive the pipeline from an ImageJ macro.
+Stage 1 adds the ImageJ-1.x macro path (Decision 6 — no SciJava rewrite):
+
+- **Shared, GUI-free parameter applier.** `GUI.validateRanges()` moved to a
+  reusable static `ParameterValidator.validate(UserVariables)`; added
+  `ParameterProperties.fromUserVariables(UserVariables)` which mirrors the GUI's
+  `PropertyExtractor` output (18 label-keyed text fields + 9 toggle fields,
+  including `Detect Filopodia = !blebDetect`, and omitting `threshMethod`/
+  `blebLenThresh`/`blebDurThresh`). The `PropertyExtractor` mapping was confirmed
+  by reading the IAClassLibrary v2.0.23 sources jar.
+- **Macro argument contract.** Headless runs load parameters from a `params.json`
+  preset (`params=`), so the macro string carries only the entry arguments:
+  `cytosol`/`signal`/`output` (single movie) or `cytodir`/`sigdir`/`output`
+  (batch). `MacroArguments` parses the whitespace-separated `key=value` string
+  (paths with spaces are a v1 limitation).
+- **`run(arg)` macro branches.** `Analyse_Movie.runMacro()` and
+  `Analyse_Batch.runBatchMacro()` skip the GUI/dialogs, load + validate the
+  preset, extract channels (or list directories), and run the same pipeline
+  headlessly.
+- **Recording.** `Analyse_Movie.recordMacro()` emits
+  `run("Analyse Movie", "params=... cytosol=... signal=... output=...")` via the
+  ImageJ `Recorder` on a GUI Run, auto-saving a `params.json` beside the output
+  directory when no preset was loaded.
+
+Version bumped to `4.0.31`. 28/28 tests green (`MacroArgumentsTest`,
+`ParameterPropertiesTest` added). The record-and-replay smoke test against the H5
+baseline is still pending (I1 step 7).
+
+Lesson: a macro-callable path is most valuable when it reuses the existing
+parameter file (`params.json`) rather than re-listing every parameter inline —
+users tune in the GUI, save a preset, and the macro just references it.
+
+---
+
 ## 2026-10-11 — Signed Menger curvature restored locally; baseline regenerated
 
 The upstream `CurveAnalyser.calcCurvature()` regression (unsigned `1/R` Menger

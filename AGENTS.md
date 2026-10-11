@@ -39,16 +39,17 @@ libraries first, not this repo.
 - **Packaging:** the parent POM is `org.scijava:pom-scijava:45.1.0`; the
   `maven-dependency-plugin` copies all dependencies into `target/` on `package`.
 - **Run/debug:** there is no standalone `main-class` — ADAPT is a Fiji plugin
-  loaded via the two commands in `src/main/resources/plugins.config`, not run
+  loaded via the three commands in `src/main/resources/plugins.config`, not run
   via `java -jar`. The old `Main`/`Analyse_Movie.initialise()` debug entry point
   was removed (H4).
 - **Local Fiji testing:** `bin/install-to-fiji.cmd`, `bin/run-fiji.cmd`, and
   `bin/smoke-test-fiji.cmd` stage/launch/test the plugin in a local Fiji.
   Machine-specific `FIJI_DIR`/`JAVA_HOME` live in `bin/local-env.cmd`
   (gitignored; template is `bin/local-env.cmd.example`).
-- **JUnit 5 unit tests** exist (13 tests across `Analyse_BatchReadParamsTest`,
-  `CurveMapAnalyserTest`, `FluorescenceDistAnalyserTest`, and
-  `CellTableAccumulatorTest`), but there is **no lint/format tooling**.
+- **JUnit 5 unit tests** exist (28 tests across `Analyse_BatchReadParamsTest`,
+  `CurveMapAnalyserTest`, `FluorescenceDistAnalyserTest`,
+  `CellTableAccumulatorTest`, `TrackMateImporterTest`, `MacroArgumentsTest`, and
+  `ParameterPropertiesTest`), but there is **no lint/format tooling**.
   Verification is `mvn verify` (compile + tests) plus manual runs in Fiji. Test
   data ships as extracted `.ome.tiff` stacks under `test_data/` (Git
   LFS-tracked); ADAPT output trees are gitignored.
@@ -67,6 +68,9 @@ Plugins>Adapt, "Analyse TrackMate File", net.calm.adapt.adapt.Analyse_TrackMate
 ```
 
 These classes implement ImageJ's `ij.plugin.PlugIn` (`run(String arg)`).
+`Analyse Movie` and `Batch Analysis` are also macro-callable: a non-empty `arg`
+string (e.g. `"params=/path/params.json cytosol=1 signal=2 output=/path/out"`)
+skips the GUI and dialogs and runs headlessly (see the Scripting note below).
 To add a new plugin command, add a line to `plugins.config` AND the class must
 implement `PlugIn`.
 
@@ -99,6 +103,11 @@ prefixes you'll see in imports:
     `RegionFluorescenceQuantifier`, `Protrusion`, `StaticVariables` (all GUI
     label strings + output column headings + shared `DecimalFormat`s),
     `NotificationThread`/`TaskListener` (observer pattern for thread completion).
+  - Scripting helpers (Phase I): `MacroArguments` (parses the `key=value` macro
+    `arg` string), `ParameterValidator` (GUI-free range validation, extracted
+    from `GUI.validateRanges()`), and `ParameterProperties` (maps
+    `UserVariables` to the label-keyed `Properties` that `ParameterWriter`
+    serialises as `parameters.json`).
 - **`output/`** — result writing.
   - `MultiThreadedOutputGenerator extends MultiThreadedProcess`; submits one
     `RunnableOutputGenerator` (a `RunnableProcess`) per cell to a
@@ -130,7 +139,11 @@ Control flow: `Analyse_Movie.run()` / `Analyse_Batch.run()` → `analyse()`
 (non-modal GUI + `setOnRun` callback; single-movie reads the active hyperstack
 and extracts the selected cytosol/signal channels) → `runPipeline()`/
 `finishAnalysis()` → `MultiThreadedOutputGenerator` → (optional)
-`MultiThreadedVisualisationGenerator`.
+`MultiThreadedVisualisationGenerator`. A non-empty `run(arg)` macro string
+short-circuits the GUI and dialogs: `runMacro()` (single-movie) or
+`runBatchMacro()` (batch) loads the `params.json` preset, extracts channels or
+lists directories, and runs the same pipeline headlessly. On a GUI Run, the
+ImageJ `Recorder` hook emits a replayable `run("Analyse Movie", ...)`.
 
 ## Concurrency model
 
@@ -179,6 +192,14 @@ and extracts the selected cytosol/signal channels) → `runPipeline()`/
   `reqBool`/`reqInt`/`reqDouble`/`reqText` helpers. Old positional `params.csv`
   files are rejected (see `src/main/resources/params.example.md` for the
   CSV→JSON migration).
+- **Scripting / macro contract (Phase I):** `Analyse Movie` and `Batch Analysis`
+  accept a `run(String arg)` macro string of whitespace-separated `key=value`
+  tokens. Single movie: `params=` (required, a `params.json` preset path),
+  `cytosol=`/`signal=` (1-based channel indices, default 1 and 2), and `output=`
+  (output directory). Batch: `params=`, `cytodir=`, `sigdir=` (optional), and
+  `output=`. Paths with spaces are not supported in v1. A GUI Run records the same
+  command via the ImageJ `Recorder`, auto-saving a `params.json` beside the output
+  directory when no preset was loaded.
 - **Directory delimiter:** code uses `GenUtils.getDelimiter()` (in
   `Analyse_Movie`) rather than `File.separator` in some paths; `Analyse_Batch`
   also does `directory.getAbsolutePath() + delimiter + ".."` for the parent.
