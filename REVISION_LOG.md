@@ -61,8 +61,9 @@ Stage 1 adds the ImageJ-1.x macro path (Decision 6 — no SciJava rewrite):
   then emits the full command on Run.
 
 Version bumped to `4.0.31`. 28/28 tests green (`MacroArgumentsTest`,
-`ParameterPropertiesTest` added). The record-and-replay smoke test against the H5
-baseline is still pending (I1 step 7).
+`ParameterPropertiesTest` added). The record-and-replay smoke test passed: a GUI
+run was recorded and replayed as a two-line macro (`Test_Macro.ijm`) against
+`test_data/`, producing the expected output (I1 step 7).
 
 Lesson: a macro-callable path is most valuable when it reuses the existing
 parameter file (`params.json`) rather than re-listing every parameter inline —

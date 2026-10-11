@@ -33,6 +33,33 @@ spot contour, or a circle from the spot radius when no contour was saved), then
 runs the same velocity/curvature/signal and protrusion/bleb analysis. Protrusion
 detection and output layout are identical to **Analyse Movie**.
 
+## Scripting (macros)
+
+`Analyse Movie` and `Batch Analysis` are macro-callable and macro-recordable.
+Record an interactive run (**Plugins ▸ Macros ▸ Record…**) to capture a replayable
+`run(...)` command, or write one directly. A headless run loads its parameters
+from a `params.json` preset (saved from the dialog via **Save Preset**), so the
+macro only supplies the entry arguments:
+
+- **Analyse Movie** (the active hyperstack is the input):
+
+  ```text
+  run("Analyse Movie", "params=/path/params.json cytosol=2 signal=1 output=/path/out");
+  ```
+
+  `cytosol=` and `signal=` are the 1-based channel indices (defaulting to 1 and
+  2).
+
+- **Batch Analysis**:
+
+  ```text
+  run("Batch Analysis", "params=/path/params.json cytodir=/path/cyto sigdir=/path/sig output=/path/out");
+  ```
+
+  `sigdir=` is optional.
+
+Paths containing spaces are not supported in v1.
+
 ## Parameters
 
 ### Simple tab

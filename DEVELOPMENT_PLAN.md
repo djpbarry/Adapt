@@ -1026,12 +1026,13 @@ Inline `key=value` overrides are explicitly out of scope for v1.
    it headless against `test_data/`, and confirm the output is byte-identical to
    the H5 baseline — same preset + same active image ⇒ same results as the GUI
    run that produced the baseline.
-   — **unit tests done (2026-10-11): `MacroArgumentsTest` +
-   `ParameterPropertiesTest`; 28/28 green.** Macro smoke test pending (record a
-   GUI run, replay the macro, compare to baseline).
+   — **done (2026-10-11): `MacroArgumentsTest` + `ParameterPropertiesTest`
+   (28/28 green); a recorded GUI run was replayed as a two-line macro
+   (`Test_Macro.ijm`) against `test_data/` and produced the expected output.**
 8. **Docs.** Document the macro contract in the ReadTheDocs User Guide and
    `AGENTS.md` entry points.
-   — **`AGENTS.md` done (2026-10-11).** ReadTheDocs User Guide still pending.
+   — **done (2026-10-11): `AGENTS.md`, `README.md`, and the ReadTheDocs User
+   Guide (`docs/user_guide.md`) + Developer Guide (`docs/developer.md`).**
 
 ### I2. Stage 2 — SciJava `Command` wrappers (optional, only if H0 is revisited)
 
@@ -1098,10 +1099,9 @@ decision is made.
     `Analyse Movie`/`Batch` command and a headless smoke test. Optionally the
     SciJava `Command` wrappers (Phase I2) if the H0 decision is revisited.
     — **Stage 1 landed (2026-10-11): `MacroArguments`, `ParameterValidator`,
-    `ParameterProperties`, `runMacro()`/`runBatchMacro()` macro paths, and the
-    GUI `Recorder` hook are in. Version `4.0.31`; 28/28 tests green. Remaining:
-    the record-and-replay smoke test (I1 step 7) and the ReadTheDocs User Guide
-    note (I1 step 8).**
+    `ParameterProperties`, `runMacro()`/`runBatchMacro()` macro paths, the GUI
+    `Recorder` hook, the record-and-replay smoke test, and the docs are all in.
+    Version `4.0.31`; 28/28 tests green.**
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
 parallel. Package renaming (Q4) should be done early in M4 before it cascades

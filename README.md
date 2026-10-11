@@ -17,3 +17,15 @@ View the below tutorial on YouTube to get started with some [test data](https://
 [![YouTube ScreenShot](./docs/_static/YouTube.png)](https://youtu.be/TWD4mrTnXvk?feature=shared)
 
 For more detailed instructions on installation and usage, consult [the documentation](https://adapt.readthedocs.io/).
+
+## Scripting
+
+`Analyse Movie` and `Batch Analysis` are macro-callable and macro-recordable.
+Record an interactive run (`Plugins > Macros > Record…`) to capture a replayable
+`run(...)` command, or write one directly, e.g.:
+
+    run("Analyse Movie", "params=/path/to/params.json cytosol=2 signal=1 output=/path/to/out");
+
+`params=` points at a `params.json` preset (saved from the GUI via *Save
+Preset*), so parameters are tuned interactively and then reused in headless or
+batch scripts.

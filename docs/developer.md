@@ -32,13 +32,19 @@ Plugins>Adapt, "Analyse TrackMate File", net.calm.adapt.adapt.Analyse_TrackMate
 All classes implement `ij.plugin.PlugIn`. To add a command, add a line to
 `plugins.config` **and** implement `PlugIn`.
 
+`Analyse Movie` and `Batch Analysis` are macro-callable: their `run(String arg)`
+reads the macro options via `Macro.getOptions()` (a `PlugIn`'s `arg` is always
+empty unless the `plugins.config` entry carries a `("arg")` suffix) and runs
+headlessly when `params=` (and the channel/directory arguments) are supplied.
+
 ## Architecture
 
 Package `net.calm.adapt` has four sub-packages:
 
 - **`adapt/`** — core plugin logic and domain classes (`Analyse_Movie`,
   `Analyse_Batch`, `Bleb`, `CurveMapAnalyser`, `FluorescenceDistAnalyser`,
-  `StaticVariables`, …).
+  `StaticVariables`, `MacroArguments`, `ParameterValidator`,
+  `ParameterProperties`, …).
 - **`output/`** — result writing (`MultiThreadedOutputGenerator`,
   `RunnableOutputGenerator`, `CsvWriter`, `ParameterWriter`,
   `CellTableAccumulator`).
