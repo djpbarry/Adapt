@@ -936,6 +936,80 @@ not silently accepted.
 
 ---
 
+## Phase I — Scripting (ImageJ macro interoperability)
+
+ADAPT is currently GUI-only and cannot be driven without a human at the dialog.
+Exposing the pipeline to the **ImageJ macro language** (`ij.macro`) makes
+headless/batch automation possible (e.g. parameter sweeps, large
+`test_data/`-style batches, CI regression runs) and lets ADAPT compose with other
+macros — without leaving the ImageJ 1.x plugin model (Decision 6). This is an
+ergonomics/automation feature, independent of Phases D–F.
+
+### I0. Mental model
+
+The goal is *macro-callable* commands, not a new scripting API. ImageJ's macro
+runtime is the interface; the plugin still does the work. There are two
+complementary ImageJ mechanisms (see H0 for the framework decision):
+
+1. **Legacy macro-callable plugin (matches the current codebase).** Extend
+   `ij.plugin.PlugIn` from a class that implements one of the
+   `ij.plugin.filter.*`/`ij.plugin.*` extension interfaces, or call the pipeline
+   from a `PlugIn` whose `run(String arg)` parses a macro string. A macro reaches
+   it via `run("Analyse Movie", "<args>")`; `arg` arrives as a single string the
+   plugin parses itself. No SciJava dependency, no auto-generated dialog — the
+   caller supplies every parameter, which is exactly what a batch macro wants.
+2. **SciJava `Command` (the "proper" route).** Annotate the entry point with
+   `@Plugin(type = Command.class)` + `@Parameter`, which yields automatic
+   macro/script recording, parameter coercion, and headless support for free.
+   This is Phase H0's "noted as a future option, not planned" SciJava route — it
+   is the smaller-effort way to get scripting, but it requires a real SciJava
+   `Context` and is a larger architectural commitment than option 1.
+
+**Preferred route:** option 1 (thin macro-callable `PlugIn`/`PlugInFilter`
+wrappers over the existing `Analyse_Movie` core), consistent with Decision 6;
+record option 2 as the alternative if the SciJava migration is ever revisited.
+
+### I1. Stage 1 — macro-callable entry points (do first)
+
+1. **Define a stable macro argument contract.** A single semicolon-separated
+   `arg` string, e.g.
+   `"cytosol=1 signal=2 output=/path spatialRes=0.32 timeRes=60 …"`, mapping onto
+   the existing `UserVariables` fields (`GUI.setVariables()` already reads/validates
+   the same names via `StaticVariables`) plus the cytosol/signal channel indices
+   and output directory. Unknown/missing keys fall back to documented defaults;
+   reuse `Analyse_Batch.readParams()`'s JSON validation where it fits.
+2. **Add macro-callable commands.** e.g. `Plugins>Adapt>Analyse Movie (Macro)`
+   which skips the GUI when `arg` is non-empty and runs the active hyperstack,
+   honouring the same active-window conventions as the interactive path
+   (`isHyperStack()`, `Z=1`, `T>1`). Register a new line in `plugins.config`.
+3. **Batch/headless parity.** Ensure the macro path works under
+   `--headless` (no `IJ.showMessage`/dialog calls); the Batch command should be
+   macro-runnable over a directory the same way.
+4. **Testing.** Unit-test the `arg` parser (like `Analyse_BatchReadParamsTest`)
+   and add a headless Fiji smoke test that runs a macro against `test_data/`,
+   then compares outputs against the H5 baseline.
+
+### I2. Stage 2 — SciJava `Command` wrappers (optional, only if H0 is revisited)
+
+If the SciJava migration in H0 is ever taken up, re-expose the same entry points
+as `@Plugin(type = Command.class)` + `@Parameter` commands so macro recording,
+parameter coercion, and headless execution come for free. This supersedes the
+hand-rolled `arg` parsing in I1 but should not be started before the SciJava
+decision is made.
+
+### I3. Constraints
+
+1. **Framework** — stay ImageJ 1.x for Stage 1 (Decision 6); `ij.macro` needs no
+   new dependency (the macro runtime is part of ImageJ core, already on the
+   classpath).
+2. **Parity risk** — the macro and GUI paths must share one parameter-setting
+   code path (`GUI.setVariables()`-equivalent), or they will drift. Factor out a
+   shared, GUI-free parameter applier before adding the macro entry point.
+3. **Documentation** — document the macro argument contract in the ReadTheDocs
+   User Guide (Phase C) alongside the GUI parameter reference.
+
+---
+
 ## Suggested sequencing & milestones
 
 1. **M1 — Foundations (low risk, high value):** `.gitignore`, Maven wrapper, CI
@@ -974,13 +1048,19 @@ not silently accepted.
     into a local Fiji, launch it, and run the two plugins against test data
     (Phase H). Becomes a per-change gate once landed. — **Fiji wired + live smoke
     test done (2026-10-02); output baseline (H5) done (2026-10-06).**
+12. **M12 — Scripting:** Stage-1 macro-callable entry points (Phase I1) — a
+    GUI-free parameter applier shared with `GUI`, then a macro-callable
+    `Analyse Movie`/`Batch` command and a headless smoke test. Optionally the
+    SciJava `Command` wrappers (Phase I2) if the H0 decision is revisited.
 
 Each milestone is independently shippable and testable; M1–M3 can proceed in
 parallel. Package renaming (Q4) should be done early in M4 before it cascades
 into other work. M7's Stage-1 bridge is independent of the Java-target decision
 and can be tackled earlier if desired; Stage-2 depends on M4's model-agnostic
 refactor. M8's Stage-1 (external-mask import) is likewise Java-target
-independent. M9 is a self-contained exporter and can land at any point.
+independent. M9 is a self-contained exporter and can land at any point. M12's
+Stage-1 macro entry points are independent of Phases D–F and can land at any
+point; its Stage-2 SciJava wrappers depend on the H0 framework decision.
 
 **M10 (Phase G) is done.** The two upstream libraries are tagged
 (`IAClassLibrary v2.0.23`, `TrackerLibrary v4.0.8`) and re-pointed; the obsolete
