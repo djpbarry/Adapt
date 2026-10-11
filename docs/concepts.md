@@ -15,6 +15,13 @@ is tracked frame-to-frame by seed-following segmentation — there is no
 independent linking step. A cytoplasmic channel with a uniform cell against a
 relatively uniform background gives the best results.
 
+Alternatively, **Analyse TrackMate File** lets you import cell boundaries that
+were segmented and tracked externally in
+[TrackMate](https://imagej.net/plugins/trackmate/). ADAPT reads one cell per
+TrackMate track and one boundary per spot, then feeds those boundaries into the
+same downstream maps/protrusion/signal pipeline. This is useful when ADAPT's
+built-in segmentation is not suitable for a given dataset.
+
 ## Maps
 
 For each cell, ADAPT builds upsampled, boundary-length-normalised maps over time:
