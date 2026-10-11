@@ -142,6 +142,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         TITLE = TITLE + "_v" + version;
         IJ.log(TITLE);
         IJ.log(TimeAndDate.getCurrentTimeAndDate());
+        MacroArguments macroArgs = MacroArguments.parse(arg);
+        if (!macroArgs.isEmpty()) {
+            runMacro(macroArgs);
+            return;
+        }
         if (IJ.getInstance() != null && WindowManager.getIDList() == null) {
             IJ.error("No Images Open.");
             return;
@@ -158,6 +163,65 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
         }
         IJ.log(String.format("Using %d parallel processes.\n", Runtime.getRuntime().availableProcessors()));
         analyse(arg);
+    }
+
+    /**
+     * Runs the analysis headlessly from a macro. The {@code arg} string must
+     * contain {@code params=} (path to a params.json preset) and {@code output=}
+     * (output directory); {@code cytosol=} and {@code signal=} select the
+     * 1-based channels of the active hyperstack (defaulting to 1 and 2).
+     * Segmentation seeds are read from the active image's point ROI.
+     */
+    private void runMacro(MacroArguments args) {
+        if (!checkDependencies()) {
+            return;
+        }
+        String paramsPath = args.get("params");
+        if (paramsPath == null) {
+            IJ.error("Macro mode requires a 'params=' path to a params.json preset.");
+            return;
+        }
+        uv = new UserVariables();
+        if (!Analyse_Batch.readParams(uv, new File(paramsPath))) {
+            IJ.error("Failed to load parameters from " + paramsPath + ".");
+            return;
+        }
+        if (!ParameterValidator.validate(uv)) {
+            return;
+        }
+        String output = args.get("output");
+        if (output == null) {
+            IJ.error("Macro mode requires an 'output=' directory.");
+            return;
+        }
+        directory = new File(output);
+        ImagePlus cytoImp = WindowManager.getCurrentImage();
+        if (cytoImp == null) {
+            IJ.error("No active image.");
+            return;
+        }
+        if (!cytoImp.isHyperStack() || cytoImp.getNSlices() != 1 || cytoImp.getNFrames() < 2) {
+            IJ.error("The active image must be a hyperstack with a single z-slice and multiple frames (T > 1).");
+            return;
+        }
+        roi = (PointRoi) cytoImp.getRoi();
+        if (roi != null) {
+            selectiveOutput = true;
+        }
+        int cyto = args.getInt("cytosol", 1);
+        int sig = args.getInt("signal", Math.min(2, cytoImp.getNChannels()));
+        if (cyto < 1 || cyto > cytoImp.getNChannels() || sig < 1 || sig > cytoImp.getNChannels()) {
+            IJ.error("Channel index out of range (1-" + cytoImp.getNChannels() + ").");
+            return;
+        }
+        stacks[0] = extractChannel(cytoImp, cyto);
+        stacks[1] = extractChannel(cytoImp, sig);
+        props = ParameterProperties.fromUserVariables(uv);
+        cytoImp.setTitle(cytoImp.getTitle().replace(" ", "_"));
+        if (!createOutputDirectories(cytoImp, cytoImp.getShortTitle())) {
+            return;
+        }
+        finishAnalysis();
     }
 
     public boolean analyse(String imageName) {
