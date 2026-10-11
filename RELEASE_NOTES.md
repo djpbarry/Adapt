@@ -72,14 +72,11 @@ output has been restructured into a cleaner, more portable layout.
 ### Bug fixes
 
 - Fixed the preview hiding the source image windows during automatic seeding.
-
-### Known issues
-
-- **Curvature-extrema markers are missing from the preview** because
-  `CurveAnalyser.calcCurvature()` returns unsigned Menger curvature (`1/R`), so
-  no point ever registers as a negative-curvature minimum. This also degrades
-  bleb-anchor tracking, which relies on the curvature minima. Planned fix: make
-  the curvature **signed** (Menger magnitude with a cross-product sign) in
-  `IAClassLibrary` `v2.0.24`; ADAPT then bumps its pin. This changes the
-  `Min Curvature Threshold` unit from degrees to `1/pixels`. See
-  `DEVELOPMENT_PLAN.md` / `REVISION_LOG.md`.
+- **Signed curvature restored.** The upstream `CurveAnalyser.calcCurvature()`
+  returns unsigned Menger curvature (`1/R`), so no boundary point ever
+  registered as a negative-curvature minimum — which broke curvature-extrema
+  detection, the yellow preview markers, and bleb-anchor tracking. ADAPT now
+  computes curvature locally with a sign (`CurveMapAnalyser.calcSignedCurvature()`),
+  restoring the convex/concave distinction. Note that `Min Curvature Threshold`
+  now uses units of `1/pixels` rather than degrees, so non-zero thresholds in
+  existing `params.json` files should be reviewed.

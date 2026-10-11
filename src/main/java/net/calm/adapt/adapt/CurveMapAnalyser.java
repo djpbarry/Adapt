@@ -35,6 +35,7 @@ import net.calm.iaclasslibrary.UtilClasses.Utilities;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Class consisting of static methods for the analysis of cell curvature maps
@@ -174,6 +175,71 @@ public class CurveMapAnalyser {
 
     public static int calcScaledCurveRange(double curveRange, double scaleFactor) {
         return (int) Math.round(curveRange * scaleFactor * curveSearchRangeFactor);
+    }
+
+    /**
+     * Computes signed Menger curvature for an ordered, closed boundary.
+     *
+     * The upstream {@code CurveAnalyser.calcCurvature()} returns unsigned
+     * Menger curvature ({@code 1/R}), which loses the sign needed to
+     * distinguish convex from concave regions. This helper keeps the robust
+     * {@code 1/R} magnitude and restores the sign from the cross product of the
+     * two boundary segments, matching the original signed convention.
+     *
+     * @param pix ordered boundary points ({x, y} per row)
+     * @param step number of points on either side of each point used for the
+     * curvature window
+     * @return signed curvature per boundary point
+     */
+    public static double[] calcSignedCurvature(short[][] pix, int step) {
+        int n = pix.length;
+        double[] curvature = new double[n];
+        if (n < step) {
+            Arrays.fill(curvature, 0.0);
+            return curvature;
+        }
+        for (int j = 0; j < n; j++) {
+            int i = j - step;
+            int k = j + step;
+            if (i < 0) {
+                i += n;
+            }
+            if (k >= n) {
+                k -= n;
+            }
+            curvature[j] = signedMengerCurvature(
+                    pix[j][0], pix[j][1],
+                    pix[i][0], pix[i][1],
+                    pix[k][0], pix[k][1]);
+        }
+        return curvature;
+    }
+
+    /**
+     * Signed Menger curvature at a point from its previous and next neighbours.
+     *
+     * @param cx centre point x
+     * @param cy centre point y
+     * @param px previous point x
+     * @param py previous point y
+     * @param nx next point x
+     * @param ny next point y
+     * @return signed curvature (positive = left turn, negative = right turn,
+     * 0 = collinear)
+     */
+    static double signedMengerCurvature(double cx, double cy, double px, double py, double nx, double ny) {
+        double a = Math.hypot(cx - px, cy - py);
+        double b = Math.hypot(cx - nx, cy - ny);
+        double c = Math.hypot(px - nx, py - ny);
+        double s = (a + b + c) / 2.0;
+        double areaSq = s * (s - a) * (s - b) * (s - c);
+        if (areaSq <= 0.0) {
+            return 0.0;
+        }
+        double radius = (a * b * c) / (4.0 * Math.sqrt(areaSq));
+        double magnitude = 1.0 / radius;
+        double cross = (cx - px) * (ny - cy) - (cy - py) * (nx - cx);
+        return cross < 0.0 ? -magnitude : magnitude;
     }
 
     public static void drawAllExtrema(CellData cellData, double timeRes, double spatialRes, ImageStack cytoStack, int startFrame, int endFrame, double minDuration) {

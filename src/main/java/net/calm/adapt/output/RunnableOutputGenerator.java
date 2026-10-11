@@ -44,7 +44,6 @@ import ij.process.ImageStatistics;
 import ij.process.TypeConverter;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.Cell.MorphMap;
-import net.calm.iaclasslibrary.Curvature.CurveAnalyser;
 import net.calm.iaclasslibrary.Fluorescence.FluorescenceAnalyser;
 import net.calm.iaclasslibrary.IAClasses.CrossCorrelation;
 import net.calm.iaclasslibrary.IAClasses.DSPProcessor;
@@ -463,7 +462,7 @@ public class RunnableOutputGenerator extends RunnableProcess {
              */
             double upX[] = DSPProcessor.upScale(x, height, false);
             double upY[] = DSPProcessor.upScale(y, height, false);
-            curveMap.addColumn(upX, upY, DSPProcessor.upScale(CurveAnalyser.calcCurvature(vmPoints,
+            curveMap.addColumn(upX, upY, DSPProcessor.upScale(CurveMapAnalyser.calcSignedCurvature(vmPoints,
                     uv.getCurveRange()), height, false), index);
             cellData.getScaleFactors()[index] = ((double) height) / vmPoints.length;
         }

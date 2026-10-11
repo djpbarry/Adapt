@@ -36,7 +36,6 @@ import net.calm.adapt.ui.GUI;
 import net.calm.adapt.ui.ProgressMonitor;
 import net.calm.iaclasslibrary.Cell.CellData;
 import net.calm.iaclasslibrary.Cell.MorphMap;
-import net.calm.iaclasslibrary.Curvature.CurveAnalyser;
 import net.calm.iaclasslibrary.DateAndTime.Time;
 import net.calm.iaclasslibrary.IAClasses.*;
 import net.calm.adapt.output.CsvWriter;
@@ -760,7 +759,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
              */
             double upX[] = DSPProcessor.upScale(x, height, false);
             double upY[] = DSPProcessor.upScale(y, height, false);
-            curveMap.addColumn(upX, upY, DSPProcessor.upScale(CurveAnalyser.calcCurvature(vmPoints,
+            curveMap.addColumn(upX, upY, DSPProcessor.upScale(CurveMapAnalyser.calcSignedCurvature(vmPoints,
                     uv.getCurveRange()), height, false), index);
             cellData.getScaleFactors()[index] = ((double) height) / vmPoints.length;
         }

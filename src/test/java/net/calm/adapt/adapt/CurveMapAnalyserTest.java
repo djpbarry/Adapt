@@ -18,6 +18,7 @@ package net.calm.adapt.adapt;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 public class CurveMapAnalyserTest {
@@ -53,5 +54,39 @@ public class CurveMapAnalyserTest {
     void isLocalCurvatureExtremeDetectsLocalMaximum() {
         double[] curve = {0.0, 1.0, 0.0};
         assertEquals(0, CurveMapAnalyser.isLocalCurvatureExtreme(1, 1, curve, 0.5, false));
+    }
+
+    @Test
+    void signedMengerCurvatureIsPositiveForLeftTurn() {
+        assertTrue(CurveMapAnalyser.signedMengerCurvature(1, 0, 0, 0, 1, 1) > 0.0);
+    }
+
+    @Test
+    void signedMengerCurvatureIsNegativeForRightTurn() {
+        assertTrue(CurveMapAnalyser.signedMengerCurvature(1, 1, 0, 1, 1, 0) < 0.0);
+    }
+
+    @Test
+    void signedMengerCurvatureIsZeroForCollinearPoints() {
+        assertEquals(0.0, CurveMapAnalyser.signedMengerCurvature(1, 0, 0, 0, 2, 0), 1e-9);
+    }
+
+    @Test
+    void calcSignedCurvatureMatchesCircleRadiusAndSign() {
+        int n = 12;
+        double radius = 100.0;
+        short[][] circle = new short[n][2];
+        for (int i = 0; i < n; i++) {
+            double theta = 2.0 * Math.PI * i / n;
+            circle[i][0] = (short) Math.round(radius * Math.cos(theta));
+            circle[i][1] = (short) Math.round(radius * Math.sin(theta));
+        }
+        double[] curvature = CurveMapAnalyser.calcSignedCurvature(circle, 1);
+        double expected = 1.0 / radius;
+        boolean positive = curvature[0] > 0.0;
+        for (int i = 0; i < n; i++) {
+            assertTrue((curvature[i] > 0.0) == positive);
+            assertEquals(expected, Math.abs(curvature[i]), expected * 0.2);
+        }
     }
 }

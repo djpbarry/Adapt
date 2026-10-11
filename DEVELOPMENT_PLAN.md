@@ -181,17 +181,20 @@ convex (protrusion) from concave (bleb neck). The extrema detector and
 `BlebAnalyser.updateAnchorPoint()` (both read `getCurvatureMinima()`) therefore
 degrade silently — not just the preview markers.
 
-**Decision:** fix in `IAClassLibrary`, not ADAPT. Restore a **signed** Menger
-curvature — keep `1/R` and multiply by the sign of the cross product of the two
-boundary segments (`(j−i) × (k−j)`), which matches the original `theta1 - theta2`
-sign convention exactly. Do **not** revert to the angle-based formula.
+**Decision (revised 2026-10-11):** fix locally in ADAPT, not in `IAClassLibrary` —
+the library's curvature routines may be consumed by other projects, so changing
+them there would alter those consumers' outputs too. Added
+`CurveMapAnalyser.calcSignedCurvature()` / `signedMengerCurvature()`, which keep
+`1/R` and multiply by the sign of the cross product of the two boundary segments
+(`(j−i) × (k−j)`), matching the original `theta1 - theta2` sign convention
+exactly. The two `CurveAnalyser.calcCurvature(...)` call sites now use the local
+helper. Do **not** revert to the angle-based formula.
 
 Consequence to flag: the `Min Curvature Threshold` unit changes from degrees to
 `1/pixels`. The default `0.0` ("any concavity") is unaffected, but any non-zero
 `minCurveThresh` in existing `params.json` files must be re-interpreted (the
-`params.example.json` value of `2.0` needs updating). Ships as `IAClassLibrary`
-`v2.0.24` (combined with the G7 `getSeedPoints` threshold fix); ADAPT then bumps
-its pin and regenerates the H5 baseline.
+`params.example.json` value of `2.0` needs updating). The H5 baseline must be
+regenerated after this change.
 
 ### Known issue — 8-bit cyto conversion is load-bearing (needs revising)
 
