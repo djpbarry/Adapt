@@ -27,6 +27,37 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-11 — Signed Menger curvature restored locally; baseline regenerated
+
+The upstream `CurveAnalyser.calcCurvature()` regression (unsigned `1/R` Menger
+curvature replacing the original signed turning-angle) had silently broken
+curvature-minima detection: no boundary point ever registered as negative, so the
+curvature-extrema markers and bleb-anchor tracking degraded. Rather than change
+`IAClassLibrary` (shared with other consumers), ADAPT now computes curvature
+locally with a sign: `CurveMapAnalyser.calcSignedCurvature()` /
+`signedMengerCurvature()` keep the `1/R` magnitude and multiply by the sign of
+the cross product of the two boundary segments, matching the original sign
+convention. Both `calcCurvature(...)` call sites (`Analyse_Movie`,
+`RunnableOutputGenerator`) now use the local helper. Version bumped to `4.0.30`.
+
+- **Consequence — `Min Curvature Threshold` unit change (degrees → `1/pixels`).**
+  The default `0.0` ("any concavity") is unaffected; the `params.example.json`
+  value of `2.0` was updated to `0.0`.
+- **Output baseline regenerated.** The signed curvature only changed the bleb
+  outputs (`tables/blebs.csv`, `images/cell_000/BlebsVersusTime.csv`) — 13 of 15
+  baseline files stayed byte-identical — confirming the fix is isolated to bleb
+  detection. `test_data/baselines/blebbing_cell.sha256` was recomputed and
+  re-verified (`BASELINE_PASS`).
+- **TrackMate smoke test done.** The "Analyse TrackMate File" command was run
+  against `migrating_cell.ome.xml`; raw vs imported trajectories differ as
+  expected, closing the previously-manual H2 gate for that command.
+
+Lesson: a change that reinterprets an existing numeric parameter must update the
+shipped example and the output baseline in the same pass, or the next run fails a
+baseline check for reasons unrelated to the change.
+
+---
+
 ## 2026-10-10 — TrackMate import runtime fixes (D1a step 6 follow-up)
 
 Running "Analyse TrackMate File" against the migrating-cell fixture exposed

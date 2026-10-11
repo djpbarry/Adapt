@@ -193,8 +193,8 @@ helper. Do **not** revert to the angle-based formula.
 Consequence to flag: the `Min Curvature Threshold` unit changes from degrees to
 `1/pixels`. The default `0.0` ("any concavity") is unaffected, but any non-zero
 `minCurveThresh` in existing `params.json` files must be re-interpreted (the
-`params.example.json` value of `2.0` needs updating). The H5 baseline must be
-regenerated after this change.
+`params.example.json` value of `2.0` was updated to `0.0`, 2026-10-11). The H5
+baseline was regenerated (2026-10-11).
 
 ### Known issue — 8-bit cyto conversion is load-bearing (needs revising)
 
@@ -617,7 +617,8 @@ supplies cell identity and boundaries.
    — **done (2026-10-10): `TrackMateImporterTest` imports the real
    `test_data/migrating_cell/migrating_cell.ome.xml` fixture and asserts the
    single 121-frame track maps to a 121-frame `CellData` with full-size masks
-   (16/16 tests green). Fiji smoke test of the new command remains manual.**
+   (16/16 tests green). Fiji smoke test of the new command done (2026-10-11):
+   ran against `migrating_cell.ome.xml`, output verified.**
 
 **Decision to resolve:** add TrackMate as a compile dependency? Using
 `TmXmlReader` is far simpler and TrackMate is already transitive, but it ties the

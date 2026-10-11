@@ -14,7 +14,7 @@
   "analyseProtrusions": true,
   "blebDetect": false,
   "curveRange": 5,
-  "minCurveThresh": 2.0,
+  "minCurveThresh": 0.0,
   "blebLenThresh": 1.0,
   "blebDurThresh": 10.0,
   "cutOffTime": 20.0,

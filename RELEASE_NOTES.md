@@ -79,4 +79,5 @@ output has been restructured into a cleaner, more portable layout.
   computes curvature locally with a sign (`CurveMapAnalyser.calcSignedCurvature()`),
   restoring the convex/concave distinction. Note that `Min Curvature Threshold`
   now uses units of `1/pixels` rather than degrees, so non-zero thresholds in
-  existing `params.json` files should be reviewed.
+  existing `params.json` files should be reviewed; the bundled
+  `params.example.json` now uses the default `0.0` ("any concavity").
