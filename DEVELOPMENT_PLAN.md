@@ -620,11 +620,11 @@ supplies cell identity and boundaries.
    (16/16 tests green). Fiji smoke test of the new command done (2026-10-11):
    ran against `migrating_cell.ome.xml`, output verified.**
 
-**Decision to resolve:** add TrackMate as a compile dependency? Using
-`TmXmlReader` is far simpler and TrackMate is already transitive, but it ties the
-XML bridge to a specific TrackMate version. Manual JDOM2 parsing keeps the bridge
-version-agnostic at the cost of re-implementing `SpotRoi` decoding. Lean toward
-`TmXmlReader` for v1 (pragmatic), revisit if the version web bites.
+**Decision (resolved 2026-10-11): Option A — use `TmXmlReader`/`Spot`/`SpotRoi`**
+(add `sc.fiji:TrackMate` as a compile dependency). `TrackMateImporter` already
+does this, and TrackMate is already on the runtime classpath transitively via
+`IAClassLibrary`, so there is no new jar to ship. Revisit only if the version web
+bites (i.e. if a future TrackMate XML schema change breaks the reader).
 
 ### D2. Stage 2 — ADAPT as a TrackMate module (long-term, high effort)
 
@@ -958,7 +958,8 @@ complementary ImageJ mechanisms (see H0 for the framework decision):
    from a `PlugIn` whose `run(String arg)` parses a macro string. A macro reaches
    it via `run("Analyse Movie", "<args>")`; `arg` arrives as a single string the
    plugin parses itself. No SciJava dependency, no auto-generated dialog — the
-   caller supplies every parameter, which is exactly what a batch macro wants.
+   caller supplies the entry points (channels, directories) plus a path to a
+   `params.json` preset, which is exactly what a batch macro wants.
 2. **SciJava `Command` (the "proper" route).** Annotate the entry point with
    `@Plugin(type = Command.class)` + `@Parameter`, which yields automatic
    macro/script recording, parameter coercion, and headless support for free.
@@ -970,25 +971,52 @@ complementary ImageJ mechanisms (see H0 for the framework decision):
 wrappers over the existing `Analyse_Movie` core), consistent with Decision 6;
 record option 2 as the alternative if the SciJava migration is ever revisited.
 
-### I1. Stage 1 — macro-callable entry points (do first)
+### I1. Stage 1 — macro-callable + recordable entry points (do first)
 
-1. **Define a stable macro argument contract.** A single semicolon-separated
-   `arg` string, e.g.
-   `"cytosol=1 signal=2 output=/path spatialRes=0.32 timeRes=60 …"`, mapping onto
-   the existing `UserVariables` fields (`GUI.setVariables()` already reads/validates
-   the same names via `StaticVariables`) plus the cytosol/signal channel indices
-   and output directory. Unknown/missing keys fall back to documented defaults;
-   reuse `Analyse_Batch.readParams()`'s JSON validation where it fits.
-2. **Add macro-callable commands.** e.g. `Plugins>Adapt>Analyse Movie (Macro)`
-   which skips the GUI when `arg` is non-empty and runs the active hyperstack,
-   honouring the same active-window conventions as the interactive path
-   (`isHyperStack()`, `Z=1`, `T>1`). Register a new line in `plugins.config`.
-3. **Batch/headless parity.** Ensure the macro path works under
-   `--headless` (no `IJ.showMessage`/dialog calls); the Batch command should be
-   macro-runnable over a directory the same way.
-4. **Testing.** Unit-test the `arg` parser (like `Analyse_BatchReadParamsTest`)
-   and add a headless Fiji smoke test that runs a macro against `test_data/`,
-   then compares outputs against the H5 baseline.
+**Parameter contract (resolved 2026-10-11):** headless runs load parameters from
+a `params.json` preset rather than listing 29 `key=value` pairs inline. Users
+tune parameters in the GUI (Save Preset), then point the macro at that file. The
+macro string therefore carries only the few *entry* arguments that are **not** in
+`UserVariables`:
+
+- `Analyse Movie`: `run("Analyse Movie", "params=/path/params.json cytosol=1 signal=2 output=/path/out")`
+- `Batch Analysis`: `run("Batch Analysis", "params=/path/params.json cytodir=/path/cyto sigdir=/path/sig output=/path/out")`
+
+`params=` is required and reuses `Analyse_Batch.readParams()` (versioned, typed).
+Inline `key=value` overrides are explicitly out of scope for v1.
+
+1. **Extract a shared, GUI-free parameter applier.** (a) Move
+   `GUI.validateRanges()` into a reusable static (e.g.
+   `ParameterValidator.validate(UserVariables)`) so the macro path validates a
+   loaded preset identically to the GUI. (b) Add a headless
+   `UserVariables → label-keyed Properties` builder so
+   `ParameterWriter.saveParameters` writes the same `parameters.json` without a
+   Swing component tree (today the GUI builds `props` via `PropertyExtractor`).
+   — *Gate: unit tests + existing 20 tests green.*
+2. **Add a small entry-arg parser.** Parse `params`, `cytosol`, `signal`,
+   `output` (and `cytodir`/`sigdir` for batch) from the `run(String arg)` string.
+   No new dependency (plain token split).
+3. **Make `Analyse_Movie.run(arg)` macro-aware.** Non-empty `arg` → macro mode:
+   skip `Utilities.getFolder` and the GUI; read the active hyperstack; extract the
+   cytosol/signal channels via `extractChannel(...)`; `readParams` the preset;
+   validate; run `finishAnalysis()`. Headless-safe: `IJ.log` only, no dialogs.
+   — *Gate: headless Fiji run against `test_data/`; output matches H5 baseline.*
+4. **Make the GUI recordable.** On Run, emit
+   `Recorder.record("run", "Analyse Movie", "params=... cytosol=... signal=... output=...")`
+   with the real values. If no preset was loaded, auto-save the current params to
+   a `params.json` (e.g. beside the output) and record `params=<that path>` so the
+   recorded macro is self-contained.
+   — *Gate: record a run and confirm the emitted macro replays.*
+5. **Batch macro path.** `Analyse_Batch.run(arg)` already has a `showGUI=false`
+   path; add `arg` parsing for `cytodir`/`sigdir`/`output`/`params` and call
+   `runBatch()` directly.
+6. **Registration.** Reuse the existing command names as arg-aware commands (no
+   `(Macro)` variants), to avoid menu clutter.
+7. **Testing.** Unit-test the entry-arg parser and the label-keyed `Properties`
+   builder; add a headless Fiji macro smoke test that compares against the H5
+   baseline.
+8. **Docs.** Document the macro contract in the ReadTheDocs User Guide and
+   `AGENTS.md` entry points.
 
 ### I2. Stage 2 — SciJava `Command` wrappers (optional, only if H0 is revisited)
 
@@ -1003,9 +1031,10 @@ decision is made.
 1. **Framework** — stay ImageJ 1.x for Stage 1 (Decision 6); `ij.macro` needs no
    new dependency (the macro runtime is part of ImageJ core, already on the
    classpath).
-2. **Parity risk** — the macro and GUI paths must share one parameter-setting
-   code path (`GUI.setVariables()`-equivalent), or they will drift. Factor out a
-   shared, GUI-free parameter applier before adding the macro entry point.
+2. **Parity risk** — parameters live in `params.json` (shared loader), but the
+   GUI and macro paths must still share the validator (`GUI.validateRanges()`
+   equivalent) and the label-keyed `Properties` builder for `parameters.json`, or
+   they will drift. Factor those out before adding the macro entry point.
 3. **Documentation** — document the macro argument contract in the ReadTheDocs
    User Guide (Phase C) alongside the GUI parameter reference.
 
