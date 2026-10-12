@@ -74,6 +74,11 @@ output has been restructured into a cleaner, more portable layout.
   A GUI Run records the same command via the ImageJ macro recorder (auto-saving a
   `params.json` beside the output when no preset was loaded), so an interactive
   session can be replayed as a macro.
+- **inTRACKtive export** — every run now also writes a `tracks.csv` at the output
+  root in the Ultrack CSV format (`track_id, t, z, y, x, parent_track_id`) that
+  [inTRACKtive](https://github.com/royerlab/inTRACKtive) consumes. Run
+  `intracktive convert`/`open` on that file to explore and share the ADAPT cell
+  tracks in the browser.
 - **Concurrency model documented** (no behaviour change).
 
 ### Bug fixes

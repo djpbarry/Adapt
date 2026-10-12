@@ -41,6 +41,7 @@ import net.calm.iaclasslibrary.DateAndTime.Time;
 import net.calm.iaclasslibrary.IAClasses.*;
 import net.calm.adapt.output.CsvWriter;
 import net.calm.adapt.output.ParameterWriter;
+import net.calm.adapt.output.UltrackCsvWriter;
 import net.calm.iaclasslibrary.Segmentation.RegionGrower;
 import net.calm.iaclasslibrary.TimeAndDate.TimeAndDate;
 import net.calm.iaclasslibrary.Trajectory.TrajectoryAnalysis;
@@ -94,6 +95,7 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
     protected Properties props;
     protected LocalDateTime startTime;
     private final String TRAJ_FILE_NAME = "trajectories.csv";
+    private final String TRACKS_FILE_NAME = "tracks.csv";
     private static final String[][] REQUIRED_DEPENDENCIES = {
             {"inra.ijpb.binary.conncomp.FloodFillComponentsLabeling", "MorphoLibJ (IJPB-plugins update site)"}
     };
@@ -370,6 +372,11 @@ public class Analyse_Movie extends NotificationThread implements PlugIn {
             generateCellTrajectories(cellData);
         } catch (Exception e) {
             GenUtils.logError(e, "Error: Failed to create cell trajectories file.");
+        }
+        try {
+            UltrackCsvWriter.saveTracks(cellData, minLength, new File(popDir, TRACKS_FILE_NAME));
+        } catch (Exception e) {
+            GenUtils.logError(e, "Error: Failed to create inTRACKtive tracks file.");
         }
         return true;
     }

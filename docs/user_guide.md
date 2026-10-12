@@ -114,6 +114,7 @@ Each run writes a `<name>_Output/` directory:
 ├── README.md              # schema + file manifest
 ├── tables/                # tidy long-format CSVs (UTF-8, snake_case)
 │   ├── trajectories.csv
+│   ├── tracks.csv          # Ultrack-format export for inTRACKtive
 │   ├── morphology.csv
 │   ├── velocity.csv
 │   ├── boundary.csv

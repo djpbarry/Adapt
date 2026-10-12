@@ -27,6 +27,34 @@ dated narrative plus the "what not to do again" notes.
 
 ---
 
+## 2026-10-12 — inTRACKtive track export (Phase F1 / M9 Stage 1)
+
+Added a data-only exporter so ADAPT's cell trajectories can be opened in
+[inTRACKtive](https://github.com/royerlab/inTRACKtive) (the `cellpose →
+TrackMate → ADAPT → inTRACKtive` chain's last hop):
+
+- **`UltrackCsvWriter`** (in `output/`) writes `tracks.csv` at the output root in
+  the Ultrack CSV shape (`track_id, t, z, y, x, parent_track_id`) that
+  inTRACKtive consumes. One row per cell per frame; coordinates are the raw
+  pixel centroids (Ultrack's voxel space), `z` is `0` (2D), and `parent_track_id`
+  is `-1` (ADAPT tracks are independent and non-dividing, so there is no lineage
+  forest).
+- **Wired into `Analyse_Movie.runPipeline()`** right after
+  `generateCellTrajectories()`, so both `Analyse Movie` and `Batch Analysis` (and
+  the macro paths) emit it automatically.
+- **Verified the format against the Ultrack sources** (not assumed):
+  `TRACKS_HEADER = ("track_id", "t", "z", "y", "x")` with `z` optional, and
+  `NO_PARENT = -1` (`ultrack/utils/constants.py`).
+- **3 unit tests** (`UltrackCsvWriterTest`) cover the column mapping, pixel-unit
+  per-frame rows, and `minLength` filtering. 31/31 green.
+
+Version bumped to `4.0.32`.
+
+Lesson: for an export feature, read the *consumer's* reader code before choosing
+column names, ordering, coordinate space, and the "no parent" sentinel — Ultrack
+accepts `z` as optional and uses `-1` for root tracks, and treating those as
+guesses would have produced a file that silently misaligns in the browser.
+
 ## 2026-10-11 — Macro-callable + recordable entry points (Phase I1, Stage 1)
 
 ADAPT was GUI-only; there was no way to drive the pipeline from an ImageJ macro.

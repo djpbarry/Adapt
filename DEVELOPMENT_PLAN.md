@@ -744,6 +744,13 @@ Add an exporter that writes ADAPT's cell trajectories (the centroids produced by
 `intracktive convert`/`open` to view and share their ADAPT results in the
 browser.
 
+— **done (2026-10-12): `UltrackCsvWriter` (in `output/`) writes `tracks.csv`
+alongside `trajectories.csv`. Columns are `track_id, t, z, y, x,
+parent_track_id`; coordinates are the raw pixel centroids (Ultrack's voxel
+space), `z` is `0` (2D), and `parent_track_id` is `-1` (ADAPT tracks are
+independent, non-dividing). Wired into `Analyse_Movie.runPipeline()` (single +
+batch). 3 unit tests (`UltrackCsvWriterTest`), 31/31 green.**
+
 ### F2. Stage 2 (optional) — GEFF export
 
 Emit GEFF (General Exchange Format) as an alternative for tools that prefer it
@@ -1086,7 +1093,8 @@ decision is made.
    cellpose → TrackMate → ADAPT route (Phase E2) rides on M7; in-UI cellpose
    (Phase E3) only after the Java-target question is revisited.
 9. **M9 — Track export:** Stage-1 Ultrack-CSV export for inTRACKtive (Phase F1);
-   GEFF (Phase F2) only if needed.
+   GEFF (Phase F2) only if needed. — **Stage 1 done (2026-10-12):
+   `UltrackCsvWriter` writes `tracks.csv` in Ultrack format; see F1 above.**
 10. **M10 — Upstream dependency hygiene (do first):** license fixes, tagging,
     TrackMate-version web, cross-pin repointing, then ADAPT pin-to-tags
     (Phase G). Blocks A2 / Decision 2. — **done (2026-09-27).**
